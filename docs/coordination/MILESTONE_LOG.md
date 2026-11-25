@@ -234,3 +234,21 @@ verification: ["Fresh isolated npm ci --dry-run --ignore-scripts failed EUSAGE, 
 known_limitations: ["This affects clean installs from the current checkpoint. Existing compiled workspaces and deployed contracts passed."]
 next_dependency: "Claude: git apply .research/keeper-workspace-lock.patch (or npm install --package-lock-only --ignore-scripts), then checkpoint your root lockfile. Patch contains only the two missing workspace entries."
 ```
+
+```yaml
+milestone: M3-workspace-install
+from: astra
+status: implemented
+commit: 586c400267c29b035f3b23b53603100f0405941b
+chain_id: 31337
+abi_version: v1
+manifest: packages/chain-config/deployments/31337.json
+contracts: ["Existing local deployment"]
+new_functions: []
+changed_events_errors: []
+units_and_permissions: "Claude committed the two missing root lockfile entries."
+frontend_actions: ["Normal root workspace install available."]
+verification: ["Fresh isolated npm ci --dry-run against all four workspace manifests passed; actual clean npm ci of SDK, chain-config and keeper followed by npm run build --workspace @peridot/keeper passed."]
+known_limitations: ["Public testnet still awaits gas; frontend wallet integration remains with Fable."]
+next_dependency: "Founder faucet and organizer response; Fable wallet verification."
+```

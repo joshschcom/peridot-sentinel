@@ -11,6 +11,8 @@
 | `cc9445a79877c406fc9f107b9fcfb440c6db91f6` | Sentinel account/factory, keeper, locally seeded position, ABI exports, real processor fork fabrication, v1.1 interface supplement, design documents and independent review. This is the verified contract build. |
 | `7ded29d85ebdcb4ef761b11009087b7e1a471d17` | Full sponsor-fork settlement and two mined rejection receipts, source attestation, fork replay instructions, public chain re-verification, local keeper receipt/concurrency evidence and updated matrix. |
 
+Claude committed the first session report at `9c7f7ea` and refreshed the root workspace lockfile at `586c400267c29b035f3b23b53603100f0405941b`.
+
 Claude made the local Git checkpoints. The Codex sandbox denied creation of .git/index.lock. The checkpoint bodies group the contributing roles under Claude's attribution format. The prior Peridot baseline remains at tag pre-xlayer-hackathon (`fae7cda`). Schema is `peridot.policy/v1`, manifest ABI is `v1` and the documentation revision is `v1.1`. [Interfaces](INTERFACES.md) · [Milestone notices](MILESTONE_LOG.md)
 
 ## TapeOut evidence
@@ -38,6 +40,7 @@ Commands run from repository root unless they include a directory change. The fo
 | Command | Result |
 |---|---|
 | `cd contracts && forge build --sizes && forge test --summary` | Build passed with solc 0.8.26, via IR, Forge 1.7.1. 15 passed, 0 failed, 0 skipped (6 market, 4 policy, 5 Sentinel). Warnings include inherited NatSpec, intentional time checks and narrowing/payload casts. |
+| `npm ci --workspace @peridot/keeper --workspace @peridot/chain-config --workspace @peridot/circuit-sdk && npm run build --workspace @peridot/keeper` | Fresh isolated install and build passed at 586c400. A root install dry run also passed against all four current workspace manifests. |
 | `npm --prefix packages/circuit-sdk test` | Built and passed 9 tests, 0 failed, 0 skipped. Includes six actual public processor responses and policy boundary/encoding tests. A4 separately checked 262 upstream stateless rows and 12 fixture vectors against the TAP reference. |
 | `npm --prefix packages/chain-config run generate && npm --prefix packages/chain-config run build && npm --prefix services/keeper run build` | Passed. A6 compared all ten ABI exports against Foundry (311 entries). |
 | `python3 -u evidence/a1/verify-public.py` | 451 of 451 processor entries/receipts and six public eval vectors verified. |
@@ -54,6 +57,6 @@ Commands run from repository root unless they include a directory change. The fo
 
 1. **Organizer and founder.** Request an official chain 1952 deployment/component faucet or a reproducible, licensed source build. Ask whether a testnet lending demo plus public reads and fork-only Peridot circuit IDs qualifies. Sponsor eligibility is unresolved. The founder can use the unsent draft in TAPEOUT_INTEGRATION.md. Any future proposal for public circuit fabrication is a separate decision outside this authorization.
 2. **Testnet deployment.** Fund the designated public testnet address using the official faucet. Then deploy using the chain-checked script, record receipts, publish the verified 1952 manifest and notify Fable. Use the named Peridot development reference processor unless an authorized, verified sponsor path becomes available.
-3. **Frontend integration.** Fable can consume the ten exported ABIs and the attested local manifest. Wallet signing, frontend receipts and Fable's acceptance remain separate deliverables. Claude owns the root npm lockfile refresh for the keeper workspace.
+3. **Frontend integration.** Fable can consume the ten exported ABIs and the attested local manifest. Wallet signing, frontend receipts and Fable's acceptance remain separate deliverables. The root lockfile includes the keeper workspace, and its clean install has been verified.
 4. **Implementation choices.** Each market has one fixed approved pair and independent baseline pToken accounting under a new controller implementing the Peridot controller interface. P1 margin and other historical modules are excluded from the active build. The exact-underlying redeem rounds share burn up and zero-share mints revert. The development registrar attests compiler-spec correspondence. A processor proxy codehash alone cannot pin upgrade authority.
 5. **Release.** The test deployment excludes mainnet at construction and script entry. There is no funded production deployment path. A release requires production governance, assets, reliable oracles, liquidation capacity, broader verification and founder approval. An ambiguous keeper broadcast retains a reservation until its hash/nonce are reconciled. [Security model](../SECURITY_MODEL.md) · [Risk model](../RISK_MODEL.md)
