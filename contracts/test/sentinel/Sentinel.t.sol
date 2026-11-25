@@ -204,6 +204,31 @@ contract SentinelTest {
         require(debt.balanceOf(OPERATOR) == 0 && debt.balanceOf(address(account)) == 7e6);
     }
 
+    function testRejectedMarketBorrowPreservesOperatorGrant() external {
+        account.borrow(50e6);
+        bytes32 tightMarket = _register(0, TightMarketFixture.PROGRAM, TightMarketFixture.CONFIG_HASH);
+        controller.setPolicy(tightMarket);
+        uint64 expiry = uint64(block.timestamp + 1 days);
+        account.setOperator(OPERATOR, 4, 5e6, expiry);
+
+        // The account policy permits 5,500 bps. The market denies above 5,000 bps.
+        vm.prank(OPERATOR);
+        vm.expectRevert(
+            abi.encodeWithSelector(TapeOutPolicyAdapter.MarketPolicyRejected.selector, tightMarket, uint8(1))
+        );
+        account.borrow(5e6);
+        (uint16 mask, uint256 remaining, uint64 expiresAt) = account.operators(OPERATOR);
+        require(mask == 4 && remaining == 5e6 && expiresAt == expiry);
+        require(debtMarket.borrowBalanceStored(address(account)) == 50e6);
+        require(debt.balanceOf(address(account)) == 50e6 && debt.balanceOf(OPERATOR) == 0);
+
+        controller.setPolicy(marketPolicy);
+        vm.prank(OPERATOR);
+        account.borrow(5e6);
+        (, remaining,) = account.operators(OPERATOR);
+        require(remaining == 0 && debtMarket.borrowBalanceStored(address(account)) == 55e6);
+    }
+
     function testAccountFactoryAndWithdrawalScope() external {
         require(accounts.accountOf(address(this), address(controller)) == address(account));
         vm.expectRevert(abi.encodeWithSelector(SentinelAccountFactory.AccountAlreadyExists.selector, address(account)));

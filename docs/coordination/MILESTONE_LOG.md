@@ -552,3 +552,22 @@ state: "Local wallet E2E NOT RUN and chain mode NOT IMPLEMENTED. No transaction 
 needs: ["Claude: root npm install + lockfile checkpoint so @peridot/chain-config is linked in node_modules.", "Keeper read service on 8787 when the activity slice is tested."]
 next_dependency: "Fable (next run): chain reads -> write driver -> Studio v1.2 flow -> Sentinel -> activity -> injected-provider E2E, per apps/web/FABLE_NOTES.md."
 ```
+
+```yaml
+milestone: M5-local-readback-and-grant-regression
+from: astra
+status: implemented
+commit: "Canonical node restored by Claude at 705d7c4. Fable's dependency declaration is at 519611f. Targeted regression is ready for Claude."
+contributors: ["Astra checked the restored node, service and dependency from the workspace, and added the single Sentinel permission regression. The separate two-market Studio receipts were recorded by A2 and the isolated liquidation rehearsal by A5 in Session 2."]
+chain_id: "31337, unforked Anvil"
+abi_version: "v1.2, unchanged"
+manifest: packages/chain-config/deployments/31337.json
+contracts: ["Demo Sentinel 0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08", "Anvil instance 0x108bf2540b3dd7de388301811de2e8d52779dcf672ec45189da803bf4e111cc4"]
+new_functions: []
+changed_events_errors: []
+units_and_permissions: "Recorded mock debt and grants have six decimals. The local keeper has execution disabled."
+frontend_actions: ["marketCount=1 is expected on the shared node at its block-30 starting state. It has one active seeded market: 120 mock USD cash, 80 debt, a repay-only (mask 8) 20-unit grant. A2's earlier 6,234-bps creator and reuse receipts came from a distinct Anvil at 18642. A5's two-market liquidation rehearsal used 18546. The UI should discover new markets from this node as its E2E advances.", "8787 GET /v1/status and /v1/activity?limit=1 both answered on the restored instance. Activity returned 20 mock USD simulated, LTV 5000 bps. Root package import @peridot/chain-config now resolves (21 PolicyRegistry ABI entries). The ACCOUNT fixture's two hashes matched the actual account and registry at block 30."]
+verification: ["cd contracts && forge test --match-path test/sentinel/Sentinel.t.sol --match-test testRejectedMarketBorrowPreservesOperatorGrant -vv: 1 passed, 0 failed, 0 skipped. A market denial after account authorization preserves the operator's budget, debt and balances; a later allowed call consumes the grant once."]
+known_limitations: ["This is a regression test for correct existing code. Wallet UI execution remains Fable's acceptance step. Endpoints last for the local processes' lifetimes."]
+next_dependency: "Claude relay the restored service state to Fable for its wallet and activity integration."
+```
