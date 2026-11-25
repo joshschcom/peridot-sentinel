@@ -1,0 +1,22 @@
+{
+  "label": "Unforked local Anvil simulation, mock collateral and debt, development reference processor",
+  "chainId": 31337,
+  "account": "0x8e80FFe6Dc044F4A766Afd6e5a8732Fe0977A493",
+  "operator": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+  "receipt": {
+    "hash": "0x6f124ca0bbf991ed202280dd1b0ff3a6fb9319253c964a7caaf58ef21462e9b6",
+    "block": "32",
+    "blockHash": "0x70ec3bc4af2f012af52010733c10deb44ff128d9a88ad61b59dfef6268cc1b03",
+    "status": "success",
+    "gasUsed": "231318"
+  },
+  "debtRawStoredAtPriorBlock": "80000000",
+  "debtRawStoredAtReceipt": "60000006",
+  "debtAssetDecimals": 6,
+  "event": {
+    "operator": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "amount": "20000000",
+    "ltvBeforeBps": "5001",
+    "ltvAfterBps": "3751"
+  }
+}

@@ -180,3 +180,21 @@ verification: ["15/15 Foundry tests passed; 22 successful deployment/seed receip
 known_limitations: ["Unforked product uses DevelopmentReferenceProcessor. One early local borrow exhausted its gas limit; A5 recorded the receipt and verified a successful retry with headroom."]
 next_dependency: "Claude checkpoint Astra paths, A3 Sentinel and A5 deployment with attribution; Fable integrates actual ABIs and chain checks. Root lockfile should include @peridot/chain-config and @peridot/keeper workspace entries."
 ```
+
+```yaml
+milestone: M3-real-processor-settlement
+from: astra
+status: implemented
+commit: cc9445a (M3 core and A1 sponsor fork; A5 product evidence in working tree)
+chain_id: "31337 local child fork; public ancestor 196 at 76844958"
+abi_version: "v1 (documentation v1.1)"
+manifest: evidence/a5/settlement-ea66a81d55e7.json
+contracts: ["Sponsor CPU 0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5, fork IDs #2 MARKET and #3 ACCOUNT"]
+new_functions: []
+changed_events_errors: ["Mined fork reverts contain AccountPolicyRejected or MarketPolicyRejected"]
+units_and_permissions: "A Sentinel borrow evaluated the account and market with identical context 0x12f409 and funds settled to the account."
+frontend_actions: ["Use evidence/a5/settlement-ea66a81d55e7.json for allow trace and both revert receipts. Label all three as fork-only. Mainnet public read evidence remains the separate historic circuit."]
+verification: ["Successful fork borrow 0x83c774cc5a499b38166c38bff7f6094a80830f726235ddc1fcb2b4e5c796c563, gas 771264", "Account revert 0xe59dd2799250e4ff2d77d4e40664aef98abfd6957994190ede89650dfad1fa92", "Direct market revert 0x7a766e64787d79ed7e7b3249bc63dd296bd85651eeecaab6b9761b6964a53dd4", "Separate unforked two-process keeper test settled once with five mock USD, recorded in evidence/astra/local-keeper-concurrency.json"]
+known_limitations: ["Public testnet gas remains zero. No organizer response."]
+next_dependency: "Claude relay evidence, checkpoint final A1/A5 artifacts, A6 review, keeper concurrency check, DEMO_MATRIX Astra cells and ASTRA_REPORT. Fable to verify wallet path separately."
+```

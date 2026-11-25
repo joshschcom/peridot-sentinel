@@ -1,0 +1,70 @@
+{
+  "label": "Local nested Anvil fork / sponsor processor with fork-only fabricated circuits",
+  "source": {
+    "chainId": 196,
+    "pinnedBlock": 76844958,
+    "localForkParent": {
+      "chainId": 31337,
+      "forkBlockNumber": 76844967,
+      "forkBlockHash": "0xaef0c30f48b2611289db5716b41f627730f34eef2846b174fbdfa318a8b493c5"
+    }
+  },
+  "chainId": 31337,
+  "account": "0x360ba995095326c73B1E8D5F3635A32c5DeF4526",
+  "controller": "0x7364D1766cEf7ace4d89d4deE3Ad89a21af6CEF8",
+  "processor": "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5",
+  "borrowReceipt": {
+    "hash": "0x83c774cc5a499b38166c38bff7f6094a80830f726235ddc1fcb2b4e5c796c563",
+    "block": "76844991",
+    "blockHash": "0xc16f625384664b8055e36b265caf04aa266a6b1f61b862de9dad2806c7e3031a",
+    "gasUsed": "771264"
+  },
+  "borrowContextEvaluations": [
+    {
+      "from": "0x673cd70fa883394a1f3deb3221937ceb7c2618d7",
+      "to": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+      "circuitId": "3",
+      "context": "0x12f409",
+      "gasUsed": "226396",
+      "output": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "from": "0x673cd70fa883394a1f3deb3221937ceb7c2618d7",
+      "to": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+      "circuitId": "2",
+      "context": "0x12f409",
+      "gasUsed": "165369",
+      "output": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "accountDenial": {
+    "amount": "10000000",
+    "hash": "0xe59dd2799250e4ff2d77d4e40664aef98abfd6957994190ede89650dfad1fa92",
+    "block": "76844995",
+    "blockHash": "0x484313b1a7c23de18b9f30c7b8e11d16e9f70073d0dbb62d3cccf3b71b3d1232",
+    "gasUsed": "409903",
+    "status": "reverted",
+    "returnData": "0xbbe80a237fa4cb118d49f0940bffb9e7f7bbc2a4752500cd741d60acd6526054a67e22110000000000000000000000000000000000000000000000000000000000000001"
+  },
+  "directMarketDenial": {
+    "amount": "56000000",
+    "hash": "0x7a766e64787d79ed7e7b3249bc63dd296bd85651eeecaab6b9761b6964a53dd4",
+    "block": "76845000",
+    "blockHash": "0x373a433940e4d812cbbaac20774c8545650018756d0242f648fb1ca3198f97a9",
+    "gasUsed": "369342",
+    "status": "reverted",
+    "returnData": "0x3aad53582f373c325a0361f49bff466dc3975241c82160860fbf95303d42573e9df3803f0000000000000000000000000000000000000000000000000000000000000001"
+  },
+  "directSupply": {
+    "hash": "0xecd51ea1f02076549fd6b73b82be159c64fcc3a4d8e3771119a94c52e56f19cb",
+    "block": "76844998",
+    "blockHash": "0xf1a28f5c0448eb88fff7e575334866846101de3f2ece0b11ac66d9754494d0e0",
+    "gasUsed": "416614"
+  },
+  "directCollateralEntry": {
+    "hash": "0xd8b4b793500f47603a79d0f43f5151166c20a0c7d87931cb720b2d3ba1e1e7b6",
+    "block": "76844999",
+    "blockHash": "0x0d0e38c6b3e7650f385d9140f9a5bde22e62e3d8fa2355fc2c39e6cfcd78fda9",
+    "gasUsed": "47414"
+  }
+}

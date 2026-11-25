@@ -4,19 +4,25 @@ import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileS
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  createPublicClient, createWalletClient, defineChain, encodeDeployData, encodeErrorResult, encodeFunctionData,
+  createPublicClient, createWalletClient, decodeAbiParameters, decodeFunctionData, defineChain, encodeDeployData, encodeErrorResult, encodeFunctionData,
   getAddress, http, keccak256, parseEventLogs, toHex, zeroHash,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { compilePolicy } from '@peridot/circuit-sdk';
+import { compilePolicy, encodeContext } from '@peridot/circuit-sdk';
+import { verifyBuildCommit } from './verify-build.mjs';
 import { checkManifest } from '../../packages/chain-config/scripts/check-manifest.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
-const profile = process.argv[2];
-if (!['testnet', 'local'].includes(profile)) throw Error('Specify local or testnet');
-const local = profile === 'local';
+if (process.env.FOUNDRY_PROFILE && process.env.FOUNDRY_PROFILE !== 'default') {
+  throw Error('Demo deployments require the default development Foundry profile');
+}
+const mode = process.argv[2];
+if (!['testnet', 'local', 'sponsor-fork'].includes(mode)) throw Error('Specify local, testnet or sponsor-fork');
+const fork = mode === 'sponsor-fork';
+const local = mode !== 'testnet';
+const profile = local ? 'local' : 'testnet';
 const id = local ? 31337 : 1952;
-const url = local ? (process.env.LOCAL_ANVIL_RPC ?? 'http://127.0.0.1:18545') : 'https://testrpc.xlayer.tech';
+const url = fork ? 'http://127.0.0.1:19622' : local ? (process.env.LOCAL_ANVIL_RPC ?? 'http://127.0.0.1:18545') : 'https://testrpc.xlayer.tech';
 if (local && !['127.0.0.1', 'localhost', '[::1]'].includes(new URL(url).hostname)) {
   throw Error('Local deployment requires a loopback Anvil RPC');
 }
@@ -25,12 +31,21 @@ const chain = defineChain({ id, name: profile, nativeCurrency: { name: 'Test gas
 const rpc = createPublicClient({ chain, transport: http(url), pollingInterval: local ? 100 : 1000 });
 if (await rpc.getChainId() !== id) throw Error('Unexpected chain ID');
 const metadata = local ? await rpc.request({ method: 'anvil_metadata' }) : null;
-if (local && (!metadata.instanceId || metadata.forkedNetwork)) throw Error('Use an unforked development node');
+if (local && (!metadata.instanceId || Boolean(metadata.forkedNetwork) !== fork)) throw Error('Unexpected Anvil fork mode');
+const forkProof = fork ? JSON.parse(readFileSync(resolve(root,'evidence/a1/fork-policy-evaluations.json'),'utf8')) : null;
+if (fork) {
+  const info = await rpc.request({method:'anvil_nodeInfo'});
+  const source = await rpc.getBlock({blockNumber:BigInt(forkProof.sourceBlock)});
+  if (info.forkConfig.forkUrl !== 'http://127.0.0.1:19621' || forkProof.sourceChainId !== 196 ||
+      source.hash !== '0xa2558795a0e1feb6aa6e03b5226362b752c1308bd5e26e6be13897fd9f6e3bc8') {
+    throw Error('Expected the isolated fork of A1’s fabricated X Layer policy circuits');
+  }
+}
 const testnetKey = local ? '' : (process.env.PERIDOT_TESTNET_KEY ?? '').replace(/^0x/i,'');
 if (!local && !/^[0-9a-f]{64}$/i.test(testnetKey)) {
   throw Error('Expected the isolated 32-byte PERIDOT_TESTNET_KEY for chain 1952');
 }
-const signer = local ? (await rpc.request({ method: 'eth_accounts' }))[0]
+const signer = local ? (await rpc.request({ method: 'eth_accounts' }))[fork ? 3 : 0]
   : privateKeyToAccount('0x' + testnetKey);
 const sender = getAddress(local ? signer : signer.address);
 if (!local && sender !== getAddress('0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67')) {
@@ -66,7 +81,7 @@ for (const artifact of artifacts.values()) {
 const sourceDigest = keccak256(toHex(JSON.stringify([...sourceHashes].sort(([a],[b]) => a < b ? -1 : a > b ? 1 : 0))));
 const genesis = await rpc.getBlock({ blockNumber: 0n });
 const runId = local ? metadata.instanceId : genesis.hash;
-const directory = resolve(root, 'deployments', profile);
+const directory = fork ? resolve(root,'evidence/a5') : resolve(root, 'deployments', profile);
 mkdirSync(directory, { recursive:true });
 const stateDir = resolve(root, '.research', 'deployment-journals');
 mkdirSync(stateDir, { recursive:true });
@@ -93,9 +108,14 @@ function save(path, value) {
 const journal = existsSync(journalPath) ? JSON.parse(readFileSync(journalPath,'utf8'))
   : { chainId:id, runId, sender, baseCommit:base, sourcesDirty:!!dirty, buildHashes, steps:{} };
 if (JSON.stringify(journal.buildHashes) !== JSON.stringify(buildHashes)) throw Error('Deployment bytes changed since this run');
+const requestedCommit = process.argv.find(arg => arg.startsWith('--source-commit='))?.slice('--source-commit='.length);
+if (requestedCommit || (!journal.sourcesDirty && !journal.sourceMatch)) {
+  journal.sourceMatch = verifyBuildCommit(root,requestedCommit ?? journal.baseCommit,artifacts,sourceHashes,fixturePath);
+  save(journalPath,journal);
+}
 const receipts = {};
 const retried = new Set();
-async function transact(label, to, data) {
+async function transact(label, to, data, expectedRevert) {
   let step = journal.steps[label];
   if (!step) {
     step = { to, dataHash:keccak256(data), nonce:await rpc.getTransactionCount({ address:sender, blockTag:'pending' }),
@@ -122,11 +142,19 @@ async function transact(label, to, data) {
     // Recheck the provider before signing each transaction. The local signer is a node-managed Anvil account.
     if (await rpc.getChainId() !== id) throw Error('Provider chain ID changed');
     // Accrual can take a costlier branch in the next block than it did during estimation.
-    const estimate = await rpc.estimateGas({ account:sender, to, data });
+    const estimate = expectedRevert && fork ? 1500000n : await rpc.estimateGas({ account:sender, to, data });
     step.hash = await wallet.sendTransaction({ to, data, nonce:step.nonce, gas:estimate + estimate / 3n + 30000n });
   }
   save(journalPath, journal);
   const receipt = await rpc.waitForTransactionReceipt({ hash:step.hash, timeout:120000 });
+  if (expectedRevert) {
+    if (!fork || receipt.status !== 'reverted') throw Error('Expected a reverted local fork transaction');
+    const trace = await rpc.request({method:'debug_traceTransaction',params:[step.hash,{tracer:'callTracer'}]});
+    if (trace.output?.toLowerCase() !== expectedRevert.toLowerCase()) throw Error('Unexpected revert data');
+    receipts[label] = {hash:step.hash,block:receipt.blockNumber,blockHash:receipt.blockHash,gasUsed:receipt.gasUsed,
+      status:'reverted',returnData:trace.output};
+    return receipt;
+  }
   if (receipt.status !== 'success') {
     if (process.argv.includes('--retry-failed=' + label) && !retried.has(label)) {
       retried.add(label);
@@ -169,19 +197,25 @@ const model = await deploy('DemoRateModel');
 const book = await deploy('MarketPToken');
 const registry = await deploy('PolicyRegistry',[sender]);
 const adapter = await deploy('TapeOutPolicyAdapter',[registry]);
-const processor = await deploy('DevelopmentReferenceProcessor');
-await call('trust-development-processor','PolicyRegistry',registry,'setProcessorTrust',[processor,true]);
-const cpuBytecode = await rpc.getCode({ address:processor });
-if (cpuBytecode !== artifacts.get('DevelopmentReferenceProcessor').deployedBytecode.object) {
+const processor = fork ? getAddress(forkProof.processor) : await deploy('DevelopmentReferenceProcessor');
+if (!fork && await rpc.getCode({address:processor}) !== artifacts.get('DevelopmentReferenceProcessor').deployedBytecode.object) {
   throw Error('Reference processor runtime differs from this build');
 }
+await call(fork ? 'trust-fork-processor' : 'trust-development-processor','PolicyRegistry',registry,'setProcessorTrust',[processor,true]);
 const circuits = [];
 const evaluations = [];
 for (const [kind, fixture] of fixtures.entries()) {
   const policyKind = ['MARKET','ACCOUNT'][kind];
   if (fixture.spec.kind !== policyKind) throw Error('Unexpected policy fixture');
-  const added = await call('compile-fixture-' + policyKind,'DevelopmentReferenceProcessor',processor,'addReferenceCircuit',[fixture.netlist]);
-  const circuitId = event(added,'DevelopmentReferenceProcessor','ReferenceCircuitAdded',processor).id;
+  let circuitId;
+  if (fork) {
+    circuitId = BigInt(forkProof.policies.find(p => p.kind === policyKind).id);
+    const observed = await read('DevelopmentReferenceProcessor',processor,'netlist',[circuitId]);
+    if (keccak256(observed) !== fixture.netlistHash) throw Error('Fork sponsor circuit differs from the compiled policy');
+  } else {
+    const added = await call('compile-fixture-' + policyKind,'DevelopmentReferenceProcessor',processor,'addReferenceCircuit',[fixture.netlist]);
+    circuitId = event(added,'DevelopmentReferenceProcessor','ReferenceCircuitAdded',processor).id;
+  }
   const { configHash, netlistHash } = fixture;
   const registered = await call('register-' + policyKind,'PolicyRegistry',registry,'register',
     [processor,circuitId,kind,netlistHash,configHash,zeroHash]);
@@ -209,21 +243,25 @@ if (!await read('IsolatedController',controller,'active') || !await read('Market
   throw Error('Activation postcondition failed');
 }
 const manifest = { schemaVersion:1, abiVersion:'v1', profile, chainId:id, status:'deployed',
-  commit:journal.sourcesDirty ? null : journal.baseCommit,
-  provenance:{baseCommit:journal.baseCommit,sourceDigest,sourcesDirty:journal.sourcesDirty}, contracts, markets:[{ controller, collateralMarket, debtMarket }],
-  tapeout:{ mode:'development-reference', processor, circuits }, mocks:['MockCollateral','MockDebt','TestnetOracle','DevelopmentReferenceProcessor'] };
+  commit:journal.sourceMatch?.commit ?? null,
+  provenance:{baseCommit:journal.baseCommit,sourceDigest,sourcesDirty:journal.sourcesDirty,sourceMatch:journal.sourceMatch ?? null}, contracts, markets:[{ controller, collateralMarket, debtMarket }],
+  tapeout:{ mode:fork ? 'official' : 'development-reference', processor, circuits },
+  mocks:['MockCollateral','MockDebt','TestnetOracle',...(fork ? [] : ['DevelopmentReferenceProcessor'])] };
 console.log(await checkManifest(manifest,url));
+if (fork && journal.sourceMatch) {
+  save(resolve(directory,`provenance-${runId.slice(2,14)}.json`),manifest.provenance);
+}
 const receiptFile = resolve(directory,`demo-${runId.slice(2,14)}.json`);
-const evidence = { label:local ? 'Local Anvil simulation / development reference processor' : 'X Layer testnet / development reference processor',
-  chainId:id, sender, genesisHash:genesis.hash, runId, baseCommit:journal.baseCommit, sourcesDirty:journal.sourcesDirty,
+const evidence = { label:fork ? 'Local nested Anvil fork / sponsor processor with fork-only fabricated circuits' : local ? 'Local Anvil simulation / development reference processor' : 'X Layer testnet / development reference processor',
+  chainId:id, ...(fork ? {source:{chainId:196,pinnedBlock:forkProof.sourceBlock,localForkParent:metadata.forkedNetwork}} : {}), sender, genesisHash:genesis.hash, runId, baseCommit:journal.baseCommit, sourcesDirty:journal.sourcesDirty,
   buildHashes, policyVectors:evaluations, transactions:receipts, market:manifest.markets[0], manifest };
 if (!existsSync(receiptFile)) save(receiptFile,evidence);
-save(resolve(root,`packages/chain-config/deployments/${id}.json`),manifest);
+if (!fork) save(resolve(root,`packages/chain-config/deployments/${id}.json`),manifest);
 console.log(`Evidence: ${receiptFile}`);
 
-if (process.argv.includes('--position')) {
+if (fork || process.argv.includes('--position')) {
   const deploymentSteps = new Set(Object.keys(receipts));
-  const operatorAddress = process.env.DEMO_OPERATOR ?? (local ? (await rpc.request({ method:'eth_accounts' }))[1] : undefined);
+  const operatorAddress = process.env.DEMO_OPERATOR ?? (local ? (await rpc.request({ method:'eth_accounts' }))[fork ? 4 : 1] : undefined);
   if (!operatorAddress || getAddress(operatorAddress) === sender) throw Error('Set a separate DEMO_OPERATOR address');
   const operator = getAddress(operatorAddress);
   const accountAbi = JSON.parse(readFileSync(resolve(root,'contracts/out/SentinelAccount.sol/SentinelAccount.json'),'utf8'));
@@ -270,5 +308,40 @@ if (process.argv.includes('--position')) {
   const checksPath = resolve(directory,`checks-${runId.slice(2,14)}.json`);
   if (!existsSync(checksPath)) save(checksPath,{label:evidence.label,method:'eth_call',chainId:id,
     block:borrowed.blockNumber,blockHash:borrowed.blockHash,probes});
+  if (fork) {
+    // Check actual nested STATICCALLs during settlement, then mine separate policy denials.
+    const trace = await rpc.request({method:'debug_traceTransaction',params:[borrowed.transactionHash,{tracer:'callTracer'}]});
+    function cpuReads(node) {
+      const isEval = node.type === 'STATICCALL' && node.from.toLowerCase() === adapter.toLowerCase() &&
+        node.to.toLowerCase() === processor.toLowerCase() && node.input.startsWith('0x934d06ea');
+      return [...(isEval ? [node] : []),...(node.calls ?? []).flatMap(cpuReads)];
+    }
+    const evaluations = cpuReads(trace).map(node => {
+      const {args} = decodeFunctionData({abi:artifacts.get('DevelopmentReferenceProcessor').abi,data:node.input});
+      return {from:node.from,to:node.to,circuitId:args[0],context:args[1],gasUsed:BigInt(node.gasUsed),output:node.output};
+    });
+    if (evaluations.length !== 2 || evaluations[0].circuitId !== BigInt(circuits[1].circuitId) ||
+        evaluations[1].circuitId !== BigInt(circuits[0].circuitId) ||
+        evaluations.some(e => e.context !== encodeContext({op:2,oracleFresh:true,postLtvBps:4000,cashOk:true}) ||
+          decodeAbiParameters([{type:'bytes'}],e.output)[0] !== '0x01')) {
+      throw Error('Both sponsor evals must see the same borrow context');
+    }
+    const firstRejection = 'mined-account-denial';
+    const secondRejection = 'mined-direct-market-denial';
+    const failureData = (name,policyId) => encodeErrorResult({abi:artifacts.get('TapeOutPolicyAdapter').abi,errorName:name,args:[policyId,1]});
+    await transact(firstRejection,account,encodeFunctionData({abi:accountAbi.abi,functionName:'borrow',args:[10n*usd]}),
+      failureData('AccountPolicyRejected',circuits[1].policyId));
+    await call('mint-direct-collateral','TestnetToken',collateral,'mint',[sender,50n*wad]);
+    await call('approve-direct-collateral','TestnetToken',collateral,'approve',[collateralMarket,50n*wad]);
+    await call('supply-direct-collateral','MarketPToken',collateralMarket,'mint',[50n*wad]);
+    await call('enter-direct-collateral','IsolatedController',controller,'enterMarkets',[[collateralMarket]]);
+    await transact(secondRejection,debtMarket,encodeFunctionData({abi:artifacts.get('MarketPToken').abi,functionName:'borrow',args:[56n*usd]}),
+      failureData('MarketPolicyRejected',circuits[0].policyId));
+    const summaryPath = resolve(directory,`settlement-${runId.slice(2,14)}.json`);
+    if (!existsSync(summaryPath)) save(summaryPath,{label:evidence.label,source:evidence.source,chainId:id,account,controller,
+      processor,borrowReceipt:receipts['borrow-demo-dollars'],borrowContextEvaluations:evaluations,
+      accountDenial:{amount:10n*usd,...receipts[firstRejection]},directMarketDenial:{amount:56n*usd,...receipts[secondRejection]},
+      directSupply:receipts['supply-direct-collateral'],directCollateralEntry:receipts['enter-direct-collateral']});
+  }
   console.log(`KEEPER_ACCOUNT=${account} KEEPER_OPERATOR=${operator} KEEPER_CHAIN_ID=${id} KEEPER_RPC=${url}`);
 }

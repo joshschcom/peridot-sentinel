@@ -1,0 +1,14 @@
+{
+  "baseCommit": "cc9445a79877c406fc9f107b9fcfb440c6db91f6",
+  "sourceDigest": "0x538e7a517834adb3d912ce90ba9daba10fca0778c0db777803dd9831287277a5",
+  "sourcesDirty": false,
+  "sourceMatch": {
+    "commit": "cc9445a79877c406fc9f107b9fcfb440c6db91f6",
+    "sourceCount": 36,
+    "artifactCount": 10,
+    "foundryConfigKeccak256": "0xcb1587fa065c9746fa188077e1f57c11411a6fa1b4c257c40d9d657237a4168e",
+    "policyFixturesKeccak256": "0x11fbe04ba7839472e532f5cf6fb393d80b4dede595caa6fa73a436d256a3447d",
+    "compiler": "0.8.26+commit.8a97fa7a",
+    "verification": "All transitive source hashes matched. Isolated rebuild of the committed source and Foundry configuration reproduced all compared creation and runtime bytecode."
+  }
+}

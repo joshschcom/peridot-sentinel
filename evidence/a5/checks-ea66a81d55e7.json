@@ -1,0 +1,36 @@
+{
+  "label": "Local nested Anvil fork / sponsor processor with fork-only fabricated circuits",
+  "method": "eth_call",
+  "chainId": 31337,
+  "block": "76844991",
+  "blockHash": "0xc16f625384664b8055e36b265caf04aa266a6b1f61b862de9dad2806c7e3031a",
+  "probes": [
+    {
+      "surface": "SentinelAccount",
+      "from": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "to": "0x360ba995095326c73B1E8D5F3635A32c5DeF4526",
+      "calldata": "0xc5ebeaec0000000000000000000000000000000000000000000000000000000002160ec0",
+      "debtUnits": "35000000",
+      "expected": "AccountPolicyRejected",
+      "returnData": "0xbbe80a237fa4cb118d49f0940bffb9e7f7bbc2a4752500cd741d60acd6526054a67e22110000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "surface": "MarketPToken",
+      "from": "0x360ba995095326c73B1E8D5F3635A32c5DeF4526",
+      "to": "0x067F284b0e3220baE7515C10CaAe5C3D367beEde",
+      "calldata": "0xc5ebeaec0000000000000000000000000000000000000000000000000000000002160ec0",
+      "debtUnits": "35000000",
+      "expected": "allowed",
+      "returnData": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "surface": "MarketPToken",
+      "from": "0x360ba995095326c73B1E8D5F3635A32c5DeF4526",
+      "to": "0x067F284b0e3220baE7515C10CaAe5C3D367beEde",
+      "calldata": "0xc5ebeaec0000000000000000000000000000000000000000000000000000000003938700",
+      "debtUnits": "60000000",
+      "expected": "MarketPolicyRejected",
+      "returnData": "0x3aad53582f373c325a0361f49bff466dc3975241c82160860fbf95303d42573e9df3803f0000000000000000000000000000000000000000000000000000000000000001"
+    }
+  ]
+}

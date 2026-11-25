@@ -1,0 +1,57 @@
+{
+  "label": "Unforked local Anvil simulation; development reference processor",
+  "chainId": 31337,
+  "account": "0x06cd7788D77332cF1156f1E327eBC090B5FF16a3",
+  "operator": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "receiptHash": "0xaebc90d0038e9eb4619c7fe505f585af052f606703e445356f91fab1b84fb390",
+  "block": "40",
+  "event": {
+    "operator": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+    "amount": "5000000",
+    "ltvBeforeBps": "1876",
+    "ltvAfterBps": "1563"
+  },
+  "grantRemaining": "0",
+  "workers": [
+    [
+      {
+        "at": "2026-11-25T13:55:09.954Z",
+        "chainId": 31337,
+        "account": "0x06cd7788D77332cF1156f1E327eBC090B5FF16a3",
+        "operator": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "state": "submitted",
+        "hash": "0xaebc90d0038e9eb4619c7fe505f585af052f606703e445356f91fab1b84fb390",
+        "amount": "5000000",
+        "trigger": 1,
+        "ltv": "1875"
+      },
+      {
+        "at": "2026-11-25T13:55:09.958Z",
+        "chainId": 31337,
+        "account": "0x06cd7788d77332cf1156f1e327ebc090b5ff16a3",
+        "operator": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "state": "success",
+        "hash": "0xaebc90d0038e9eb4619c7fe505f585af052f606703e445356f91fab1b84fb390",
+        "block": "40",
+        "gas": "233073",
+        "outcomes": [
+          {
+            "operator": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+            "amount": "5000000",
+            "ltvBeforeBps": "1876",
+            "ltvAfterBps": "1563"
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "at": "2026-11-25T13:55:09.954Z",
+        "chainId": 31337,
+        "account": "0x06cd7788D77332cF1156f1E327eBC090B5FF16a3",
+        "operator": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "state": "another-transaction-pending"
+      }
+    ]
+  ]
+}
