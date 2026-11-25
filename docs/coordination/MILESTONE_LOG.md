@@ -709,3 +709,31 @@ status: integrated
 commit: 2e9613e
 note: "The previous fable entry says '7+ activity entries' for the re-run on the redeployed node. The evidence file evidence/fable/local-e2e-run-20261125-145130.json records 6 (blocks 30 to 46, market 0x436932D6361Db21CbDf440A39046093a1C12D2B4). The 13 quoted earlier belonged to the previous node instance, where the wallet had three markets."
 ```
+
+```yaml
+milestone: M4-testnet-deployed
+from: claude
+status: testnet_verified
+commit: 34797b2 (deployment source pin 39c0a548d7522a6b3113d25daeb002effcfebf53)
+chain_id: 1952
+abi_version: "INTERFACES v1.2, ABI v1"
+manifest: packages/chain-config/deployments/1952.json (status deployed, deploymentBlock 47161508)
+contracts:
+  - "MarketFactory 0xEB32e6bA03D8B92d6bB0d5283A59263a50674BC0"
+  - "SentinelAccountFactory 0x37157221a5fA97d3f3EC1AA2375032d578Db182f"
+  - "PolicyRegistry 0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC"
+  - "TapeOutPolicyAdapter 0x68B5b4656cD20ECF2Ff2796Dc6A171dad77FD8b9"
+  - "DevelopmentReferenceProcessor 0x092B330B842388B1bC6adeaC5EAe39B3bef51701 (NOT TapeOut)"
+  - "DemoRateModel 0x0796A0772Ef9aF1F610Fd460EFC008Cc53dCE23B (blocksPerYear 31,536,000)"
+  - "Market #0 controller 0xEB9FCDe8C3502BcBb9dfF2A031AC9402baE7a951, collateral book 0x1176cdef595A4e3bEBC3CfA9721a4C2a50cfa351, debt book 0xB736dAA8784092C88ACABf6344DC360DcC5E411d"
+  - "Demo Sentinel 0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0; mock tokens MockCollateral 0xe1dA369f92596c3c10c353E200c05343C9F19c92, MockDebt 0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9; TestnetOracle 0x2257293155CF9a52590BA289E599F9Adf297ac57 (owner-set mock)"
+verification:
+  - "Keyless preflight at 39c0a54 passed (36 source hashes, 11 ABI/creation/runtime artifacts)."
+  - "30 deployer txs, journal nonces 0..29 unique; check-manifest verified 13 code addresses at block 47161901."
+  - "Public testnet auto-repay by separate operator: tx 0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77, block 47161960, gas 244593, LTV 5001 -> 3751 bps; grant remaining 0 (evidence/testnet/keeper-auto-repay-1952.json)."
+known_limitations:
+  - "Public testnet RPC backends are inconsistent (block 0 served ~25%; stale reads right after writes). Frontend and keeper must tolerate it: retry reads, never retry writes blindly, and confirm receipts."
+  - "Demo feed ages after one day and the operator grant expires after one day. Renew before recording."
+  - "The demo position has now been auto-repaid (LTV 3751). A fresh keeper demo needs a new position or price move via demo ops."
+next_dependency: "Fable: the default (1952) build now sees a deployed manifest. Verify chain mode on 1952 (gating, paginated logs from deploymentBlock, RPC retry). Astra: DEMO_MATRIX 1952 contract cells."
+```
