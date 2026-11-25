@@ -1,0 +1,135 @@
+{
+  "evidenceType": "public chain, read-only",
+  "rpc": "https://rpc.xlayer.tech",
+  "chainId": 196,
+  "block": 76844958,
+  "blockHash": "0xa2558795a0e1feb6aa6e03b5226362b752c1308bd5e26e6be13897fd9f6e3bc8",
+  "testnet": {
+    "rpc": "https://testrpc.xlayer.tech",
+    "chainId": 1952,
+    "block": 47155156,
+    "blockHash": "0x3f0cbd1c53e5c53633911260873453ad8fefdac07332ea5073cd611115764534"
+  },
+  "code": [
+    {
+      "address": "0x1f09DAeFA827f02CBb40967cc91b259763760761",
+      "mainnetBytes": 130,
+      "mainnetKeccak": "0x5cddc08137fc81eb8ba1d37902e77553152c2f639b6bf6f601ecb094e2cae5c8",
+      "testnetBytes": 0
+    },
+    {
+      "address": "0x74956236Ab64eD143933040B4137E8A352e4d17b",
+      "mainnetBytes": 7671,
+      "mainnetKeccak": "0x7fb15e83f925e493ef6e84ee3b1021eed994966552add6011184a1fb3ad7fe81",
+      "testnetBytes": 0
+    },
+    {
+      "address": "0xf70d1ed4f62CF3780157B0b421b7E2F45bD0991C",
+      "mainnetBytes": 619,
+      "mainnetKeccak": "0xc7cc9854e1465f48d6d8d6d220c04efa6509939832930be4b04ee7fe86575362",
+      "testnetBytes": 0
+    },
+    {
+      "address": "0x977f217887E085D298Cb3819cDAD5A0ee35F29B2",
+      "mainnetBytes": 12562,
+      "mainnetKeccak": "0x7a15c353205e5245f40f5f5524542a982a4bb3b9a28476e4f10845163f941b30",
+      "testnetBytes": 0
+    },
+    {
+      "address": "0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+      "mainnetBytes": 295,
+      "mainnetKeccak": "0x57aa306fd0be97087da3534e03398f5ff4efd533b5be4e45a405ce86fa6717d5",
+      "testnetBytes": 0
+    }
+  ],
+  "factorySlots": {
+    "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc": "0x000000000000000000000000336e9f0f4c3fee7c8c803377e4dea00293f4ae2a",
+    "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "factory": {
+    "circuitBeacon()(address)": "0xf70d1ed4f62CF3780157B0b421b7E2F45bD0991C",
+    "transistorBeacon()(address)": "0x1059Ad62cAbB6a6925bb65aA617300556c60A51B",
+    "owner()(address)": "0xB3D85b42A045c1A88D800CAD0F55d2566a4D3138",
+    "isSealed()(bool)": "false",
+    "cpuCount()(uint256)": "451",
+    "deployFee()(uint256)": "10000000",
+    "protocolFee()(uint256)": "1000000",
+    "cpuAt(275)": "0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+    "isCPU(sample)": "true"
+  },
+  "circuitBeacon": {
+    "implementation()(address)": "0x977f217887E085D298Cb3819cDAD5A0ee35F29B2",
+    "owner()(address)": "0x0000000000000000000000000000000000000000"
+  },
+  "circuit": {
+    "processor": "0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+    "id": 1,
+    "netlist": "0x0000000300000200000004000004",
+    "dimensions": [
+      2,
+      1,
+      0,
+      2
+    ],
+    "netlistHash": "0x04669453a8027de5f595aa0edb7ecde0ceeeeb53fa00d00d726ee64082e46be3",
+    "vectors": [
+      {
+        "input": "0x00",
+        "output": "0x00",
+        "reference": "0x00",
+        "gasEstimate": 50601
+      },
+      {
+        "input": "0x01",
+        "output": "0x00",
+        "reference": "0x00",
+        "gasEstimate": 50766
+      },
+      {
+        "input": "0x02",
+        "output": "0x00",
+        "reference": "0x00",
+        "gasEstimate": 50766
+      },
+      {
+        "input": "0x03",
+        "output": "0x01",
+        "reference": "0x01",
+        "gasEstimate": 51183
+      },
+      {
+        "input": "0x",
+        "output": "0x00",
+        "reference": "0x00",
+        "gasEstimate": 50269
+      },
+      {
+        "input": "0xffaa",
+        "output": "0x01",
+        "reference": "0x01",
+        "gasEstimate": 51195
+      }
+    ],
+    "historicalFabrication": {
+      "tx": "0xeb5e9cedb905ad98209f04a40b2a93e7caaadce88f031b2bcb07f21d78d18254",
+      "block": 72461505,
+      "status": 1,
+      "gasUsed": 246582,
+      "eventTopics": [
+        "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62",
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+        "0xc11215e417669c143c8a07aeb778034c0a0a85ebdf305d64a629b19a7a9ce031"
+      ]
+    }
+  },
+  "statefulWitness": {
+    "processor": "0x0565EA48CA41Ae559d8d491dbb0a9ec945DB551b",
+    "id": 1,
+    "dimensions": [
+      0,
+      1,
+      2,
+      10
+    ]
+  }
+}

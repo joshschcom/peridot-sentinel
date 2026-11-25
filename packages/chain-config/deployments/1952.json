@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "abiVersion": "v1",
+  "chainId": 1952,
+  "profile": "testnet",
+  "status": "not-deployed",
+  "commit": null,
+  "contracts": {},
+  "markets": [],
+  "tapeout": {
+    "mode": "unavailable",
+    "processor": null,
+    "circuits": []
+  },
+  "mocks": []
+}

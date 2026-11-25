@@ -1,0 +1,17 @@
+{
+  "name": "@peridot/chain-config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./deployments/*": "./deployments/*"
+  },
+  "scripts": {
+    "generate": "node scripts/export-abis.mjs",
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "check:manifest": "node scripts/check-manifest.mjs"
+  },
+  "devDependencies": { "typescript": "5.9.3" }
+}

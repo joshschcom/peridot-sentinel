@@ -9,6 +9,7 @@ import "./InterestRateModel.sol";
 import "./ExponentialNoError.sol";
 import "./PeridottrollerStorage.sol";
 import {BorrowAccounting} from "./BorrowAccounting.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {BorrowAccountingModule} from "./BorrowAccountingModule.sol";
 
 /**
@@ -525,6 +526,7 @@ abstract contract PToken is PTokenInterface, ExponentialNoError, TokenErrorRepor
          */
 
         uint256 mintTokens = div_(actualMintAmount, exchangeRate);
+        require(mintTokens > 0 || actualMintAmount == 0, "mint rounds to zero shares");
 
         /*
          * We calculate the new total supply of pTokens and minter token balance, checking for overflow:
@@ -596,7 +598,8 @@ abstract contract PToken is PTokenInterface, ExponentialNoError, TokenErrorRepor
              *  redeemTokens = redeemAmountIn / exchangeRate
              *  redeemAmount = redeemAmountIn
              */
-            redeemTokens = div_(redeemAmountIn, exchangeRate);
+            // Burn enough whole shares to cover an exact underlying withdrawal.
+            redeemTokens = Math.mulDiv(redeemAmountIn, 1e18, exchangeRate.mantissa, Math.Rounding.Ceil);
             redeemAmount = redeemAmountIn;
         }
 
