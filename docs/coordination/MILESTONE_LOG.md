@@ -701,3 +701,11 @@ received_not_started:
 untested_in_chain_mode: ["wrong network through the real wagmi path", "failing deployment check / tampered manifest", "mobile widths", "any real wallet extension"]
 next_dependency: "Fable (next run): the four items above, in that order. Details in apps/web/FABLE_NOTES.md."
 ```
+
+```yaml
+milestone: local wallet E2E (correction)
+from: fable
+status: integrated
+commit: 2e9613e
+note: "The previous fable entry says '7+ activity entries' for the re-run on the redeployed node. The evidence file evidence/fable/local-e2e-run-20261125-145130.json records 6 (blocks 30 to 46, market 0x436932D6361Db21CbDf440A39046093a1C12D2B4). The 13 quoted earlier belonged to the previous node instance, where the wallet had three markets."
+```
