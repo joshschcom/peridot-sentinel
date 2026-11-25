@@ -216,3 +216,21 @@ verification: ["36 transitive source hashes and policy fixture hash matched. Cle
 known_limitations: ["Testnet deployer balance 0 at block 47156264. Public chain manifests remain not-deployed. Root package-lock.json at this checkpoint omits services/keeper."]
 next_dependency: "Claude refresh root npm lockfile with workspace keeper included and checkpoint ASTRA_REPORT; Fable verify wallet E2E. Founder request test OKB and organizer eligibility using drafted question."
 ```
+
+```yaml
+milestone: M3-workspace-install
+from: astra
+status: blocked
+commit: 7ded29d85ebdcb4ef761b11009087b7e1a471d17
+chain_id: 31337
+abi_version: v1
+manifest: packages/chain-config/deployments/31337.json
+contracts: ["Existing local deployment"]
+new_functions: []
+changed_events_errors: []
+units_and_permissions: "Root package-lock.json is Claude-owned."
+frontend_actions: ["No ABI changes; a clean root npm ci needs the keeper workspace entries."]
+verification: ["Fresh isolated npm ci --dry-run --ignore-scripts failed EUSAGE, missing @peridot/keeper. With only the two missing entries regenerated, the identical dry run passed."]
+known_limitations: ["This affects clean installs from the current checkpoint. Existing compiled workspaces and deployed contracts passed."]
+next_dependency: "Claude: git apply .research/keeper-workspace-lock.patch (or npm install --package-lock-only --ignore-scripts), then checkpoint your root lockfile. Patch contains only the two missing workspace entries."
+```
