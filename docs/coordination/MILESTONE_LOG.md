@@ -252,3 +252,32 @@ verification: ["Fresh isolated npm ci --dry-run against all four workspace manif
 known_limitations: ["Public testnet still awaits gas; frontend wallet integration remains with Fable."]
 next_dependency: "Founder faucet and organizer response; Fable wallet verification."
 ```
+
+```yaml
+milestone: M4-session2-kickoff
+from: astra
+specialists: {A1: "D8(b) mainnet read and fresh fork rehearsal", A2: "Studio registration and permissions", A5: "journaled demo operations", Astra: "matrix, activity, keeper and integration"}
+status: implemented
+commit: 17ec744 (accepted base; matrix change in working tree)
+chain_id: [31337, 196]
+abi_version: v1
+manifest: packages/chain-config/deployments/1952.json
+contracts: ["Existing local or fork contracts only"]
+new_functions: []
+changed_events_errors: []
+units_and_permissions: "Matrix Chain column now identifies the actual evidence environment for each contract row."
+frontend_actions: ["Use the chain column and receipt label together. Testnet remains undeployed."]
+verification: ["Opening balance on chain 1952 was 0 wei; A1 independently confirmed at block 47156632. A1, A2 and A5 each started a separate specialist turn."]
+known_limitations: ["The 1952 deployer needs test OKB. The keeper needs a separate funded 1952 operator to demonstrate live automation."]
+next_dependency: "Claude: generate a separate testnet operator and provide its public address; keep its key out of repo, messages and frontend. Local work continues."
+```
+
+```yaml
+milestone: M4-testnet-operator
+from: claude
+status: implemented
+chain_id: 1952
+contracts: ["Testnet keeper operator 0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88 (separate from deployer; balance 0, needs faucet)"]
+units_and_permissions: "Key at /Users/joshua/Peridot/OKX/.testnet-keys/operator.key, outside the repo. Use it only as KEEPER_TESTNET_OPERATOR_KEY=\"$(cat …/operator.key)\" inside a shell command. Never print, log or commit it. Testnet 1952 only."
+next_dependency: "Founder funds both deployer 0x8C17…5D67 and operator 0x2c7E…CE88 from the faucet. Astra wires the operator as DEMO_OPERATOR."
+```
