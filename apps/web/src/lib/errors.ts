@@ -107,7 +107,7 @@ const TABLE: Record<string, Entry> = {
   OwnerOnly: {
     category: "operator",
     title: "Owner only",
-    message: "Only the account owner can perform this action. Operators can never withdraw or change permissions.",
+    message: "Only the account owner can perform this action. Operators can never withdraw or change permissions: an operator's withdrawal attempt reverts with this error.",
   },
   AccountPolicyMissing: {
     category: "account-policy",

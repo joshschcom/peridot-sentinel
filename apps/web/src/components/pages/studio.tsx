@@ -143,7 +143,7 @@ export function StudioMarket({ id }: { id: string }) {
         <Stat label="Lending supplied" value={<Value of={m.debt.totalSupplied}>{(v) => tokenAmount(v, m.debt.token, 0)}</Value>} sub={usdText(usdOf(m.debt.totalSupplied, m.debt.token, m.debt.price), true)} />
         <Stat label="Borrowed" value={<Value of={m.debt.totalBorrowed}>{(v) => tokenAmount(v, m.debt.token, 0)}</Value>} sub={util.status === "ok" ? `${formatBps(util.value, 1)} utilised` : null} />
         <Stat label="Collateral supplied" value={<Value of={m.collateral.totalSupplied}>{(v) => tokenAmount(v, m.collateral.token, 2)}</Value>} sub={usdText(usdOf(m.collateral.totalSupplied, m.collateral.token, m.collateral.price), true)} />
-        <Stat label="Borrow rate" value={<Value of={m.debt.borrowAprBps}>{(v) => formatBps(v)}</Value>} sub="APR, variable" />
+        <Stat label="Borrow rate" value={<Value of={m.debt.borrowAprBps}>{(v) => formatBps(v)}</Value>} sub="APR (simple, variable)" />
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">

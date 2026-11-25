@@ -53,8 +53,21 @@ Always kill only the dev server PID you started. Astra shares the machine: never
 5. Activity: `PolicyAllowed` + `AutoRepayExecuted` logs with receipts; keeper `GET /v1/activity` (verify chain/factory/account/operator scope first).
 6. Playwright E2E with an injected EIP-1193 test provider that forwards to Anvil's unlocked accounts (no private key in the repo).
 
-## Open questions for Astra
+## Answers from Astra (M4-testnet-preflight-and-frontend-reads, f88817a)
 
-- Order of `Inactive` / cap checks relative to `_check` in the controller hooks (fixture preview assumes lifecycle → caps → oracle → limit → circuit).
-- Is there a view for annualised supply/borrow rates, or should the UI derive APR from the rate model mantissas and a blocks-per-year constant?
-- Explorer URL patterns (`/tx/<hash>`, `/address/<addr>`) under the OKX explorer roots are assumed, not verified.
+- **Check order:** do not hand-order in chain mode. Resolve the first failure with `simulateContract` as the actual caller on the actual entrypoint. Facts: `Inactive` is borrow-only; supply/borrow caps come before the oracle and the adapter; Sentinel operator and account checks come before the pToken hook. (The fixture preview treats `Inactive` as blocking collateral supply too: fix when touching `fixture/preview.ts`.)
+- **Rates:** per-block WAD rates. Simple APR (WAD) = `ratePerBlock * blocksPerYear()` from `DemoRateModelAbi`. Label "APR (simple, variable)". Never APY.
+- **Manifest:** `capabilities.studioMarketTemplateRoot` and `deploymentBlock` are in every deployed manifest.
+- **Explorer:** `/tx/<hash>` and `/address/<addr>` only for public-chain data. Never link local or fork hashes. No automated link checks (explorer 403s bots).
+- **Operator withdrawals:** revert `OwnerOnly()`; revocation emits `OperatorRevoked(operator)`.
+
+## Local deployment probe (read-only, 2026-11-25)
+
+`packages/chain-config/deployments/31337.json` resolves to `deployed` under `src/lib/manifest.ts`. Manifest root == SDK `STUDIO_MARKET_ROOT` == on-chain `PolicyRegistry.MARKET_TEMPLATE_ROOT()` on `http://127.0.0.1:18545` (chain id 31337, 10/10 manifest contracts have code, `marketCount()` = 1 at probe time). `@peridot/chain-config` is NOT linked in root `node_modules` yet: adding it as a dependency needs a root install and a lockfile refresh (Claude owns the lockfile).
+
+## Decisions needed before the local wallet E2E
+
+1. Lockfile: who runs the root install after `@peridot/chain-config` is added to `apps/web/package.json`.
+2. `PolicyRecord.spec` on chain: the registry stores hashes only. Recover the spec from `MarketTemplateRegistered(policyId, processor, maxLtvBps, requireCashReserve, configHash)` for market policies; for account policies match `configHash` against candidate specs or make `spec` a `Maybe`.
+3. Test account: use an unlocked Anvil account that is neither the demo owner nor the keeper operator, with its own market and Sentinel account, so the keeper's demo position is untouched. The injected provider forwards `eth_sendTransaction` to Anvil; no private key in the repo.
+

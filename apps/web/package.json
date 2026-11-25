@@ -12,6 +12,7 @@
     "start": "next start",
     "pretypecheck": "node scripts/sync-manifests.mjs",
     "typecheck": "tsc --noEmit",
+    "pretest": "node scripts/sync-manifests.mjs",
     "test": "node --test \"src/**/*.test.ts\"",
     "check:tokens": "node scripts/check-tokens.mjs",
     "screenshots": "node scripts/screenshots.mjs"

@@ -94,8 +94,8 @@ export function MarketDetail({ id }: { id: string }) {
           <Card className="grid grid-cols-2 gap-x-4 gap-y-6 p-5 sm:grid-cols-4 sm:p-6">
             <Stat label="Supplied" value={<Value of={m.debt.totalSupplied}>{(v) => <Amount value={v} token={m.debt.token} maxFractionDigits={0} />}</Value>} sub={usdText(usdOf(m.debt.totalSupplied, m.debt.token, m.debt.price), true)} />
             <Stat label="Borrowed" value={<Value of={m.debt.totalBorrowed}>{(v) => <Amount value={v} token={m.debt.token} maxFractionDigits={0} />}</Value>} sub={util.status === "ok" ? `${formatBps(util.value, 1)} utilised` : null} />
-            <Stat label="Supply rate" value={<Value of={m.debt.supplyAprBps}>{(v) => formatBps(v)}</Value>} sub="APR, variable" />
-            <Stat label="Borrow rate" value={<Value of={m.debt.borrowAprBps}>{(v) => formatBps(v)}</Value>} sub="APR, variable" />
+            <Stat label="Supply rate" value={<Value of={m.debt.supplyAprBps}>{(v) => formatBps(v)}</Value>} sub="APR (simple, variable)" />
+            <Stat label="Borrow rate" value={<Value of={m.debt.borrowAprBps}>{(v) => formatBps(v)}</Value>} sub="APR (simple, variable)" />
           </Card>
 
           {/* Position */}

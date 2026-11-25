@@ -62,7 +62,7 @@ export function ActionPanel({ market, account, direct, initialTab = "supply", pa
 
   const actionLabel = `${TABS.find((entry) => entry.id === tab)!.label} ${token.symbol}`;
   const needsApproval = path === "direct" && (tab === "supply" || tab === "repay");
-  const inactiveBlock = !market.active && (tab === "borrow" || (tab === "supply" && effectiveLeg === "collateral"));
+  const inactiveBlock = !market.active && tab === "borrow";
 
   const simulate = () => {
     if (!data) return;
@@ -125,7 +125,7 @@ export function ActionPanel({ market, account, direct, initialTab = "supply", pa
 
       {inactiveBlock ? (
         <Notice tone="warning" icon={<IconAlert size={18} />} title="Market is not active">
-          The owner has not activated this market. Borrowing and collateral supply open after activation.
+          The owner has not activated this market. Borrowing opens after activation; supplying is already possible.
         </Notice>
       ) : null}
 

@@ -19,6 +19,16 @@ export function NetworkPill({ className }: { className?: string }) {
   );
 }
 
+/** One-line reason for the banner, derived from the resolved manifest state so it cannot go stale. */
+const FIXTURE_SHORT_REASON =
+  RUNTIME.manifest.state === "deployed"
+    ? "Contracts are deployed, but this build does not read them yet."
+    : RUNTIME.manifest.state === "invalid"
+      ? "The deployment manifest was rejected."
+      : TARGET_KIND === "local"
+        ? "No local deployment is available to this build."
+        : "No contract is deployed on testnet yet.";
+
 /**
  * FIXTURE MODE banner. Rendered whenever any data service resolves to fixture data
  * (derived from RUNTIME, the same object the service registry and the write lock use).
@@ -34,7 +44,7 @@ export function FixtureBanner() {
         <div className="mx-auto flex min-h-10 max-w-[100rem] items-center gap-x-3 gap-y-1 px-4 py-1.5 text-[0.8125rem] sm:px-6">
           <span className="shrink-0 rounded bg-warning px-1.5 py-0.5 text-[0.6875rem] leading-4 font-semibold tracking-wider text-bg uppercase">Fixture mode</span>
           <span className="min-w-0 flex-1 text-fg">
-            <span className="font-medium">Example data, not live chain data.</span> <span className="hidden text-muted sm:inline">{TARGET_KIND === "local" ? "Not connected to the local deployment." : "No contract is deployed on testnet yet."} Writes are disabled.</span>
+            <span className="font-medium">Example data, not live chain data.</span> <span className="hidden text-muted sm:inline">{FIXTURE_SHORT_REASON} Writes are disabled.</span>
           </span>
           <button type="button" onClick={() => setOpen(true)} className="inline-flex min-h-8 shrink-0 items-center gap-1 rounded-md px-1 font-medium text-warning underline-offset-4 hover:underline">
             <IconInfo size={15} /> Why?

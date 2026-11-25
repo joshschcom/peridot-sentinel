@@ -46,7 +46,7 @@ export default function LandingPage() {
           <div className="min-w-0">
             <p className="inline-flex min-h-8 items-center gap-2 rounded-full border border-line-strong px-3 py-1 text-xs font-medium text-muted">
               <span className="size-1.5 rounded-full bg-warning" aria-hidden="true" />
-              Experimental build on X Layer testnet
+              Experimental build targeting X Layer testnet
             </p>
             <h1 className="display mt-6">
               Your money.

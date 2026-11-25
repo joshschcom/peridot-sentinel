@@ -111,9 +111,8 @@ export function simulateOperation(market: Market, position: Position, accountPol
     const base = { id: "protocol" as const, title: "Protocol safety limits", decisive: false };
     const fail = (name: string, detail: string): CheckResult => ({ ...base, status: "fail", detail, error: { name } });
     const supplied = leg === "collateral" ? market.collateral.totalSupplied : market.debt.totalSupplied;
-    if (!market.active && (op === Op.SUPPLY || op === Op.BORROW) && !(op === Op.SUPPLY && leg === "debt")) {
-      return fail("Inactive", "The market is not activated yet.");
-    }
+    // Inactive is a borrow-only check (confirmed by Astra): supplying to an inactive market is allowed.
+    if (!market.active && op === Op.BORROW) return fail("Inactive", "The market is not activated yet.");
     if (op === Op.SUPPLY && supplied.status === "ok") {
       const cap = leg === "collateral" ? market.limits.collateralSupplyCap : market.limits.debtSupplyCap;
       if (supplied.value + amount > cap) return fail("SupplyCapExceeded", `Supply cap is ${fmt(cap)}; ${fmt(supplied.value)} already supplied.`);

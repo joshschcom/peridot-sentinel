@@ -110,20 +110,20 @@ export function StudioCreate() {
               <StepTitle title="Assets and caps" body="Choose what can be supplied as collateral and what can be borrowed, then cap the market's size." />
               <div>
                 <div className="text-sm font-medium">Asset pair</div>
-                <div className="mt-2 flex items-center gap-4 rounded-control border border-fg p-4">
-                  <span className="flex shrink-0">
-                    <TokenGlyph token={collateral} />
-                    <TokenGlyph token={debt} className="-ml-2.5" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium">
-                      {collateral.symbol} collateral · borrow {debt.symbol}
-                    </div>
-                    <div className="text-[0.8125rem] text-muted">
-                      {collateral.name} ({collateral.decimals} decimals) · {debt.name} ({debt.decimals} decimals)
-                    </div>
+                <div className="mt-2 rounded-control border border-fg p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex shrink-0">
+                      <TokenGlyph token={collateral} />
+                      <TokenGlyph token={debt} className="-ml-2.5" />
+                    </span>
+                    <Badge tone="warning">Test tokens</Badge>
                   </div>
-                  <Badge tone="warning">Test tokens</Badge>
+                  <div className="mt-3 font-medium">
+                    {collateral.symbol} collateral · borrow {debt.symbol}
+                  </div>
+                  <div className="text-[0.8125rem] text-muted">
+                    {collateral.name} ({collateral.decimals} decimals) · {debt.name} ({debt.decimals} decimals)
+                  </div>
                 </div>
                 <p className="mt-2 text-[0.8125rem] text-muted">The test-profile factory creates markets for one approved pair. Arbitrary token pairs are not accepted, by design.</p>
               </div>

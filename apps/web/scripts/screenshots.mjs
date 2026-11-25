@@ -143,6 +143,42 @@ if (process.env.WALLET_CHECK === "wrong-network") {
     await context.close();
   }
   console.log("checked interactions");
+
+  // Mobile: the action sheet opens from the bottom bar, shows the same rejection state and does not overflow.
+  {
+    const { context, page, errors } = await open("/markets/example-0", 390, "light", 844);
+    const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    await page.locator("div.fixed").getByRole("button", { name: "Borrow" }).click();
+    const sheet = page.locator("dialog[open]");
+    await sheet.waitFor();
+    await sheet.locator('input[inputmode="decimal"]').fill("1400");
+    await sheet.locator("[data-rejection]").first().waitFor();
+    if ((await sheet.locator("[data-rejection]").first().getAttribute("data-rejection")) !== "account-policy") failures.push("mobile sheet: borrow 1400 should be an account-policy rejection");
+    if ((await overflow()) > 0) failures.push(`mobile sheet: horizontal overflow ${await overflow()}px`);
+    const dialogOverflow = await sheet.evaluate((el) => el.scrollWidth - el.clientWidth);
+    if (dialogOverflow > 0) failures.push(`mobile sheet: content overflows the sheet by ${dialogOverflow}px`);
+    if (!checksOnly) await page.screenshot({ path: `${OUT}/state-mobile-action-sheet-390-light.png` });
+    for (const error of errors) failures.push(`mobile sheet: console error: ${error.slice(0, 300)}`);
+    await context.close();
+  }
+  // Mobile: every wizard step fits at 360.
+  {
+    const { context, page, errors } = await open("/studio/create", 360, "light", 780);
+    for (let step = 1; step <= 4; step++) {
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      if (overflow > 0) failures.push(`wizard step ${step} @360: horizontal overflow ${overflow}px`);
+      if (!checksOnly && step > 1) await fullShot(page, `${OUT}/studio-create-step${step}-360-light.png`);
+      if (step < 4) {
+        await page.setViewportSize({ width: 360, height: 780 });
+        await page.locator('[data-testid="wizard-next"]').click();
+        await page.waitForTimeout(200);
+      }
+    }
+    if ((await page.getByText("createMarket(bytes32", { exact: false }).count()) !== 1) failures.push("wizard did not reach the review step");
+    for (const error of errors) failures.push(`wizard: console error: ${error.slice(0, 300)}`);
+    await context.close();
+  }
+  console.log("checked mobile sheet and wizard steps");
 }
 
 // 5. Screenshots.
