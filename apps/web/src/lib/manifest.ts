@@ -114,6 +114,31 @@ export function resolveManifest(chainId: number, raw: RawEntry): ManifestState {
   return { state: "deployed", chainId, manifest };
 }
 
+/** Contracts the app addresses by name. Tokens, books and the oracle are read from each controller. */
+export const REQUIRED_CONTRACTS = ["MarketFactory", "PolicyRegistry", "TapeOutPolicyAdapter", "SentinelAccountFactory"] as const;
+
+export type LiveReadiness = { ok: true } | { ok: false; reason: string };
+
+/**
+ * Static checks a `deployed` manifest must pass before any service may read the chain with it. They need no RPC,
+ * so a manifest that fails them keeps the whole build in labelled fixture mode. The RPC checks (chain id, bytecode at
+ * every address, on-chain template root) run on top of this in the browser before any read or write.
+ */
+export function liveReadiness(manifest: DeploymentManifest, sdkTemplateRoot: string): LiveReadiness {
+  const no = (reason: string): LiveReadiness => ({ ok: false, reason });
+  if (manifest.status !== "deployed") return no("the manifest is not marked deployed");
+  const missing = REQUIRED_CONTRACTS.filter((name) => !manifest.contracts[name]);
+  if (missing.length) return no(`required contract address missing: ${missing.join(", ")}`);
+  const zero = Object.entries(manifest.contracts).find(([, address]) => /^0x0{40}$/.test(address));
+  if (zero) return no(`contracts.${zero[0]} is the zero address`);
+  const root = manifest.capabilities.studioMarketTemplateRoot;
+  if (!root) return no("capabilities.studioMarketTemplateRoot is not published");
+  if (root.toLowerCase() !== sdkTemplateRoot.toLowerCase()) return no("the manifest's Studio template root differs from this build's policy compiler");
+  if (manifest.deploymentBlock === null || !/^\d+$/.test(manifest.deploymentBlock)) return no("deploymentBlock is missing, so log queries would have no lower bound");
+  if (manifest.tapeout.mode === "unavailable" || manifest.tapeout.processor === null) return no("no policy processor is published");
+  return { ok: true };
+}
+
 function isCircuit(value: unknown): boolean {
   return (
     isRecord(value) &&

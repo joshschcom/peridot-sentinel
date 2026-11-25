@@ -38,7 +38,7 @@ export const fixturePolicyService: PolicyService = {
 
 export const fixtureActivityService: ActivityService = {
   source: "fixture",
-  list: () => settle(ok(ACTIVITY)),
+  list: () => settle(ok({ entries: ACTIVITY })),
 };
 
 /**

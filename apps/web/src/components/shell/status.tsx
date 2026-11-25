@@ -1,12 +1,14 @@
 "use client";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button, cx } from "@/components/ui/core";
 import { IconAlert, IconInfo } from "@/components/ui/icons";
 import { Sheet } from "@/components/ui/sheet";
-import { useWallet } from "@/hooks/use-wallet";
+import { useDeploymentCheck, useWallet } from "@/hooks/use-wallet";
 import { TARGET_DETAIL, TARGET_KIND, TARGET_LABEL, WRITE_CHAIN, WRITE_CHAIN_ID, chainName } from "@/lib/chains";
 import { mapContractError } from "@/lib/errors";
 import { RUNTIME, services } from "@/services";
+import { resetDeploymentCheck } from "@/services/chain/client";
 
 /** Persistent network label. This build only ever targets X Layer testnet for writes. */
 export function NetworkPill({ className }: { className?: string }) {
@@ -22,7 +24,9 @@ export function NetworkPill({ className }: { className?: string }) {
 /** One-line reason for the banner, derived from the resolved manifest state so it cannot go stale. */
 const FIXTURE_SHORT_REASON =
   RUNTIME.manifest.state === "deployed"
-    ? "Contracts are deployed, but this build does not read them yet."
+    ? RUNTIME.live && !RUNTIME.live.ok
+      ? "The deployment manifest failed a safety check, so it is not used."
+      : "Contracts are deployed, but this build does not read them yet."
     : RUNTIME.manifest.state === "invalid"
       ? "The deployment manifest was rejected."
       : TARGET_KIND === "local"
@@ -74,6 +78,37 @@ export function FixtureBanner() {
         </div>
       </Sheet>
     </>
+  );
+}
+
+/**
+ * Chain mode only: shown when the in-browser deployment check fails (wrong chain id behind the RPC, an address
+ * without bytecode, a template root that differs, or an unreachable RPC). Reads are then "unavailable" everywhere
+ * and writes are blocked. The app does NOT fall back to example data here: that would look like live data.
+ */
+export function DeploymentBanner() {
+  const check = useDeploymentCheck();
+  const queryClient = useQueryClient();
+  const [busy, setBusy] = useState(false);
+  if (!check.data || check.data.ok) return null;
+  const retry = async () => {
+    setBusy(true);
+    resetDeploymentCheck();
+    await queryClient.invalidateQueries();
+    setBusy(false);
+  };
+  return (
+    <div role="alert" data-testid="deployment-banner" className="border-b border-danger bg-danger-soft">
+      <div className="mx-auto flex max-w-[100rem] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 text-sm sm:px-6">
+        <IconAlert size={18} className="shrink-0 text-danger" />
+        <p className="min-w-0 flex-1 break-words">
+          <span className="font-medium">Live data unavailable.</span> The deployment on {WRITE_CHAIN.name} could not be verified, so nothing is read from it and transactions are blocked. <span className="text-muted">{check.data.reason}.</span>
+        </p>
+        <Button size="sm" variant="secondary" onClick={retry} disabled={busy || check.isFetching}>
+          {busy || check.isFetching ? "Checking…" : "Check again"}
+        </Button>
+      </div>
+    </div>
   );
 }
 

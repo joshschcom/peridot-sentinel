@@ -9,7 +9,8 @@ export const xLayerTestnet = defineChain({
   id: 1952,
   name: "X Layer Testnet",
   nativeCurrency: { name: "OKB", symbol: "OKB", decimals: 18 },
-  rpcUrls: { default: { http: ["https://testrpc.xlayer.tech"] } },
+  // The override exists for a second official endpoint or a rate-limit workaround. It is public configuration, never a key.
+  rpcUrls: { default: { http: [process.env.NEXT_PUBLIC_TESTNET_RPC_URL || "https://testrpc.xlayer.tech"] } },
   blockExplorers: { default: { name: "OKX Explorer", url: "https://www.okx.com/web3/explorer/xlayer-test" } },
   testnet: true,
 });
@@ -42,6 +43,15 @@ export const WRITE_CHAIN_ID: number = WRITE_CHAIN.id;
 export const TARGET_LABEL = TARGET_KIND === "local" ? "Local development chain" : "Testnet";
 export const TARGET_DETAIL = TARGET_KIND === "local" ? "Anvil · 31337" : "X Layer · 1952";
 export const READ_ONLY_CHAIN_ID = xLayerMainnet.id;
+
+const positiveInt = (value: string | undefined, fallback: number): number => (value && /^[1-9]\d{0,8}$/.test(value) ? Number(value) : fallback);
+/**
+ * eth_getLogs paging. Both official X Layer testnet RPCs refuse more than 100 blocks per query (checked 2026-11-25),
+ * so the testnet default is 100. A refused page is halved at runtime, so a wrong value costs requests, not correctness.
+ */
+export const LOG_PAGE_BLOCKS = BigInt(positiveInt(process.env.NEXT_PUBLIC_LOG_PAGE_BLOCKS, TARGET_KIND === "local" ? 5000 : 100));
+/** Pages a first scan may fetch back from the head. History before that is reported as not scanned. */
+export const LOG_MAX_PAGES = positiveInt(process.env.NEXT_PUBLIC_LOG_MAX_PAGES, 40);
 
 export function chainName(chainId: number | undefined): string {
   if (chainId === xLayerTestnet.id) return xLayerTestnet.name;

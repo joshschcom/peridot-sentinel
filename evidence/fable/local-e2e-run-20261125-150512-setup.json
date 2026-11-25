@@ -1,0 +1,224 @@
+{
+  "label": "Local development chain (unforked Anvil 31337) with the development reference processor. Not TapeOut, not a public transaction: these hashes exist only on this local node and must never be linked to an explorer.",
+  "note": "Setup stage of the run-2 E2E (scripts/e2e-local.mjs --stop-after=rejections), run id run-20261125-150512. The script did not yet write its own JSON on a requested stop, so this file was produced afterwards by reading every transaction sent by the E2E owner account from the node (blocks 47 to the block below). Step labels are in the MILESTONE_LOG entry; screenshots in evidence/screenshots/local-e2e/run-20261125-150512/.",
+  "rpc": "http://127.0.0.1:18545",
+  "chainId": 31337,
+  "nodeInstanceId": "0xb5c6d66bb5f479feeedb14b148e63b526d74c86b029e3c71727ffd7509961552",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "accountIndex": 4,
+  "fromBlock": 47,
+  "toBlock": 68,
+  "markets": {
+    "A": {
+      "controller": "0x72D1fE35eB1aEb7437eEeCa567A93F67dD76A9dA",
+      "policyCapBps": 6500,
+      "sentinel": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51"
+    },
+    "B": {
+      "controller": "0xc72500B2CA87DF8f964662A6bd3E4D94fA6Cf90d",
+      "policyCapBps": 5000,
+      "sentinel": "0x1881d02D05a44713a69d6eDDE3e7167792A636d6"
+    },
+    "accountPolicyCapBps": 5500
+  },
+  "rejectionsObserved": [
+    {
+      "market": "A",
+      "borrow": "9.6 mUSD",
+      "postLtvBps": 6000,
+      "app": "account-policy (account fail/simulation, market pass/local-preview)",
+      "entrypointRevert": "AccountPolicyRejected",
+      "accountCircuitEthCall": "AccountPolicyRejected",
+      "marketCircuitEthCall": "allow",
+      "sent": false
+    },
+    {
+      "market": "B",
+      "borrow": "8.32 mUSD",
+      "postLtvBps": 5200,
+      "app": "market-policy (account pass/simulation, market fail/simulation)",
+      "entrypointRevert": "MarketPolicyRejected",
+      "accountCircuitEthCall": "allow",
+      "marketCircuitEthCall": "MarketPolicyRejected",
+      "sent": false
+    }
+  ],
+  "receipts": [
+    {
+      "hash": "0xefe1744fb9d6d8e8edf8c856e8aa37f666d831b8edf801acdb34ff4bbfb01011",
+      "to": "0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0",
+      "selector": "0x037bf465",
+      "block": 47,
+      "status": "success",
+      "gasUsed": 3113509
+    },
+    {
+      "hash": "0xb74aefb8e14875f4a2e0388ac7c9dbff9135a0b48e7ec5e2fc4d73262ff16cca",
+      "to": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      "selector": "0x40c10f19",
+      "block": 48,
+      "status": "success",
+      "gasUsed": 51023
+    },
+    {
+      "hash": "0xc73ed3882649c3ddc5b55cc49606834df9f8ee94d74cc99bfa5a5c57a51bbfbf",
+      "to": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+      "selector": "0x40c10f19",
+      "block": 49,
+      "status": "success",
+      "gasUsed": 50975
+    },
+    {
+      "hash": "0x559c37f458463e114c4664ed67a419bf94fe223c6f9434f4a8928e477d7a0fb3",
+      "to": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+      "selector": "0x095ea7b3",
+      "block": 50,
+      "status": "success",
+      "gasUsed": 45926
+    },
+    {
+      "hash": "0xd9839ab2380365670e9c2bab358a1b4f7e00d6762ca6f6dd5e1a0103e985a663",
+      "to": "0x46a9cf43b44f5ceb06747af10955a02fd6671783",
+      "selector": "0xa0712d68",
+      "block": 51,
+      "status": "success",
+      "gasUsed": 325084
+    },
+    {
+      "hash": "0xf18ee015efc4e30573342310a4e86e019627e95793efd4dd6c378bfdc3a51a32",
+      "to": "0x72d1fe35eb1aeb7437eeeca567a93f67dd76a9da",
+      "selector": "0x0f15f4c0",
+      "block": 52,
+      "status": "success",
+      "gasUsed": 93845
+    },
+    {
+      "hash": "0x5bb0dc53fb44cb725e2242f067d87c934cd7ee334c64f2729de95471958c4dbc",
+      "to": "0x0dcd1bf9a1b36ce34237eeafef220932846bcd82",
+      "selector": "0xf14ddffc",
+      "block": 53,
+      "status": "success",
+      "gasUsed": 1706969
+    },
+    {
+      "hash": "0x33a32c1899e62e3b4a7acea12c9b17bcfd04233f0b7b8a354c21165563dbcfe8",
+      "to": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      "selector": "0xa9059cbb",
+      "block": 54,
+      "status": "success",
+      "gasUsed": 51275
+    },
+    {
+      "hash": "0x7684e1f27f4b6e16d05f932974a969e68da97c065da842d1e33de26d44d5aed8",
+      "to": "0x4ae5af759e17599107c1c688bfacf6131c376d51",
+      "selector": "0x35403023",
+      "block": 55,
+      "status": "success",
+      "gasUsed": 448888
+    },
+    {
+      "hash": "0x5d36770749e0b2f84f8611f9a5165c8743e13cc7611a1f7446851ddee41eedae",
+      "to": "0x4ae5af759e17599107c1c688bfacf6131c376d51",
+      "selector": "0xc1466108",
+      "block": 56,
+      "status": "success",
+      "gasUsed": 51056
+    },
+    {
+      "hash": "0xdf70f413aeef1d863c94b032fbd049a49b8dc17eb3bb6c9d9bdb68b212080900",
+      "to": "0xa513e6e4b8f2a923d98304ec87f64353c4d5c853",
+      "selector": "0x301311b6",
+      "block": 57,
+      "status": "success",
+      "gasUsed": 415804
+    },
+    {
+      "hash": "0x4cc00246b9e187ae4d7b9f73db3fddb5f8873655455484a0414c7ff41bcd8683",
+      "to": "0x5fc8d32690cc91d4c39d9d3abcbd16989f875707",
+      "selector": "0x97a0d42c",
+      "block": 58,
+      "status": "success",
+      "gasUsed": 318778
+    },
+    {
+      "hash": "0x4a8504fec78f3931599013cc8b6511906e9e8ee320aaf04ff24217cb25083d1e",
+      "to": "0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0",
+      "selector": "0x037bf465",
+      "block": 59,
+      "status": "success",
+      "gasUsed": 3113509
+    },
+    {
+      "hash": "0xe6ebc298046d34ccab473a4d88f7b10608e2418ff906db50c276bf12a8be01e4",
+      "to": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      "selector": "0x40c10f19",
+      "block": 60,
+      "status": "success",
+      "gasUsed": 33923
+    },
+    {
+      "hash": "0xfe1989a285c26552ed49baf5ad203faec8de657f636553551014735432bfbf33",
+      "to": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+      "selector": "0x40c10f19",
+      "block": 61,
+      "status": "success",
+      "gasUsed": 33875
+    },
+    {
+      "hash": "0x0a7d9aa6b721b58fe3a6c4dde1d09165263c0ad7469aa82c35b60746cc507446",
+      "to": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+      "selector": "0x095ea7b3",
+      "block": 62,
+      "status": "success",
+      "gasUsed": 45926
+    },
+    {
+      "hash": "0xfff41bd9245a81899825e075f6040341b2be0a79bcbd1897966bea3169cce210",
+      "to": "0x9ace813b1ada8a75df6518a6d1b50f1a418cdab7",
+      "selector": "0xa0712d68",
+      "block": 63,
+      "status": "success",
+      "gasUsed": 324641
+    },
+    {
+      "hash": "0x166e843c8d1c6c53bcdd664ad28dc169c0f5405bfba2439c9d8ec8668635c8b5",
+      "to": "0xc72500b2ca87df8f964662a6bd3e4d94fa6cf90d",
+      "selector": "0x0f15f4c0",
+      "block": 64,
+      "status": "success",
+      "gasUsed": 93845
+    },
+    {
+      "hash": "0xa74a499711276ebcf8a2343f22f2706981524bdedda169cd9049b21b0246e689",
+      "to": "0x0dcd1bf9a1b36ce34237eeafef220932846bcd82",
+      "selector": "0xf14ddffc",
+      "block": 65,
+      "status": "success",
+      "gasUsed": 1706957
+    },
+    {
+      "hash": "0x6753f14ed2624bd374f63b6724c8c1c4b3677454d7d220fc5cdde08ce141f603",
+      "to": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      "selector": "0xa9059cbb",
+      "block": 66,
+      "status": "success",
+      "gasUsed": 51275
+    },
+    {
+      "hash": "0x628bdf8c05af37da54e6924462fedfad5e87eb2409d88fee86011f0e05601b30",
+      "to": "0x1881d02d05a44713a69d6edde3e7167792a636d6",
+      "selector": "0x35403023",
+      "block": 67,
+      "status": "success",
+      "gasUsed": 448445
+    },
+    {
+      "hash": "0x191460952ef2f145160f1b5aca717817856b1a861a737b6c5407ecdc2ba0c2b8",
+      "to": "0x1881d02d05a44713a69d6edde3e7167792a636d6",
+      "selector": "0xc1466108",
+      "block": 68,
+      "status": "success",
+      "gasUsed": 51056
+    }
+  ]
+}

@@ -1,80 +1,74 @@
 // Local wallet E2E against the shared development chain (Anvil 31337, development reference processor).
-//   Server: NEXT_PUBLIC_PERIDOT_TARGET=local next dev -p 3211
-//   Run:    PLAYWRIGHT_BROWSERS_PATH=0 node scripts/e2e-local.mjs
-// The "wallet" is a test-only EIP-1193 provider injected into the page. It forwards to the loopback RPC and
+//   Server: KEEPER_API_URL=http://127.0.0.1:8787 NEXT_PUBLIC_PERIDOT_TARGET=local npm run dev -- -p 3211 -H 127.0.0.1
+//   Run:    PLAYWRIGHT_BROWSERS_PATH=0 node scripts/e2e-local.mjs [--activity-only] [--stop-after=<stage>]
+// The "wallet" is a test-only EIP-1193 provider (scripts/lib/test-wallet.mjs). It forwards to the loopback RPC and
 // lets Anvil sign with one of its unlocked accounts: there is no private key anywhere in this repo.
-// It refuses to run against anything but a loopback RPC on chain 31337.
+// It refuses to run against anything but a loopback RPC on chain 31337, and only with accounts #3-#9.
+//
+// The run is resumable: every stage first reads the chain and skips what already exists (markets are found by
+// owner + policy, accounts through the factory), so a failed run does not leave a new pair of markets behind.
+// After every write the script reads the chain itself and asserts the new state; a green toast is not evidence.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { IsolatedControllerAbi, MarketFactoryAbi, MarketPTokenAbi, PolicyRegistryAbi, SentinelAccountAbi, SentinelAccountFactoryAbi, TapeOutPolicyAdapterAbi, TestnetOracleAbi, TestnetTokenAbi, DemoRateModelAbi } from "@peridot/chain-config";
+import { studioMarketTemplate } from "@peridot/circuit-sdk";
 import { chromium } from "playwright";
-import { createPublicClient, http, parseAbi } from "viem";
+import { BaseError, ContractFunctionRevertedError, createPublicClient, http, parseEventLogs, zeroAddress } from "viem";
+import { LOOPBACK_RPC, connectWallet, installTestWallet, jsonRpc } from "./lib/test-wallet.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const BASE = process.env.BASE_URL ?? "http://127.0.0.1:3211";
 const RPC = process.env.LOCAL_RPC ?? "http://127.0.0.1:18545";
-const MARKET_FACTORY = JSON.parse(readFileSync(resolve(here, "../../../packages/chain-config/deployments/31337.json"), "utf8")).contracts.MarketFactory;
-const ACCOUNT_INDEX = Number(process.env.E2E_ACCOUNT_INDEX ?? 3); // not #0 (deployer/demo owner), not #1 (keeper operator)
+const MANIFEST = JSON.parse(readFileSync(resolve(here, "../../../packages/chain-config/deployments/31337.json"), "utf8"));
+const C = MANIFEST.contracts;
+const OWNER_INDEX = Number(process.env.E2E_ACCOUNT_INDEX ?? 4); // never #0 (deployer/demo owner) or #1 (keeper operator)
+const OPERATOR_INDEX = Number(process.env.E2E_OPERATOR_INDEX ?? 5); // an address only: it never signs anything
 const ACTIVITY_ONLY = process.argv.includes("--activity-only"); // read-only: loads the activity view, sends nothing
+const KEEPER_URL = process.env.KEEPER_URL === "" ? null : (process.env.KEEPER_URL ?? "http://127.0.0.1:8787"); // read directly only to compare with what the app shows
+const STOP_AFTER = process.argv.find((arg) => arg.startsWith("--stop-after="))?.slice(13) ?? null;
 // Evidence is run-scoped so a later run (for example after the shared node is redeployed) never overwrites it.
 const RUN_ID = `run-${new Date().toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15)}`;
-const SHOTS = resolve(here, "../../../evidence/screenshots/local-e2e", ACTIVITY_ONLY ? "activity-only" : RUN_ID);
+const SHOTS = resolve(here, "../../../evidence/screenshots/local-e2e", ACTIVITY_ONLY ? `activity-only-${RUN_ID}` : RUN_ID);
 const OUT = resolve(here, "../../../evidence/fable");
-if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(RPC)) throw new Error("E2E only runs against a loopback RPC");
-if (ACCOUNT_INDEX < 2) throw new Error("Use a dedicated account (index >= 2)");
+if (!LOOPBACK_RPC.test(RPC)) throw new Error("E2E only runs against a loopback RPC");
+for (const index of [OWNER_INDEX, OPERATOR_INDEX]) if (!(index >= 3 && index <= 9)) throw new Error("Use accounts #3-#9 only");
+if (OWNER_INDEX === OPERATOR_INDEX) throw new Error("Owner and operator must differ");
 
-const rpc = async (method, params = []) => {
-  const response = await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) });
-  const json = await response.json();
-  if (json.error) throw new Error(`${method}: ${json.error.message}`);
-  return json.result;
-};
-const chainId = await rpc("eth_chainId");
+const chainId = await jsonRpc(RPC, "eth_chainId");
 if (chainId !== "0x7a69") throw new Error(`Expected chain 31337, got ${chainId}`);
-const account = (await rpc("eth_accounts"))[ACCOUNT_INDEX];
-const startBlock = Number(await rpc("eth_blockNumber"));
+const accounts = await jsonRpc(RPC, "eth_accounts");
+const account = accounts[OWNER_INDEX];
+const operator = accounts[OPERATOR_INDEX];
+const startBlock = Number(await jsonRpc(RPC, "eth_blockNumber"));
 mkdirSync(SHOTS, { recursive: true });
 mkdirSync(OUT, { recursive: true });
 
-const sent = [];
+const chain = createPublicClient({ transport: http(RPC) });
+const read = (address, abi, functionName, args = []) => chain.readContract({ address, abi, functionName, args });
+const same = (a, b) => a.toLowerCase() === b.toLowerCase();
+const assert = (condition, message) => {
+  if (!condition) throw new Error(`ASSERTION FAILED: ${message}`);
+};
+const WAD = 10n ** 18n;
+const USD = (whole) => BigInt(Math.round(whole * 1e6)); // mUSD has 6 decimals; only used for round test amounts
+const fmtUsd = (raw) => `${raw / 1_000_000n}.${String(raw % 1_000_000n).padStart(6, "0")}`.replace(/\.?0+$/, "");
+
+/** Name of the custom error an eth_call of this entrypoint reverts with, or null if it would succeed. Nothing is sent. */
+async function revertName(from, address, abi, functionName, args) {
+  try {
+    await chain.simulateContract({ account: from, address, abi: [...abi, ...IsolatedControllerAbi.filter((i) => i.type === "error"), ...TapeOutPolicyAdapterAbi.filter((i) => i.type === "error"), ...PolicyRegistryAbi.filter((i) => i.type === "error")], functionName, args });
+    return null;
+  } catch (error) {
+    const revert = error instanceof BaseError ? error.walk((cause) => cause instanceof ContractFunctionRevertedError) : null;
+    return revert instanceof ContractFunctionRevertedError ? (revert.data?.errorName ?? `unknown(${revert.raw ?? ""})`) : `non-revert: ${String(error).slice(0, 120)}`;
+  }
+}
+
 const steps = [];
 const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: "light", reducedMotion: "reduce" });
-await context.exposeBinding("__recordTx", (_source, tx) => sent.push(tx));
-await context.addInitScript(
-  ({ RPC, account, chainId }) => {
-    let id = 0;
-    const call = async (method, params) => {
-      const response = await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: ++id, method, params: params ?? [] }) });
-      const json = await response.json();
-      if (json.error) throw Object.assign(new Error(json.error.message), { code: json.error.code, data: json.error.data });
-      return json.result;
-    };
-    const listeners = {};
-    window.ethereum = {
-      isPeridotTestProvider: true,
-      request: async ({ method, params }) => {
-        if (method === "eth_requestAccounts" || method === "eth_accounts") return [account];
-        if (method === "eth_chainId") return chainId;
-        if (method === "net_version") return String(parseInt(chainId, 16));
-        if (method === "wallet_switchEthereumChain") return null;
-        if (method === "wallet_requestPermissions" || method === "wallet_getPermissions") return [{ parentCapability: "eth_accounts" }];
-        if (method === "wallet_revokePermissions") return null;
-        if (method === "eth_sendTransaction") {
-          const tx = { ...params[0], from: account };
-          const hash = await call(method, [tx]);
-          window.__recordTx({ hash, to: tx.to, selector: (tx.data ?? "0x").slice(0, 10) });
-          return hash;
-        }
-        return call(method, params);
-      },
-      on: (event, handler) => void (listeners[event] ??= []).push(handler),
-      removeListener: (event, handler) => void (listeners[event] = (listeners[event] ?? []).filter((entry) => entry !== handler)),
-    };
-  },
-  { RPC, account, chainId },
-);
-
+const { sent } = await installTestWallet(context, { rpcUrl: RPC, account, walletChainId: chainId, readOnly: ACTIVITY_ONLY });
 const page = await context.newPage();
 const problems = [];
 page.on("pageerror", (error) => problems.push(`pageerror: ${String(error).slice(0, 300)}`));
@@ -87,159 +81,234 @@ const shot = async (name) => {
 const record = (label, before, extra = {}) => {
   const txs = sent.slice(before).map((tx) => tx.hash);
   steps.push({ label, txs, ...extra });
-  console.log(`${label}: ${txs.length} tx ${txs.join(" ")}`);
-};
-const connect = async () => {
-  if (await page.locator('[data-testid="wallet-connected"]:visible').count()) return;
-  await page.locator('[data-testid="wallet-connect"]:visible').first().click();
-  await page.locator("dialog[open] ul button").first().click();
-  await page.locator('[data-testid="wallet-connected"]:visible').first().waitFor({ timeout: 15000 });
+  console.log(`${label}: ${txs.length} tx ${txs.join(" ")}${extra.asserted ? ` | on chain: ${extra.asserted}` : ""}`);
+  return txs;
 };
 const go = async (path) => {
   await page.goto(BASE + path, { waitUntil: "networkidle" });
-  await connect();
-  await page.waitForTimeout(600);
+  await connectWallet(page);
+  await page.waitForFunction(() => !document.querySelector("[data-loading]"), null, { timeout: 20000 }).catch(() => {});
+  await page.waitForTimeout(400);
 };
-/** Clicks a button that starts a transaction plan and waits for its confirmed result inside `scope`. */
-const transact = async (scope, button, label, expectTx = 1) => {
+/**
+ * Clicks a button that starts a transaction plan and waits for THIS run's confirmed result inside `scope`.
+ * Then `verify` reads the chain and returns a short description of what it asserted.
+ */
+const transact = async (scope, button, label, verify) => {
   const before = sent.length;
+  await scope.locator('[data-testid="tx-success"]').evaluateAll((nodes) => nodes.forEach((node) => node.setAttribute("data-stale", "1")));
   await button.click();
-  const outcome = scope.locator('[data-testid="tx-success"], [data-rejection]').last();
-  await page.waitForFunction((count) => window.__e2eSent?.() >= count, before + expectTx, { timeout: 100 }).catch(() => {});
-  const deadline = Date.now() + 60000;
-  while (sent.length < before + expectTx && Date.now() < deadline) await page.waitForTimeout(250);
-  await scope.locator('[data-testid="tx-success"]').waitFor({ timeout: 60000 }).catch(async () => {
-    throw new Error(`${label}: no confirmed result. Visible: ${(await scope.locator('[data-testid="tx-feedback"]').innerText().catch(() => "no feedback")).slice(0, 400)}`);
+  const done = scope.locator('[data-testid="tx-success"]:not([data-stale]), [data-testid="tx-feedback"] [data-rejection]').first();
+  await done.waitFor({ timeout: 90000 }).catch(async () => {
+    throw new Error(`${label}: no result. Visible: ${(await scope.locator('[data-testid="tx-feedback"]').innerText().catch(() => "no feedback")).slice(0, 400)}`);
   });
-  void outcome;
-  record(label, before);
+  if ((await done.getAttribute("data-rejection")) !== null) throw new Error(`${label}: failed in the app: ${(await done.innerText()).slice(0, 300)}`);
+  const shownHash = await done.getAttribute("data-hash");
+  const txs = sent.slice(before).map((tx) => tx.hash);
+  if (txs.length) assert(shownHash === txs.at(-1), `${label}: the confirmed hash shown (${shownHash}) is not the last hash sent (${txs.at(-1)})`);
+  for (const hash of txs) assert((await chain.getTransactionReceipt({ hash })).status === "success", `${label}: ${hash} did not succeed`);
+  const asserted = verify ? await verify(txs) : undefined;
+  record(label, before, asserted ? { asserted } : {});
+  return txs;
 };
 
-try {
-  // 0. The displayed borrow rate of market #0 must equal ratePerBlock x blocksPerYear() read from chain right now.
-  const chain = createPublicClient({ transport: http(RPC) });
-  const rateAbi = parseAbi(["function marketAt(uint256) view returns (address)", "function debtMarket() view returns (address)", "function borrowRatePerBlock() view returns (uint256)", "function interestRateModel() view returns (address)", "function blocksPerYear() view returns (uint256)"]);
-  const controller0 = await chain.readContract({ address: MARKET_FACTORY, abi: rateAbi, functionName: "marketAt", args: [0n] });
-  const debt0 = await chain.readContract({ address: controller0, abi: rateAbi, functionName: "debtMarket" });
-  const perBlock = await chain.readContract({ address: debt0, abi: rateAbi, functionName: "borrowRatePerBlock" });
-  const blocksPerYear = await chain.readContract({ address: await chain.readContract({ address: debt0, abi: rateAbi, functionName: "interestRateModel" }), abi: rateAbi, functionName: "blocksPerYear" });
-  const expectedBps = (perBlock * blocksPerYear * 10000n) / 10n ** 18n;
-  const expectedText = `${(Number(expectedBps) / 100).toFixed(2).replace(/\.?0+$/, "")}% APR`;
-  await go("/markets");
-  const shownRate = (await page.locator("main li").first().locator("dd").nth(2).innerText()).trim();
-  console.log(`market #0 borrow rate: shown "${shownRate}", on-chain ${perBlock} x ${blocksPerYear} blocks/yr = ${expectedBps} bps ("${expectedText}")`);
-  if (shownRate !== expectedText) throw new Error(`Displayed borrow rate ${shownRate} does not match the on-chain rate ${expectedText}`);
-  steps.push({ label: "rate display check (read-only)", txs: [], shown: shownRate, ratePerBlock: perBlock.toString(), blocksPerYear: blocksPerYear.toString(), expectedBps: expectedBps.toString() });
+/* ---------- chain state helpers ---------- */
 
-  let marketId = null;
-  let sentinelRejection = "account-policy";
-  let marketRejection = "market-policy";
-  if (!ACTIVITY_ONLY) {
-  // 1. Studio: create a market with a new policy threshold (55%, reserve on): circuit -> register -> create.
-  await go("/studio/create");
-  if ((await page.locator('[data-testid="fixture-banner"]').count()) !== 0) throw new Error("App is in fixture mode: start the server with NEXT_PUBLIC_PERIDOT_TARGET=local");
-  if (!(await page.locator('[data-testid="network-pill"]:visible').first().innerText()).includes("Local development chain")) throw new Error("Network label is not 'Local development chain'");
-  await page.getByLabel("Cash reserve").fill("10");
-  await page.locator('[data-testid="wizard-next"]').click();
-  await page.getByRole("radio", { name: /Custom/ }).click();
-  // Policy cap 55% with a 70% borrowing limit and 80% liquidation: a threshold the demo deployment has not registered.
-  await page.locator("#cap").fill("5500");
-  await page.locator("#borrow").fill("7000");
-  await page.locator("#liq").fill("8000");
-  await page.locator('[data-testid="wizard-next"]').click();
-  await page.getByText("Roots match").waitFor({ timeout: 15000 });
-  await shot("01-studio-circuit-step");
-  await page.locator('[data-testid="wizard-next"]').click();
-  const wizard = page.locator("main");
-  await transact(wizard, page.locator('[data-testid="create-market"]'), "studio: (circuit on processor, register market template when the policy is new) + create market", 1);
-  await shot("02-studio-market-created");
-  await page.locator('[data-testid="open-created-market"]').click();
-  await page.waitForURL(/\/studio\/0x[0-9a-fA-F]{40}$/);
-  marketId = page.url().split("/").pop();
-  console.log("market", marketId);
+const registry = C.PolicyRegistry;
+async function findMarket(capBps) {
+  const configHash = studioMarketTemplate(capBps, true).compiled.configHash;
+  const count = Number(await read(C.MarketFactory, MarketFactoryAbi, "marketCount"));
+  let found = null;
+  for (let index = 0; index < count; index++) {
+    const controller = await read(C.MarketFactory, MarketFactoryAbi, "marketAt", [BigInt(index)]);
+    if (!same(await read(controller, IsolatedControllerAbi, "owner"), account)) continue;
+    const entry = await read(registry, PolicyRegistryAbi, "getPolicy", [await read(controller, IsolatedControllerAbi, "policyId")]);
+    if (same(entry.configHash, configHash)) found = controller;
+  }
+  return found;
+}
+async function marketState(controller) {
+  const [active, collateralMarket, debtMarket, collateralAsset, debtAsset, policyId] = await Promise.all(
+    ["active", "collateralMarket", "debtMarket", "collateralAsset", "debtAsset", "policyId"].map((name) => read(controller, IsolatedControllerAbi, name)),
+  );
+  const sentinel = await read(C.SentinelAccountFactory, SentinelAccountFactoryAbi, "accountOf", [account, controller]);
+  const holder = sentinel === zeroAddress ? null : sentinel;
+  const [lentShares, walletCollateral, walletDebtAsset, walletCollateralShares] = await Promise.all([
+    read(debtMarket, MarketPTokenAbi, "balanceOf", [account]),
+    read(collateralAsset, TestnetTokenAbi, "balanceOf", [account]),
+    read(debtAsset, TestnetTokenAbi, "balanceOf", [account]),
+    read(collateralMarket, MarketPTokenAbi, "balanceOf", [account]),
+  ]);
+  const s = holder
+    ? await Promise.all([
+        read(collateralMarket, MarketPTokenAbi, "balanceOf", [holder]),
+        read(collateralMarket, MarketPTokenAbi, "exchangeRateStored"),
+        read(debtMarket, MarketPTokenAbi, "borrowBalanceStored", [holder]),
+        read(debtAsset, TestnetTokenAbi, "balanceOf", [holder]),
+        read(collateralAsset, TestnetTokenAbi, "balanceOf", [holder]),
+        read(controller, IsolatedControllerAbi, "collateralEntered", [holder]),
+        read(holder, SentinelAccountAbi, "policyId"),
+        read(holder, SentinelAccountAbi, "autoRepayTriggerBps"),
+      ])
+    : null;
+  return {
+    controller, active, collateralMarket, debtMarket, collateralAsset, debtAsset, policyId, sentinel: holder, lentShares, walletCollateral, walletDebtAsset, walletCollateralShares,
+    collateralUnderlying: s ? (s[0] * s[1]) / WAD : 0n, debt: s ? s[2] : 0n, idleDebtAsset: s ? s[3] : 0n, idleCollateral: s ? s[4] : 0n, entered: s ? s[5] : false, accountPolicyId: s ? s[6] : null, trigger: s ? s[7] : 0,
+  };
+}
 
-  // 2. Seed lending liquidity directly from the wallet, then activate as the owner.
-  await go(`/markets/${marketId}`);
-  const panel = page.locator('aside [data-testid="action-panel"]');
-  const amount = panel.locator('input[inputmode="decimal"]');
-  const submit = panel.locator('[data-testid="submit"]');
-  await transact(panel, panel.locator('[data-testid="mint-test-tokens"]'), "wallet: mint test tokens (permissionless mock tokens)", 2);
-  await panel.getByRole("tab", { name: "Supply" }).click();
-  await panel.getByRole("button", { name: /^Lend / }).click();
-  await amount.fill("500");
-  await panel.getByText("Before you sign").waitFor();
-  await transact(panel, submit, "wallet: approve + supply 500 debt-asset liquidity (direct pToken mint)", 2);
-  await shot("03-market-liquidity-supplied");
+const panel = page.locator('aside [data-testid="action-panel"]');
+const amount = panel.locator('input[inputmode="decimal"]');
+const submit = panel.locator('[data-testid="submit"]');
+const previewReady = async () => {
+  await panel.getByText("Before you sign").waitFor({ timeout: 20000 });
+  await page.waitForTimeout(500);
+};
 
-  await go(`/studio/${marketId}`);
-  await transact(page.locator("main"), page.locator('[data-testid="activate-market"]'), "studio: activate market", 1);
-  await shot("04-studio-market-activated");
+/** Creates (or finds) a market with this policy cap, seeds and activates it, and gives the owner a funded Sentinel account. */
+async function ensureMarket(key, capBps) {
+  let controller = await findMarket(capBps);
+  if (!controller) {
+    await go("/studio/create");
+    assert((await page.locator('[data-testid="fixture-banner"]').count()) === 0, "App is in fixture mode: start the server with NEXT_PUBLIC_PERIDOT_TARGET=local");
+    assert((await page.locator('[data-testid="network-pill"]:visible').first().innerText()).includes("Local development chain"), "Network label is not 'Local development chain'");
+    await page.getByLabel("Cash reserve").fill("10");
+    await page.locator('[data-testid="wizard-next"]').click();
+    await page.getByRole("radio", { name: /Custom/ }).click();
+    // The protocol borrowing limit (70%) stays above both policy caps, so the circuit is the binding rule.
+    await page.locator("#cap").fill(String(capBps));
+    await page.locator("#borrow").fill("7000");
+    await page.locator("#liq").fill("8000");
+    await page.locator('[data-testid="wizard-next"]').click();
+    await page.getByText("Roots match").waitFor({ timeout: 15000 });
+    if (key === "A") await shot("01-studio-circuit-step-market-A-65");
+    await page.locator('[data-testid="wizard-next"]').click();
+    await transact(page.locator("main"), page.locator('[data-testid="create-market"]'), `studio: market ${key} with a ${capBps / 100}% policy cap (circuit on processor + register template when the policy is new, then createMarket)`, async () => {
+      controller = await findMarket(capBps);
+      assert(controller, "created market not found on chain");
+      const entry = await read(registry, PolicyRegistryAbi, "getPolicy", [await read(controller, IsolatedControllerAbi, "policyId")]);
+      return `controller ${controller}, owner is the wallet, policy configHash == SDK template(${capBps}, reserve on), circuit #${entry.circuitId}`;
+    });
+    await shot(`02-studio-market-${key}-created`);
+    assert(same(await page.locator('[data-testid="open-created-market"]').getAttribute("href"), `/studio/${controller}`), "the created-market link does not point at the controller found on chain");
+  } else {
+    console.log(`market ${key} (${capBps / 100}% cap) already exists: ${controller}`);
+  }
+  let state = await marketState(controller);
 
-  // 3. Sentinel: create the account, fund + supply + enable collateral, see a rejection, then borrow.
-  await go("/sentinel");
-  const index = await page.evaluate(async (id) => id, marketId);
-  void index;
-  const createButton = page.locator('[data-testid^="create-account-"]').last();
-  await transact(page.locator("main"), createButton, "sentinel: create account for the new market", 1);
-  await shot("05-sentinel-account-created");
+  if (state.lentShares === 0n) {
+    await go(`/markets/${controller}`);
+    if (state.walletDebtAsset < USD(600) || state.walletCollateral < 30n * WAD) {
+      await transact(panel, panel.locator('[data-testid="mint-test-tokens"]'), `wallet: mint test tokens for market ${key} (permissionless mock tokens)`, async () => {
+        const after = await marketState(controller);
+        assert(after.walletDebtAsset >= state.walletDebtAsset + USD(1000) && after.walletCollateral >= state.walletCollateral + 1000n * WAD, "mint did not arrive");
+        return "wallet +1000 mCOL, +1000 mUSD";
+      });
+    }
+    await panel.getByRole("tab", { name: "Supply" }).click();
+    await panel.getByRole("button", { name: /^Lend / }).click();
+    await amount.fill("500");
+    await previewReady();
+    await transact(panel, submit, `wallet: approve exact amount + lend 500 mUSD to market ${key} (direct pToken mint)`, async () => {
+      const cash = await read(state.debtMarket, MarketPTokenAbi, "getCash");
+      assert(cash >= USD(500), `debt book cash is ${cash}`);
+      assert((await read(state.debtAsset, TestnetTokenAbi, "allowance", [account, state.debtMarket])) === 0n, "allowance left over after an exact approval");
+      return `debt book cash ${fmtUsd(cash)} mUSD, leftover allowance 0`;
+    });
+  }
+  if (!state.active) {
+    await go(`/studio/${controller}`);
+    await transact(page.locator("main"), page.locator('[data-testid="activate-market"]'), `studio: activate market ${key}`, async () => {
+      assert(await read(controller, IsolatedControllerAbi, "active"), "market is not active");
+      return "controller.active() == true";
+    });
+    if (key === "A") await shot("03-studio-market-A-activated");
+  }
+  state = await marketState(controller);
+  if (!state.sentinel) {
+    await go("/sentinel");
+    await transact(page.locator("main"), page.locator(`[data-testid="create-account-${controller}"]`), `sentinel: create account for market ${key}`, async () => {
+      state = await marketState(controller);
+      assert(state.sentinel, "no account from the factory");
+      assert(same(await read(state.sentinel, SentinelAccountAbi, "owner"), account), "account owner is not the wallet");
+      const fixture = MANIFEST.tapeout.circuits.find((circuit) => circuit.kind === "ACCOUNT").policyId;
+      assert(same(state.accountPolicyId, fixture), "account policy is not the published 55% ACCOUNT policy");
+      return `account ${state.sentinel}, owner is the wallet, policy = manifest ACCOUNT policy (55% cap)`;
+    });
+  }
+  if (state.collateralUnderlying === 0n) {
+    await go(`/markets/${controller}`);
+    await panel.getByRole("button", { name: /^Sentinel account/ }).click();
+    await panel.getByRole("tab", { name: "Supply" }).click();
+    await amount.fill("10");
+    await previewReady();
+    await transact(panel, submit, `sentinel ${key}: fund account (plain transfer) + supply 10 mCOL + enable collateral`, async () => {
+      state = await marketState(controller);
+      assert(state.collateralUnderlying >= 10n * WAD - 10n && state.entered, `collateral ${state.collateralUnderlying}, entered ${state.entered}`);
+      return "account holds 10 mCOL of pTokens, collateral entered";
+    });
+  }
+  return state;
+}
 
-  await go(`/markets/${marketId}`);
+/**
+ * Types the borrow that lands on `targetBps` and checks the "Before you sign" panel against expectations.
+ * Independently of the app, the script reads previewPolicy, eth_calls the real entrypoint as the owner, and
+ * eth_calls adapter.enforce for each policy on those exact inputs (read-only evaluations of the deployed circuits).
+ */
+async function expectRejection(key, state, targetBps, expected, shotName) {
+  const before = sent.length;
+  const price = (asset) => read(C.TestnetOracle, TestnetOracleAbi, "price", [asset]);
+  const [[collateralPrice], [debtPrice]] = await Promise.all([price(state.collateralAsset), price(state.debtAsset)]);
+  const collateralUsd = (state.collateralUnderlying * collateralPrice) / WAD; // 1e18-scaled USD
+  const targetDebt = (((collateralUsd * BigInt(targetBps)) / 10_000n) * 10n ** 6n) / debtPrice; // raw mUSD (6 decimals)
+  const raw = targetDebt - state.debt;
+  assert(raw > 0n, `market ${key}: existing debt already above the target`);
+  const [applies, fresh, postLtv, cashOk] = await read(state.controller, IsolatedControllerAbi, "previewPolicy", [state.sentinel, 2, state.debtMarket, raw]);
+  const text = fmtUsd(raw);
+
+  await go(`/markets/${state.controller}`);
   await panel.getByRole("button", { name: /^Sentinel account/ }).click();
-  await panel.getByRole("tab", { name: "Supply" }).click();
-  await amount.fill("10");
-  await panel.getByText("Before you sign").waitFor();
-  await transact(panel, submit, "sentinel: fund account (plain transfer) + supply 10 collateral + enable collateral", 3);
-  await shot("06-sentinel-collateral-supplied");
-
   await panel.getByRole("tab", { name: "Borrow" }).click();
-  await amount.fill("9"); // 9 / (10 x 1.6) = 56.25% > 55% account cap
+  await amount.fill(text);
   await panel.locator("[data-rejection]").first().waitFor({ timeout: 20000 });
-  sentinelRejection = await panel.locator("[data-rejection]").first().getAttribute("data-rejection");
-  steps.push({ label: "sentinel: borrow 9 rejected in eth_call simulation (nothing sent)", txs: [], rejection: sentinelRejection });
-  console.log("sentinel rejection:", sentinelRejection);
-  await shot("07-sentinel-borrow-rejected-by-account-policy");
-  await amount.fill("5"); // 31.25%
-  await panel.getByText("Before you sign").waitFor();
-  await page.waitForFunction(() => !document.querySelector('aside [data-testid="action-panel"] [data-rejection]'), null, { timeout: 20000 });
-  await transact(panel, submit, "sentinel: borrow 5 (allowed by account policy and market policy)", 1);
-  await shot("08-sentinel-borrow-confirmed");
+  await page.waitForTimeout(400);
+  const shown = {
+    rejection: await panel.locator("[data-rejection]").first().getAttribute("data-rejection"),
+    checks: Object.fromEntries(await panel.locator("li[data-check]").evaluateAll((rows) => rows.map((row) => [row.dataset.check, { status: row.dataset.status, basis: row.dataset.basis, text: row.innerText.replace(/\s+/g, " ").trim() }]))),
+    otherLayer: await panel.locator('[data-testid="other-layer"]').evaluate((node) => ({ layer: node.dataset.layer, verdict: node.dataset.verdict, basis: node.dataset.basis, text: node.innerText })).catch(() => null),
+    submitDisabled: await submit.isDisabled(),
+  };
+  const onChain = {
+    previewPolicy: { applies, oracleFresh: fresh, postLtvBps: Number(postLtv), cashOk },
+    entrypointRevert: await revertName(account, state.sentinel, SentinelAccountAbi, "borrow", [raw]),
+    accountCircuit: (await revertName(account, C.TapeOutPolicyAdapter, TapeOutPolicyAdapterAbi, "enforce", [state.accountPolicyId, 1, 2, fresh, postLtv, cashOk])) ?? "allow",
+    marketCircuit: (await revertName(account, C.TapeOutPolicyAdapter, TapeOutPolicyAdapterAbi, "enforce", [state.policyId, 0, 2, fresh, postLtv, cashOk])) ?? "allow",
+  };
+  await shot(shotName);
+  steps.push({ label: `sentinel ${key}: borrow ${text} mUSD to ${Number(postLtv) / 100}% LTV, eth_call simulation only (nothing sent)`, txs: [], shown, onChain });
+  console.log(`market ${key}: borrow ${text} -> ${Number(postLtv)} bps | app: ${shown.rejection}, account ${shown.checks["account-policy"]?.status}/${shown.checks["account-policy"]?.basis}, market ${shown.checks["market-policy"]?.status}/${shown.checks["market-policy"]?.basis} | chain: ${onChain.entrypointRevert}, account circuit ${onChain.accountCircuit}, market circuit ${onChain.marketCircuit}`);
 
-  // 4. Direct path: the market policy alone rejects a wallet borrow above its 55% cap.
-  await panel.getByRole("button", { name: /^Wallet/ }).click();
-  await panel.getByRole("tab", { name: "Supply" }).click();
-  await panel.getByRole("button", { name: /collateral$/ }).click();
-  await amount.fill("10");
-  await panel.getByText("Before you sign").waitFor();
-  await transact(panel, submit, "wallet: approve + supply 10 collateral + enter market (direct)", 3);
-  await panel.getByRole("tab", { name: "Borrow" }).click();
-  await amount.fill("9");
-  await panel.locator("[data-rejection]").first().waitFor({ timeout: 20000 });
-  marketRejection = await panel.locator("[data-rejection]").first().getAttribute("data-rejection");
-  steps.push({ label: "wallet: direct borrow 9 rejected in eth_call simulation (nothing sent)", txs: [], rejection: marketRejection });
-  console.log("direct rejection:", marketRejection);
-  await shot("09-direct-borrow-rejected-by-market-policy");
-
+  assert(Number(postLtv) === targetBps, `market ${key}: previewPolicy gives ${postLtv} bps, wanted ${targetBps}`);
+  assert(sent.length === before, "a transaction was sent during a rejection check");
+  assert(shown.submitDisabled, "the submit button is enabled although the simulation rejects");
+  assert(onChain.entrypointRevert === expected.revert, `market ${key}: entrypoint reverts with ${onChain.entrypointRevert}, expected ${expected.revert}`);
+  assert(shown.rejection === expected.rejection, `market ${key}: app shows ${shown.rejection}, expected ${expected.rejection}`);
+  // The layer that did not reject must really allow these inputs on chain, not only in the app's wording.
+  assert(onChain[expected.otherCircuit] === "allow", `market ${key}: the ${expected.otherCircuit} does not allow on chain (${onChain[expected.otherCircuit]})`);
+  assert(onChain[expected.rejectingCircuit] === expected.revert, `market ${key}: the ${expected.rejectingCircuit} does not deny on chain (${onChain[expected.rejectingCircuit]})`);
+  for (const [id, want] of Object.entries(expected.checks)) {
+    const got = shown.checks[id];
+    assert(got && got.status === want.status && got.basis === want.basis, `market ${key}: check "${id}" is ${got?.status}/${got?.basis}, expected ${want.status}/${want.basis}`);
+    if (want.text) assert(want.text.test(got.text), `market ${key}: check "${id}" text does not match ${want.text}: "${got.text}"`);
   }
+  assert(shown.otherLayer && shown.otherLayer.layer === expected.other.layer && shown.otherLayer.basis === expected.other.basis && shown.otherLayer.verdict === "allow", `market ${key}: other-layer note is ${JSON.stringify(shown.otherLayer)}`);
+}
 
-  // 5. Activity: settled PolicyAllowed decisions with their transaction hashes.
-  await go("/sentinel/activity");
-  await page.locator("li[data-result]").first().waitFor({ timeout: 20000 });
-  const activity = await page.locator("li[data-result]").allInnerTexts();
-  const blocks = activity.map((text) => Number(/block (\d+)\./.exec(text)?.[1] ?? -1));
-  if (blocks.some((block, index) => index > 0 && block > blocks[index - 1])) throw new Error(`Activity is not newest-first: ${blocks.join(",")}`);
-  if (ACTIVITY_ONLY) {
-    await shot("10-sentinel-activity");
-    console.log(`activity view: ${activity.length} entries, newest first (blocks ${blocks.join(",")}); nothing sent (${sent.length} tx)`);
-    await browser.close();
-    process.exit(sent.length === 0 && problems.length === 0 ? 0 : 1);
-  }
-  steps.push({ label: "activity view", txs: [], entries: activity.length });
-  await shot("10-sentinel-activity");
-  await go("/sentinel");
-  await shot("11-sentinel-overview");
-
+let markets = { A: null, B: null };
+async function writeEvidence({ A, B, activityEntries, stoppedAfter }) {
   const receipts = await Promise.all(sent.map(async (tx) => {
-    const receipt = await rpc("eth_getTransactionReceipt", [tx.hash]);
+    const receipt = await jsonRpc(RPC, "eth_getTransactionReceipt", [tx.hash]);
     return { hash: tx.hash, to: tx.to, selector: tx.selector, block: Number(receipt.blockNumber), status: receipt.status === "0x1" ? "success" : "reverted", gasUsed: Number(receipt.gasUsed) };
   }));
   const evidence = {
@@ -247,27 +316,309 @@ try {
     driver: "apps/web/scripts/e2e-local.mjs: real browser (Playwright Chromium), the app's own wagmi wallet path, test-only injected EIP-1193 provider forwarding to Anvil's unlocked account",
     rpc: RPC,
     chainId: 31337,
+    nodeInstanceId: (await jsonRpc(RPC, "anvil_metadata")).instanceId,
+    manifestCommit: MANIFEST.commit,
     runId: RUN_ID,
     account,
-    accountIndex: ACCOUNT_INDEX,
+    accountIndex: OWNER_INDEX,
+    operator,
+    operatorIndex: OPERATOR_INDEX,
     startBlock,
-    endBlock: Number(await rpc("eth_blockNumber")),
-    market: marketId,
+    endBlock: Number(await jsonRpc(RPC, "eth_blockNumber")),
+    markets: { A: A ? { controller: A.controller, policyCapBps: 6500, sentinel: A.sentinel } : null, B: B ? { controller: B.controller, policyCapBps: 5000, sentinel: B.sentinel } : null, accountPolicyCapBps: 5500 },
     steps,
     receipts,
-    activityEntriesShown: activity.length,
+    activityEntriesShown: activityEntries,
+    stoppedAfter,
     pageProblems: problems,
   };
-  writeFileSync(`${OUT}/local-e2e-${RUN_ID}.json`, JSON.stringify(evidence, null, 2) + "\n");
+  writeFileSync(`${OUT}/local-e2e-${RUN_ID}.json`, JSON.stringify(evidence, (_key, value) => (typeof value === "bigint" ? value.toString() : value), 2) + "\n");
   const failed = receipts.filter((receipt) => receipt.status !== "success");
-  console.log(`\n${receipts.length} transactions, ${failed.length} reverted, ${problems.length} page problem(s). Evidence: evidence/fable/local-e2e-${RUN_ID}.json, screenshots: evidence/screenshots/local-e2e/${RUN_ID}/`);
-  if (failed.length || sentinelRejection !== "account-policy" || marketRejection !== "market-policy" || activity.length === 0) process.exitCode = 1;
+  console.log(`\n${receipts.length} transactions, ${failed.length} reverted, ${problems.length} page problem(s). Evidence: evidence/fable/local-e2e-${RUN_ID}.json, screenshots: evidence/screenshots/local-e2e/${ACTIVITY_ONLY ? "activity-only-" : ""}${RUN_ID}/`);
+  for (const problem of problems.slice(0, 8)) console.log(" ", problem);
+  if (failed.length || problems.length) process.exitCode = 1;
+}
+
+const stopIf = (stage) => {
+  if (STOP_AFTER === stage) throw Object.assign(new Error(`stopped after stage "${stage}" as requested`), { stop: true });
+};
+
+try {
+  // 0. The displayed borrow rate of market #0 must equal ratePerBlock x blocksPerYear() read from chain right now.
+  {
+    const controller0 = await read(C.MarketFactory, MarketFactoryAbi, "marketAt", [0n]);
+    const debt0 = await read(controller0, IsolatedControllerAbi, "debtMarket");
+    const perBlock = await read(debt0, MarketPTokenAbi, "borrowRatePerBlock");
+    const blocksPerYear = await read(await read(debt0, MarketPTokenAbi, "interestRateModel"), DemoRateModelAbi, "blocksPerYear");
+    const expectedBps = (perBlock * blocksPerYear * 10000n) / WAD;
+    const expectedText = `${(Number(expectedBps) / 100).toFixed(2).replace(/\.?0+$/, "")}% APR`;
+    await go("/markets");
+    const shownRate = (await page.locator("main li").first().locator("dd").nth(2).innerText()).trim();
+    console.log(`market #0 borrow rate: shown "${shownRate}", on-chain ${perBlock} x ${blocksPerYear} blocks/yr = ${expectedBps} bps ("${expectedText}")`);
+    assert(shownRate === expectedText, `Displayed borrow rate ${shownRate} does not match the on-chain rate ${expectedText}`);
+    steps.push({ label: "rate display check (read-only)", txs: [], shown: shownRate, ratePerBlock: perBlock.toString(), blocksPerYear: blocksPerYear.toString(), expectedBps: expectedBps.toString() });
+  }
+
+  let A = null;
+  let B = null;
+  if (!ACTIVITY_ONLY) {
+    // 1. Studio: two isolated markets. A has a 65% policy cap, B a 50% cap. Each gets a Sentinel account carrying
+    //    the published 55% ACCOUNT policy (ACCOUNT registration is registrar-only, so the account cap is fixed).
+    A = await ensureMarket("A", 6500);
+    B = await ensureMarket("B", 5000);
+    markets = { A, B };
+    stopIf("markets");
+
+    // 2. Two independent rejections, both through the Sentinel path.
+    //    A: 60% LTV. The account policy (55%) denies; the market policy (65%) would allow.
+    await expectRejection("A", A, 6000, {
+      revert: "AccountPolicyRejected", rejection: "account-policy", rejectingCircuit: "accountCircuit", otherCircuit: "marketCircuit",
+      checks: {
+        "account-policy": { status: "fail", basis: "simulation" },
+        protocol: { status: "unknown", basis: "none" },
+        "market-policy": { status: "pass", basis: "local-preview", text: /Would allow\. Not reached on chain.*Local preview \(reference evaluator\) of the same circuit/ },
+      },
+      other: { layer: "market-policy", basis: "local-preview" },
+    }, "04-market-A-65-account-policy-rejects-market-would-allow");
+    //    B: 52% LTV. The account policy (55%) allows inside the same simulation; the market policy (50%) denies.
+    await expectRejection("B", B, 5200, {
+      revert: "MarketPolicyRejected", rejection: "market-policy", rejectingCircuit: "marketCircuit", otherCircuit: "accountCircuit",
+      checks: {
+        "account-policy": { status: "pass", basis: "simulation", text: /Allowed in the simulation: this circuit ran inside the same eth_call and passed/ },
+        protocol: { status: "pass", basis: "simulation" },
+        "market-policy": { status: "fail", basis: "simulation" },
+      },
+      other: { layer: "account-policy", basis: "simulation" },
+    }, "05-market-B-50-market-policy-rejects-account-allows");
+    stopIf("rejections");
+
+    // 3. An allowed Sentinel borrow on A: both circuits allow, so one receipt carries two PolicyAllowed events.
+    const borrowAllowed = async (key, state, text) => {
+      await go(`/markets/${state.controller}`);
+      await panel.getByRole("button", { name: /^Sentinel account/ }).click();
+      await panel.getByRole("tab", { name: "Borrow" }).click();
+      await amount.fill(text);
+      await previewReady();
+      assert((await panel.locator("[data-rejection]").count()) === 0, `market ${key}: borrow ${text} is rejected in the preview`);
+      await transact(panel, submit, `sentinel ${key}: borrow ${text} mUSD (allowed by the account policy and the market policy)`, async (txs) => {
+        const receipt = await chain.getTransactionReceipt({ hash: txs.at(-1) });
+        const allowed = parseEventLogs({ abi: IsolatedControllerAbi, eventName: "PolicyAllowed", logs: receipt.logs });
+        assert(allowed.length === 2 && allowed.some((log) => same(log.address, state.sentinel)) && allowed.some((log) => same(log.address, state.controller)), `expected PolicyAllowed from the account and from the controller, got ${allowed.length}`);
+        const after = await marketState(state.controller);
+        assert(after.debt >= state.debt + USD(Number(text)) && after.idleDebtAsset === state.idleDebtAsset + USD(Number(text)), "debt or idle funds did not move by the borrowed amount");
+        return `2 PolicyAllowed events (account ${allowed.find((log) => same(log.address, state.sentinel)).args.postLtvBps} bps, controller), debt ${fmtUsd(after.debt)} mUSD, idle ${fmtUsd(after.idleDebtAsset)} mUSD in the account`;
+      });
+      return marketState(state.controller);
+    };
+    if (A.debt < USD(3) || A.idleDebtAsset < USD(3)) A = await borrowAllowed("A", A, "5");
+    await shot("06-market-A-sentinel-borrow-confirmed");
+    stopIf("borrow");
+
+    // 4. Operator grant: repay-only (mask 8), budget 3 mUSD, 7 days from the latest block.
+    const policyPath = `/sentinel/policy?market=${A.controller}`;
+    const automation = page.locator('[data-testid="automation"]');
+    const operatorRow = automation.locator(`li[data-operator="${operator}" i]`);
+    await go(policyPath);
+    await page.locator("#operator-address").fill(operator);
+    await automation.getByLabel(/Auto-repay from idle funds/).setChecked(true);
+    await automation.getByLabel(/Borrow into the account/).setChecked(false);
+    await automation.locator('input[inputmode="decimal"]').fill("3");
+    await page.locator("#grant-days").selectOption("7");
+    await transact(automation, automation.locator('[data-testid="operator-submit"]'), "sentinel A: setOperator (repay-only mask 8, budget 3 mUSD, 7 days)", async (txs) => {
+      const [mask, remaining, expiry] = await read(A.sentinel, SentinelAccountAbi, "operators", [operator]);
+      const receipt = await chain.getTransactionReceipt({ hash: txs.at(-1) });
+      const minedAt = (await chain.getBlock({ blockNumber: receipt.blockNumber })).timestamp;
+      assert(mask === 8 && remaining === USD(3), `grant is mask ${mask}, remaining ${remaining}`);
+      assert(expiry > minedAt && expiry <= minedAt + 7n * 86400n && expiry >= minedAt + 7n * 86400n - 600n, `expiry ${expiry} is not about 7 days after block time ${minedAt}`);
+      return `operators(${operator}) = mask 8, remaining 3 mUSD, expiry ${expiry} (block time ${minedAt})`;
+    });
+    await operatorRow.waitFor({ timeout: 20000 });
+
+    // 5. The operator cannot withdraw: eth_call simulations with the operator as the sender, while its grant is active.
+    {
+      const before = sent.length;
+      await operatorRow.locator('[data-testid="operator-check"]').click();
+      await automation.locator('[data-testid="operator-probes"]').waitFor({ timeout: 20000 });
+      const probes = Object.fromEntries(await automation.locator("li[data-operator-check]").evaluateAll((rows) => rows.map((row) => [row.dataset.operatorCheck, { outcome: row.dataset.outcome, error: row.dataset.error, text: row.innerText.replace(/\s+/g, " ").trim() }])));
+      const independent = {
+        withdraw: await revertName(operator, A.sentinel, SentinelAccountAbi, "withdraw", [A.debtAsset, 1n]),
+        setPolicy: await revertName(operator, A.sentinel, SentinelAccountAbi, "setPolicy", [`0x${"0".repeat(64)}`]),
+        ownerWithdraw: await revertName(account, A.sentinel, SentinelAccountAbi, "withdraw", [A.debtAsset, 1n]),
+      };
+      await shot("07-operator-cannot-withdraw-owner-only-simulation");
+      steps.push({ label: "sentinel A: operator limits, eth_call simulations as the operator (nothing sent)", txs: [], shown: probes, onChain: independent });
+      console.log(`operator checks: app withdraw ${probes.withdraw?.outcome}/${probes.withdraw?.error}, setPolicy ${probes["set-policy"]?.error}, setOperator ${probes["set-operator"]?.error}, autoRepay ${probes["auto-repay"]?.outcome}/${probes["auto-repay"]?.error} | chain: operator withdraw ${independent.withdraw}, owner withdraw ${independent.ownerWithdraw ?? "would succeed"}`);
+      assert(sent.length === before, "a transaction was sent during the operator checks");
+      for (const id of ["withdraw", "set-policy", "set-operator"]) assert(probes[id]?.outcome === "reverts" && probes[id]?.error === "OwnerOnly", `operator check "${id}" is ${JSON.stringify(probes[id])}, expected an OwnerOnly revert`);
+      assert(probes["auto-repay"]?.outcome === "reverts" && probes["auto-repay"]?.error === "TriggerNotMet", `autoRepay check is ${JSON.stringify(probes["auto-repay"])}, expected TriggerNotMet while the trigger is unset or not reached`);
+      assert(independent.withdraw === "OwnerOnly" && independent.setPolicy === "OwnerOnly", `independent eth_call as the operator: ${JSON.stringify(independent)}`);
+      assert(independent.ownerWithdraw === null, `the same withdraw as the owner should succeed, got ${independent.ownerWithdraw}`);
+    }
+
+    // 6. Auto-repay trigger.
+    await page.locator("#trigger-bps").fill(A.trigger === 4500 ? "4400" : "4500");
+    await transact(automation, automation.locator('[data-testid="trigger-submit"]'), "sentinel A: setAutoRepayTrigger", async () => {
+      const trigger = await read(A.sentinel, SentinelAccountAbi, "autoRepayTriggerBps");
+      assert(trigger === (A.trigger === 4500 ? 4400 : 4500), `trigger is ${trigger}`);
+      return `autoRepayTriggerBps() == ${trigger}`;
+    });
+    await shot("08-sentinel-automation-operator-and-trigger");
+    stopIf("operator");
+
+    // 7. Owner repay from the account's idle funds (never gated by a policy).
+    A = await marketState(A.controller);
+    await go(`/markets/${A.controller}`);
+    await panel.getByRole("button", { name: /^Sentinel account/ }).click();
+    await panel.getByRole("tab", { name: "Repay" }).click();
+    await amount.fill("2");
+    await previewReady();
+    assert((await panel.getByText(/never gated by a policy circuit/).count()) >= 2, "repay should show both policies as not applicable");
+    await transact(panel, submit, "sentinel A: repay 2 mUSD from idle account funds (owner)", async (txs) => {
+      const after = await marketState(A.controller);
+      const receipt = await chain.getTransactionReceipt({ hash: txs.at(-1) });
+      assert(parseEventLogs({ abi: IsolatedControllerAbi, eventName: "PolicyAllowed", logs: receipt.logs }).length === 0, "a repay must not emit PolicyAllowed");
+      assert(after.idleDebtAsset === A.idleDebtAsset - USD(2), `idle funds moved by ${A.idleDebtAsset - after.idleDebtAsset}`);
+      assert(after.debt <= A.debt - USD(2) + 10_000n && after.debt >= A.debt - USD(2), `debt went from ${A.debt} to ${after.debt}`);
+      return `debt ${fmtUsd(A.debt)} -> ${fmtUsd(after.debt)} mUSD, idle ${fmtUsd(A.idleDebtAsset)} -> ${fmtUsd(after.idleDebtAsset)} mUSD, no PolicyAllowed event`;
+    });
+    await shot("09-sentinel-repay-confirmed");
+
+    // 8. Owner withdrawal of idle funds: always pays the owner.
+    A = await marketState(A.controller);
+    await go("/sentinel");
+    const card = page.locator(`[data-testid="sentinel-account"][data-market="${A.controller}" i]`);
+    await card.locator('[data-testid="withdraw-open"]').click();
+    const sheet = page.locator("dialog[open]");
+    await sheet.locator('[data-testid="withdraw-asset-debt"]').click();
+    await sheet.locator('input[inputmode="decimal"]').fill("1");
+    await transact(sheet, sheet.locator('[data-testid="withdraw-submit"]'), "sentinel A: withdraw 1 mUSD of idle funds to the owner", async (txs) => {
+      const after = await marketState(A.controller);
+      const receipt = await chain.getTransactionReceipt({ hash: txs.at(-1) });
+      const withdrawn = parseEventLogs({ abi: SentinelAccountAbi, eventName: "Withdrawn", logs: receipt.logs }).at(0);
+      assert(withdrawn && same(withdrawn.args.owner, account) && same(withdrawn.args.asset, A.debtAsset) && withdrawn.args.amount === USD(1), "Withdrawn event does not pay 1 mUSD to the owner");
+      assert(after.idleDebtAsset === A.idleDebtAsset - USD(1) && after.walletDebtAsset === A.walletDebtAsset + USD(1), "balances did not move by 1 mUSD from the account to the owner");
+      return `Withdrawn(asset mUSD, owner = wallet, 1 mUSD); account idle ${fmtUsd(after.idleDebtAsset)} mUSD, wallet +1 mUSD`;
+    });
+    await shot("10-sentinel-withdraw-to-owner");
+    await sheet.getByRole("button", { name: "Close" }).click();
+
+    // 9. Revoke the operator.
+    await go(policyPath);
+    await operatorRow.waitFor({ timeout: 20000 });
+    await transact(automation, operatorRow.locator('[data-testid="operator-revoke"]'), "sentinel A: revokeOperator", async (txs) => {
+      const [mask, remaining] = await read(A.sentinel, SentinelAccountAbi, "operators", [operator]);
+      const receipt = await chain.getTransactionReceipt({ hash: txs.at(-1) });
+      const revoked = parseEventLogs({ abi: SentinelAccountAbi, eventName: "OperatorRevoked", logs: receipt.logs }).at(0);
+      assert(mask === 0 && remaining === 0n && revoked && same(revoked.args.operator, operator), `grant after revoke: mask ${mask}, remaining ${remaining}`);
+      assert((await revertName(operator, A.sentinel, SentinelAccountAbi, "autoRepay", [])) === "OperatorNotAuthorized", "a revoked operator can still call autoRepay");
+      return "operators(operator) cleared, OperatorRevoked emitted, autoRepay() as the operator now reverts OperatorNotAuthorized";
+    });
+    await automation.locator('[data-testid="no-operator"]').waitFor({ timeout: 20000 });
+    await shot("11-operator-revoked");
+    stopIf("owner-writes");
+
+    // 10. Market B: the same account policy allows a smaller borrow that the 50% market also allows.
+    if (B.debt === 0n) B = await borrowAllowed("B", B, "4");
+
+    // 11. Direct path on B: without a Sentinel account only the market policy applies, and it rejects 52% as well.
+    if (B.walletCollateralShares === 0n) {
+      await go(`/markets/${B.controller}`);
+      await panel.getByRole("button", { name: /^Wallet/ }).click();
+      await panel.getByRole("tab", { name: "Supply" }).click();
+      await panel.getByRole("button", { name: /collateral$/ }).click();
+      await amount.fill("10");
+      await previewReady();
+      await transact(panel, submit, "wallet B: approve + supply 10 mCOL + enter market (direct)", async () => {
+        assert(await read(B.controller, IsolatedControllerAbi, "collateralEntered", [account]), "wallet did not enter the market");
+        return "wallet holds collateral pTokens and entered the market";
+      });
+    }
+    {
+      const before = sent.length;
+      await go(`/markets/${B.controller}`);
+      await panel.getByRole("button", { name: /^Wallet/ }).click();
+      await panel.getByRole("tab", { name: "Borrow" }).click();
+      await amount.fill("8.32");
+      await panel.locator("[data-rejection]").first().waitFor({ timeout: 20000 });
+      const rejection = await panel.locator("[data-rejection]").first().getAttribute("data-rejection");
+      const direct = await revertName(account, B.debtMarket, MarketPTokenAbi, "borrow", [USD(8.32)]);
+      steps.push({ label: "wallet B: direct borrow 8.32 mUSD, eth_call simulation only (nothing sent)", txs: [], shown: { rejection, accountRow: await panel.locator('li[data-check="account-policy"]').count() }, onChain: { entrypointRevert: direct } });
+      console.log(`direct B: app ${rejection} | chain ${direct}`);
+      assert(rejection === "market-policy" && direct === "MarketPolicyRejected" && sent.length === before, `direct borrow on B: app ${rejection}, chain ${direct}`);
+      assert((await panel.locator('li[data-check="account-policy"]').count()) === 0, "the direct path must not show a Sentinel policy row");
+    }
+  }
+
+  // Activity: settled PolicyAllowed decisions with their transaction hashes, newest first.
+  await go("/sentinel/activity");
+  await page.locator("li[data-result]").first().waitFor({ timeout: 20000 });
+  const activity = await page.locator("li[data-result]").allInnerTexts();
+  const blocks = activity.map((text) => Number(/block (\d+)\./.exec(text)?.[1] ?? -1));
+  assert(!blocks.some((block, index) => index > 0 && block > blocks[index - 1]), `Activity is not newest-first: ${blocks.join(",")}`);
+  // Keeper reports, through the app's own read-only route. Compared with the keeper's API read directly by the script.
+  {
+    const keeperPanel = page.locator('[data-testid="keeper-panel"]');
+    await page.waitForFunction(() => document.querySelector('[data-testid="keeper-panel"]')?.getAttribute("data-keeper") !== "loading", null, { timeout: 20000 });
+    const keeperState = await keeperPanel.getAttribute("data-keeper");
+    const route = async (path, init) => {
+      const response = await fetch(BASE + path, init);
+      return { status: response.status, text: await response.text() };
+    };
+    const [badLimit, post, small] = await Promise.all([route("/api/keeper?limit=0"), route("/api/keeper?limit=5", { method: "POST" }), route("/api/keeper?limit=5")]);
+    const feed = JSON.parse(small.text);
+    const keeper = { panel: keeperState, route: { badLimit: badLimit.status, post: post.status, state: feed.state, items: feed.items?.length ?? null } };
+    assert(badLimit.status === 400 && post.status === 405, `route guards: limit=0 -> ${badLimit.status}, POST -> ${post.status}`);
+    assert(!/8787|KEEPER_API_URL/.test(small.text), "the route response mentions the upstream address");
+    if (KEEPER_URL) {
+      const upstream = await (await fetch(`${KEEPER_URL}/v1/status`)).json();
+      const upstreamRows = (await (await fetch(`${KEEPER_URL}/v1/activity?limit=50`)).json()).items;
+      assert(keeperState === "ok" && feed.state === "ok", `keeper panel is "${keeperState}", route says "${feed.state}": ${JSON.stringify(feed.check ?? feed.reason ?? "")}`);
+      assert(feed.items.length <= 5, "limit was not applied");
+      assert(same(feed.scope.account, upstream.account) && same(feed.scope.operator, upstream.operator) && feed.scope.instanceId === (await jsonRpc(RPC, "anvil_metadata")).instanceId, "scope shown does not match the keeper and the node");
+      const rows = await keeperPanel.locator("li[data-keeper-state]").evaluateAll((nodes) => nodes.map((node) => ({ state: node.dataset.keeperState, sent: node.dataset.sent, confirmed: node.dataset.confirmed, text: node.innerText.replace(/\s+/g, " ").trim() })));
+      const scopeText = (await keeperPanel.locator('[data-testid="keeper-scope"]').innerText()).replace(/\s+/g, " ");
+      assert(rows.length > 0, "no keeper rows shown although the keeper has reports");
+      assert(scopeText.includes(same(upstream.account, A?.sentinel ?? "") ? "Your account" : "Not your account"), `ownership label missing: ${scopeText}`);
+      const upstreamStates = new Set(upstreamRows.map((row) => row.state));
+      for (const row of rows) {
+        assert(upstreamStates.has(row.state), `the panel shows state "${row.state}" which the keeper did not report`);
+        if (["simulated", "simulation-failed", "gas-budget", "disabled", "tick-failed"].includes(row.state)) assert(row.sent === "false" && /not sent|nothing sent|did not send/i.test(row.text), `off-chain row not labelled as unsent: ${row.text}`);
+        if (row.state === "success") assert(row.confirmed === "success", `a keeper "success" row is not confirmed by a receipt read from chain: ${row.text}`);
+      }
+      const chainRepays = Number(await keeperPanel.locator('[data-testid="keeper-chain-repays"]').getAttribute("data-count").catch(() => "0"));
+      Object.assign(keeper, { execute: upstream.execute, account: upstream.account, operator: upstream.operator, rows: rows.map((row) => ({ state: row.state, sent: row.sent, confirmed: row.confirmed })), rowTexts: rows.slice(0, 3).map((row) => row.text), statesReportedByKeeper: [...upstreamStates], autoRepayEventsOnChain: chainRepays });
+      console.log(`keeper panel: ${rows.length} row group(s), states ${[...new Set(rows.map((row) => row.state))].join(", ")}; keeper execute=${upstream.execute}; AutoRepayExecuted events on chain for its account: ${chainRepays}`);
+    } else {
+      console.log(`keeper panel: "${keeperState}" (no KEEPER_URL given to the script, upstream comparison skipped)`);
+    }
+    steps.push({ label: "keeper reports panel (read-only)", txs: [], keeper });
+    await keeperPanel.scrollIntoViewIfNeeded();
+    await keeperPanel.screenshot({ path: `${SHOTS}/12b-keeper-reports-panel.png` });
+  }
+  steps.push({ label: "activity view", txs: [], entries: activity.length });
+  await shot("12-sentinel-activity");
+  if (ACTIVITY_ONLY) {
+    console.log(`activity view: ${activity.length} on-chain entries, newest first; nothing sent (${sent.length} tx)`);
+    assert(sent.length === 0, "the read-only run sent a transaction");
+  } else {
+    await go("/sentinel");
+    await shot("13-sentinel-overview");
+  }
+
+  await writeEvidence({ A, B, activityEntries: activity.length, stoppedAfter: null });
 } catch (error) {
-  console.error("E2E FAILED:", error.message);
-  for (const problem of problems.slice(0, 8)) console.error(" ", problem);
-  await page.screenshot({ path: `${SHOTS}/zz-failure.png`, fullPage: true }).catch(() => {});
-  console.error("sent so far:", JSON.stringify(sent));
-  process.exitCode = 1;
+  if (error.stop) {
+    console.log(error.message);
+    await writeEvidence({ ...markets, activityEntries: null, stoppedAfter: STOP_AFTER });
+  } else {
+    console.error("E2E FAILED:", error.message);
+    for (const problem of problems.slice(0, 8)) console.error(" ", problem);
+    await page.screenshot({ path: `${SHOTS}/zz-failure.png`, fullPage: true }).catch(() => {});
+    console.error("sent so far:", JSON.stringify(sent));
+    // Transactions that were mined before the failure are still recorded, flagged as an incomplete run.
+    await writeEvidence({ ...markets, activityEntries: null, stoppedAfter: `FAILED: ${error.message.split("\n")[0]}` }).catch(() => {});
+    process.exitCode = 1;
+  }
 } finally {
   await browser.close();
 }

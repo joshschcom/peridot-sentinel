@@ -117,10 +117,12 @@ export interface OperatorGrant {
   label: string;
   /** Bit `1 << op`. Sentinel v1 uses borrow (4) and auto-repay (8). */
   opsMask: number;
-  /** Cumulative budget in raw debt-asset units. */
-  budget: bigint;
-  spent: bigint;
+  /** Budget still available, in raw debt-asset units. On chain this is the authoritative `operators(operator).remaining`. */
+  remaining: bigint;
+  /** Budget of the latest grant. Unavailable when the grant's OperatorSet event is outside the scanned log window. */
+  granted: Maybe<bigint>;
   expiresAt: string;
+  expired: boolean;
   revoked: boolean;
 }
 
@@ -155,6 +157,11 @@ export interface CheckResult {
   detail: string;
   /** Set on the first failing check in on-chain evaluation order: the error the transaction would revert with. */
   decisive: boolean;
+  /**
+   * How the status was established. `simulation`: the eth_call of the real entrypoint (chain mode).
+   * `local-preview`: the reference evaluator run in the browser on the same inputs; never a chain result.
+   */
+  basis?: "simulation" | "local-preview" | "none";
   evaluation?: LocalEvaluation;
   error?: RawError;
 }
@@ -232,8 +239,14 @@ export interface PolicyService extends ServiceMeta {
   listRegistered(): Promise<Maybe<PolicyRecord[]>>;
 }
 
+export interface ActivityFeed {
+  entries: ActivityEntry[];
+  /** Chain mode: the block range the events were read from. `complete` is false when older history was not scanned. */
+  coverage?: { fromBlock: bigint; toBlock: bigint; complete: boolean };
+}
+
 export interface ActivityService extends ServiceMeta {
-  list(): Promise<Maybe<ActivityEntry[]>>;
+  list(): Promise<Maybe<ActivityFeed>>;
 }
 
 export interface WalletConnectorInfo {

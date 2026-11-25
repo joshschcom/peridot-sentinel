@@ -3,13 +3,15 @@
  * On-chain reads (INTERFACES v1.2). Amounts stay bigint end to end. A failed read becomes `unavailable`,
  * never a zero and never fixture data.
  */
-import { type Hex, zeroAddress } from "viem";
+import { type Hex, parseEventLogs, zeroAddress } from "viem";
 import { formatBps } from "../../lib/amount.ts";
 import { type RawError, extractRaw } from "../../lib/errors.ts";
 import { type Maybe, ok, unavailable } from "../../lib/maybe.ts";
-import { type AccountPolicySpec, type MarketPolicySpec, Op, OP_LABEL, type OpId, type PolicySpec, accountPolicySpec, compileSpec, evaluateLocally, marketPolicySpec } from "../../lib/policy.ts";
+import { type AccountPolicySpec, LOCAL_PREVIEW_LABEL, type MarketPolicySpec, Op, OP_LABEL, type OpId, type PolicySpec, accountPolicySpec, compileSpec, evaluateLocally, marketPolicySpec, studioTemplateByConfigHash } from "../../lib/policy.ts";
 import type { Address, CheckResult, Market, OperationPreview, OperationRequest, OperatorGrant, PolicyRecord, Position, RejectionSource, SentinelAccount, TokenInfo } from "../types.ts";
-import { ABI, DEPLOYMENT_BLOCK, client, contract, manifest, withErrors } from "./client.ts";
+import { WRITE_CHAIN_ID } from "../../lib/chains.ts";
+import { rememberedOperators } from "../../lib/local-memory.ts";
+import { ABI, client, contract, feedLabel, isMockToken, manifest, scanLogs, withErrors } from "./client.ts";
 
 const WAD = 10n ** 18n;
 const ZERO_ID = `0x${"0".repeat(64)}` as Hex;
@@ -23,26 +25,16 @@ const safe = async <T>(read: Promise<T>, what: string): Promise<Maybe<T>> => {
 
 /* ---------- policies ---------- */
 
-type TemplateIndex = Map<string, { maxLtvBps: number; requireCashReserve: boolean }>;
-let templates: Promise<TemplateIndex> | null = null;
-
 export function invalidateChainCaches(): void {
-  templates = null;
   tokens.clear();
 }
 
-/** MarketTemplateRegistered publishes the literal threshold and reserve switch for Studio policies. */
-function templateIndex(): Promise<TemplateIndex> {
-  templates ??= client()
-    .getContractEvents({ address: contract("PolicyRegistry"), abi: ABI.registry, eventName: "MarketTemplateRegistered", fromBlock: DEPLOYMENT_BLOCK(), strict: true })
-    .then((logs) => new Map(logs.map((log) => [log.args.policyId.toLowerCase(), { maxLtvBps: log.args.maxLtvBps, requireCashReserve: log.args.requireCashReserve }])))
-    .catch((): TemplateIndex => {
-      // A log query can fail (for example an RPC range cap; this query is not paginated yet). Markets must still
-      // load: policies then fall back to the known candidates or "Rules unavailable". The failure is not cached.
-      templates = null;
-      return new Map();
-    });
-  return templates;
+/** Operator addresses learned outside the log window (for example the keeper service's configured operator). */
+const hintedOperators = new Map<string, Set<Address>>();
+export function hintOperator(account: Address, operator: Address): void {
+  const set = hintedOperators.get(account.toLowerCase()) ?? new Set<Address>();
+  set.add(operator);
+  hintedOperators.set(account.toLowerCase(), set);
 }
 
 /** Shipped sample policies (packages/circuit-sdk/fixtures/policies-v1.json) used as identification candidates. */
@@ -67,8 +59,9 @@ export async function readPolicy<K extends "MARKET" | "ACCOUNT">(policyId: Hex, 
     publisher: entry.publisher,
   });
   const candidates: PolicySpec[] = [...KNOWN_CANDIDATES];
-  if (kind === "MARKET") {
-    const template = (await templateIndex()).get(policyId.toLowerCase());
+  if (kind === "MARKET" && !candidates.some((spec) => spec.kind === "MARKET" && compileSpec(spec).status === "ok" && (compileSpec(spec) as { value: { configHash: string } }).value.configHash.toLowerCase() === entry.configHash.toLowerCase())) {
+    // Studio policies: recover the committed template leaf from the config hash (no log query), then verify below.
+    const template = studioTemplateByConfigHash(entry.configHash);
     if (template) candidates.unshift(marketPolicySpec(template.maxLtvBps, template.requireCashReserve));
   }
   for (const spec of candidates) {
@@ -99,7 +92,7 @@ function readToken(address: Address): Promise<TokenInfo> {
         rpc.readContract({ address, abi: ABI.token, functionName: "symbol" }),
         rpc.readContract({ address, abi: ABI.token, functionName: "name" }),
         rpc.readContract({ address, abi: ABI.token, functionName: "decimals" }),
-      ]).then(([symbol, name, decimals]) => ({ symbol, name, decimals, address: ok(address), mock: true })),
+      ]).then(([symbol, name, decimals]) => ({ symbol, name, decimals, address: ok(address), mock: isMockToken(address) })),
     );
   }
   return tokens.get(key)!;
@@ -134,7 +127,7 @@ export async function readMarket(controller: Address, index: number, viewer: Add
   const price = async (asset: Address) => {
     const [usdE18, fresh] = await rpc.readContract({ address: oracle, abi: ABI.oracle, functionName: "price", args: [asset] });
     const [, updatedAt] = await rpc.readContract({ address: oracle, abi: ABI.oracle, functionName: "quotes", args: [asset] });
-    return { usdE18, fresh, updatedAt: new Date(Number(updatedAt) * 1000).toISOString(), feed: "Test price feed (mock, owner-set)" };
+    return { usdE18, fresh, updatedAt: new Date(Number(updatedAt) * 1000).toISOString(), feed: feedLabel() };
   };
   // Simple APR = per-block WAD rate x blocksPerYear (Astra, M4-testnet-preflight-and-frontend-reads). Display only.
   const apr = async (which: "supplyRatePerBlock" | "borrowRatePerBlock") => {
@@ -227,21 +220,109 @@ export async function readAccount(market: Market, owner: Address): Promise<Senti
   const account = await accountOf(owner, addr(market.controller));
   if (!account) return null;
   const rpc = client();
-  const [policyId, trigger, position, grants] = await Promise.all([
+  const [policyId, trigger, position, grants, block] = await Promise.all([
     rpc.readContract({ address: account, abi: ABI.sentinel, functionName: "policyId" }),
     rpc.readContract({ address: account, abi: ABI.sentinel, functionName: "autoRepayTriggerBps" }),
     readPosition(market, account, "sentinel"),
-    rpc.getContractEvents({ address: account, abi: ABI.sentinel, eventName: "OperatorSet", fromBlock: DEPLOYMENT_BLOCK(), strict: true }),
+    // Grants live in a mapping, so candidates come from OperatorSet logs in the scanned window, from this browser's
+    // memory of grants it made, and from hints (the keeper's configured operator). The chain read below decides.
+    scanLogs(`operator-set:${account}`, (fromBlock, toBlock) => rpc.getContractEvents({ address: account, abi: ABI.sentinel, eventName: "OperatorSet", fromBlock, toBlock, strict: true }))
+      .then((scan) => scan.logs)
+      .catch(() => []),
+    rpc.getBlock(),
   ]);
-  const operatorAddresses = [...new Set(grants.map((log) => log.args.operator))];
+  const candidates = new Map<string, Address>();
+  for (const operator of [...grants.map((log) => log.args.operator), ...rememberedOperators(WRITE_CHAIN_ID, account), ...(hintedOperators.get(account.toLowerCase()) ?? [])]) candidates.set(operator.toLowerCase(), operator);
   const operators: OperatorGrant[] = await Promise.all(
-    operatorAddresses.map(async (operator) => {
+    [...candidates.values()].map(async (operator) => {
       const [mask, remaining, expiry] = await rpc.readContract({ address: account, abi: ABI.sentinel, functionName: "operators", args: [operator] });
-      const granted = grants.filter((log) => log.args.operator === operator).at(-1)!.args.maxAmount;
-      return { operator: ok(operator), label: "Operator", opsMask: mask, budget: granted, spent: granted > remaining ? granted - remaining : 0n, expiresAt: new Date(Number(expiry) * 1000).toISOString(), revoked: mask === 0 };
+      const lastGrant = grants.filter((log) => log.args.operator.toLowerCase() === operator.toLowerCase()).at(-1);
+      return {
+        operator: ok(operator),
+        label: "Operator",
+        opsMask: mask,
+        remaining,
+        granted: lastGrant && mask !== 0 ? ok(lastGrant.args.maxAmount) : unavailable<bigint>("The grant's event is outside the scanned block range"),
+        expiresAt: new Date(Number(expiry) * 1000).toISOString(),
+        expired: mask !== 0 && expiry <= block.timestamp,
+        revoked: mask === 0,
+      };
     }),
   );
   return { marketId: market.id, address: ok(account), owner: ok(owner), policy: await readPolicy(policyId, "ACCOUNT"), autoRepayTriggerBps: trigger, operators, position };
+}
+
+/* ---------- what an operator can and cannot do ---------- */
+
+export interface OperatorProbe {
+  id: "withdraw" | "set-policy" | "set-operator" | "auto-repay";
+  call: string;
+  title: string;
+  outcome: "reverts" | "would-succeed";
+  /** Decoded revert, when the call reverts. */
+  error?: RawError;
+  note: string;
+}
+
+/**
+ * Read-only proof of the operator's limits: each call is an eth_call of the real account entrypoint with the
+ * operator as the sender. Nothing is signed or sent, and the operator's key is never involved.
+ */
+export async function probeOperator(market: Market, account: Address, operator: Address): Promise<OperatorProbe[]> {
+  const rpc = client();
+  const abi = withErrors(ABI.sentinel);
+  const debtAsset = addr(market.debt.token.address);
+  const run = async (id: OperatorProbe["id"], title: string, call: string, simulate: () => Promise<unknown>, okNote: (result: unknown) => string): Promise<OperatorProbe> => {
+    try {
+      return { id, title, call, outcome: "would-succeed", note: okNote(await simulate()) };
+    } catch (error) {
+      const raw = extractRaw(error);
+      return { id, title, call, outcome: "reverts", error: raw, note: raw.name ? `Reverts with ${raw.name}().` : "Reverts." };
+    }
+  };
+  const base = { account: operator, address: account, abi } as const;
+  return Promise.all([
+    run("withdraw", "Withdraw funds", `withdraw(${market.debt.token.symbol}, 1)`, () => rpc.simulateContract({ ...base, functionName: "withdraw", args: [debtAsset, 1n] }), () => "The call would succeed. This is unexpected: do not rely on this account."),
+    run("set-policy", "Change or remove your policy", "setPolicy(0x0)", () => rpc.simulateContract({ ...base, functionName: "setPolicy", args: [ZERO_ID] }), () => "The call would succeed. This is unexpected."),
+    run("set-operator", "Give itself more permissions", "setOperator(self, borrow+repay, max, never)", () => rpc.simulateContract({ ...base, functionName: "setOperator", args: [operator, 12, 2n ** 255n, 2n ** 63n] }), () => "The call would succeed. This is unexpected."),
+    run("auto-repay", "Repay debt from the account's idle funds", "autoRepay()", () => rpc.simulateContract({ ...base, functionName: "autoRepay", args: [] }).then((simulation) => simulation.result), (result) => `Would repay ${typeof result === "bigint" ? result.toString() : "?"} raw ${market.debt.token.symbol} units right now.`),
+  ]);
+}
+
+/* ---------- keeper-reported transactions, checked against the chain ---------- */
+
+export interface AutoRepayFact {
+  hash: Hex;
+  blockNumber: bigint;
+  operator: Address;
+  amount: bigint;
+  ltvBeforeBps: bigint;
+  ltvAfterBps: bigint;
+}
+export type ReceiptFact = { found: false } | { found: true; status: "success" | "reverted"; blockNumber: bigint; gasUsed: bigint; autoRepay: AutoRepayFact | null };
+
+/** Reads each reported hash's receipt and looks for AutoRepayExecuted emitted by the keeper's account itself. */
+export async function verifyKeeperReceipts(account: Address, hashes: readonly Hex[]): Promise<Record<string, ReceiptFact>> {
+  const rpc = client();
+  const entries = await Promise.all(
+    hashes.map(async (hash): Promise<[string, ReceiptFact]> => {
+      try {
+        const receipt = await rpc.getTransactionReceipt({ hash });
+        const event = parseEventLogs({ abi: ABI.sentinel, eventName: "AutoRepayExecuted", logs: receipt.logs.filter((log) => log.address.toLowerCase() === account.toLowerCase()) }).at(0);
+        return [hash.toLowerCase(), { found: true, status: receipt.status, blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed, autoRepay: event ? { hash, blockNumber: receipt.blockNumber, ...event.args } : null }];
+      } catch {
+        return [hash.toLowerCase(), { found: false }];
+      }
+    }),
+  );
+  return Object.fromEntries(entries);
+}
+
+/** AutoRepayExecuted events of one account in the scanned block range, newest first. */
+export async function readAutoRepays(account: Address): Promise<{ events: AutoRepayFact[]; fromBlock: bigint; complete: boolean }> {
+  const rpc = client();
+  const scan = await scanLogs(`auto-repays:${account}`, (fromBlock, toBlock) => rpc.getContractEvents({ address: account, abi: ABI.sentinel, eventName: "AutoRepayExecuted", fromBlock, toBlock, strict: true }));
+  return { events: scan.logs.map((log) => ({ hash: log.transactionHash, blockNumber: log.blockNumber, ...log.args })).reverse(), fromBlock: scan.fromBlock, complete: scan.complete };
 }
 
 /* ---------- operation preview ---------- */
@@ -340,6 +421,20 @@ export async function previewOnChain(request: OperationRequest, wallet: Address)
     }
   }
 
+  // 2b. For a circuit layer the simulation never reached, ask the deployed circuit directly: adapter.enforce is a
+  // public view that evaluates one policy on given inputs. This is a separate eth_call, not part of the transaction path.
+  const deployedVerdict = async (record: PolicyRecord | undefined, kind: 0 | 1): Promise<"allow" | "deny" | null> => {
+    if (!context || !record || record.registration.status !== "ok") return null;
+    try {
+      await rpc.simulateContract({ account: wallet, address: contract("TapeOutPolicyAdapter"), abi: withErrors(ABI.adapter), functionName: "enforce", args: [record.registration.value.policyId, kind, context.op, context.oracleFresh, BigInt(context.postLtvBps), context.cashOk] });
+      return "allow";
+    } catch (error) {
+      const name = extractRaw(error).name;
+      return name === "MarketPolicyRejected" || name === "AccountPolicyRejected" ? "deny" : null;
+    }
+  };
+  const marketVerdict = failure?.name === "AccountPolicyRejected" ? await deployedVerdict(market.policy, 0) : null;
+
   // 3. Explain it layer by layer. Statuses follow the simulation; local circuit runs only add detail.
   const available = op === Op.SUPPLY ? (leg === "collateral" ? position.idleCollateral + walletCollateral : position.idleDebtAsset) : op === Op.REPAY ? position.idleDebtAsset : op === Op.REDEEM ? (leg === "collateral" ? position.collateralSupplied : position.lent) : null;
   const order: CheckResult["id"][] = [...(available !== null ? (["balance"] as const) : []), ...(request.path === "sentinel" ? (["account-policy"] as const) : []), "protocol", "market-policy"];
@@ -355,30 +450,42 @@ export async function previewOnChain(request: OperationRequest, wallet: Address)
   const failedIndex = failedId ? order.indexOf(failedId) : -1;
   const circuit = (record: PolicyRecord | undefined) => (record?.identified && record.compiled.status === "ok" && context ? evaluateLocally(record.compiled.value, context) : null);
   const titles: Record<CheckResult["id"], string> = { balance: "Available funds", "account-policy": "Your Sentinel policy", protocol: "Protocol safety limits", "market-policy": "Market policy" };
-  const checks: CheckResult[] = order.map((id, index) => {
+  const checks: CheckResult[] = order.map((id, index): CheckResult => {
     const base = { id, title: titles[id], decisive: false };
     const isCircuit = id === "account-policy" || id === "market-policy";
-    if (isCircuit && !applies && index !== failedIndex) return { ...base, status: "not-applicable", detail: `${OP_LABEL[op]} is never gated by a policy circuit here.` };
+    if (isCircuit && !applies && index !== failedIndex) return { ...base, status: "not-applicable", basis: "none", detail: `${OP_LABEL[op]} is never gated by a policy circuit here.` };
     const record = id === "account-policy" ? sentinel?.policy : id === "market-policy" ? market.policy : undefined;
     const local = isCircuit ? circuit(record) : null;
     const evaluation = local?.status === "ok" ? local.value : undefined;
     const ltvText = context ? `Loan-to-value after: ${formatBps(context.postLtvBps)}` : "Loan-to-value after: not available";
     const capDetail = record?.identified ? `${ltvText}, cap ${formatBps(record.spec.params.maxLtvBps)}.` : `${ltvText}.`;
     if (index === failedIndex) {
-      const detail = id === "balance" && available !== null ? `Only ${available} raw ${token.symbol} units available.` : isCircuit ? `The circuit denied this operation. ${capDetail}` : `Reverted with ${failure?.name ?? "an unknown error"}. ${ltvText}, borrowing limit ${formatBps(market.limits.borrowLtvBps)}.`;
-      return { ...base, status: "fail", decisive: true, detail, evaluation, error: failure ?? undefined };
+      const detail = id === "balance" && available !== null ? `Only ${available} raw ${token.symbol} units available.` : isCircuit ? `The circuit denied this operation in the simulation. ${capDetail}` : `Reverted with ${failure?.name ?? "an unknown error"}. ${ltvText}, borrowing limit ${formatBps(market.limits.borrowLtvBps)}.`;
+      return { ...base, status: "fail", basis: "simulation", decisive: true, detail, evaluation, error: failure ?? undefined };
     }
     if (failedIndex >= 0 && index > failedIndex) {
-      if (evaluation) return { ...base, status: evaluation.allow ? "pass" : "fail", detail: `Not reached on chain. Local run of the same circuit: ${evaluation.allow ? "allow" : "deny"}. ${capDetail}`, evaluation };
-      return { ...base, status: "unknown", detail: "Not reached: an earlier check already rejected the operation." };
+      // A later layer never ran on chain. A circuit can still be run locally on the same inputs; that is a preview, not a chain result.
+      const stoppedBy = { balance: "the funds check", "account-policy": "your Sentinel policy", protocol: "a protocol safety limit", "market-policy": "the market policy" }[order[failedIndex]!];
+      if (evaluation) {
+        return {
+          ...base,
+          status: evaluation.allow ? "pass" : "fail",
+          basis: "local-preview",
+          detail: `${evaluation.allow ? "Would allow" : "Would also deny"}. Not reached on chain, because ${stoppedBy} rejected first. ${LOCAL_PREVIEW_LABEL} of the same circuit on the same inputs: ${evaluation.allow ? "allow" : "deny"}. ${capDetail}${id === "market-policy" && marketVerdict ? ` A separate eth_call of the deployed circuit on these inputs returns ${marketVerdict}.` : ""}`,
+          evaluation,
+        };
+      }
+      return { ...base, status: "unknown", basis: "none", detail: `Not reached: ${stoppedBy} already rejected the operation.` };
     }
     if (!simulated) {
-      if (evaluation) return { ...base, status: evaluation.allow ? "pass" : "fail", detail: `Local run of the circuit: ${evaluation.allow ? "allow" : "deny"}. ${capDetail}`, evaluation };
-      if (id === "balance" && available !== null) return { ...base, status: amount <= available ? "pass" : "fail", detail: amount <= available ? "Enough funds available." : "Not enough funds available." };
-      return { ...base, status: "unknown", detail: needsFunding ? "Checked by simulation once the account is funded." : "Checked by simulation once the token approval is in place." };
+      if (evaluation) return { ...base, status: evaluation.allow ? "pass" : "fail", basis: "local-preview", detail: `${LOCAL_PREVIEW_LABEL} of the circuit: ${evaluation.allow ? "allow" : "deny"}. ${capDetail}`, evaluation };
+      if (id === "balance" && available !== null) return { ...base, status: amount <= available ? "pass" : "fail", basis: "none", detail: amount <= available ? "Enough funds available." : "Not enough funds available." };
+      return { ...base, status: "unknown", basis: "none", detail: needsFunding ? "Checked by simulation once the account is funded." : "Checked by simulation once the token approval is in place." };
     }
-    const detail = id === "balance" ? "Enough funds available." : isCircuit ? capDetail : applies ? `${ltvText}, borrowing limit ${formatBps(market.limits.borrowLtvBps)}, liquidation at ${formatBps(market.limits.liquidationLtvBps)}.` : "Solvency, cash and authentication passed. No risk increase.";
-    return { ...base, status: "pass", detail, evaluation };
+    // The simulation got past this layer: for a circuit that means it really ran inside the eth_call and allowed.
+    const ran = failedIndex >= 0 ? "Allowed in the simulation: this circuit ran inside the same eth_call and passed." : "Allowed in the simulation.";
+    const detail = id === "balance" ? "Enough funds available." : isCircuit ? `${ran} ${capDetail}` : applies ? `${ltvText}, borrowing limit ${formatBps(market.limits.borrowLtvBps)}, liquidation at ${formatBps(market.limits.liquidationLtvBps)}.` : "Solvency, cash and authentication passed. No risk increase.";
+    return { ...base, status: "pass", basis: "simulation", detail, evaluation };
   });
 
   const localFailure = !simulated ? checks.find((check) => check.status === "fail") : undefined;

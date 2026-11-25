@@ -8,8 +8,8 @@ import { type Maybe, ok, unavailable } from "../../lib/maybe.ts";
 import { OP_LABEL, type OpId } from "../../lib/policy.ts";
 import { formatBps } from "../../lib/amount.ts";
 import { TEMPLATES } from "../fixture/data.ts";
-import type { AccountService, ActivityEntry, ActivityService, Address, MarketService, PolicyService, SentinelAccount } from "../types.ts";
-import { ABI, DEPLOYMENT_BLOCK, client, manifest, verifyDeployment } from "./client.ts";
+import type { AccountService, ActivityEntry, ActivityFeed, ActivityService, Address, MarketService, PolicyService, SentinelAccount } from "../types.ts";
+import { ABI, client, manifest, scanLogs, verifyDeployment } from "./client.ts";
 import { listControllers, previewOnChain, readAccount, readMarket, readMarketById, readPolicy, readPosition } from "./reads.ts";
 import { chainWalletService } from "./wallet.ts";
 
@@ -94,18 +94,21 @@ export const chainActivityService: ActivityService = {
   list: async () => {
     const wallet = viewer();
     if (!wallet) return unavailable("Connect a wallet to see your activity");
-    return guarded(async () => {
+    return guarded(async (): Promise<ActivityFeed> => {
       const rpc = client();
       const markets = await allMarkets();
       const accounts = await accountsOf(wallet);
       const sentinels = accounts.flatMap((account) => (account.address.status === "ok" ? [account.address.value] : []));
       const holders = [wallet, ...sentinels];
       const controllers = markets.flatMap((market) => (market.controller.status === "ok" ? [market.controller.value] : []));
-      const fromBlock = DEPLOYMENT_BLOCK();
-      const [allowed, repays] = await Promise.all([
-        rpc.getContractEvents({ address: [...controllers, ...sentinels], abi: ABI.controller, eventName: "PolicyAllowed", args: { account: holders }, fromBlock, strict: true }),
-        sentinels.length ? rpc.getContractEvents({ address: sentinels, abi: ABI.sentinel, eventName: "AutoRepayExecuted", fromBlock, strict: true }) : Promise.resolve([]),
+      // Paged from the deployment block (or as far back as the page budget reaches): see scanLogs.
+      const key = [...controllers, ...sentinels, wallet].join(",").toLowerCase();
+      const [allowedScan, repayScan] = await Promise.all([
+        scanLogs(`allowed:${key}`, (fromBlock, toBlock) => rpc.getContractEvents({ address: [...controllers, ...sentinels], abi: ABI.controller, eventName: "PolicyAllowed", args: { account: holders }, fromBlock, toBlock, strict: true })),
+        sentinels.length ? scanLogs(`repays:${key}`, (fromBlock, toBlock) => rpc.getContractEvents({ address: sentinels, abi: ABI.sentinel, eventName: "AutoRepayExecuted", fromBlock, toBlock, strict: true })) : Promise.resolve(null),
       ]);
+      const allowed = allowedScan.logs;
+      const repays = repayScan?.logs ?? [];
       const blockNumbers = [...new Set([...allowed, ...repays].map((log) => log.blockNumber))];
       const times = new Map(await Promise.all(blockNumbers.map(async (number) => [number, new Date(Number((await rpc.getBlock({ blockNumber: number })).timestamp) * 1000).toISOString()] as const)));
       const marketOf = (emitter: Address, account: Address) =>
@@ -147,7 +150,8 @@ export const chainActivityService: ActivityService = {
           txHash: ok(log.transactionHash),
         })),
       ];
-      return entries.sort((a, b) => ((position.get(b.id) ?? 0n) > (position.get(a.id) ?? 0n) ? 1 : -1));
+      entries.sort((a, b) => ((position.get(b.id) ?? 0n) > (position.get(a.id) ?? 0n) ? 1 : -1));
+      return { entries, coverage: { fromBlock: allowedScan.fromBlock, toBlock: allowedScan.toBlock, complete: allowedScan.complete } };
     });
   },
 };

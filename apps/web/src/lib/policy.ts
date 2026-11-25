@@ -4,7 +4,7 @@
  * wrapper for the UI. Local evaluation runs the compiled NAND netlist through the SDK's
  * reference evaluator and must always be labelled "Local preview (reference evaluator)".
  */
-import { Op, STUDIO_MARKET_ROOT, compilePolicy, encodeContext, evaluateNetlist, studioMarketTemplate, validatePolicySpec } from "@peridot/circuit-sdk";
+import { Op, STUDIO_MARKET_ROOT, STUDIO_MAX_LTV_BPS, compilePolicy, encodeContext, evaluateNetlist, hashPolicySpec, studioMarketTemplate, validatePolicySpec } from "@peridot/circuit-sdk";
 import type { CompiledPolicy, Hex, PolicySpec } from "@peridot/circuit-sdk";
 import { type Maybe, ok, unavailable } from "./maybe.ts";
 
@@ -54,6 +54,22 @@ export function accountPolicySpec(maxLtvBps: number, allowedOps: readonly OpId[]
     params: { maxLtvBps, allowedOps: [...allowedOps].sort((a, b) => a - b) },
     ...(label ? { label } : {}),
   };
+}
+
+let templateHashes: Map<string, { maxLtvBps: number; requireCashReserve: boolean }> | null = null;
+/**
+ * Recovers a Studio market template's parameters from its config hash by hashing every committed leaf
+ * (0..10000 bps x reserve on/off, about 20,000 Keccak hashes, built once). No log query is needed, which matters
+ * on RPCs that cap eth_getLogs ranges. The caller must still compile the result and compare the netlist hash.
+ */
+export function studioTemplateByConfigHash(configHash: string): { maxLtvBps: number; requireCashReserve: boolean } | null {
+  if (!templateHashes) {
+    templateHashes = new Map();
+    for (let maxLtvBps = 0; maxLtvBps <= STUDIO_MAX_LTV_BPS; maxLtvBps++) {
+      for (const requireCashReserve of [false, true]) templateHashes.set(hashPolicySpec(marketPolicySpec(maxLtvBps, requireCashReserve)).toLowerCase(), { maxLtvBps, requireCashReserve });
+    }
+  }
+  return templateHashes.get(configHash.toLowerCase()) ?? null;
 }
 
 export function compileSpec(spec: PolicySpec): Maybe<CompiledPolicy> {

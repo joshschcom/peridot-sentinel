@@ -17,11 +17,14 @@ export function CheckList({ checks, compact = false }: { checks: CheckResult[]; 
   return (
     <ol className="divide-y divide-line rounded-control border border-line">
       {checks.map((check) => (
-        <li key={check.id} className="flex gap-3 px-3.5 py-3">
+        <li key={check.id} className="flex gap-3 px-3.5 py-3" data-check={check.id} data-status={check.status} data-basis={check.basis ?? "none"}>
           <StatusDot status={check.status} />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5">
-              <span className="text-sm font-medium">{check.title}</span>
+              <span className="text-sm font-medium">
+                {check.title}
+                {check.basis === "local-preview" ? <span className="ml-2 rounded border border-line-strong px-1.5 py-0.5 text-[0.6875rem] font-medium text-muted">Local preview</span> : null}
+              </span>
               <span className="text-xs text-faint">{CHECK_HINT[check.id]}</span>
             </div>
             {compact ? null : <p className="num mt-0.5 text-[0.8125rem] text-muted">{check.detail}</p>}
@@ -147,6 +150,28 @@ export function PreviewEvidence({ preview }: { preview: OperationPreview }) {
           ))}
       </dl>
     </Advanced>
+  );
+}
+
+/**
+ * For a policy rejection, says what the OTHER policy layer decides, and how we know. The two cases are not symmetric:
+ * a layer after the rejecting one never ran on chain (local preview only); a layer before it ran in the same simulation.
+ */
+export function OtherLayerNote({ preview }: { preview: OperationPreview }) {
+  if (preview.outcome.status !== "rejected") return null;
+  const by = preview.outcome.by;
+  if (by !== "account-policy" && by !== "market-policy") return null;
+  const other = preview.checks.find((check) => check.id === (by === "account-policy" ? "market-policy" : "account-policy"));
+  if (!other || other.status !== "pass" || (other.basis !== "local-preview" && other.basis !== "simulation")) return null;
+  const text =
+    by === "account-policy"
+      ? "The market's policy circuit would allow this operation. Only your own Sentinel rule stops it."
+      : "Your Sentinel policy allows this operation. Only the market's rule stops it.";
+  const how = other.basis === "local-preview" ? "Local preview of the same circuit on the same inputs. It was not reached on chain." : "It ran and passed inside the same simulation, before the market was asked.";
+  return (
+    <p className="rounded-control border border-line px-3.5 py-3 text-[0.8125rem]" data-testid="other-layer" data-layer={other.id} data-verdict="allow" data-basis={other.basis}>
+      <span className="font-medium">{text}</span> <span className="text-muted">{how}</span>
+    </p>
   );
 }
 

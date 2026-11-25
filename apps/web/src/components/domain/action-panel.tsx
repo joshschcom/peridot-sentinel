@@ -12,7 +12,7 @@ import { RUNTIME } from "@/services";
 import { mintTestTokensPlan, operationPlan } from "@/services/chain/plans";
 import type { ActingPath, Leg, Market, OperationRequest, Position, SentinelAccount } from "@/services/types";
 import { AmountInput } from "./amount-input";
-import { CheckList, PreviewEvidence, RejectionCallout, friendlyFromPreview } from "./policy-checks";
+import { CheckList, OtherLayerNote, PreviewEvidence, RejectionCallout, friendlyFromPreview } from "./policy-checks";
 import { TxFeedback, useSimulatedTx } from "./tx-feedback";
 
 export type ActionTab = "supply" | "borrow" | "repay" | "withdraw";
@@ -162,6 +162,7 @@ export function ActionPanel({ market, account, direct, initialTab = "supply", pa
             </dl>
             <CheckList checks={data.checks} />
             {rejection && tx.state.phase === "idle" ? <RejectionCallout error={rejection} marketId={market.id} simulated /> : null}
+            {rejection && tx.state.phase === "idle" ? <OtherLayerNote preview={data} /> : null}
             <PreviewEvidence preview={data} />
           </div>
         ) : preview.isError ? (

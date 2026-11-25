@@ -1,5 +1,8 @@
 "use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { AmountInput } from "@/components/domain/amount-input";
+import { Sheet } from "@/components/ui/sheet";
 import { LtvMeter } from "@/components/domain/ltv-meter";
 import { Amount, marketTitle, tokenAmount, usdOf } from "@/components/domain/market-bits";
 import { PolicyRules } from "@/components/domain/policy-card";
@@ -10,13 +13,13 @@ import { useChainTx } from "@/hooks/use-chain-tx";
 import { useAccounts, useMarket, useMarkets } from "@/hooks/use-data";
 import { WRITE_CHAIN_ID } from "@/lib/chains";
 import { services } from "@/services";
-import { createAccountPlan } from "@/services/chain/plans";
+import { createAccountPlan, withdrawPlan } from "@/services/chain/plans";
 import { useWriteGate } from "@/hooks/use-wallet";
-import { formatBps, formatUsd } from "@/lib/amount";
-import { formatDay } from "@/lib/format";
+import { formatBps, formatUsd, parseAmount } from "@/lib/amount";
+import { formatDay, shortAddress } from "@/lib/format";
 import { all2, mapMaybe, ok } from "@/lib/maybe";
 import { Op } from "@/lib/policy";
-import type { SentinelAccount } from "@/services/types";
+import type { Market, SentinelAccount } from "@/services/types";
 import { positionLtv } from "./market-detail";
 import { SentinelHeader } from "./sentinel-common";
 
@@ -64,6 +67,7 @@ export function SentinelOverview() {
 function AccountView({ account }: { account: SentinelAccount }) {
   const market = useMarket(account.marketId);
   const gate = useWriteGate("account");
+  const [withdrawing, setWithdrawing] = useState(false);
   const m = market.data?.status === "ok" ? market.data.value : null;
   if (market.isPending) return <Skeleton className="h-96" data-loading />;
   if (!m) return <EmptyState title="Market data unavailable">The market for this account could not be loaded.</EmptyState>;
@@ -76,9 +80,11 @@ function AccountView({ account }: { account: SentinelAccount }) {
   const net = mapMaybe(all2(all2(collateralUsd, debtAssetUsd), debtUsd), ([[c, i], d]) => c + i - d);
   const operator = account.operators.find((grant) => !grant.revoked) ?? null;
   const marketHref = `/markets/${m.id}`;
+  const policyHref = `/sentinel/policy?market=${m.id}`;
+  const chain = services.account.source === "chain";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="sentinel-account" data-market={m.id} data-account={account.address.status === "ok" ? account.address.value : undefined}>
       <Card as="section" className="p-5 sm:p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
@@ -126,10 +132,11 @@ function AccountView({ account }: { account: SentinelAccount }) {
           <ButtonLink href={marketHref} variant="secondary">
             Repay
           </ButtonLink>
-          <Button variant="secondary" disabled={!gate.allowed} title={gate.allowed ? undefined : gate.message}>
+          <Button variant="secondary" disabled={!gate.allowed || !chain} title={gate.allowed ? undefined : gate.message} onClick={() => setWithdrawing(true)} data-testid="withdraw-open">
             {!gate.allowed ? <IconLock size={15} /> : null} Withdraw to owner
           </Button>
         </div>
+        {chain ? <WithdrawSheet account={account} market={m} open={withdrawing} onClose={() => setWithdrawing(false)} /> : null}
         {!gate.allowed ? <p className="mt-3 text-[0.8125rem] text-muted">{gate.message}</p> : null}
       </Card>
 
@@ -140,7 +147,7 @@ function AccountView({ account }: { account: SentinelAccount }) {
             title="Your policy"
             description="Checked inside the contract before the market is asked."
             action={
-              <Link href="/sentinel/policy" className="text-sm font-medium underline underline-offset-4">
+              <Link href={policyHref} className="text-sm font-medium underline underline-offset-4">
                 Edit
               </Link>
             }
@@ -155,20 +162,24 @@ function AccountView({ account }: { account: SentinelAccount }) {
             eyebrow="Automation"
             title="Auto-repay"
             description="A keeper may repay debt from this account's idle funds when your trigger is reached."
-            action={operator ? <Badge tone="success">Authorised</Badge> : <Badge>Off</Badge>}
+            action={operator ? operator.expired ? <Badge tone="warning">Expired</Badge> : <Badge tone="success">Authorised</Badge> : <Badge>Off</Badge>}
           />
           <dl className="divide-y divide-line px-5 sm:px-6">
             <DefinitionRow label="Trigger">{account.autoRepayTriggerBps > 0 ? `Loan-to-value ≥ ${formatBps(account.autoRepayTriggerBps)}` : "Disabled"}</DefinitionRow>
             {operator ? (
               <>
-                <DefinitionRow label="Operator">{operator.label}</DefinitionRow>
+                <DefinitionRow label="Operator">{operator.operator.status === "ok" ? <span className="font-mono text-[0.8125rem]">{shortAddress(operator.operator.value)}</span> : operator.label}</DefinitionRow>
                 <DefinitionRow label="May">
                   {[(operator.opsMask & (1 << Op.REPAY)) !== 0 ? "Repay" : null, (operator.opsMask & (1 << Op.BORROW)) !== 0 ? "Borrow" : null].filter(Boolean).join(", ") || "Nothing"}
                 </DefinitionRow>
                 <DefinitionRow label="Budget left">
-                  {tokenAmount(operator.budget - operator.spent, m.debt.token)} of {tokenAmount(operator.budget, m.debt.token, 0)}
+                  {tokenAmount(operator.remaining, m.debt.token)}
+                  {operator.granted.status === "ok" ? ` of ${tokenAmount(operator.granted.value, m.debt.token, 0)}` : ""}
                 </DefinitionRow>
-                <DefinitionRow label="Expires">{formatDay(operator.expiresAt)}</DefinitionRow>
+                <DefinitionRow label="Expires">
+                  {formatDay(operator.expiresAt)}
+                  {operator.expired ? " (expired)" : ""}
+                </DefinitionRow>
               </>
             ) : null}
           </dl>
@@ -176,13 +187,75 @@ function AccountView({ account }: { account: SentinelAccount }) {
             <Notice icon={<IconBot size={18} />} title="An operator can never withdraw">
               Withdrawals always pay the owner, and only the owner can change the policy or permissions. Automation is not a guarantee: prices, liquidity and network conditions can prevent a repayment in time.
             </Notice>
-            <Link href="/sentinel/policy#automation" className="mt-4 inline-block text-sm font-medium underline underline-offset-4">
-              Manage or revoke
+            <Link href={`${policyHref}#automation`} className="mt-4 inline-block text-sm font-medium underline underline-offset-4">
+              Manage, check or revoke
             </Link>
           </div>
         </Card>
       </div>
     </div>
+  );
+}
+
+/**
+ * Owner-only withdrawal of IDLE funds: `withdraw(asset, amount)` on the account always pays the immutable owner.
+ * It is not a redeem. Supplied collateral stays in the market until it is withdrawn there first.
+ */
+function WithdrawSheet({ account, market, open, onClose }: { account: SentinelAccount; market: Market; open: boolean; onClose: () => void }) {
+  const gate = useWriteGate("account");
+  const tx = useChainTx();
+  const [asset, setAsset] = useState<"debt" | "collateral">("debt");
+  const [text, setText] = useState("");
+  const reset = tx.reset;
+  useEffect(() => {
+    if (!open) {
+      setText("");
+      reset();
+    }
+  }, [open, reset]);
+  const token = asset === "debt" ? market.debt.token : market.collateral.token;
+  const idle = asset === "debt" ? account.position.idleDebtAsset : account.position.idleCollateral;
+  const parsed = parseAmount(text, token.decimals);
+  const amount = parsed.ok && parsed.value > 0n ? parsed.value : null;
+  const tooMuch = amount !== null && amount > idle;
+  const ready = gate.allowed && amount !== null && !tooMuch && account.address.status === "ok" && token.address.status === "ok" && tx.state.phase !== "running";
+  const submit = async () => {
+    if (!ready || account.address.status !== "ok" || token.address.status !== "ok" || amount === null) return;
+    const result = await tx.run(withdrawPlan(account.address.value, token.address.value, amount, token.symbol), `${tokenAmount(amount, token)} sent from your Sentinel account to your wallet.`);
+    if (result.ok) setText("");
+  };
+  return (
+    <Sheet open={open} onClose={onClose} title="Withdraw to owner">
+      <div className="space-y-5" data-testid="withdraw-sheet">
+        <p className="text-sm text-muted">
+          Sends idle funds from this account to its owner: your wallet{account.owner.status === "ok" ? <> (<span className="font-mono text-[0.8125rem]">{shortAddress(account.owner.value)}</span>)</> : null}. No other destination exists, and only the owner can call it.
+        </p>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {(["debt", "collateral"] as const).map((option) => {
+            const t = option === "debt" ? market.debt.token : market.collateral.token;
+            return (
+              <button key={option} type="button" aria-pressed={asset === option} onClick={() => { setAsset(option); setText(""); }} className={`min-h-11 rounded-control border px-3 py-2 text-left font-medium ${asset === option ? "border-fg" : "border-line text-muted hover:text-fg"}`} data-testid={`withdraw-asset-${option}`}>
+                {t.symbol}
+                <span className="num block text-xs font-normal text-muted">Idle: {tokenAmount(option === "debt" ? account.position.idleDebtAsset : account.position.idleCollateral, t)}</span>
+              </button>
+            );
+          })}
+        </div>
+        <AmountInput label="Amount" token={token} value={text} onChange={setText} max={idle} maxLabel="Idle in account" />
+        {tooMuch ? <p className="text-sm text-danger">Only {tokenAmount(idle, token)} is idle in the account.</p> : null}
+        {account.position.debt > 0n && asset === "debt" ? (
+          <Notice tone="warning" title="You still have debt">
+            Idle {market.debt.token.symbol} is what you, or an authorised operator, can repay with. Withdrawing it leaves less for a repayment.
+          </Notice>
+        ) : null}
+        <p className="text-[0.8125rem] text-muted">Supplied collateral is not idle. To take it out, withdraw it on the market page first; it then becomes idle in this account.</p>
+        <TxFeedback state={tx.state} chainId={WRITE_CHAIN_ID} marketId={market.id} />
+        <Button className="w-full" size="lg" disabled={!ready} onClick={submit} data-testid="withdraw-submit">
+          {!gate.allowed ? <IconLock size={17} /> : null} Withdraw {token.symbol} to my wallet
+        </Button>
+        {!gate.allowed ? <p className="text-center text-[0.8125rem] text-muted">{gate.message}</p> : null}
+      </div>
+    </Sheet>
   );
 }
 
@@ -202,7 +275,7 @@ function CreateAccounts({ existing }: { existing: string[] }) {
             <div className="text-sm">
               <span className="font-medium">{marketTitle(market)}</span> <span className="text-muted">· market #{market.index}{market.active ? "" : " · inactive"}</span>
             </div>
-            <Button size="sm" disabled={!gate.allowed || tx.state.phase === "running" || market.controller.status !== "ok"} onClick={() => market.controller.status === "ok" && tx.run(createAccountPlan(market.controller.value), `Sentinel account created for market #${market.index}.`)} data-testid={`create-account-${market.index}`}>
+            <Button size="sm" disabled={!gate.allowed || tx.state.phase === "running" || market.controller.status !== "ok"} onClick={() => market.controller.status === "ok" && tx.run(createAccountPlan(market.controller.value), `Sentinel account created for market #${market.index}.`)} data-testid={`create-account-${market.id}`}>
               {!gate.allowed ? <IconLock size={15} /> : null} Create account
             </Button>
           </li>

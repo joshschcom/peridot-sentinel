@@ -136,6 +136,34 @@ export function studioCreatePlan(template: StudioTemplate, limits: MarketLimits)
   ];
 }
 
+/* ---------- Sentinel owner actions (all `onlyOwner` on the account contract) ---------- */
+
+/** A new grant replaces the previous one. Expiry is derived from the latest block's timestamp, never the browser clock. */
+export function setOperatorPlan(account: Address, operator: Address, opsMask: number, maxAmount: bigint, days: number): TxPlanStep[] {
+  return [
+    {
+      title: "Authorise operator",
+      build: async () => {
+        const block = await client().getBlock();
+        return { address: account, abi: withErrors(ABI.sentinel), functionName: "setOperator", args: [operator, opsMask, maxAmount, block.timestamp + BigInt(days) * 86_400n] };
+      },
+    },
+  ];
+}
+
+export function revokeOperatorPlan(account: Address, operator: Address): TxPlanStep[] {
+  return [{ title: "Revoke operator", build: async () => ({ address: account, abi: withErrors(ABI.sentinel), functionName: "revokeOperator", args: [operator] }) }];
+}
+
+export function setTriggerPlan(account: Address, bps: number): TxPlanStep[] {
+  return [{ title: bps === 0 ? "Disable auto-repay" : "Set auto-repay trigger", build: async () => ({ address: account, abi: withErrors(ABI.sentinel), functionName: "setAutoRepayTrigger", args: [bps] }) }];
+}
+
+/** Idle underlying leaves the account to its immutable owner. This is not a redeem: pTokens stay on the account. */
+export function withdrawPlan(account: Address, asset: Address, amount: bigint, symbol: string): TxPlanStep[] {
+  return [{ title: `Withdraw ${symbol} to your wallet`, build: async () => ({ address: account, abi: withErrors(ABI.sentinel), functionName: "withdraw", args: [asset, amount] }) }];
+}
+
 /** Controller address from a createMarket receipt. */
 export function createdMarket(receipts: Parameters<typeof parseEventLogs>[0]["logs"][]): Address | null {
   for (const logs of receipts) {

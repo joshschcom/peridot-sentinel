@@ -127,7 +127,7 @@ export function TxFeedback({ state, chainId, marketId }: { state: TxState; chain
         ))}
       </ol>
       {result?.status === "success" ? (
-        <div className="rounded-control border border-success bg-success-soft p-4" data-testid="tx-success">
+        <div className="rounded-control border border-success bg-success-soft p-4" data-testid="tx-success" data-hash={result.hash.status === "ok" ? result.hash.value : ""}>
           <div className="flex items-center gap-2">
             <span className="grid size-6 place-items-center rounded-full bg-success text-bg">
               <IconCheck size={14} strokeWidth={2.6} />

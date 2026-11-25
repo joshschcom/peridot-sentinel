@@ -1,16 +1,19 @@
 "use client";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { tokenAmount } from "@/components/domain/market-bits";
-import { Advanced, Badge, Card, CardHeader, EmptyState, ExampleTag, Mono, Skeleton, type Tone, cx } from "@/components/ui/core";
+import { Advanced, Badge, Button, Card, CardHeader, EmptyState, ExampleTag, Mono, Skeleton, type Tone, cx } from "@/components/ui/core";
 import { IconArrowUpRight, IconBot, IconUser } from "@/components/ui/icons";
 import { useActivity } from "@/hooks/use-data";
 import { formatAmount, formatBps } from "@/lib/amount";
-import { WRITE_CHAIN_ID, explorerTxUrl } from "@/lib/chains";
+import { LOG_PAGE_BLOCKS, WRITE_CHAIN_ID, explorerTxUrl } from "@/lib/chains";
 import { type ErrorCategory, mapContractError, rawErrorText } from "@/lib/errors";
 import { EVIDENCE, FORK_LABEL, LOCAL_LABEL } from "@/lib/evidence";
 import { formatTime, shortHash } from "@/lib/format";
 import { services } from "@/services";
+import { extendLogWindow } from "@/services/chain/client";
 import type { ActivityEntry, ActivityEvidence } from "@/services/types";
+import { KeeperPanel } from "./keeper-panel";
 import { SentinelHeader } from "./sentinel-common";
 
 type Filter = "all" | "allowed" | "rejected";
@@ -32,7 +35,13 @@ const REJECTION_BADGE: Partial<Record<ErrorCategory, { label: string; tone: Tone
 export function SentinelActivity() {
   const activity = useActivity();
   const [filter, setFilter] = useState<Filter>("all");
-  const entries = activity.data?.status === "ok" ? activity.data.value : null;
+  const queryClient = useQueryClient();
+  const entries = activity.data?.status === "ok" ? activity.data.value.entries : null;
+  const coverage = activity.data?.status === "ok" ? activity.data.value.coverage : undefined;
+  const scanFurther = () => {
+    extendLogWindow();
+    void queryClient.invalidateQueries();
+  };
   const shown = (entries ?? []).filter((entry) => filter === "all" || (filter === "allowed" ? entry.result === "allowed" : entry.result !== "allowed"));
   const fixture = services.activity.source === "fixture";
 
@@ -53,9 +62,10 @@ export function SentinelActivity() {
       ) : entries === null ? (
         <EmptyState title="Activity unavailable">{activity.data?.status === "unavailable" ? activity.data.reason : "Activity could not be loaded."}</EmptyState>
       ) : shown.length === 0 ? (
-        <EmptyState title="Nothing here yet">Actions by you or your operator will appear here with their outcome.</EmptyState>
+        <EmptyState title="Nothing here yet">Actions by you or your operator will appear here with their outcome{coverage && !coverage.complete ? " (in the scanned block range, see below)" : ""}.</EmptyState>
       ) : (
-        <Card as="section">
+        <Card as="section" data-testid="chain-activity">
+          {fixture ? null : <CardHeader eyebrow="On chain" title="Your wallet and Sentinel accounts" description="Events emitted by the contracts in mined transactions: PolicyAllowed and AutoRepayExecuted." />}
           <ul className="divide-y divide-line">
             {shown.map((entry) => (
               <Entry key={entry.id} entry={entry} fixture={fixture} />
@@ -63,7 +73,19 @@ export function SentinelActivity() {
           </ul>
         </Card>
       )}
+      {coverage && !coverage.complete ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-control border border-line px-4 py-3 text-[0.8125rem]" data-testid="activity-coverage">
+          <p className="min-w-0 flex-1 text-muted">
+            On-chain events are read from block <span className="num text-fg">{coverage.fromBlock.toString()}</span> to <span className="num text-fg">{coverage.toBlock.toString()}</span>. Earlier history has not been scanned: the network's public RPC only answers log queries {LOG_PAGE_BLOCKS.toString()} blocks at a time.
+          </p>
+          <Button size="sm" variant="secondary" onClick={scanFurther} disabled={activity.isFetching}>
+            Scan further back
+          </Button>
+        </div>
+      ) : null}
       <p className="text-xs text-faint">A reverted transaction leaves no events. For rejections, the evidence is the receipt status and the decoded revert reason, or a simulation that was never sent.</p>
+
+      <KeeperPanel />
 
       <RecordedEvidence />
     </div>
