@@ -8,7 +8,8 @@ import {
   getAddress, http, keccak256, parseEventLogs, toHex, zeroHash,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { compilePolicy, encodeContext } from '@peridot/circuit-sdk';
+import { compilePolicy, encodeContext, studioMarketTemplate, STUDIO_MARKET_ROOT } from '@peridot/circuit-sdk';
+import { preparePosition, runDemoOps } from './demo-ops.mjs';
 import { verifyBuildCommit } from './verify-build.mjs';
 import { checkManifest } from '../../packages/chain-config/scripts/check-manifest.mjs';
 
@@ -16,13 +17,17 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 if (process.env.FOUNDRY_PROFILE && process.env.FOUNDRY_PROFILE !== 'default') {
   throw Error('Demo deployments require the default development Foundry profile');
 }
+const operation = process.argv.find(arg => arg.startsWith('--ops='))?.slice(6);
+if (operation !== undefined && !['fresh','price','isolate','liquidate','all'].includes(operation)) {
+  throw Error('Use --ops=fresh, price, isolate, liquidate, or all');
+}
 const mode = process.argv[2];
 if (!['testnet', 'local', 'sponsor-fork'].includes(mode)) throw Error('Specify local, testnet or sponsor-fork');
 const fork = mode === 'sponsor-fork';
 const local = mode !== 'testnet';
 const profile = local ? 'local' : 'testnet';
 const id = local ? 31337 : 1952;
-const url = fork ? 'http://127.0.0.1:19622' : local ? (process.env.LOCAL_ANVIL_RPC ?? 'http://127.0.0.1:18545') : 'https://testrpc.xlayer.tech';
+const url = local ? process.env.LOCAL_ANVIL_RPC ?? (fork ? 'http://127.0.0.1:19622' : 'http://127.0.0.1:18545') : 'https://testrpc.xlayer.tech';
 if (local && !['127.0.0.1', 'localhost', '[::1]'].includes(new URL(url).hostname)) {
   throw Error('Local deployment requires a loopback Anvil RPC');
 }
@@ -36,7 +41,7 @@ const forkProof = fork ? JSON.parse(readFileSync(resolve(root,'evidence/a1/fork-
 if (fork) {
   const info = await rpc.request({method:'anvil_nodeInfo'});
   const source = await rpc.getBlock({blockNumber:BigInt(forkProof.sourceBlock)});
-  if (info.forkConfig.forkUrl !== 'http://127.0.0.1:19621' || forkProof.sourceChainId !== 196 ||
+  if (!['127.0.0.1','localhost','[::1]'].includes(new URL(info.forkConfig.forkUrl).hostname) || forkProof.sourceChainId !== 196 ||
       source.hash !== '0xa2558795a0e1feb6aa6e03b5226362b752c1308bd5e26e6be13897fd9f6e3bc8') {
     throw Error('Expected the isolated fork of A1’s fabricated X Layer policy circuits');
   }
@@ -81,7 +86,9 @@ for (const artifact of artifacts.values()) {
 const sourceDigest = keccak256(toHex(JSON.stringify([...sourceHashes].sort(([a],[b]) => a < b ? -1 : a > b ? 1 : 0))));
 const genesis = await rpc.getBlock({ blockNumber: 0n });
 const runId = local ? metadata.instanceId : genesis.hash;
-const directory = fork ? resolve(root,'evidence/a5') : resolve(root, 'deployments', profile);
+const directory = operation
+  ? resolve(root,'evidence/session2-ops',`${mode}-${runId.slice(2,14)}`)
+  : fork ? resolve(root,'evidence/a5') : resolve(root,'deployments',profile);
 mkdirSync(directory, { recursive:true });
 const stateDir = resolve(root, '.research', 'deployment-journals');
 mkdirSync(stateDir, { recursive:true });
@@ -115,21 +122,21 @@ if (requestedCommit || (!journal.sourcesDirty && !journal.sourceMatch)) {
 }
 const receipts = {};
 const retried = new Set();
-async function transact(label, to, data, expectedRevert) {
+async function transact(label, to, data, expectedRevert, actor = sender) {
   let step = journal.steps[label];
   if (!step) {
-    step = { to, dataHash:keccak256(data), nonce:await rpc.getTransactionCount({ address:sender, blockTag:'pending' }),
+    step = { actor, to, dataHash:keccak256(data), nonce:await rpc.getTransactionCount({ address:actor, blockTag:'pending' }),
       startBlock:String(await rpc.getBlockNumber({ cacheTime:0 })) };
     journal.steps[label] = step;
     save(journalPath, journal);
   }
-  if (step.to !== to || step.dataHash !== keccak256(data)) throw Error(`Changed call for ${label}`);
+  if ((step.actor ?? sender) !== actor || step.to !== to || step.dataHash !== keccak256(data)) throw Error(`Changed call for ${label}`);
   // If a process died between submission and journaling the hash, find the exact sender/nonce.
-  if (!step.hash && await rpc.getTransactionCount({ address:sender, blockTag:'pending' }) > step.nonce) {
+  if (!step.hash && await rpc.getTransactionCount({ address:actor, blockTag:'pending' }) > step.nonce) {
     const tip = await rpc.getBlockNumber({ cacheTime:0 });
     for (let n = BigInt(step.startBlock); n <= tip && !step.hash; ++n) {
       const block = await rpc.getBlock({ blockNumber:n, includeTransactions:true });
-      const tx = block.transactions.find(tx => tx.from.toLowerCase() === sender.toLowerCase() && tx.nonce === step.nonce);
+      const tx = block.transactions.find(tx => tx.from.toLowerCase() === actor.toLowerCase() && tx.nonce === step.nonce);
       if (!tx) continue;
       if ((tx.to ?? '').toLowerCase() !== (to ?? '').toLowerCase() || keccak256(tx.input) !== step.dataHash) {
         throw Error(`Nonce occupied by another transaction at ${label}`);
@@ -142,8 +149,8 @@ async function transact(label, to, data, expectedRevert) {
     // Recheck the provider before signing each transaction. The local signer is a node-managed Anvil account.
     if (await rpc.getChainId() !== id) throw Error('Provider chain ID changed');
     // Accrual can take a costlier branch in the next block than it did during estimation.
-    const estimate = expectedRevert && fork ? 1500000n : await rpc.estimateGas({ account:sender, to, data });
-    step.hash = await wallet.sendTransaction({ to, data, nonce:step.nonce, gas:estimate + estimate / 3n + 30000n });
+    const estimate = expectedRevert && fork ? 1500000n : await rpc.estimateGas({ account:actor, to, data });
+    step.hash = await wallet.sendTransaction({ account:actor === sender ? signer : actor, to, data, nonce:step.nonce, gas:estimate + estimate / 3n + 30000n });
   }
   save(journalPath, journal);
   const receipt = await rpc.waitForTransactionReceipt({ hash:step.hash, timeout:120000 });
@@ -161,7 +168,7 @@ async function transact(label, to, data, expectedRevert) {
       (journal.failures ??= []).push({ label, hash:step.hash, block:receipt.blockNumber.toString(), gasUsed:receipt.gasUsed.toString() });
       delete journal.steps[label];
       save(journalPath,journal);
-      return transact(label,to,data);
+      return transact(label,to,data,expectedRevert,actor);
     }
     throw Error(`Mined failure for ${label} at ${step.hash}. Diagnose before using --retry-failed=${label}`);
   }
@@ -177,11 +184,22 @@ async function deploy(name, args = [], alias = name) {
   contracts[alias] = getAddress(receipt.contractAddress);
   return contracts[alias];
 }
-async function call(label, name, target, functionName, args = []) {
-  return transact(label, target, encodeFunctionData({ abi:artifacts.get(name).abi, functionName, args }));
+async function call(label, name, target, functionName, args = [], actor = sender) {
+  return transact(label,target,encodeFunctionData({abi:artifacts.get(name).abi,functionName,args}),undefined,actor);
 }
 function read(name, address, functionName, args = []) {
   return rpc.readContract({ abi:artifacts.get(name).abi, address, functionName, args });
+}
+function readAt(name, address, functionName, args, blockNumber) {
+  return rpc.readContract({abi:artifacts.get(name).abi,address,functionName,args,blockNumber});
+}
+async function anchor(label) {
+  journal.observations ??= {};
+  if (journal.observations[label] === undefined) {
+    journal.observations[label] = String(await rpc.getBlockNumber({cacheTime:0}));
+    save(journalPath,journal);
+  }
+  return BigInt(journal.observations[label]);
 }
 function event(receipt, name, eventName, emitter) {
   const logs = receipt.logs.filter(l => l.address.toLowerCase() === emitter.toLowerCase());
@@ -202,6 +220,9 @@ if (!fork && await rpc.getCode({address:processor}) !== artifacts.get('Developme
   throw Error('Reference processor runtime differs from this build');
 }
 await call(fork ? 'trust-fork-processor' : 'trust-development-processor','PolicyRegistry',registry,'setProcessorTrust',[processor,true]);
+const studioRoot = await read('PolicyRegistry',registry,'MARKET_TEMPLATE_ROOT');
+if (studioRoot !== STUDIO_MARKET_ROOT) throw Error('Deployed Studio market template commitment differs from SDK');
+const studioPublisher = local ? getAddress((await rpc.request({method:'eth_accounts'}))[6]) : sender;
 const circuits = [];
 const evaluations = [];
 for (const [kind, fixture] of fixtures.entries()) {
@@ -217,9 +238,24 @@ for (const [kind, fixture] of fixtures.entries()) {
     circuitId = event(added,'DevelopmentReferenceProcessor','ReferenceCircuitAdded',processor).id;
   }
   const { configHash, netlistHash } = fixture;
-  const registered = await call('register-' + policyKind,'PolicyRegistry',registry,'register',
-    [processor,circuitId,kind,netlistHash,configHash,zeroHash]);
-  const policyId = event(registered,'PolicyRegistry','PolicyRegistered',registry).policyId;
+  let policyId;
+  if (kind === 0) {
+    const { maxLtvBps, requireCashReserve } = fixture.spec.params;
+    const { compiled, proof } = studioMarketTemplate(maxLtvBps,requireCashReserve);
+    if (compiled.netlistHash !== netlistHash || compiled.configHash !== configHash) throw Error('Studio fixture mismatch');
+    await call('register-market-template','PolicyRegistry',registry,'registerMarketTemplate',
+      [processor,circuitId,maxLtvBps,requireCashReserve,netlistHash,configHash,proof],studioPublisher);
+    policyId = await read('PolicyRegistry',registry,'marketTemplatePolicy',[processor,configHash]);
+    const entry = await read('PolicyRegistry',registry,'getPolicy',[policyId]);
+    if (entry.netlistHash !== netlistHash || entry.configHash !== configHash || getAddress(entry.processor) !== processor) {
+      throw Error('Unexpected canonical Studio policy');
+    }
+    circuitId = entry.circuitId;
+  } else {
+    const registered = await call('register-' + policyKind,'PolicyRegistry',registry,'register',
+      [processor,circuitId,kind,netlistHash,configHash,zeroHash]);
+    policyId = event(registered,'PolicyRegistry','PolicyRegistered',registry).policyId;
+  }
   circuits.push({ kind:policyKind, circuitId:String(circuitId), policyId, netlistHash, configHash });
   for (const vector of fixture.vectors) {
     const output = await read('DevelopmentReferenceProcessor',processor,'eval',[circuitId,vector.inputs]);
@@ -243,7 +279,8 @@ if (!await read('IsolatedController',controller,'active') || !await read('Market
   throw Error('Activation postcondition failed');
 }
 const manifest = { schemaVersion:1, abiVersion:'v1', profile, chainId:id, status:'deployed',
-  commit:journal.sourceMatch?.commit ?? null,
+  commit:journal.sourceMatch?.commit ?? null, capabilities:{studioMarketTemplateRoot:studioRoot,policyAllowedEvents:true},
+  deploymentBlock:String(receipts['deploy-MockCollateral'].block),
   provenance:{baseCommit:journal.baseCommit,sourceDigest,sourcesDirty:journal.sourcesDirty,sourceMatch:journal.sourceMatch ?? null}, contracts, markets:[{ controller, collateralMarket, debtMarket }],
   tapeout:{ mode:fork ? 'official' : 'development-reference', processor, circuits },
   mocks:['MockCollateral','MockDebt','TestnetOracle',...(fork ? [] : ['DevelopmentReferenceProcessor'])] };
@@ -256,28 +293,41 @@ const evidence = { label:fork ? 'Local nested Anvil fork / sponsor processor wit
   chainId:id, ...(fork ? {source:{chainId:196,pinnedBlock:forkProof.sourceBlock,localForkParent:metadata.forkedNetwork}} : {}), sender, genesisHash:genesis.hash, runId, baseCommit:journal.baseCommit, sourcesDirty:journal.sourcesDirty,
   buildHashes, policyVectors:evaluations, transactions:receipts, market:manifest.markets[0], manifest };
 if (!existsSync(receiptFile)) save(receiptFile,evidence);
-if (!fork) save(resolve(root,`packages/chain-config/deployments/${id}.json`),manifest);
+function publishManifest() {
+  if (operation) save(resolve(directory,'manifest.json'),manifest);
+  if (!fork && process.argv.includes('--publish-manifest')) save(resolve(root,`packages/chain-config/deployments/${id}.json`),manifest);
+}
 console.log(`Evidence: ${receiptFile}`);
 
-if (fork || process.argv.includes('--position')) {
+if (operation || fork || process.argv.includes('--position')) {
   const deploymentSteps = new Set(Object.keys(receipts));
   const operatorAddress = process.env.DEMO_OPERATOR ?? (local ? (await rpc.request({ method:'eth_accounts' }))[fork ? 4 : 1] : undefined);
   if (!operatorAddress || getAddress(operatorAddress) === sender) throw Error('Set a separate DEMO_OPERATOR address');
   const operator = getAddress(operatorAddress);
   const accountAbi = JSON.parse(readFileSync(resolve(root,'contracts/out/SentinelAccount.sol/SentinelAccount.json'),'utf8'));
   artifacts.set('SentinelAccount',accountAbi);
-  const sf = contracts.SentinelAccountFactory;
-  const made = await call('create-demo-account','SentinelAccountFactory',sf,'createAccount',[controller,circuits[1].policyId]);
-  const { account } = event(made,'SentinelAccountFactory','AccountCreated',sf);
-  await call('mint-demo-collateral','TestnetToken',collateral,'mint',[account,100n*wad]);
-  await call('enter-collateral','SentinelAccount',account,'enterCollateral');
-  await call('supply-collateral','SentinelAccount',account,'supply',[100n*wad]);
-  const borrowed = await call('borrow-demo-dollars','SentinelAccount',account,'borrow',[80n*usd]);
-  const before = await rpc.readContract({ abi:artifacts.get('IsolatedController').abi, address:controller,
-    functionName:'currentLtvBps', args:[account], blockNumber:borrowed.blockNumber });
-  await call('configure-trigger','SentinelAccount',account,'setAutoRepayTrigger',[4500]);
-  const { timestamp } = await rpc.getBlock({ blockNumber:borrowed.blockNumber });
-  await call('grant-repay-only','SentinelAccount',account,'setOperator',[operator,8,20n*usd,timestamp+86400n]);
+  const accounts = local ? await rpc.request({method:'eth_accounts'}) : [];
+  const ops = {call,event,readAt,rpc,anchor,sender,operator,market:manifest.markets[0],collateral,debt,oracle,
+    sentinelFactory:contracts.SentinelAccountFactory,marketFactory,marketPolicy:circuits[0].policyId,
+    accountPolicy:circuits[1].policyId,liquidator:local ? getAddress(accounts[5]) : sender};
+  if (operation) {
+    const outcome = await runDemoOps(ops,operation);
+    if (outcome.isolation) manifest.markets.push(outcome.isolation.market);
+    else if (journal.steps['ops-create-independent-market']?.hash) {
+      const receipt = await rpc.getTransactionReceipt({hash:journal.steps['ops-create-independent-market'].hash});
+      const {controller,collateralMarket,debtMarket} = event(receipt,'MarketFactory','MarketCreated',marketFactory);
+      manifest.markets.push({controller,collateralMarket,debtMarket});
+    }
+    console.log(await checkManifest(manifest,url));
+    const operationEvidence = {label:evidence.label,chainId:id,runId,operation,sourceDigest,contracts,
+      ...outcome,transactions:Object.fromEntries(Object.entries(receipts).filter(([k]) => !deploymentSteps.has(k)))};
+    save(resolve(directory,operation + '.json'),operationEvidence);
+    console.log(`Sentinel account ${outcome.fresh.account}; repay-only operator ${operator}`);
+    publishManifest();
+    process.exit(0);
+  }
+  const {account,borrowed,snapshot} = await preparePosition(ops);
+  const before = snapshot.ltvBps;
   const moved = await call('move-mock-price','TestnetOracle',oracle,'setPrice',[collateral,16n*wad/10n]);
   const after = await rpc.readContract({ abi:artifacts.get('IsolatedController').abi,address:controller,
     functionName:'currentLtvBps',args:[account],blockNumber:moved.blockNumber });
@@ -345,3 +395,5 @@ if (fork || process.argv.includes('--position')) {
   }
   console.log(`KEEPER_ACCOUNT=${account} KEEPER_OPERATOR=${operator} KEEPER_CHAIN_ID=${id} KEEPER_RPC=${url}`);
 }
+
+publishManifest();

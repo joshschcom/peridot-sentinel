@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
+import {IPolicyActivity} from "../../src/markets/IPolicyActivity.sol";
 import {IsolatedController} from "../../src/markets/IsolatedController.sol";
 import {MarketFactory} from "../../src/markets/MarketFactory.sol";
 import {MarketPToken} from "../../src/markets/MarketPToken.sol";
@@ -20,6 +21,7 @@ interface VmSentinel {
     function parseJsonBytes(string calldata json, string calldata key) external pure returns (bytes memory);
     function parseJsonBytes32(string calldata json, string calldata key) external pure returns (bytes32);
     function prank(address caller) external;
+    function expectEmit(address emitter) external;
     function expectRevert(bytes4 reason) external;
     function expectRevert(bytes calldata reason) external;
     function warp(uint256 timestamp) external;
@@ -102,6 +104,15 @@ contract SentinelTest {
         col.mint(address(account), 100e18);
         account.enterCollateral();
         account.supply(100e18);
+    }
+
+    function testSettledBorrowEmitsBothPolicyDecisions() external {
+        vm.expectEmit(address(account));
+        emit IPolicyActivity.PolicyAllowed(accountPolicy, address(account), 2, 5000, true, true);
+        vm.expectEmit(address(controller));
+        emit IPolicyActivity.PolicyAllowed(marketPolicy, address(account), 2, 5000, true, true);
+        account.borrow(50e6);
+        require(debtMarket.borrowBalanceStored(address(account)) == 50e6);
     }
 
     function testSeparatePoliciesAndBorrowerIdentity() external {

@@ -23,6 +23,8 @@ export type DeploymentManifest = {
   status: 'deployed' | 'not-deployed';
   commit: string | null;
   provenance?: { baseCommit: string, sourceDigest: Address, sourcesDirty: boolean };
+  capabilities?: { studioMarketTemplateRoot?: Address; policyAllowedEvents?: boolean };
+  deploymentBlock?: string;
   contracts: Record<string, Address>;
   markets: { controller: Address, collateralMarket: Address, debtMarket: Address }[];
   tapeout: {

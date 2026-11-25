@@ -1,0 +1,290 @@
+{
+  "label": "Local nested Anvil fork / sponsor processor with fork-only fabricated circuits",
+  "chainId": 31337,
+  "runId": "0xd8c23ebb1e0be5463c1adb01676758afd9b2d2b6fc2e374853ff46a277702306",
+  "operation": "all",
+  "sourceDigest": "0x1af665449fa706ce168d056606824775a343739e6d4914e5d32f84f8d15d6c8e",
+  "contracts": {
+    "MockCollateral": "0x057ef64E23666F000b34aE31332854aCBd1c8544",
+    "MockDebt": "0x261D8c5e9742e6f7f1076Fa1F560894524e19cad",
+    "TestnetOracle": "0xCE3478A9E0167a6Bc5716DC39DbbbfAc38F27623",
+    "DemoRateModel": "0xCba6b9A951749B8735C603e7fFC5151849248772",
+    "MarketPToken": "0xe4EB561155AFCe723bB1fF8606Fbfe9b28d5d38D",
+    "PolicyRegistry": "0xcf27F781841484d5CF7e155b44954D7224caF1dD",
+    "TapeOutPolicyAdapter": "0x673cD70FA883394a1f3DEb3221937Ceb7C2618D7",
+    "MarketFactory": "0xe7cfCcCb38cE07Ba9D8D13431afe8Cf6172DE031",
+    "SentinelAccountFactory": "0xd2D7715BAe07e5B9d7c0Ec0b671B9bAD6b9dBEBb"
+  },
+  "fresh": {
+    "account": "0x1FF207025985bCe9c0bdA37e6E82282846b668Ce",
+    "owner": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    "operator": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+    "borrowBlock": "76844991",
+    "ltvBps": "4000",
+    "debt": "80000000",
+    "borrowedFunds": "80000000",
+    "collateralShares": "100000000000000000000",
+    "triggerBps": 4500,
+    "grantMask": 8,
+    "grantRawDebtUnits": "20000000",
+    "expiry": "1795700664"
+  },
+  "price": {
+    "label": "TestnetOracle manual price simulation",
+    "market": {
+      "controller": "0xcA9116A14eb0970509a7B4ecec5c0364cf46c62f",
+      "collateralMarket": "0xe5d5836993fe9D7a7Aa0Fa1959dE5C0CabA6F755",
+      "debtMarket": "0x7A4713500AbcEf1eE2D5ebF7F1Fd48e3532AEd8A"
+    },
+    "account": "0x1FF207025985bCe9c0bdA37e6E82282846b668Ce",
+    "receipt": "0x54cb1e5d0f020e307935d191aeb17ab2e8869423e74ba76fab0caa9ae51af6f6",
+    "block": "76844994",
+    "oldPriceWad": "2000000000000000000",
+    "newPriceWad": "1600000000000000000",
+    "position": {
+      "shares": "100000000000000000000",
+      "debt": "80000000",
+      "cash": "120000000",
+      "supply": "200000000",
+      "borrowTotal": "80000000",
+      "ltvBps": "5000"
+    }
+  },
+  "isolation": {
+    "market": {
+      "controller": "0xf10E258094452D6bd44145a4041dfA8eB476C621",
+      "collateralMarket": "0x56129920028560657686b6B4F94f41B3cC6CFaD8",
+      "debtMarket": "0x22f23C6D92f608D1D16098586ad98a43e1E0e9e7"
+    },
+    "account": "0x067F284b0e3220baE7515C10CaAe5C3D367beEde",
+    "block": "76845004",
+    "atCreation": {
+      "shares": "100000000000000000000",
+      "debt": "30000000",
+      "cash": "170000000",
+      "supply": "200000000",
+      "borrowTotal": "30000000",
+      "ltvBps": "1875"
+    },
+    "firstAccountInSecondMarket": {
+      "shares": "0",
+      "debt": "0"
+    },
+    "secondAccountInFirstMarket": {
+      "shares": "0",
+      "debt": "0"
+    }
+  },
+  "liquidation": {
+    "receipt": "0x5e74e0614f5bafc8f6cc687d5581d01b966a331ebbe0a69244b67887ede8f553",
+    "block": "76845008",
+    "liquidator": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+    "borrower": "0x1FF207025985bCe9c0bdA37e6E82282846b668Ce",
+    "market": {
+      "controller": "0xcA9116A14eb0970509a7B4ecec5c0364cf46c62f",
+      "collateralMarket": "0xe5d5836993fe9D7a7Aa0Fa1959dE5C0CabA6F755",
+      "debtMarket": "0x7A4713500AbcEf1eE2D5ebF7F1Fd48e3532AEd8A"
+    },
+    "repayAmount": "20000000",
+    "seizeTokens": "24150000000000000022",
+    "liquidatorSeizeTokens": "23473800000000000022",
+    "protocolSeizeTokens": "676200000000000000",
+    "shock": {
+      "label": "TestnetOracle manual price simulation",
+      "market": {
+        "controller": "0xcA9116A14eb0970509a7B4ecec5c0364cf46c62f",
+        "collateralMarket": "0xe5d5836993fe9D7a7Aa0Fa1959dE5C0CabA6F755",
+        "debtMarket": "0x7A4713500AbcEf1eE2D5ebF7F1Fd48e3532AEd8A"
+      },
+      "account": "0x1FF207025985bCe9c0bdA37e6E82282846b668Ce",
+      "receipt": "0xcaa210d4c3a5e571afde01a69f0c33214618a1acbb54a437f34d1d9e3d4c949e",
+      "block": "76845005",
+      "oldPriceWad": "1600000000000000000",
+      "newPriceWad": "869565217391304347",
+      "position": {
+        "shares": "100000000000000000000",
+        "debt": "80000000",
+        "cash": "120000000",
+        "supply": "200000000",
+        "borrowTotal": "80000000",
+        "ltvBps": "9201"
+      }
+    },
+    "before": {
+      "borrower": {
+        "shares": "100000000000000000000",
+        "debt": "80000000",
+        "cash": "120000000",
+        "supply": "200000000",
+        "borrowTotal": "80000000",
+        "ltvBps": "9201"
+      },
+      "independent": {
+        "shares": "100000000000000000000",
+        "debt": "30000000",
+        "cash": "170000000",
+        "supply": "200000000",
+        "borrowTotal": "30000000",
+        "ltvBps": "3451"
+      },
+      "liquidatorFunds": "20000000",
+      "liquidatorShares": "0",
+      "allowance": "20000000"
+    },
+    "after": {
+      "borrower": {
+        "shares": "75849999999999999978",
+        "debt": "60000025",
+        "cash": "140000000",
+        "supply": "200000000",
+        "borrowTotal": "60000025",
+        "ltvBps": "9097"
+      },
+      "independent": {
+        "shares": "100000000000000000000",
+        "debt": "30000000",
+        "cash": "170000000",
+        "supply": "200000000",
+        "borrowTotal": "30000000",
+        "ltvBps": "3451"
+      },
+      "liquidatorFunds": "0",
+      "liquidatorShares": "23473800000000000022",
+      "allowance": "0"
+    }
+  },
+  "transactions": {
+    "create-demo-account": {
+      "hash": "0x740842b93b8d9242b0a5ab249ec141500850c2ccbf346fb1816bafa5c0c46c5a",
+      "block": "76844987",
+      "blockHash": "0xd5da1ffcff0ee39017d867fc0bdd3e34339b1af5f095572b98d3b10253739c7b",
+      "gasUsed": "1706957"
+    },
+    "mint-demo-collateral": {
+      "hash": "0xbe1672aa4bc3903168e62da63f6b85ca24b3b8c7db43a299aa7f2db7b0f4bbcb",
+      "block": "76844988",
+      "blockHash": "0xa96e1b0211d0336919c3f0cc088bd1da8a0fda17d7c28eb071878fc5c6fc68c0",
+      "gasUsed": "68123"
+    },
+    "enter-collateral": {
+      "hash": "0xc32ce27ad407c4a6c949858199f4d3251e901e4c30f6b173dde11c233d463a68",
+      "block": "76844989",
+      "blockHash": "0x8fb56310b2ba615ac3f05e7a2c98b5d73ab52f9e0e072039114017b6c5c4814d",
+      "gasUsed": "51056"
+    },
+    "supply-collateral": {
+      "hash": "0x10cabe3207e9e53870a5bb4d5bb5e2361857dcedf6a5e8bd7bdd19c571b17428",
+      "block": "76844990",
+      "blockHash": "0x17c1ae498544d89fc8e4db97eaaabc3896006f8348a7f2456e995ac7145f4423",
+      "gasUsed": "700499"
+    },
+    "borrow-demo-dollars": {
+      "hash": "0xc240584f101a0df1c2817707a294c83e562dd10355d9906acc25da496c275d47",
+      "block": "76844991",
+      "blockHash": "0xd2c62c2f1f5a4c906e05a454acf4a9389d344552d0c4841ab2a019232214b7e7",
+      "gasUsed": "776950"
+    },
+    "configure-trigger": {
+      "hash": "0xb52bf080d3b3d8128d8dd1af89ac0b3860a4af5e5581a4053d3ad7c2446f1d1c",
+      "block": "76844992",
+      "blockHash": "0x0058459189af6d415f4033aef3c9c8e29a1eb2830ee8d4221d8a4d9efdc1bbf9",
+      "gasUsed": "44745"
+    },
+    "grant-repay-only": {
+      "hash": "0x3f2e3c77707f58abaac991039a075f4953cb2f20314b72b8729e0928ff40cddd",
+      "block": "76844993",
+      "blockHash": "0xe1e9e4c075ca22be6d1641f1f4d390070a9c840096a5d91b65329b47b8b28a30",
+      "gasUsed": "91348"
+    },
+    "move-mock-price": {
+      "hash": "0x54cb1e5d0f020e307935d191aeb17ab2e8869423e74ba76fab0caa9ae51af6f6",
+      "block": "76844994",
+      "blockHash": "0x8c3ceab9bbea9ba3e63282e35ab3105a797f2d35565f36ee67305c8cc124a130",
+      "gasUsed": "28990"
+    },
+    "ops-create-independent-market": {
+      "hash": "0x359e58d9fe7fca6246654dbbf348a4a1cc7284c40d1f3e903cb0e777d8a8b54e",
+      "block": "76844995",
+      "blockHash": "0x75e4641f16050959bb25af1bb9ca8a26a34b6d941e50553e1c894eaf914c0b16",
+      "gasUsed": "3113485"
+    },
+    "ops-mint-independent-liquidity": {
+      "hash": "0xe10a21abbe01978c1a52eed8d7fe3db027c590ce9c2ff573c12b9e50ba43b7cd",
+      "block": "76844996",
+      "blockHash": "0x5f93a521c15d1c2efd393637a7eb4695ab8ff2a0e53e7f99076cdb7278ec26b8",
+      "gasUsed": "50975"
+    },
+    "ops-approve-independent-seed": {
+      "hash": "0x1d8ddd2a342bb9d9a69ebb1b12a8a31213341dc3554f8fde8aa0c1dba31237e3",
+      "block": "76844997",
+      "blockHash": "0x1a387f2f00bd6cff8771411eb78e08f42aad31bf01678471eb71dd6ac7d3fc8c",
+      "gasUsed": "45926"
+    },
+    "ops-supply-independent-seed": {
+      "hash": "0xcb4f9058bda15447e11a763c6c41084fe96a799099b98ba7dc4cf4f6298756e5",
+      "block": "76844998",
+      "blockHash": "0xf3e8fcf62ce0821aeffb3bcbfec0aa984e47f4ff8f56c75c027a0f9f001a07ef",
+      "gasUsed": "434048"
+    },
+    "ops-activate-independent-market": {
+      "hash": "0x445d9cbf93287272716ef1da73238c5968452f9a0b0279c2b8b22fe916bc4d9c",
+      "block": "76844999",
+      "blockHash": "0x76cde4f386fbbd0755a6ec3dd8294f801697e2a08f0c68631d5de46c59f7320f",
+      "gasUsed": "93845"
+    },
+    "ops-create-independent-account": {
+      "hash": "0xf9cf2c745a3094079ed11799e5340c00a8014d21f4c806d203465fe241240921",
+      "block": "76845000",
+      "blockHash": "0x1847b4e9b638f67f5e0c7dd32816de577f5b77aa0f66d710becb722a66bb2902",
+      "gasUsed": "1706957"
+    },
+    "ops-fund-independent-account": {
+      "hash": "0xb573a44562813aa7601e524d76de90279e88164c3976168afae2e62102290479",
+      "block": "76845001",
+      "blockHash": "0x543b46d3f2fbad503abcdc869b444e127e4e39eef1b509c404046a3c01883ff7",
+      "gasUsed": "51023"
+    },
+    "ops-enter-independent-collateral": {
+      "hash": "0xcdce5bdf1df07333dbe2a8ffa0604cd320f67d4642c54a63cb041232e4503ce3",
+      "block": "76845002",
+      "blockHash": "0x41a582085fb81a0de662d1970c72a8f92c15883562a256285037377095dc1961",
+      "gasUsed": "51056"
+    },
+    "ops-supply-independent-collateral": {
+      "hash": "0x8f5b7f8183b284f62078ad7e376e90ae6c4e8bf91a26aed45ad9090be57d160c",
+      "block": "76845003",
+      "blockHash": "0xd7458013bc2b2ea202aaacf080a6383667c28d987a5b0164c353d61f06fcf3ef",
+      "gasUsed": "700499"
+    },
+    "ops-borrow-independent-dollars": {
+      "hash": "0xed7e8890ca6e1251b3fb15a5ea0379e982086bdc6c764e73c81cfd96779be595",
+      "block": "76845004",
+      "blockHash": "0xa1df2f3bf0f6b4ee3cabfb62afad5fbcb7829b8a631bba56e01e2edfe131fe8f",
+      "gasUsed": "777285"
+    },
+    "ops-liquidation-mock-price": {
+      "hash": "0xcaa210d4c3a5e571afde01a69f0c33214618a1acbb54a437f34d1d9e3d4c949e",
+      "block": "76845005",
+      "blockHash": "0x54b38f4e3c5ecd81b2f9f7f32cf3406a7f28c4f63b785ee2bbe65f5f98a30be2",
+      "gasUsed": "29014"
+    },
+    "ops-mint-liquidator-funds": {
+      "hash": "0xc57695dd6a426224ebe56a6487d193c3a1ce001ee60b179782a5b43c2d9dcfb7",
+      "block": "76845006",
+      "blockHash": "0x06716c8c0b2b99491c181856cc4f9a570787933825f0955f83758edd94ed3f11",
+      "gasUsed": "50975"
+    },
+    "ops-approve-liquidation": {
+      "hash": "0xb41b9ba2c5395b8554554309bd802cbee32a22ed78d2c25c9fd71a6dfe7c84f5",
+      "block": "76845007",
+      "blockHash": "0x9f177655348074bf3a25dcd0ee1b1f6ad57eabd9bc58b33340866adfb8ac9863",
+      "gasUsed": "45926"
+    },
+    "ops-liquidate-borrow": {
+      "hash": "0x5e74e0614f5bafc8f6cc687d5581d01b966a331ebbe0a69244b67887ede8f553",
+      "block": "76845008",
+      "blockHash": "0x15e7e722da6b0222fd91b29d4b29cb25ad94bad584b705ab7dd47606aac41c2a",
+      "gasUsed": "290896"
+    }
+  }
+}

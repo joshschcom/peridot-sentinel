@@ -5,10 +5,11 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {IsolatedController} from "../markets/IsolatedController.sol";
 import {MarketPToken} from "../markets/MarketPToken.sol";
+import {IPolicyActivity} from "../markets/IPolicyActivity.sol";
 import {TestProfile} from "../markets/TestProfile.sol";
 
 /// @notice This account holds its own pTokens, debt and idle underlying. Fund it by ERC20 transfer.
-contract SentinelAccount is TestProfile {
+contract SentinelAccount is TestProfile, IPolicyActivity {
     uint8 private constant SUPPLY = 0;
     uint8 private constant REDEEM = 1;
     uint8 private constant BORROW = 2;
@@ -114,6 +115,7 @@ contract SentinelAccount is TestProfile {
         if (applies) {
             if (policyId == 0) revert AccountPolicyMissing();
             controller.adapter().enforce(policyId, ACCOUNT_POLICY, op, fresh, ltv, cashOk);
+            emit PolicyAllowed(policyId, address(this), op, ltv, fresh, cashOk);
         }
     }
 

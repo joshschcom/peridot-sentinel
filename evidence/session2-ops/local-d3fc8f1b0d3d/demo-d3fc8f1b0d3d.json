@@ -1,0 +1,286 @@
+{
+  "label": "Local Anvil simulation / development reference processor",
+  "chainId": 31337,
+  "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "genesisHash": "0x578a5deb77edc5551b0dc9b1bf6c42409456519726d64262007758cebbac160e",
+  "runId": "0xd3fc8f1b0d3dc652891c24d869bf60911e401acd79bdd453a8831dab6e63982a",
+  "baseCommit": "e3484af911020c8cf697acf53b9a4b242853a32a",
+  "sourcesDirty": true,
+  "buildHashes": {
+    "TestnetToken": "0xde40408df177d9afbf76463760d6d18c51396fb12948bbb6f58b2d2705d26c71",
+    "TestnetOracle": "0x8fcecf250157bdb6a6ae1a2f0d19c0372bf1e36f79ff9c2c204298f6dda8c24d",
+    "DemoRateModel": "0x9be842f461a4b763eac63c3003b817b6e95a1b28daa20fc073e065c7157e94d6",
+    "MarketPToken": "0x83392c341cae4827a3f8154f219b26dec93147be72af2f90b18940ec7fa34e74",
+    "PolicyRegistry": "0xb637b77e5d7a7097a77856edb8b6f30003c6cf9067597ed56ee9d783612a54b0",
+    "TapeOutPolicyAdapter": "0x958bda5459c6545b85643a14c827a8733db7e395ecea39000171f1d83908371f",
+    "DevelopmentReferenceProcessor": "0xdfd1f4085672516da89a992ea6cef6d358706c4980face4aa2debbbf94f55562",
+    "MarketFactory": "0x7aa07a316178ee58cfefb9cbb67373ad1c3773ef8a7599c7c866c9311e1b2c36",
+    "SentinelAccountFactory": "0x87e545d98655933c5a4f5341f38ef179be7ee56940b7a4fdf77ff8b8663422f0",
+    "IsolatedController": "0x847080b6fe78f6654f1a8292c33c590559135ca0070783a5557ef27cf0c03744"
+  },
+  "policyVectors": [
+    {
+      "kind": "MARKET",
+      "inputs": "0x722c0b",
+      "output": "0x01"
+    },
+    {
+      "kind": "MARKET",
+      "inputs": "0x922c0b",
+      "output": "0x01"
+    },
+    {
+      "kind": "MARKET",
+      "inputs": "0xb22c0b",
+      "output": "0x00"
+    },
+    {
+      "kind": "MARKET",
+      "inputs": "0x822c0b",
+      "output": "0x00"
+    },
+    {
+      "kind": "MARKET",
+      "inputs": "0x922c03",
+      "output": "0x00"
+    },
+    {
+      "kind": "MARKET",
+      "inputs": "0x992c03",
+      "output": "0x01"
+    },
+    {
+      "kind": "ACCOUNT",
+      "inputs": "0x72af0a",
+      "output": "0x01"
+    },
+    {
+      "kind": "ACCOUNT",
+      "inputs": "0x92af0a",
+      "output": "0x01"
+    },
+    {
+      "kind": "ACCOUNT",
+      "inputs": "0xb2af0a",
+      "output": "0x00"
+    },
+    {
+      "kind": "ACCOUNT",
+      "inputs": "0x82af0a",
+      "output": "0x00"
+    },
+    {
+      "kind": "ACCOUNT",
+      "inputs": "0x92af02",
+      "output": "0x01"
+    },
+    {
+      "kind": "ACCOUNT",
+      "inputs": "0x99af02",
+      "output": "0x00"
+    }
+  ],
+  "transactions": {
+    "deploy-MockCollateral": {
+      "hash": "0xb7335a52fa1b563dd63e495f4982ba31f11ef71ed50d458c33355b75fd6bce8a",
+      "block": "1",
+      "blockHash": "0x200b9650e4083fabbae0e59edf731b9aceaefc5e9d1cfd04d907ff37689cc47c",
+      "gasUsed": "507917"
+    },
+    "deploy-MockDebt": {
+      "hash": "0xf2ffea0f3979ce9beb6e79e60924fb900096785147c881a08cec8fcaccee331b",
+      "block": "2",
+      "blockHash": "0x4ffa684b615ed91d5d9569ba2233e7d3840d349e269c70b670a573643a03cdaa",
+      "gasUsed": "507869"
+    },
+    "deploy-TestnetOracle": {
+      "hash": "0x0e2da9508f01f8cbb85af04a183e1537428febf76e03170c420640a084cbc118",
+      "block": "3",
+      "blockHash": "0x587d5be738c776d6b59b384106eaa42bebe14b2c972abc823da420c2c7dcb4cb",
+      "gasUsed": "231342"
+    },
+    "deploy-DemoRateModel": {
+      "hash": "0xf25ed5bcd00064d4c74753544017918e98e4cb1426976759aa952c30415a2fe5",
+      "block": "4",
+      "blockHash": "0x65c908e40894c634064000e0dbe68a0c039ed176275f0e87a013e8c391f42b6c",
+      "gasUsed": "327175"
+    },
+    "deploy-MarketPToken": {
+      "hash": "0xc01f0886e217bdedd7c0965c3e942abd8ac9ecaa0d6a00ec0229db0514052d6b",
+      "block": "5",
+      "blockHash": "0x2a48c1755f78d349541058244a10d632d7c11db132db2c6fd7a66d4ce7ce2be6",
+      "gasUsed": "4968511"
+    },
+    "deploy-PolicyRegistry": {
+      "hash": "0xde943f9c67abd7056dae949bd48390c4273e19019df6391f1274552cebb2678a",
+      "block": "6",
+      "blockHash": "0xe98a892051b59c6d50be73437c99fa12488b2bbc20fa11050d38910283bd0a28",
+      "gasUsed": "1223242"
+    },
+    "deploy-TapeOutPolicyAdapter": {
+      "hash": "0x36250b453f0197d0087e671334fbd0bdf5526f72deb87aed6cf0fa2fe6071849",
+      "block": "7",
+      "blockHash": "0xaaeb9eeb6010fc76e94cc32c656acb83380430ef4fbd6075d9c5ada3b1d3cee3",
+      "gasUsed": "299141"
+    },
+    "deploy-DevelopmentReferenceProcessor": {
+      "hash": "0x8bc01e30b6c1d618f0b9e6280e073c7fd69c33e0914f77b2cc498e75b2ae71be",
+      "block": "8",
+      "blockHash": "0xfe0339f075742e5b5deaa6f66144cc4c2e8d0306a5c2ba442ec64bdf8a394e28",
+      "gasUsed": "615898"
+    },
+    "trust-development-processor": {
+      "hash": "0x158a7af5ee7085ba7ff50f34d469f01e717cfea892ff98a51477dd5164660269",
+      "block": "9",
+      "blockHash": "0x5cecbcf6f0a50c4c0b732441c095fc2c3af4740e3617d8c4bd3ead2d9d8f4000",
+      "gasUsed": "48386"
+    },
+    "compile-fixture-MARKET": {
+      "hash": "0x98652b7e65e8dfb02537685c7731ff4f0b3cddfadbf0a1100507638be4e75fea",
+      "block": "10",
+      "blockHash": "0x315ba14175b2fe6c7535169079a68337b86af8db74eb6579c5c51c628c290f86",
+      "gasUsed": "416645"
+    },
+    "register-market-template": {
+      "hash": "0x48705cd7f4691aa846396d6355ca6c4c28b4434144107183e5350357c87cf374",
+      "block": "11",
+      "blockHash": "0x7ca38d7fca4a5e37ccce86f32165d2ba6f2a0813c627a9b5d089fdd4955c648d",
+      "gasUsed": "319261"
+    },
+    "compile-fixture-ACCOUNT": {
+      "hash": "0x19f4ebe2d432908b68f9e543d44c0f94c2a3603f62594af752cca83913f943cd",
+      "block": "12",
+      "blockHash": "0xf00d8746d87488e8a21bac8bdf3be53ed30a2e4f49e0688d3b4a17514270e667",
+      "gasUsed": "570816"
+    },
+    "register-ACCOUNT": {
+      "hash": "0x3f158ec5dcbfd740fa70a4ed3c96d0815969cb250f2d0286d086fa9f6eaab0d0",
+      "block": "13",
+      "blockHash": "0x8df9db88c35fefca272090f7859f678799f7ed2a1682e955afb6c94ea2567cda",
+      "gasUsed": "306517"
+    },
+    "deploy-MarketFactory": {
+      "hash": "0xd4f05e6fd5a43ac182d293f21787c5b5a4e9816e7c4a2260ff322244bcde1e46",
+      "block": "14",
+      "blockHash": "0xe60aa0e303f0ca056aaccd901e4a295d1925158d9eee50b34a69fe17225f098c",
+      "gasUsed": "3215364"
+    },
+    "deploy-SentinelAccountFactory": {
+      "hash": "0x938f9da413df335202ff8ede8c0d0ca25751ee0167c8b6866be8d381cad91913",
+      "block": "15",
+      "blockHash": "0x0b793b65700e7d64f537c16e3de8e4e8abe06999529adfa4d65320173acd84bf",
+      "gasUsed": "2177695"
+    },
+    "price-collateral": {
+      "hash": "0xc45f6efab49af6af4a2c7d2d7eb264c3d83d735f4a9c518bbb48369ff1b11474",
+      "block": "16",
+      "blockHash": "0xe36c6a75f172410c5be44c7c5c1fcbbaf5be748c41a0d7e185c4f018f28567ff",
+      "gasUsed": "46102"
+    },
+    "price-debt": {
+      "hash": "0xa836426d1387adf7bdd5ea612a507c7312fbdb3f8a6e1ff4b6dcbb21aee06a4f",
+      "block": "17",
+      "blockHash": "0x1c33ca50f102312a9b997fe6c75ef88d710c14ea716921394314dfac8b9ddca9",
+      "gasUsed": "46102"
+    },
+    "create-market": {
+      "hash": "0x83720fcb853c05990ade92f8023c3c8d67969d7930a08b5feeeea6f53e2a3b73",
+      "block": "18",
+      "blockHash": "0xe54aea4473f90357c24ffe903ad0d9a2d82e5bc0354a43162412981dd7554026",
+      "gasUsed": "3130585"
+    },
+    "mint-test-liquidity": {
+      "hash": "0x063954528e143e68cdd6371b53f977d383dbb7f3f01fb598a6d986a9b2b3b1b9",
+      "block": "19",
+      "blockHash": "0xf45d96ecce9c4adf94acf5b2fe6c8dca350dbffe1b15213d3c5df9029b7d497b",
+      "gasUsed": "68075"
+    },
+    "approve-seed": {
+      "hash": "0x4ba47ac7eb7e7e2d5c030be2b329fa10a897b360169fe5575d46ad4042eb0062",
+      "block": "20",
+      "blockHash": "0x1d9c71c6dfa309e6a3584ae7e9d6c261a8f5be69dfbb4e1e8e3612629400fbfa",
+      "gasUsed": "45926"
+    },
+    "supply-seed": {
+      "hash": "0x3027eda4574ab24d594dbd3c8f462ea296f069eb1fb2c4669d8690d234307857",
+      "block": "21",
+      "blockHash": "0xf8f0578759ad40fd3402bf6f609b6fd23a3ca7834848bf91a74afc3de700edc4",
+      "gasUsed": "326884"
+    },
+    "activate-market": {
+      "hash": "0xc56c56c53064fdd2c92ea918fd7cc67d8d4d6c68786effd616166522380323a0",
+      "block": "22",
+      "blockHash": "0xc3ae60ce03e83e16635a98e0c9bb7671a14b446addc2ebfcc9bcdf9be2725dfc",
+      "gasUsed": "93845"
+    }
+  },
+  "market": {
+    "controller": "0x05242D4AC717Cdf38C36AF290F2b0DA99AA82c67",
+    "collateralMarket": "0x1F708C24a0D3A740cD47cC0444E9480899f3dA7D",
+    "debtMarket": "0xf41B47c54dEFF12f8fE830A411a09D865eBb120E"
+  },
+  "manifest": {
+    "schemaVersion": 1,
+    "abiVersion": "v1",
+    "profile": "local",
+    "chainId": 31337,
+    "status": "deployed",
+    "commit": null,
+    "capabilities": {
+      "studioMarketTemplateRoot": "0xec7861345eb0b7eb7e7c96d5ceec277180b86ef226c2c8c064e18576879e0a60",
+      "policyAllowedEvents": true
+    },
+    "deploymentBlock": "1",
+    "provenance": {
+      "baseCommit": "e3484af911020c8cf697acf53b9a4b242853a32a",
+      "sourceDigest": "0x1af665449fa706ce168d056606824775a343739e6d4914e5d32f84f8d15d6c8e",
+      "sourcesDirty": true,
+      "sourceMatch": null
+    },
+    "contracts": {
+      "MockCollateral": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "MockDebt": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "TestnetOracle": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "DemoRateModel": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "MarketPToken": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      "PolicyRegistry": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "TapeOutPolicyAdapter": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "DevelopmentReferenceProcessor": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "MarketFactory": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+      "SentinelAccountFactory": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82"
+    },
+    "markets": [
+      {
+        "controller": "0x05242D4AC717Cdf38C36AF290F2b0DA99AA82c67",
+        "collateralMarket": "0x1F708C24a0D3A740cD47cC0444E9480899f3dA7D",
+        "debtMarket": "0xf41B47c54dEFF12f8fE830A411a09D865eBb120E"
+      }
+    ],
+    "tapeout": {
+      "mode": "development-reference",
+      "processor": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "circuits": [
+        {
+          "kind": "MARKET",
+          "circuitId": "1",
+          "policyId": "0xe21b3c464e79344521fb55d7a395f9ac0dff8a7b0206c7d350ef032308ccf09a",
+          "netlistHash": "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+          "configHash": "0xf3203f5920dcf756a23524407169c93d0acb9a0a63397f6d893f6206af2149f6"
+        },
+        {
+          "kind": "ACCOUNT",
+          "circuitId": "2",
+          "policyId": "0x2203a619deefc167ac023b3c9d8c0194a48482f2dc894106ab94de7c64912833",
+          "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+          "configHash": "0xf86d0e324da289ecf444622df590d5ee4c55af1a17c38dbd00dc9482b2570871"
+        }
+      ]
+    },
+    "mocks": [
+      "MockCollateral",
+      "MockDebt",
+      "TestnetOracle",
+      "DevelopmentReferenceProcessor"
+    ]
+  }
+}

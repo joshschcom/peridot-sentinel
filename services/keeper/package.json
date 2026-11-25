@@ -4,7 +4,7 @@
   "private":true,
   "type":"module",
   "engines":{"node":">=22.13.0"},
-  "scripts":{"build":"tsc -p tsconfig.json","once":"node dist/once.js"},
+  "scripts":{"build":"tsc -p tsconfig.json","once":"node dist/once.js","serve":"node dist/service.js"},
   "dependencies":{"@peridot/chain-config":"1.0.0","viem":"2.58.6"},
   "devDependencies":{"typescript":"5.9.3","@types/node":"26.6.10"}
 }

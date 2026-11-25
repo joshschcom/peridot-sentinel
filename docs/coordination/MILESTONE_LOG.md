@@ -281,3 +281,22 @@ contracts: ["Testnet keeper operator 0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88 
 units_and_permissions: "Key at /Users/joshua/Peridot/OKX/.testnet-keys/operator.key, outside the repo. Use it only as KEEPER_TESTNET_OPERATOR_KEY=\"$(cat …/operator.key)\" inside a shell command. Never print, log or commit it. Testnet 1952 only."
 next_dependency: "Founder funds both deployer 0x8C17…5D67 and operator 0x2c7E…CE88 from the faucet. Astra wires the operator as DEMO_OPERATOR."
 ```
+
+```yaml
+milestone: M4-interface-v1.2
+from: astra
+specialists: {A2: "Merkle-committed SDK templates, registry validation and tests", A5: "deployment capabilities and manifest integration", Astra: "activity event, keeper reads, manifest checks and interface publication"}
+status: implemented
+commit: 17ec744 (accepted base; v1.2 source delivered in working tree)
+chain_id: [31337, 1952]
+abi_version: "INTERFACES v1.2, additive ABI, manifest abiVersion v1"
+manifest: packages/chain-config/deployments/<chainId>.json
+contracts: ["New deployment required for Studio root and PolicyAllowed"]
+new_functions: ["registerMarketTemplate(address,uint256,uint16,bool,bytes32,bytes32,bytes32[])", "marketTemplatePolicy(address,bytes32)", "MARKET_TEMPLATE_ROOT()", "SDK studioMarketTemplate(bps,requireCashReserve)", "GET /v1/activity?limit=50", "GET /v1/status"]
+changed_events_errors: ["MarketTemplateRegistered(bytes32,address,uint16,bool,bytes32)", "InvalidTemplateProof()", "PolicyAllowed(bytes32,address,uint8,uint256,bool,bool)"]
+units_and_permissions: "Anyone may register the exact proven market template on a trusted CPU. Market owner creates/updates immediately. No signer service. Account and controller logs identify approvals by emitter."
+frontend_actions: ["Use four-step wallet flow in INTERFACES v1.2; gate Studio on SDK/manifest/on-chain root equality; reuse canonical registry entry after receipt.", "Use scoped keeper JSON for attempts and documented getContractEvents/receipt queries for settled policy decisions."]
+verification: ["A2: 5 targeted Studio tests passed. Astra: 1 targeted settled-borrow dual-event test passed; keeper TypeScript build passed."]
+known_limitations: ["Historical deployments omit the new capabilities. Testnet gas was still zero; local service and end-to-end receipts are being exercised."]
+next_dependency: "Claude relay to Fable and checkpoint validated v1.2 sources; A5 publishes verified local addresses."
+```

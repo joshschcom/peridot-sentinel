@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {PToken, PeridottrollerInterface, EIP20Interface} from "../core/PToken.sol";
 import {MarketPToken} from "./MarketPToken.sol";
+import {IPolicyActivity} from "./IPolicyActivity.sol";
 import {TestProfile} from "./TestProfile.sol";
 
 interface IMarketRegistry {
@@ -20,7 +21,7 @@ interface IMarketOracle {
 
 /// @notice Isolated two-book implementation of the imported Peridottroller interface.
 /// A single collateral asset backs a single debt asset. Membership is explicit.
-contract IsolatedController is PeridottrollerInterface, TestProfile {
+contract IsolatedController is PeridottrollerInterface, TestProfile, IPolicyActivity {
     uint8 private constant SUPPLY = 0;
     uint8 private constant REDEEM = 1;
     uint8 private constant BORROW = 2;
@@ -235,12 +236,13 @@ contract IsolatedController is PeridottrollerInterface, TestProfile {
         return (true, fresh, _ratio(c, d), cashOk);
     }
 
-    function _check(address account, uint8 op, address market, uint256 amount) private view {
+    function _check(address account, uint8 op, address market, uint256 amount) private {
         (bool applies, bool fresh, uint256 postLtv, bool cashOk) = previewPolicy(account, op, market, amount);
         if (!applies) return;
         if (!fresh) revert InvalidOracle();
         if (op != SUPPLY && (!cashOk || postLtv > limits.borrowLtvBps)) revert InsufficientLiquidity();
         adapter.enforce(policyId, 0, op, fresh, postLtv, cashOk);
+        emit PolicyAllowed(policyId, account, op, postLtv, fresh, cashOk);
     }
 
     function mintAllowed(address market, address account, uint256 amount) external override returns (uint256) {

@@ -10,3 +10,18 @@
 ## Release status
 
 Funded production deployment is blocked. The repo contains a development profile with immediate configuration, mock assets and mock USD feeds. A release needs a separately implemented governance delay, roles, verified assets and feeds, operational liquidation capacity and independent release testing. The local suite covers selected critical paths. It is not a production audit.
+
+## Studio market policy publication
+
+On a registry exposing the v1.2 commitment, any wallet can publish the SDK's `market-max-ltv-v0` policy for an integer threshold from 0 through 10000 bps and either reserve setting. The contract checks a Merkle proof for the threshold, reserve flag, canonical config hash and exact netlist hash. It then matches the actual circuit dimensions, raw bytes and NAND references on a registrar-trusted processor. The registry owner retains exclusive authority over processor trust and general registration, including account policies. A publisher acquires no market, account or processor authority.
+
+The leaf index is `2 * maxLtvBps + Number(requireCashReserve)`. Each leaf hashes `abi.encodePacked(uint16(maxLtvBps),bool(requireCashReserve),bytes32(configHash),bytes32(netlistHash))`. Fifteen ordered sibling hashes give the path to `MARKET_TEMPLATE_ROOT()`. The proof is portable across deployments of the same template version. Each policy ID also binds the chain, registry, processor and actual circuit ID. An SDK build and `node packages/circuit-sdk/scripts/studio-tree.mjs --check` reconstruct all 20,002 leaves and verify the committed root. An incompatible compiler or root requires a new deployment and an interface notice.
+
+A project wallet can perform the following sequence.
+
+1. Verify chain, code, processor provenance, the factory's registry address and equality between `MARKET_TEMPLATE_ROOT()` and the SDK's `STUDIO_MARKET_ROOT`. Call `studioMarketTemplate(bps, requireCashReserve)` for the spec, compiled bytes and proof.
+2. Read `marketTemplatePolicy(processor, configHash)`. If the lookup is empty on a development-reference deployment, submit the compiled bytes to `DevelopmentReferenceProcessor.addReferenceCircuit` and decode `ReferenceCircuitAdded` from that processor's receipt. A sponsor processor requires its own fabricated circuit ID and matching bytes. The development interpreter is a Peridot test fixture.
+3. Call `registerMarketTemplate(processor,circuitId,bps,requireCashReserve,netlistHash,configHash,proof)` if registration is needed. The first successful publication indexes the canonical entry. A concurrent publication can reuse it. After confirmation, resolve the ID again from the registry, verify its entry, and call `requirePolicy(id,0)` to check current trust. Direct registrar publication of the exact same entry can also be indexed.
+4. Submit `MarketFactory.createMarket` from the intended market owner, or call `setPolicy(id)` on a controller that wallet owns. A newly created market starts inactive. Studio selection does not change lending or liquidation limits, balances or approvals.
+
+The local receipt runner accepts an unforked loopback deployment manifest, checks the capability root and uses the third unlocked Anvil account as the project owner. From the repository root run `node contracts/script/studio-local-demo.mjs http://127.0.0.1:18545 packages/chain-config/deployments/31337.json 6234 true` against a v1.2 local deployment. It emits the hashes, market addresses and receipts. A historical v1 registry requires a fresh deployment before this flow is available.

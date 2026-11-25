@@ -22,7 +22,7 @@ export async function checkManifest(m, rpcUrl) {
   if (BigInt(await rpc('eth_chainId', [])) !== BigInt(m.chainId)) fail('RPC chain ID mismatch');
   if (m.status === 'not-deployed') {
     if (Object.keys(m.contracts).length || m.markets.length || m.tapeout.processor !== null ||
-        m.tapeout.circuits.length || m.tapeout.mode !== 'unavailable' || m.mocks.length) fail('Undeployed manifest contains live data');
+        m.tapeout.circuits.length || m.capabilities || m.deploymentBlock !== undefined || m.tapeout.mode !== 'unavailable' || m.mocks.length) fail('Undeployed manifest contains live data');
     return 'Undeployed, writes disabled';
   }
   if (m.status !== 'deployed' || m.profile === 'read-only' || !m.markets.length ||
@@ -34,6 +34,18 @@ export async function checkManifest(m, rpcUrl) {
   const targets = new Set([...Object.values(m.contracts), m.tapeout.processor,
     ...m.markets.flatMap(v => [v.controller, v.collateralMarket, v.debtMarket])]);
   const block = await rpc('eth_blockNumber', []);
+  if (m.deploymentBlock !== undefined && (typeof m.deploymentBlock !== 'string' ||
+      !/^(0|[1-9][0-9]*)$/.test(m.deploymentBlock) || BigInt(m.deploymentBlock) > BigInt(block))) fail('Invalid deployment block');
+  const root = m.capabilities?.studioMarketTemplateRoot;
+  if (root !== undefined) {
+    if (!hash.test(root)) fail('Invalid Studio template root');
+    // MARKET_TEMPLATE_ROOT() on the exact registry named by this manifest.
+    const registered = await rpc('eth_call', [{to:m.contracts.PolicyRegistry,data:'0x467c031f'},block]);
+    if (registered.toLowerCase() !== root.toLowerCase()) fail('Studio template root mismatch');
+  }
+  if (m.capabilities?.policyAllowedEvents !== undefined && typeof m.capabilities.policyAllowedEvents !== 'boolean') {
+    fail('Invalid policy activity capability');
+  }
   for (const target of targets) {
     if (!address.test(target) || /^0x0{40}$/i.test(target)) fail(`Invalid address ${target}`);
     const code = await rpc('eth_getCode', [target, block]);

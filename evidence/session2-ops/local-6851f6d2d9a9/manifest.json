@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "abiVersion": "v1",
+  "profile": "local",
+  "chainId": 31337,
+  "status": "deployed",
+  "commit": null,
+  "capabilities": {
+    "studioMarketTemplateRoot": "0xec7861345eb0b7eb7e7c96d5ceec277180b86ef226c2c8c064e18576879e0a60",
+    "policyAllowedEvents": true
+  },
+  "deploymentBlock": "1",
+  "provenance": {
+    "baseCommit": "e3484af911020c8cf697acf53b9a4b242853a32a",
+    "sourceDigest": "0x1af665449fa706ce168d056606824775a343739e6d4914e5d32f84f8d15d6c8e",
+    "sourcesDirty": true,
+    "sourceMatch": null
+  },
+  "contracts": {
+    "MockCollateral": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "MockDebt": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "TestnetOracle": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    "DemoRateModel": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+    "MarketPToken": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+    "PolicyRegistry": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    "TapeOutPolicyAdapter": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+    "DevelopmentReferenceProcessor": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+    "MarketFactory": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+    "SentinelAccountFactory": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82"
+  },
+  "markets": [
+    {
+      "controller": "0x05242D4AC717Cdf38C36AF290F2b0DA99AA82c67",
+      "collateralMarket": "0x1F708C24a0D3A740cD47cC0444E9480899f3dA7D",
+      "debtMarket": "0xf41B47c54dEFF12f8fE830A411a09D865eBb120E"
+    }
+  ],
+  "tapeout": {
+    "mode": "development-reference",
+    "processor": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+    "circuits": [
+      {
+        "kind": "MARKET",
+        "circuitId": "1",
+        "policyId": "0xe21b3c464e79344521fb55d7a395f9ac0dff8a7b0206c7d350ef032308ccf09a",
+        "netlistHash": "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+        "configHash": "0xf3203f5920dcf756a23524407169c93d0acb9a0a63397f6d893f6206af2149f6"
+      },
+      {
+        "kind": "ACCOUNT",
+        "circuitId": "2",
+        "policyId": "0x2203a619deefc167ac023b3c9d8c0194a48482f2dc894106ab94de7c64912833",
+        "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+        "configHash": "0xf86d0e324da289ecf444622df590d5ee4c55af1a17c38dbd00dc9482b2570871"
+      }
+    ]
+  },
+  "mocks": [
+    "MockCollateral",
+    "MockDebt",
+    "TestnetOracle",
+    "DevelopmentReferenceProcessor"
+  ]
+}

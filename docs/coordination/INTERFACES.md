@@ -1,6 +1,6 @@
-# Peridot interfaces v1
+# Peridot interfaces v1.2
 
-Version `v1`, 2026-11-25. This is the integration contract for the test profile. Check the generated ABIs in `@peridot/chain-config` for the signatures supported by each build. An absent deployment keeps wallet writes disabled.
+Document revision `v1.2`, 2026-11-25. This is the integration contract for the test profile. Check the generated ABIs in `@peridot/chain-config` for the signatures supported by each build. An absent deployment keeps wallet writes disabled.
 
 ## Policy and units
 
@@ -61,3 +61,40 @@ This additive publication keeps schema `peridot.policy/v1` and manifest abiVersi
 - The two dev contracts exposed to UI as mock assets and price feed are TestnetToken and TestnetOracle. TestnetOracle accepts positive USD WAD prices and treats quotes over one day old as stale.
 
 Revision v1.1, 2026-11-25: registry fields, published contracts, Sentinel execution and event semantics. Existing v1 policy specs and manifest schema remain valid.
+
+## v1.2 Studio and activity
+
+The new registry exposes MARKET_TEMPLATE_ROOT(). Its bytes32 value and the SDK export STUDIO_MARKET_ROOT must equal the manifest's capabilities.studioMarketTemplateRoot. The v1.2 root is `0xec7861345eb0b7eb7e7c96d5ceec277180b86ef226c2c8c064e18576879e0a60`. The manifest and policy schema retain their v1 wire formats. Older registries lack this capability.
+
+**Studio wallet flow**
+
+1. The project owner picks an integer maxLtvBps in 0–10000 and a boolean requireCashReserve. Call `studioMarketTemplate(maxLtvBps,requireCashReserve)` in @peridot/circuit-sdk. The result contains spec, compiled (including netlist, configHash and netlistHash) and a 15-element proof. Protocol hard limits continue to apply.
+2. Read `marketTemplatePolicy(processor,compiled.configHash)`. If it returns a usable entry, reuse it. Otherwise obtain a circuit with those exact bytes on the selected processor. A development-reference manifest uses `addReferenceCircuit(compiled.netlist)` and the mined ReferenceCircuitAdded ID. A sponsor deployment requires its own fabrication workflow and fees. Show the processor mode before the user signs.
+3. From the owner's wallet call `registerMarketTemplate(processor,circuitId,maxLtvBps,requireCashReserve,compiled.netlistHash,compiled.configHash,proof)`. This registration is permissionless. It accepts a committed market template on a trusted CPU. An invalid proof reverts InvalidTemplateProof(). The first canonical registration emits MarketTemplateRegistered(policyId,processor,maxLtvBps,requireCashReserve,configHash). A concurrent registration can reuse an existing entry. Always resolve marketTemplatePolicy after confirmation, then read getPolicy and requirePolicy(id,0) for the canonical processor and circuit ID.
+4. Call MarketFactory.createMarket with that id and read MarketCreated from the receipt. The project wallet is the market owner. To change an existing market, the owner calls controller.setPolicy(newId). MarketPolicySet takes effect in the same successful transaction. Other wallets cannot set it. Only the registrar can approve CPUs or register arbitrary curated policies.
+
+**Policy activity and receipts**
+
+On manifests with capabilities.policyAllowedEvents=true, the Sentinel account and controller emit the same event after their respective checks. The emitter identifies the policy layer. An ordinary direct borrow emits one controller approval. A Sentinel borrow with both checks emits two. Successful repayment, liquidation and circuit-free exits have no such approvals. For earlier deployments use settlement receipts and separately labelled traces if available.
+
+```ts
+// Bound a page to the RPC's log limit. Start at manifest.deploymentBlock, track block hashes for reorgs.
+const approvals = await client.getContractEvents({
+  address: [sentinelAddress, controllerAddress],
+  abi: IsolatedControllerAbi, eventName: 'PolicyAllowed', args: {account: sentinelAddress},
+  fromBlock, toBlock, strict: true,
+})
+const receipt = await client.getTransactionReceipt({hash})
+```
+
+Decoded event arguments are indexed bytes32 policyId, indexed address account, indexed uint8 op, uint256 postLtvBps, bool oracleFresh and bool cashOk. Key logs by chain, blockHash, transactionHash and logIndex. Query only known account/controller emitters and confirm receipt status. Failed transactions discard all events. A mined revert has a receipt with status reverted. Show a specific policy error only when returned by the original simulation or transaction trace and label the source. A keeper repay simulation failure is an automation attempt.
+
+**Keeper reads**
+
+GET /v1/status and GET /v1/activity?limit=50 are read-only JSON routes for one configured account/operator. Both return schemaVersion:1, environment (anvil, anvil-fork or xlayer-testnet), instanceId (null on testnet), chainId, factory, account and operator. Compare the scope with the connected market before displaying data.
+
+Activity returns `items` newest first and a boolean `truncated`. Limit is 1–100. Each entry includes ISO timestamp `at` and `state`, with optional fields `amount,trigger,ltv,fee,balance,reason,hash,block,gas,outcomes`. Amount, fee, balance, LTV, block and gas quantities are decimal strings, trigger is an integer in bps, reason is an error name. Outcomes contain operator, amount and before/after LTV in bps as decimal strings. Off-chain states include disabled, simulated, simulation-failed, gas-budget, another-transaction-pending and awaiting-confirmation. Submitted has a transaction hash. Success and reverted are reported after a mined receipt and use lowercase state names. Consumers may deduplicate receipt rows by transaction hash and state. An empty list means this service has no matching activity in its recent window.
+
+Status includes execute, intervalMs, maxRetries, phase, attempt, cycles, startedAt, lastAt, lastOutcome and nextAt. A tick-failed outcome signals a read/configuration/transport error. See ARCHITECTURE.md for retry and journal behavior.
+
+Revision v1.2, 2026-11-25. Added verifiable parameterized Studio registration, successful policy events, opt-in manifest capability fields and the keeper read service. All ABI additions are additive.
