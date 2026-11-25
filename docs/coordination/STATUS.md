@@ -7,11 +7,11 @@
 | Role | Runtime | Session / handle | State |
 |---|---|---|---|
 | Claude (orchestrator) | Claude Code, claude-opus-5-5 | this session | active |
-| Astra 6.2 | Codex CLI 0.171.0, `gpt-6.2-astra`, sandbox workspace-write@repo, network on, multi_agent_v2 | see "Astra session" below | launching |
-| Fable 5.2 | Claude Code subagent, `fable` (claude-fable-5-2) | agent name `fable-lead` | launching |
+| Astra 6.2 | Codex CLI 0.171.0, `gpt-6.2-astra`, sandbox workspace-write@repo, network on, multi_agent_v2 | see "Astra session" below | running |
+| Fable 5.2 | Claude Code subagent, `fable` (claude-fable-5-2) | Claude background subagent | running |
 
 Astra session: resume with `codex exec resume <id>`. The ID is recorded below after launch.
-- astra-m0: _pending_
+- astra-m0: `01a212ed-f090-7143-89e7-8b707c7b7631` (log: `/Users/joshua/Peridot/OKX/.agent-logs/astra-m0.log`)
 
 ## Commits
 - `fae7cdad` = tag `pre-xlayer-hackathon`, the imported baseline from peridot-contracts-2-5@e08e5363.
