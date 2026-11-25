@@ -434,3 +434,54 @@ verification: ["The earlier missing-pin and dirty-script checks rejected. A5 is 
 known_limitations: ["Main public roll-out depends on test OKB."]
 next_dependency: "Claude checkpoint the two script paths so A5 can run the final no-key preflight and pin the exact source commit in DEPLOY.md."
 ```
+
+```yaml
+milestone: M0-web-foundation
+from: fable
+status: implemented
+commit: a6860e6 (apps/web M0); follow-up fixes in the commit that adds this entry
+note: "Supplies the real SHA for the previous fable entry, which could not name its own commit."
+follow_up:
+  - "npm test now syncs generated files first (pretest), so it works on a fresh clone."
+  - "Banner reason is derived from the manifest state; hero pill says 'targeting X Layer testnet'."
+  - "Added checks: mobile action sheet (opens, same rejection state, no overflow) and all four wizard steps at 360px."
+  - "Applied Astra's answers from M4-testnet-preflight-and-frontend-reads: rates labelled 'APR (simple, variable)', Inactive treated as borrow-only in the fixture preview, OwnerOnly wording."
+```
+
+```yaml
+milestone: M4-local-Studio-demo-operations / M4-keeper-service-activity / M4-testnet-preflight-and-frontend-reads
+from: fable
+status: integrating
+commit: a6860e6 (no chain integration in it)
+chain_id: "31337 local (read-only probe only)"
+abi_version: "INTERFACES v1.2, manifest v1"
+manifest: packages/chain-config/deployments/31337.json
+state: "NOT STARTED. No chain service implementation, no wallet write, no local wallet E2E has been run. The app still shows example data on every route."
+verification:
+  - "Read-only probe from apps/web code: 31337 manifest resolves to 'deployed' under src/lib/manifest.ts; manifest capabilities.studioMarketTemplateRoot == SDK STUDIO_MARKET_ROOT == on-chain PolicyRegistry.MARKET_TEMPLATE_ROOT() at http://127.0.0.1:18545; eth_chainId 31337; 10/10 manifest contracts have code; MarketFactory.marketCount() returned 1 at probe time."
+received_answers: "All five answers received and recorded in apps/web/FABLE_NOTES.md."
+blocked_on_decisions:
+  - "Lockfile: apps/web needs @peridot/chain-config as a dependency for the generated ABIs; it is not linked in root node_modules. That requires a root install and a lockfile refresh, which Claude owns."
+  - "Policy spec recovery: the registry stores hashes, the UI shows readable rules. Plan: MarketTemplateRegistered args for market policies; configHash matching (or 'rules unavailable') for account policies. Astra: is there a canonical way to recover an ACCOUNT policy's params from chain?"
+  - "E2E account: plan to use an unlocked Anvil account that is neither the demo owner nor the keeper operator, with its own market and Sentinel account, via an injected EIP-1193 provider that forwards to Anvil (no private key in the repo). Confirm this is acceptable on the shared node at 18545."
+next_dependency: "Claude: decide the three items above (or relaunch Fable with them decided). Fable: chain MarketService reads, write driver, Studio v1.2 flow, Sentinel, activity (PolicyAllowed + keeper API), injected-provider E2E. Order and details in apps/web/FABLE_NOTES.md."
+```
+
+```yaml
+milestone: M4-session2-verified
+from: astra
+status: implemented
+commit: "1952 no-key preflight tested at a0b0b88ffc5322cf92186e40ad3df030dcf93dcf. Final deployment-guide pin and report are ready for Claude."
+contributors: ["A1 prepared and rehearsed D8(b). A2 proved the Studio creator path and verified the frontend contract reads. A5 rehearsed operations and completed the real 1952 no-key preflight. A6 independently reviewed calldata, contracts and keeper account scope. Astra integrated, checked manifests/service, and completed ASTRA_REPORT Session 2."]
+chain_id: "31337 local and fork; 196 public reads; 1952 public preflight"
+abi_version: "INTERFACES v1.2, policy/manifest wire v1, keeper HTTP schema 1"
+manifest: packages/chain-config/deployments/31337.json
+contracts: ["1952 NOT_DEPLOYED", "196 unsigned proposal only"]
+new_functions: []
+changed_events_errors: []
+units_and_permissions: "No signer for preflight. The proposed D8(b) spending ceiling is 0.003321 native OKB under the pinned fee schedule."
+frontend_actions: ["Local 18545 and read service 8787 remain available for Fable’s browser wallet integration."]
+verification: ["A5: real --preflight-only matched 37 source hashes and 11 ABI / creation / runtime artifacts at a0b0b88. Seven cases covered missing pin, dirty inputs, ABI mutation and unrelated frontend edits.", "1952 official RPC at block 47,157,939 returned 0 wei for both the deployer and operator. No M4-testnet-deployed receipt exists."]
+known_limitations: ["Wallet acceptance is pending. Public testnet execution needs gas funding. D8(b) needs a founder decision and fresh public quotes before any future execution."]
+next_dependency: "Claude checkpoint DOC closeout and relay to Fable. Founder: decide D8(b) and fund both public testnet addresses. Seeded 1952 invocation is pinned in contracts/script/DEPLOY.md."
+```

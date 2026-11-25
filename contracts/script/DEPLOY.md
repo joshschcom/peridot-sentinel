@@ -23,7 +23,7 @@ node packages/chain-config/scripts/check-manifest.mjs packages/chain-config/depl
 For **X Layer testnet**, fund the designated deployer with test OKB. Supply a reviewed Git commit for both the no-key preflight and the deployment. `--ops=price` seeds the market and Sentinel position, authorizes the designated testnet operator, and performs the labeled mock-price move.
 
 ```sh
-deployment_commit=$(git rev-parse HEAD)
+deployment_commit=a0b0b88ffc5322cf92186e40ad3df030dcf93dcf
 node contracts/script/deploy-demo.mjs testnet --source-commit="$deployment_commit" --preflight-only
 
 DEMO_OPERATOR=0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88 \
@@ -31,7 +31,7 @@ PERIDOT_TESTNET_KEY="$(cat /Users/joshua/Peridot/OKX/.testnet-keys/deployer.key)
   node contracts/script/deploy-demo.mjs testnet --source-commit="$deployment_commit" --ops=price --publish-manifest
 ```
 
-A public run checks the scripts, Solidity inputs, SDK sources and dependency manifests against that checkpoint. It builds the SDK in a fresh directory and reproduces the contract artifacts from the pinned tree before opening the signer. Every resumed invocation repeats the build check. Immediately before submission it rechecks the deployment input paths. Frontend and documentation work can proceed during deployment.
+A public run checks the scripts, Solidity inputs, SDK sources and dependency manifests against that checkpoint. It builds the SDK in a fresh directory and checks the ABI, creation bytecode and runtime bytecode against the rebuilt pinned tree before opening the signer. Every resumed invocation repeats the build check. Immediately before submission it rechecks the deployment input paths. Frontend and documentation work can proceed during deployment.
 
 Add `--publish-manifest` to write a verified non-fork manifest to `packages/chain-config/deployments/` and records receipt hashes and build provenance under `deployments/local/` or `deployments/testnet/`. A null commit denotes a build awaiting a matching source checkpoint. To attest an existing deployment, rerun the same command with `--source-commit=<SHA>`. The script compares every transitive Solidity source hash and the policy fixture, then verifies creation and runtime bytes by rebuilding a Git archive of that commit using its own Foundry configuration. The manifest records the build-time Git state separately. The source digest is Keccak-256 of compact UTF-8 JSON encoding the lexicographically sorted Solidity source path/content-Keccak pairs from the artifacts. Evidence records a separate init-code hash per artifact.
 
