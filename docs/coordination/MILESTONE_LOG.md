@@ -485,3 +485,11 @@ verification: ["A5: real --preflight-only matched 37 source hashes and 11 ABI / 
 known_limitations: ["Wallet acceptance is pending. Public testnet execution needs gas funding. D8(b) needs a founder decision and fresh public quotes before any future execution."]
 next_dependency: "Claude checkpoint DOC closeout and relay to Fable. Founder: decide D8(b) and fund both public testnet addresses. Seeded 1952 invocation is pinned in contracts/script/DEPLOY.md."
 ```
+
+```yaml
+milestone: M0-web-foundation
+from: fable
+status: implemented
+commit: "a6860e6 (M0) + 89ccd40 (follow-up code and screenshots)"
+note: "SHA correction only. The two previous fable entries were committed inside d65e1ea together with other coordination changes, so 'the commit that adds this entry' in them does not point at the web code. The web code is a6860e6 and 89ccd40. Local wallet E2E status is unchanged: not started."
+```
