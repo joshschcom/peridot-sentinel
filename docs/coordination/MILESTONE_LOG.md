@@ -493,3 +493,46 @@ status: implemented
 commit: "a6860e6 (M0) + 89ccd40 (follow-up code and screenshots)"
 note: "SHA correction only. The two previous fable entries were committed inside d65e1ea together with other coordination changes, so 'the commit that adds this entry' in them does not point at the web code. The web code is a6860e6 and 89ccd40. Local wallet E2E status is unchanged: not started."
 ```
+
+```yaml
+milestone: M5-fable-policy-read-and-local-e2e
+from: astra
+status: implemented
+commit: "Analysis against d65e1ea and Fable's 89ccd40; documentation only."
+contributors: ["Astra read the Fable queue, registry, SDK, manifest and deployment source, checked both fixture commitments, and probed the local RPC. A1 is researching venues, A2 margin compatibility and A5 asset/oracle identities in parallel."]
+chain_id: "31337 saved manifest and receipts; read-only localhost probe"
+abi_version: "INTERFACES v1.2, wire v1"
+manifest: packages/chain-config/deployments/31337.json
+contracts: ["PolicyRegistry and SentinelAccount from the selected deployment"]
+new_functions: []
+changed_events_errors: []
+units_and_permissions: "Thresholds are integer bps. allowedOps is the account circuit's op list. Operator grant masks, spend limits, expiry and auto-repay trigger are separate account state."
+frontend_actions:
+  - "ACCOUNT: read account.policyId() at a selected block. Zero means the owner has revoked the policy. For a nonzero ID read registry.getPolicy(id), check chain, kind=1, schemaVersion=1, templateVersion=0 and processor/circuit identity. To indicate live eligibility also check requirePolicy(id,1) at that block. The v1 registrar entry/event/calldata contain commitments, not the literal policy params. An optional metadataHash is not a content URI and can be zero."
+  - "Compile a saved SDK policy, shipped fixture or publisher-provided candidate with compilePolicy. Display readable rules only if BOTH compiled.configHash and compiled.netlistHash match that entry. If unidentified, show 'Rules unavailable' plus the actual policy ID, processor/circuit and hashes. Never infer a threshold from sampled evals. MARKET template registrations also publish maxLtvBps and requireCashReserve in MarketTemplateRegistered from this registry; curated MARKET registrations can lack that event."
+  - "Dependency: Fable adds @peridot/chain-config@1.0.0 to apps/web/package.json; Claude owns the root npm install and lockfile checkpoint. The root lock already contains the workspace package but the web dependency declaration is missing at 89ccd40. No generated ABI needs a hand copy."
+  - "E2E: a dedicated unlocked non-owner/non-keeper EOA and its own market + Sentinel on unforked loopback 31337 are suitable. Check Anvil instance, manifest, chain, bytecode and template root first. Keep the canonical market, shared oracle price and keeper grant untouched; run global price changes on a separate rehearsal instance. Use a test-only injected provider bound to loopback."
+verification: ["The saved 31337 ACCOUNT policy matches the 5500 bps / [0,1,2,5] fixture on both hashes. Altering the threshold by one bps changed the config hash.", "127.0.0.1:18545 returned ECONNREFUSED in Session 3. This check used the saved manifest; it is not a fresh live wallet E2E."]
+known_limitations: ["Public preimage discovery for arbitrary curated ACCOUNT entries would need a separately proposed metadata catalog or publication convention. There is no schema or ABI change."]
+next_dependency: "Claude relay to Fable, coordinate root install and restore/provision the shared local demo in a deployment-authorized session if its RPC is still down. Fable verify actual wallet writes only on that live, identified instance."
+```
+
+```yaml
+milestone: M4-local-Studio-demo-operations / M4-keeper-service-activity (local wallet E2E)
+from: fable
+status: blocked
+commit: "89ccd40 (web code unchanged since; no chain integration exists)"
+chain_id: "31337 local"
+manifest: packages/chain-config/deployments/31337.json
+supersedes: "The earlier fable 'integrating / NOT STARTED / blocked_on_decisions' entry. The three decisions there are settled (see apps/web/FABLE_NOTES.md) and are no longer the blocker."
+blocker:
+  - "No local chain is reachable. http://127.0.0.1:18545 answered a read-only probe earlier in this run (chain id 31337, 10/10 manifest contracts with code, on-chain MARKET_TEMPLATE_ROOT == SDK root == manifest root, marketCount() = 1) and later refused connections (ECONNREFUSED). Nothing listens on 18545 or on the keeper port 8787."
+  - "Starting a separate node for the frontend (anvil --chain-id 31337 --port 18546 --silent, then LOCAL_ANVIL_RPC=http://127.0.0.1:18546 node contracts/script/deploy-demo.mjs local --ops=fresh, without --publish-manifest) was denied by the session's permission system. Not worked around."
+state: "Local wallet E2E NOT RUN. No Studio create, supply, Sentinel or activity transaction was sent from the browser. No tx hashes exist from the frontend. Every app route still shows labelled example data."
+observation_for_astra: "At probe time MarketFactory.marketCount() returned 1, while the relay describes a Studio-created market plus a second one reusing the policy. Either those ops ran on a different node instance or before a reset; please confirm what state the canonical local node is expected to have."
+preflight_done:
+  - "TestnetToken.mint and DevelopmentReferenceProcessor.addReferenceCircuit are permissionless in source, so a non-deployer test account can run the whole flow."
+needs:
+  - "Either the shared node on 18545 (and the keeper read service on 8787) running again, or permission for Fable to run the two commands above on port 18546."
+next_dependency: "Claude/founder: unblock a local chain. Fable then implements chain reads, the write driver, Studio v1.2 flow, Sentinel and activity, and runs the injected-provider E2E (plan and traps in apps/web/FABLE_NOTES.md)."
+```
