@@ -1,0 +1,38 @@
+{
+  "name": "@peridot/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync:manifests": "node scripts/sync-manifests.mjs",
+    "predev": "node scripts/sync-manifests.mjs",
+    "dev": "next dev",
+    "prebuild": "node scripts/sync-manifests.mjs",
+    "build": "next build",
+    "start": "next start",
+    "pretypecheck": "node scripts/sync-manifests.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "check:tokens": "node scripts/check-tokens.mjs",
+    "screenshots": "node scripts/screenshots.mjs"
+  },
+  "dependencies": {
+    "@peridot/circuit-sdk": "1.0.0",
+    "@tanstack/react-query": "5.108.4",
+    "geist": "1.9.2",
+    "next": "16.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "viem": "2.58.6",
+    "wagmi": "3.7.11"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.5",
+    "@types/node": "26.6.10",
+    "@types/react": "19.3.2",
+    "@types/react-dom": "19.3.0",
+    "playwright": "1.65.1",
+    "tailwindcss": "4.3.5",
+    "typescript": "5.9.3"
+  }
+}

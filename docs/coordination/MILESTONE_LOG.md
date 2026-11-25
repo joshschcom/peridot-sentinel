@@ -357,3 +357,42 @@ verification: ["Astra: local service sent one repay 0x3632155303a8090ba3a3e3806f
 known_limitations: ["Local read service lasts for the local process lifetime. Public service hosting and funded 1952 execution remain pending."]
 next_dependency: "Claude checkpoint tested sources/evidence. Fable can consume API through a local or HTTPS read proxy."
 ```
+
+```yaml
+milestone: M0-web-foundation
+from: fable
+status: implemented
+commit: see the commit that adds this entry (apps/web first commit)
+chain_id: "none: FIXTURE MODE (1952 manifest says not-deployed)"
+abi_version: "INTERFACES v1 + v1.1 + v1.2 consumed as documented below; generated ABIs not consumed yet"
+manifest: packages/chain-config/deployments/1952.json (read, validated, state not-deployed)
+contracts: [NOT_DEPLOYED]
+acknowledgements:
+  - "M0-interface-v1: received, integrated in fixtures (peridot.policy/v1, 3-byte context, TRANSFER=9, separate Market/Account rejection errors, binary deny, no events on revert)."
+  - "M1-registry-adapter-sdk: received, integrated. apps/web depends on @peridot/circuit-sdk; compile, context encoding and NAND evaluation in the UI are the SDK's. A unit test reproduces fixtures/policies-v1.json (config hash, netlist hash, gate count, all vectors)."
+  - "M2-market-factory: received, integrating. Fixture market model mirrors the two-book controller and its check order (previewPolicy/_check); errors mapped. No chain reads yet."
+  - "M0-tapeout-mainnet-read, M0-tapeout-spike, M3-real-processor-settlement: received, integrated as read-only evidence on /circuits and /sentinel/activity with fixed provenance labels. Fork/local hashes are never explorer-linked."
+  - "M3-sentinel-interface / M3-sentinel-and-keeper: received, integrating. Sentinel screens follow v1.1 semantics (one account per owner+controller, plain-transfer funding, withdraw pays owner, masks 4/8, cumulative budget, trigger bps). Local auto-repay receipt 0x6f124ca0…e9b6 shown as a Local development chain receipt."
+  - "M4-interface-v1.2: received, integrating. Studio wizard uses studioMarketTemplate (proof shown), gates creation on SDK root == manifest root == on-chain root (currently 'not verifiable' because no chain reads), InvalidTemplateProof mapped, testnet-immediate/production-timelocked note shown."
+  - "M4-local-Studio-demo-operations, M4-keeper-service-activity: received, NOT integrated. No chain service implementation exists yet, so no local wallet E2E has been run."
+frontend_actions_done:
+  - "Routes: /, /sentinel (+ /app redirect), /sentinel/policy, /sentinel/activity, /markets, /markets/[id], /studio, /studio/create, /studio/[id], /circuits."
+  - "Typed services (wallet, market, account, policy, activity) with fixture + chain implementations; chain = stubs returning 'unavailable'. Mode per service = manifest deployed AND chain implementation ready (src/services/runtime.ts)."
+  - "Persistent FIXTURE MODE banner, Testnet / Local development chain label, wrong-network banner, single write gate."
+verification:
+  - "npm test (apps/web): 31 passed, 0 failed (amount parser, manifest validation, runtime mode resolution, policy wrapper vs SDK fixtures, error mapper, fixture preview order, evidence parsing)."
+  - "npm run typecheck: clean. npm run build (Next 16.4.6, Turbopack): success, 11 routes."
+  - "scripts/screenshots.mjs against next dev: all 10 routes HTTP 200, no console errors, no horizontal overflow at 360/390, theme follows system and persists, interaction checks pass (Sentinel rejection, market rejection, excess decimals rejected, write button disabled, simulation labelled, repay never gated), wrong-network banner with the example wallet."
+  - "Screenshots: evidence/screenshots/m0/ (31 PNGs)."
+known_limitations:
+  - "No on-chain read or write is implemented. Every number in the app is example data except compiler output and the recorded evidence blocks."
+  - "Wallet connect uses injected/EIP-6963 only and was not exercised with a real wallet extension in this run."
+  - "No ESLint configured yet."
+requests_to_astra:
+  - "Confirm order of Inactive and cap checks relative to oracle/limit/circuit in the controller hooks, for the preview's 'which error first' ordering."
+  - "Is there a view for annualised supply/borrow rate, or should the UI derive APR from the rate model?"
+  - "Please keep capabilities.studioMarketTemplateRoot and deploymentBlock in every deployed manifest (the UI gates Studio creation on the root)."
+  - "Confirm explorer URL patterns /tx/<hash> and /address/<addr> under the INTERFACES explorer roots."
+  - "DEMO_MATRIX step 12 still names RecipientNotAllowed; the contracts use owner-only withdraw. Suggest updating the expected result."
+next_dependency: "Fable: chain MarketService + write driver against local Anvil 18545 (NEXT_PUBLIC_PERIDOT_TARGET=local), then Studio v1.2 flow, Sentinel, activity (PolicyAllowed + keeper API), then injected-provider E2E."
+```

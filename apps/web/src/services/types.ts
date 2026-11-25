@@ -1,0 +1,259 @@
+/**
+ * Service boundary (INTERFACES v1 + milestone notices M1-M3).
+ * Every service has a `fixture` and a `chain` implementation behind these interfaces.
+ * All methods are async and all token quantities are bigint in raw units.
+ */
+import type { RawError } from "../lib/errors.ts";
+import type { Maybe } from "../lib/maybe.ts";
+import type { AccountPolicySpec, CompiledPolicy, Hex, LocalEvaluation, MarketPolicySpec, OpId, PolicySpec } from "../lib/policy.ts";
+
+export type Address = `0x${string}`;
+export type DataSource = "fixture" | "chain";
+export type ServiceName = "wallet" | "market" | "account" | "policy" | "activity";
+
+export interface TokenInfo {
+  symbol: string;
+  name: string;
+  decimals: number;
+  address: Maybe<Address>;
+  /** Test token without real value. */
+  mock: boolean;
+}
+
+export interface PriceInfo {
+  /** USD per whole token, 1e18-scaled (test feed convention). */
+  usdE18: bigint;
+  fresh: boolean;
+  updatedAt: string;
+  feed: string;
+}
+
+export interface MarketLimits {
+  borrowLtvBps: number;
+  liquidationLtvBps: number;
+  collateralSupplyCap: bigint;
+  debtSupplyCap: bigint;
+  borrowCap: bigint;
+  minCash: bigint;
+}
+
+export type ProcessorKind = "official" | "development-reference" | "self-deployed-reference";
+
+export interface PolicyRegistration {
+  policyId: Hex;
+  chainId: number;
+  processor: Address;
+  processorKind: ProcessorKind;
+  circuitId: bigint;
+  publisher: Address;
+}
+
+export interface PolicyRecord<S extends PolicySpec = PolicySpec> {
+  spec: S;
+  /** Compiled locally with @peridot/circuit-sdk: deterministic config hash, netlist hash and gate count. */
+  compiled: Maybe<CompiledPolicy>;
+  /** On-chain registry entry. Unavailable until the policy is registered on a deployed registry. */
+  registration: Maybe<PolicyRegistration>;
+}
+
+export interface Market {
+  /** Controller address on chain. Fixture markets use an `example-<n>` id. */
+  id: string;
+  index: number;
+  controller: Maybe<Address>;
+  owner: Maybe<Address>;
+  ownedByViewer: boolean;
+  /** Created markets start inactive. Activation needs seeded liquidity, a valid feed and the owner's activate(). */
+  active: boolean;
+  createdAt: string;
+  limits: MarketLimits;
+  policy: PolicyRecord<MarketPolicySpec>;
+  collateral: {
+    token: TokenInfo;
+    pToken: Maybe<Address>;
+    totalSupplied: Maybe<bigint>;
+    price: Maybe<PriceInfo>;
+  };
+  debt: {
+    token: TokenInfo;
+    pToken: Maybe<Address>;
+    totalSupplied: Maybe<bigint>;
+    totalBorrowed: Maybe<bigint>;
+    cash: Maybe<bigint>;
+    price: Maybe<PriceInfo>;
+    /** Annualised rates in basis points, from the interest model. Display only. */
+    supplyAprBps: Maybe<number>;
+    borrowAprBps: Maybe<number>;
+  };
+}
+
+/** `sentinel`: the user's Sentinel account acts. `direct`: the connected wallet calls the market itself. */
+export type ActingPath = "sentinel" | "direct";
+export type Leg = "collateral" | "debt";
+
+export interface Position {
+  marketId: string;
+  path: ActingPath;
+  holder: Maybe<Address>;
+  /** Collateral supplied, in underlying units (chain: shares x exchange rate, accrued book state). */
+  collateralSupplied: bigint;
+  collateralEntered: boolean;
+  /** Debt-asset liquidity lent to the market, in underlying units. */
+  lent: bigint;
+  debt: bigint;
+  /** Funds held by the holder and not supplied: wallet balance, or idle balance of the Sentinel account. */
+  idleCollateral: bigint;
+  idleDebtAsset: bigint;
+}
+
+export interface OperatorGrant {
+  operator: Maybe<Address>;
+  label: string;
+  /** Bit `1 << op`. Sentinel v1 uses borrow (4) and auto-repay (8). */
+  opsMask: number;
+  /** Cumulative budget in raw debt-asset units. */
+  budget: bigint;
+  spent: bigint;
+  expiresAt: string;
+  revoked: boolean;
+}
+
+export interface SentinelAccount {
+  marketId: string;
+  address: Maybe<Address>;
+  owner: Maybe<Address>;
+  policy: PolicyRecord<AccountPolicySpec>;
+  /** Auto-repay trigger as LTV in bps. 0 disables auto-repay. */
+  autoRepayTriggerBps: number;
+  operators: OperatorGrant[];
+  position: Position;
+}
+
+export interface OperationRequest {
+  marketId: string;
+  path: ActingPath;
+  op: OpId;
+  leg: Leg;
+  /** Raw underlying units of the leg's token. */
+  amount: bigint;
+}
+
+export type CheckId = "balance" | "account-policy" | "protocol" | "market-policy";
+export type CheckStatus = "pass" | "fail" | "not-applicable";
+
+export interface CheckResult {
+  id: CheckId;
+  title: string;
+  status: CheckStatus;
+  detail: string;
+  /** Set on the first failing check in on-chain evaluation order: the error the transaction would revert with. */
+  decisive: boolean;
+  evaluation?: LocalEvaluation;
+  error?: RawError;
+}
+
+export type RejectionSource = "account-policy" | "market-policy" | "protocol" | "policy-unavailable" | "balance";
+
+export interface OperationPreview {
+  source: DataSource;
+  /** How this preview was produced. Fixture: "Local preview (reference evaluator)". Chain: previewPolicy + eth_call as the sender. */
+  method: string;
+  request: OperationRequest;
+  /** Whether discretionary policy circuits apply to this operation at all (INTERFACES v1). */
+  applies: boolean;
+  ltvBeforeBps: Maybe<number>;
+  ltvAfterBps: Maybe<number>;
+  context: Maybe<{ op: OpId; oracleFresh: boolean; postLtvBps: number; cashOk: boolean; inputs: Hex }>;
+  checks: CheckResult[];
+  outcome: { status: "allowed" } | { status: "rejected"; by: RejectionSource; error: RawError };
+}
+
+export type ActivityEvidence =
+  /** eth_call / local evaluation. Nothing was sent. */
+  | "simulation"
+  | "mined-success"
+  /** A transaction that was mined and reverted. Reverts leave no events: evidence is the receipt. */
+  | "mined-revert";
+
+export interface ActivityEntry {
+  id: string;
+  at: string;
+  actor: "owner" | "operator";
+  /** Proposals are keeper/owner simulations. Executions were submitted. */
+  kind: "proposal" | "execution";
+  title: string;
+  marketId: string;
+  amount?: { value: bigint; token: TokenInfo };
+  result: "allowed" | "rejected" | "failed";
+  evidence: ActivityEvidence;
+  error?: RawError;
+  detail?: string;
+  txHash: Maybe<Hex>;
+}
+
+export interface PolicyTemplate {
+  templateId: PolicySpec["templateId"];
+  kind: PolicySpec["kind"];
+  title: string;
+  summary: string;
+  sample: PolicyRecord;
+}
+
+/* ---------- services ---------- */
+
+export interface ServiceMeta {
+  readonly source: DataSource;
+}
+
+export interface MarketService extends ServiceMeta {
+  listMarkets(): Promise<Maybe<Market[]>>;
+  /** ok(null): the source answered and there is no such market. */
+  getMarket(id: string): Promise<Maybe<Market | null>>;
+  /** Position of the connected wallet acting directly. Unavailable when there is nothing to read from. */
+  getDirectPosition(marketId: string): Promise<Maybe<Position>>;
+  previewOperation(request: OperationRequest): Promise<OperationPreview>;
+}
+
+export interface AccountService extends ServiceMeta {
+  /** null: the owner has no Sentinel account for this market yet. */
+  getAccount(marketId: string): Promise<Maybe<SentinelAccount | null>>;
+  listAccounts(): Promise<Maybe<SentinelAccount[]>>;
+}
+
+export interface PolicyService extends ServiceMeta {
+  listTemplates(): Promise<PolicyTemplate[]>;
+  listRegistered(): Promise<Maybe<PolicyRecord[]>>;
+}
+
+export interface ActivityService extends ServiceMeta {
+  list(): Promise<Maybe<ActivityEntry[]>>;
+}
+
+export interface WalletConnectorInfo {
+  id: string;
+  name: string;
+  icon?: string;
+}
+
+export type WalletState =
+  | { status: "disconnected" }
+  | { status: "connecting" }
+  | { status: "connected"; address: Address; chainId: number; connectorName: string };
+
+export interface WalletService extends ServiceMeta {
+  getState(): WalletState;
+  subscribe(listener: () => void): () => void;
+  listConnectors(): WalletConnectorInfo[];
+  connect(connectorId: string): Promise<void>;
+  disconnect(): Promise<void>;
+  /** Only ever targets the write chain (X Layer testnet 1952). */
+  switchToWriteChain(): Promise<void>;
+}
+
+export interface Services {
+  wallet: WalletService;
+  market: MarketService;
+  account: AccountService;
+  policy: PolicyService;
+  activity: ActivityService;
+}

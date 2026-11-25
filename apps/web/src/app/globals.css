@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Peridot Markets design tokens.
+   This file is the ONLY place colours are defined. Components use the
+   semantic Tailwind names below (bg-surface, text-muted, border-line...).
+   The default Tailwind palette is removed so bg-white / text-gray-500
+   and friends do not compile.
+   Theme: follows the system unless the user picked one (data-theme).
+   ------------------------------------------------------------------ */
+:root {
+  color-scheme: light dark;
+
+  --bg: light-dark(#ffffff, #0b0b0b);
+  --bg-subtle: light-dark(#f6f6f4, #101010);
+  --surface: light-dark(#ffffff, #141414);
+  --surface-2: light-dark(#f3f3f1, #1b1b1b);
+  --border: light-dark(#e6e6e3, #262626);
+  --border-strong: light-dark(#c9c9c5, #3d3d3d);
+  --text: light-dark(#0b0b0b, #ffffff);
+  --text-2: light-dark(#55554f, #a9a9a4);
+  --text-3: light-dark(#6e6e68, #8b8b86);
+  --inverse: light-dark(#0b0b0b, #ffffff);
+  --on-inverse: light-dark(#ffffff, #0b0b0b);
+  --overlay: light-dark(rgb(11 11 11 / 0.45), rgb(0 0 0 / 0.7));
+
+  /* Brand: peridot. Used for the mark only, never for state. */
+  --accent: light-dark(#5f8a00, #b9e04a);
+
+  /* Semantic status */
+  --success: light-dark(#0b7a47, #4ade94);
+  --success-soft: light-dark(#e9f6ef, #10261b);
+  --danger: light-dark(#c2261a, #ff7a6b);
+  --danger-soft: light-dark(#fcedeb, #2c1512);
+  --warning: light-dark(#8f5600, #f0b649);
+  --warning-soft: light-dark(#fbf2e0, #2a2010);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@theme {
+  --color-*: initial;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+  --breakpoint-xs: 26rem;
+}
+@theme inline {
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-bg: var(--bg);
+  --color-subtle: var(--bg-subtle);
+  --color-surface: var(--surface);
+  --color-raised: var(--surface-2);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-fg: var(--text);
+  --color-muted: var(--text-2);
+  --color-faint: var(--text-3);
+  --color-inverse: var(--inverse);
+  --color-on-inverse: var(--on-inverse);
+  --color-overlay: var(--overlay);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--text);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    line-height: 1.5;
+    overflow-x: clip;
+  }
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+  :focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+  ::selection {
+    background: var(--inverse);
+    color: var(--on-inverse);
+  }
+  button,
+  [role="button"],
+  summary {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  summary {
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  dialog {
+    color: var(--text);
+  }
+  dialog::backdrop {
+    background: var(--overlay);
+  }
+  input[type="range"] {
+    accent-color: var(--text);
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--text);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0s !important;
+    }
+  }
+}
+
+@layer components {
+  /* Financial figures: tabular digits everywhere a number can change. */
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum", "ss01";
+  }
+  .eyebrow {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .display {
+    font-size: clamp(2.75rem, 8.2vw, 5.75rem);
+    line-height: 0.96;
+    letter-spacing: -0.045em;
+    font-weight: 600;
+  }
+  .headline {
+    font-size: clamp(1.875rem, 4.2vw, 3rem);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    font-weight: 600;
+  }
+  .title {
+    font-size: clamp(1.5rem, 2.6vw, 1.875rem);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @keyframes sheet-in {
+    from {
+      transform: translateY(1rem);
+      opacity: 0;
+    }
+  }
+  @keyframes spin-slow {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .sheet-in {
+    animation: sheet-in 180ms ease-out;
+  }
+  .spinner {
+    animation: spin-slow 900ms linear infinite;
+  }
+}
