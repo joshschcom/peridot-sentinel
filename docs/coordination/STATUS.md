@@ -124,3 +124,17 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
 - **Still open:**
   - founder: faucet, D8(b), organizer answers
   - Astra session 4 is finishing the preflight on the fix commit
+
+## Update: Fable run 1 complete; Fable run 2 started
+- **Run 1** delivered `a6860e6` … `1930865`.
+  - All routes exist. In the default build (1952) every route runs in fixture mode.
+  - In local chain mode, Studio, supply, activate and the Sentinel create/fund/collateral/borrow flow work, and activity is read from logs.
+  - Tests: npm test 31/31, tsc clean, next build passes for both targets. The local E2E passed 3 runs, the latest with 16 txs and 0 reverts.
+  - The derived APR matches on-chain `ratePerBlock × blocksPerYear`.
+- **Run 2 tasks:**
+  1. independent rejections (a 65% and a 50% market vs the 55% account policy);
+  2. Sentinel owner writes plus the OwnerOnly view;
+  3. a keeper API proxy;
+  4. testnet readiness: per-target gating, paginated logs, chain-mode negatives;
+  5. 390px chain checks.
+- **Process note:** in run 1 the permission system denied Fable starting its own Anvil node. Fable did not work around it. Since then Claude has run a single shared local node (18545) and the keeper read service as orchestrator infrastructure, and Fable uses only that node.
