@@ -34,3 +34,8 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
 
 ## Tests and deployments
 - Nothing built or deployed yet.
+
+## Update: Astra delivered M0-interface-v1
+- INTERFACES v1 committed at `58684b1` and relayed to Fable.
+- **Process note:** the Codex sandbox blocks writes to `.git`, so Astra leaves its work in the working tree and Claude commits its reviewed paths with `Agent: astra` attribution.
+- **Blocker (M0-testnet-gas):** the X Layer faucet is a web form at https://web3.okx.com/xlayer/faucet/xlayerfaucet (0.2 OKB/day). The founder needs to request OKB for `0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67`. Local and fork work continues in the meantime.
