@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "abiVersion": "v1",
+  "profile": "testnet",
+  "chainId": 1952,
+  "status": "deployed",
+  "commit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+  "capabilities": {
+    "studioMarketTemplateRoot": "0xec7861345eb0b7eb7e7c96d5ceec277180b86ef226c2c8c064e18576879e0a60",
+    "policyAllowedEvents": true
+  },
+  "deploymentBlock": "47161508",
+  "provenance": {
+    "baseCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+    "sourceDigest": "0x9de6cc54fed7f05bcd20366996446d82cddc953521ab7bff34480f73d6e389c9",
+    "sourcesDirty": false,
+    "sourceMatch": {
+      "commit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+      "abiVerified": true,
+      "sourceCount": 36,
+      "artifactCount": 11,
+      "foundryConfigKeccak256": "0xcb1587fa065c9746fa188077e1f57c11411a6fa1b4c257c40d9d657237a4168e",
+      "policyFixturesKeccak256": "0x11fbe04ba7839472e532f5cf6fb393d80b4dede595caa6fa73a436d256a3447d",
+      "compiler": "0.8.26+commit.8a97fa7a",
+      "verification": "All transitive source hashes matched. Isolated rebuild of the committed source and Foundry configuration reproduced all compared creation and runtime bytecode."
+    }
+  },
+  "contracts": {
+    "MockCollateral": "0xe1dA369f92596c3c10c353E200c05343C9F19c92",
+    "MockDebt": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+    "TestnetOracle": "0x2257293155CF9a52590BA289E599F9Adf297ac57",
+    "DemoRateModel": "0x0796A0772Ef9aF1F610Fd460EFC008Cc53dCE23B",
+    "MarketPToken": "0x984E85BBF47a2f6b43EAfa31744abCcF12D6Fa9E",
+    "PolicyRegistry": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+    "TapeOutPolicyAdapter": "0x68B5b4656cD20ECF2Ff2796Dc6A171dad77FD8b9",
+    "DevelopmentReferenceProcessor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+    "MarketFactory": "0xEB32e6bA03D8B92d6bB0d5283A59263a50674BC0",
+    "SentinelAccountFactory": "0x37157221a5fA97d3f3EC1AA2375032d578Db182f"
+  },
+  "markets": [
+    {
+      "controller": "0xEB9FCDe8C3502BcBb9dfF2A031AC9402baE7a951",
+      "collateralMarket": "0x1176cdef595A4e3bEBC3CfA9721a4C2a50cfa351",
+      "debtMarket": "0xB736dAA8784092C88ACABf6344DC360DcC5E411d"
+    }
+  ],
+  "tapeout": {
+    "mode": "development-reference",
+    "processor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+    "circuits": [
+      {
+        "kind": "MARKET",
+        "circuitId": "1",
+        "policyId": "0x9ef84d1131340546fad30750710d0f402f8cb7b2cbe74a6d8b008da66c286dd5",
+        "netlistHash": "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+        "configHash": "0xf3203f5920dcf756a23524407169c93d0acb9a0a63397f6d893f6206af2149f6"
+      },
+      {
+        "kind": "ACCOUNT",
+        "circuitId": "2",
+        "policyId": "0x0cd3ed21613f573d3c5232f9f521f84db52523b2f0fc4715233446129fc025f3",
+        "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+        "configHash": "0xf86d0e324da289ecf444622df590d5ee4c55af1a17c38dbd00dc9482b2570871"
+      }
+    ]
+  },
+  "mocks": [
+    "MockCollateral",
+    "MockDebt",
+    "TestnetOracle",
+    "DevelopmentReferenceProcessor"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "label": "X Layer TESTNET 1952 \u2014 real public testnet transaction; mock tokens and mock (owner-set) price feed; development reference processor (not TapeOut)",
+  "feature": "Sentinel automated repayment by repay-only operator after labeled mock price move",
+  "chainId": 1952,
+  "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+  "sentinelAccount": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+  "controller": "0xEB9FCDe8C3502BcBb9dfF2A031AC9402baE7a951",
+  "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+  "txHash": "0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+  "block": 47161960,
+  "status": "0x1",
+  "gasUsed": 244593,
+  "keeperOutcome": {
+    "amountRaw": "20000000",
+    "decimals": 6,
+    "ltvBeforeBps": 5001,
+    "ltvAfterBps": 3751
+  },
+  "verifiedAfter": {
+    "currentLtvBps": 3751,
+    "operatorGrant": {
+      "mask": 8,
+      "remaining": "0",
+      "expiry": 1795707037
+    }
+  },
+  "recordedBy": "claude-orchestrator",
+  "recordedAt": "2026-11-25"
+}

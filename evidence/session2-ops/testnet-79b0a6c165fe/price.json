@@ -1,0 +1,122 @@
+{
+  "label": "X Layer testnet / development reference processor",
+  "chainId": 1952,
+  "runId": "0x79b0a6c165fe8f323534e6c87d0654ccc7a81c979367d36faea2ad3c70d6992f",
+  "operation": "price",
+  "sourceDigest": "0x9de6cc54fed7f05bcd20366996446d82cddc953521ab7bff34480f73d6e389c9",
+  "contracts": {
+    "MockCollateral": "0xe1dA369f92596c3c10c353E200c05343C9F19c92",
+    "MockDebt": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+    "TestnetOracle": "0x2257293155CF9a52590BA289E599F9Adf297ac57",
+    "DemoRateModel": "0x0796A0772Ef9aF1F610Fd460EFC008Cc53dCE23B",
+    "MarketPToken": "0x984E85BBF47a2f6b43EAfa31744abCcF12D6Fa9E",
+    "PolicyRegistry": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+    "TapeOutPolicyAdapter": "0x68B5b4656cD20ECF2Ff2796Dc6A171dad77FD8b9",
+    "DevelopmentReferenceProcessor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+    "MarketFactory": "0xEB32e6bA03D8B92d6bB0d5283A59263a50674BC0",
+    "SentinelAccountFactory": "0x37157221a5fA97d3f3EC1AA2375032d578Db182f"
+  },
+  "fresh": {
+    "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+    "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+    "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+    "borrowBlock": "47161800",
+    "ltvBps": "4000",
+    "debt": "80000000",
+    "borrowedFunds": "80000000",
+    "collateralShares": "100000000000000000000",
+    "settledPolicyDecisions": [
+      {
+        "policyId": "0x0cd3ed21613f573d3c5232f9f521f84db52523b2f0fc4715233446129fc025f3",
+        "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+        "op": 2,
+        "postLtvBps": "4000",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      {
+        "policyId": "0x9ef84d1131340546fad30750710d0f402f8cb7b2cbe74a6d8b008da66c286dd5",
+        "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+        "op": 2,
+        "postLtvBps": "4000",
+        "oracleFresh": true,
+        "cashOk": true
+      }
+    ],
+    "triggerBps": 4500,
+    "grantMask": 8,
+    "grantRawDebtUnits": "20000000",
+    "expiry": "1795707037"
+  },
+  "price": {
+    "label": "TestnetOracle manual price simulation",
+    "market": {
+      "controller": "0xEB9FCDe8C3502BcBb9dfF2A031AC9402baE7a951",
+      "collateralMarket": "0x1176cdef595A4e3bEBC3CfA9721a4C2a50cfa351",
+      "debtMarket": "0xB736dAA8784092C88ACABf6344DC360DcC5E411d"
+    },
+    "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+    "receipt": "0x1a1124d916a718f51f3d11cefe29b354674bca9e27a6d3fc328b4b3f873ed77d",
+    "block": "47161877",
+    "oldPriceWad": "2000000000000000000",
+    "newPriceWad": "1600000000000000000",
+    "position": {
+      "shares": "100000000000000000000",
+      "debt": "80000000",
+      "cash": "120000000",
+      "supply": "200000000",
+      "borrowTotal": "80000000",
+      "ltvBps": "5000"
+    }
+  },
+  "transactions": {
+    "create-demo-account": {
+      "hash": "0x3988fb541a4d59a0b9c550f08e495b1fe2415fe027ea3849d6203cbc04319763",
+      "block": "47161777",
+      "blockHash": "0x4b246453d3e524f3a52a8147a03c1ea5590ee4a127d65d88c638d46e792b9e0b",
+      "gasUsed": "1706944"
+    },
+    "mint-demo-collateral": {
+      "hash": "0x4b6f3a81f91762cbbc61a27832850234953fdd005ac84b4d7c312f344c0f7494",
+      "block": "47161783",
+      "blockHash": "0x48f08ac4f9907a2bf544bde979bf597059ba3ae4f8901b32f3dd5582b4ad4f99",
+      "gasUsed": "68111"
+    },
+    "enter-collateral": {
+      "hash": "0x13ac8ed9e792a0a5064201eab4434ab0bb76ce3277612d5791c2de43653454b0",
+      "block": "47161788",
+      "blockHash": "0x8347e9d2ed5092d2803550fe52f720b6becc5ccdd5b5584834c9f2597fc5b3a6",
+      "gasUsed": "51056"
+    },
+    "supply-collateral": {
+      "hash": "0x426abf0b52d7419cafeb1159508bc4f05b17ed1fb07d47157f3aa24534a597d8",
+      "block": "47161794",
+      "blockHash": "0x0a3a4a27dc1653d92ba4b5955b7f8caaa5ab274fa5d1d33a12cc74596f18200c",
+      "gasUsed": "454899"
+    },
+    "borrow-demo-dollars": {
+      "hash": "0x95ef9a30a5efacc189d5bd9169a5736140b7e0912e79c66ea7e1b480061e3cfc",
+      "block": "47161800",
+      "blockHash": "0xeee2a09bb1926152ab85c77a4330fddfa24e2b427fe0ba1a8de51596d15edeec",
+      "gasUsed": "530197"
+    },
+    "configure-trigger": {
+      "hash": "0x6390425f35c4baf288eacfbe37f01826f9b474ae7f1455fa0c64f7451ce91c16",
+      "block": "47161866",
+      "blockHash": "0xceb22f1e47378033bc4a247695da27ee57e858be666d3b2fec3864eaf7c8e594",
+      "gasUsed": "44745"
+    },
+    "grant-repay-only": {
+      "hash": "0x90dfa1d97f48703ddbe7ecfc9fedf2b43448114c95da3159a761e93ca55d789c",
+      "block": "47161872",
+      "blockHash": "0xc7007f3b7313a9960552be7b6afc69ab2c3dc95e0eb3816434228e944e4a53e0",
+      "gasUsed": "91348"
+    },
+    "move-mock-price": {
+      "hash": "0x1a1124d916a718f51f3d11cefe29b354674bca9e27a6d3fc328b4b3f873ed77d",
+      "block": "47161877",
+      "blockHash": "0x8c4d13d432d0e08f7b4fb0b3c04b8a53ef756c0daad7d1f02a60e33b3f6e1aa7",
+      "gasUsed": "28990"
+    }
+  }
+}
