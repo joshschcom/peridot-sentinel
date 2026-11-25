@@ -1,0 +1,17 @@
+node_modules/
+.next/
+out/
+cache/
+cache_*/
+out_*/
+broadcast/*/31337/
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+keystore*/
+.secrets/
+.DS_Store
+coverage/
+dist/
