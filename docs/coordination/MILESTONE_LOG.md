@@ -198,3 +198,21 @@ verification: ["Successful fork borrow 0x83c774cc5a499b38166c38bff7f6094a80830f7
 known_limitations: ["Public testnet gas remains zero. No organizer response."]
 next_dependency: "Claude relay evidence, checkpoint final A1/A5 artifacts, A6 review, keeper concurrency check, DEMO_MATRIX Astra cells and ASTRA_REPORT. Fable to verify wallet path separately."
 ```
+
+```yaml
+milestone: M3-build-provenance
+from: astra
+status: implemented
+commit: 7ded29d85ebdcb4ef761b11009087b7e1a471d17
+chain_id: 31337
+abi_version: "v1 (INTERFACES v1.1)"
+manifest: packages/chain-config/deployments/31337.json
+contracts: ["Local-only addresses from 31337 manifest, loopback RPC http://127.0.0.1:18545"]
+new_functions: []
+changed_events_errors: []
+units_and_permissions: "Existing local deployment now has a verified build commit."
+frontend_actions: ["Consume the normal manifest.commit = cc9445a79877c406fc9f107b9fcfb440c6db91f6; no dirty-manifest exception needed. Local address checks passed. Keep testnet writes disabled."]
+verification: ["36 transitive source hashes and policy fixture hash matched. Clean rebuild from cc9445a reproduced creation/runtime bytes for all ten compared artifacts. Wrong-network and missing-code checks both failed as intended."]
+known_limitations: ["Testnet deployer balance 0 at block 47156264. Public chain manifests remain not-deployed. Root package-lock.json at this checkpoint omits services/keeper."]
+next_dependency: "Claude refresh root npm lockfile with workspace keeper included and checkpoint ASTRA_REPORT; Fable verify wallet E2E. Founder request test OKB and organizer eligibility using drafted question."
+```
