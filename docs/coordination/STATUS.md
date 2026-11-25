@@ -110,3 +110,17 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
 - **Funded release:** all five §12 gates are open. Closing them is estimated at 104–178 agent-hours, so there is no basis for a funded mainnet launch by Dec 6/7. The recommendation is testnet only, plus D8(b) circuit-only evidence.
 - **BUG (P0), found by Astra:** the demo rate model uses 2,102,400 blocks/year, but X Layer 196 and 1952 both run 1 block/s (Claude measured 1952: 86,400 blocks in 86,400 s). Accrual is therefore ~15× the displayed APR. Astra session 4 is fixing it before the testnet deploy. Fable has been warned, and the shared node will be redeployed after the fix.
 - **Shared local node:** run by Claude at 127.0.0.1:18545, with state persisted. The keeper read service is on :8787 in simulate-only mode.
+
+## Update: frontend integrated with real contracts (local); rate fix live on the shared node
+- **`ac9b26a` (Fable).** A browser wallet E2E ran on the shared local chain: Studio create, then supply, activate, Sentinel create/fund/collateral/borrow, then the activity view. It sent 14 txs with 0 reverts. Both rejection states were shown via `eth_call` simulation.
+  - Claude verified 4 receipts on chain and reviewed the screenshots in `evidence/screenshots/local-e2e/`.
+- **`586af97`.** Rate-cadence fix: forge 24/24, plus a regression test that is red on the old model and green on the fix.
+- **`78b2d1a`.** The shared node was redeployed from `ac9b26a`. `blocksPerYear` = 31,536,000 on chain.
+- **Fable's next tasks:**
+  - independent rejection scenarios (account-only deny; market-only deny via Sentinel)
+  - Sentinel operator, revoke, trigger, repay and withdraw writes
+  - the keeper API proxy
+  - 390px chain-mode checks
+- **Still open:**
+  - founder: faucet, D8(b), organizer answers
+  - Astra session 4 is finishing the preflight on the fix commit
