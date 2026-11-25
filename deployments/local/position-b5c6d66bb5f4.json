@@ -1,0 +1,65 @@
+{
+  "label": "Local Anvil simulation / development reference processor",
+  "chainId": 31337,
+  "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "operator": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "account": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+  "controller": "0x05242D4AC717Cdf38C36AF290F2b0DA99AA82c67",
+  "referenceAccountPolicy": "0x2203a619deefc167ac023b3c9d8c0194a48482f2dc894106ab94de7c64912833",
+  "borrowedUnits": "80000000",
+  "triggerBps": 4500,
+  "grantedDebtUnits": "20000000",
+  "ltvBpsBeforeMockMove": "4000",
+  "ltvBpsAfterMockMove": "5000",
+  "failedAttempts": [],
+  "transactions": {
+    "create-demo-account": {
+      "hash": "0x16f01046f255d3eaba11a0968e86b50634fdf26d66d10eef92983d0125cc8815",
+      "block": "23",
+      "blockHash": "0xd5ae31bb346d7e421c8b7d12c53a472ed741d8339e496a89b1ce341452363c04",
+      "gasUsed": "1706969"
+    },
+    "mint-demo-collateral": {
+      "hash": "0xc6b56d7b6a5c4a2824f6099cc4599969f472a7d35543fcb0c937ac504a37fa36",
+      "block": "24",
+      "blockHash": "0xe13c537e7f95f5143e417828aedc4fb4a99a3e5f325ee679f6e32a160ab50b24",
+      "gasUsed": "68123"
+    },
+    "enter-collateral": {
+      "hash": "0x54f20bf85407a66761c451bdabcfbcb4189fd6270fe274e346b2d3c17872612f",
+      "block": "25",
+      "blockHash": "0x0b7f0f07fe396f2cd164bb1ed7bf09b0d74fde9f10aa960e7d2d8f1a45011c49",
+      "gasUsed": "51056"
+    },
+    "supply-collateral": {
+      "hash": "0x2a0506432cf492e4f0f0c50e1020f2a83f40f32df0b73f794698c3f9a6a880b3",
+      "block": "26",
+      "blockHash": "0xd6304b019fc5b7e2babfdd8a3e7e05e0d27f7fc09332f21a834fe859c03cdd9d",
+      "gasUsed": "454899"
+    },
+    "borrow-demo-dollars": {
+      "hash": "0x9b71aa8416697c730af2f736cbaaa36f25efc783541ffd2d7ed702d32c9983db",
+      "block": "27",
+      "blockHash": "0x266155b06fea986ed1b674991ce491ab1cb7047d1b66083a5eac069af783916a",
+      "gasUsed": "530197"
+    },
+    "configure-trigger": {
+      "hash": "0x657a7257d0a0ab37178958f5c84326fe2f7e7729bd23b140f4660c2bdaf9bc8d",
+      "block": "28",
+      "blockHash": "0x48fb4dcef68f7c5466d19ef59eb68c574152bf7acea87fa519d4e2da9bb5ac88",
+      "gasUsed": "44745"
+    },
+    "grant-repay-only": {
+      "hash": "0x1fc08636971e13a4db07cf8090634c36ad9e1a447fe4fae16c1335a0ef337555",
+      "block": "29",
+      "blockHash": "0x86dab4e4bda91025027a476962e5f2a86e9d76700d913726ed4b755149f69eaf",
+      "gasUsed": "91348"
+    },
+    "move-mock-price": {
+      "hash": "0xf90ec2356bcaa4a21f3bcc7fc2e69d4bcf0ad3fac88342dda411947342762809",
+      "block": "30",
+      "blockHash": "0x8abebee56f87cfa93aeb0a0aff4d526a4e9a1d6a0aabce2911899d654c83f102",
+      "gasUsed": "29002"
+    }
+  }
+}
