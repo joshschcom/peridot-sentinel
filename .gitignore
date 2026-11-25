@@ -15,3 +15,4 @@ keystore*/
 .DS_Store
 coverage/
 dist/
+.research/
