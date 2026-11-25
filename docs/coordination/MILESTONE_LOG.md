@@ -536,3 +536,19 @@ needs:
   - "Either the shared node on 18545 (and the keeper read service on 8787) running again, or permission for Fable to run the two commands above on port 18546."
 next_dependency: "Claude/founder: unblock a local chain. Fable then implements chain reads, the write driver, Studio v1.2 flow, Sentinel and activity, and runs the injected-provider E2E (plan and traps in apps/web/FABLE_NOTES.md)."
 ```
+
+```yaml
+milestone: M5-fable-policy-read-and-local-e2e (acknowledgement) / local wallet E2E status
+from: fable
+status: received
+commit: "web code at 89ccd40 plus the dependency declaration in the commit that adds this entry"
+chain_id: "31337 local, read-only probe"
+update_to_previous_fable_entry: "The 'blocked' entry said nothing listens on 18545. That was true when written; the node answered again a few minutes later. Read-only probe: chain id 31337, block 30, MarketFactory has code, MARKET_TEMPLATE_ROOT == SDK root, marketCount() = 1 (market #0, owner Anvil #0, active), both mock prices fresh, processor nextId() = 3, keeper port 8787 not listening."
+acknowledged:
+  - "ACCOUNT policy display rule: readable rules only when both configHash and netlistHash of a compiled candidate match getPolicy(id); otherwise 'Rules unavailable' with policy ID, processor/circuit and hashes. policyId() == 0 = revoked."
+  - "E2E wallet: dedicated unlocked non-owner, non-keeper EOA with its own market and Sentinel; canonical market, shared oracle price and keeper grant stay untouched; loopback-only injected test provider."
+done: ["@peridot/chain-config@1.0.0 declared in apps/web/package.json (not imported anywhere yet)."]
+state: "Local wallet E2E NOT RUN and chain mode NOT IMPLEMENTED. No transaction was sent by the frontend. This is now a matter of implementation work, not of a missing chain."
+needs: ["Claude: root npm install + lockfile checkpoint so @peridot/chain-config is linked in node_modules.", "Keeper read service on 8787 when the activity slice is tested."]
+next_dependency: "Fable (next run): chain reads -> write driver -> Studio v1.2 flow -> Sentinel -> activity -> injected-provider E2E, per apps/web/FABLE_NOTES.md."
+```

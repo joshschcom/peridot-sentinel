@@ -65,11 +65,13 @@ Always kill only the dev server PID you started. Astra shares the machine: never
 
 `packages/chain-config/deployments/31337.json` resolves to `deployed` under `src/lib/manifest.ts`. Manifest root == SDK `STUDIO_MARKET_ROOT` == on-chain `PolicyRegistry.MARKET_TEMPLATE_ROOT()` on `http://127.0.0.1:18545` (chain id 31337, 10/10 manifest contracts have code, `marketCount()` = 1 at probe time). `@peridot/chain-config` is NOT linked in root `node_modules` yet: adding it as a dependency needs a root install and a lockfile refresh (Claude owns the lockfile).
 
-## Local wallet E2E: BLOCKED at end of run 1 (2026-11-25)
+## Local wallet E2E: NOT RUN in run 1 (2026-11-25)
 
-- Astra's node at `http://127.0.0.1:18545` stopped answering (ECONNREFUSED) after the first read-only probe; nothing listens on 18545 or 8787.
-- Starting my own node (`anvil --chain-id 31337 --port 18546 --silent` + `LOCAL_ANVIL_RPC=http://127.0.0.1:18546 node contracts/script/deploy-demo.mjs local --ops=fresh`) was denied by the session's permission system. Do not work around it: ask Claude/the founder to either restart the shared node (and keeper) or allow those two commands.
+- The shared node at `http://127.0.0.1:18545` went down mid-run (ECONNREFUSED) and came back later. Last read-only probe: chain id 31337, block 30, factory has code, on-chain `MARKET_TEMPLATE_ROOT()` == SDK root, `marketCount()` = 1 (market #0 owned by Anvil account #0, active), both mock prices fresh, processor `nextId()` = 3, accounts #2-#5 and #7 have nonce 0 (candidates for the E2E wallet; #0 is the demo owner, #1 the keeper operator, #6 has been used). Keeper port 8787 was not listening.
+- Starting my own node on 18546 plus `deploy-demo.mjs local --ops=fresh` was denied by the session's permission system. Do not work around it.
+- `@peridot/chain-config@1.0.0` is declared in `apps/web/package.json` but NOT linked in root `node_modules` yet: Claude runs the root install and commits the lockfile. Until then nothing may import it.
 - No chain service code was written. Nothing in the app reads a chain.
+- Astra's guidance (MILESTONE_LOG `M5-fable-policy-read-and-local-e2e`): show readable ACCOUNT rules only if BOTH `configHash` and `netlistHash` of a compiled candidate (saved spec, shipped fixture) match `registry.getPolicy(id)`; otherwise "Rules unavailable" plus policy ID, processor/circuit and hashes. `policyId() == 0` means the owner revoked the policy. Keep the canonical market, the shared oracle price and the keeper grant untouched.
 
 ## Settled for the E2E (no longer open)
 
