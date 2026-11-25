@@ -48,3 +48,18 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   - Processor CPU 275 `0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF`, circuit 1, block 76844958. Its eval matched the pinned TAP Python model on 4/4 truth-table inputs. eth_estimateGas came back at 50,601–51,183.
   - Trust finding: the official factory `0x1f09…` reports itself **unsealed**. Its owner is `0xB3D85b42A045c1A88D800CAD0F55d2566a4D3138`, and the current proxy implementation `0x336e9f0f…ae2a` is not the TAP-10 candidate. The adapter must pin the processor and fail closed, and this belongs in SECURITY_MODEL.
 - Still open: fork fabrication of the Peridot policy circuits (A1), any official testnet deployment, testnet gas, and Sentinel (M3).
+
+## Update: TapeOut fork gate passed; M3 runs end to end on a local chain
+- **`cc9445a`.** Claude re-ran `forge test` (15/15 passed across 3 suites) and `circuit-sdk` (9/9 passed).
+- **TapeOut spike (A1).** On a fork of X Layer mainnet at block 76844958, both Peridot policy circuits were fabricated on the real TapeOut processor `0x4234…00b5`:
+  - fork-only circuit IDs 2 and 3; market 63 NAND, account 87 NAND
+  - all 12/12 vectors matched
+  - Solidity eval gas: market ~176k, account ~230k
+  - simulated fees 0.00326 OKB; new CPUs on the factory are priced in BEM
+  - no public transaction was sent
+- **M3.** SentinelAccount/Factory plus the deterministic keeper, on local Anvil. Keeper tx `0x6f12…62e9b6` repaid 20 mUSD and moved LTV from 5001 to 3751 bps.
+- **Open:**
+  - the local manifest was built from a dirty tree; Astra will rebuild it from a clean commit
+  - testnet gas (founder faucet)
+  - official testnet TapeOut deployment and eligibility (organizer)
+  - decision D8(b): a mainnet fabrication would cost about 0.003 OKB of real fees
