@@ -1,0 +1,11 @@
+# Development lending risk model
+
+Each controller accepts one collateral asset and one debt asset. A user explicitly enters the collateral book. Valuation uses current accrued balances for state-changing risk checks. Underlying collateral equals floor(shares × exchangeRate / 1e18). The feed quotes USD per whole token at 1e18 precision. Collateral value rounds down, debt value rounds up, and the LTV ratio rounds up in basis points. Prices for both assets must be positive and fresh. Risk-increasing calls fail when the ratio exceeds the encodable 10000 bps.
+
+Borrow requires an active market, sufficient cash after the reserve floor, enough collateral at the configured borrow LTV, capacity under the raw debt cap, and policy approval. Each book has a raw underlying supply cap. Account and market LTV limits may further restrict the configured protocol maximum. A market's borrow LTV is at most 8000 bps and its liquidation threshold must be larger and at most 9000 bps.
+
+Liquidation requires debt value strictly above the liquidation threshold, fresh prices and a repayment covering at most half the debt (rounded up to a raw unit). The calculation uses a 5% collateral bonus, subject to available collateral and integer rounding. Permissionless liquidators bring debt tokens. Actual market liquidity, executable liquidation size, price changes and external liquidator availability determine recoveries. The test model has no guaranteed backstop.
+
+Repayment and valid seizure have no circuit dependency. A debt-free collateral exit can proceed during a policy or price outage if cash and ordinary ownership checks permit it. The borrow reserve applies at origination. A borrower with debt must satisfy solvency and discretionary policy when removing pledged collateral. Automation checks a fresh LTV and can fail during an oracle outage. The owner and external repay-on-behalf entry point can still repay.
+
+The test oracle accepts updates from its deployer and expires quotes after one day. Test tokens are permissionlessly mintable. The imported rate model accrues by block and its annualized parameter conversion is a development assumption. All demo prices, thresholds, caps, liquidity and rates are experimental. Real assets require external oracle configuration, liquidity calibration, venue-specific rates and liquidation capacity.

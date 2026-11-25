@@ -6,7 +6,7 @@ import {IPolicyProcessor} from "./PolicyRegistry.sol";
 import {TestProfile} from "../markets/TestProfile.sol";
 
 /// @notice Development fixture implementing a restricted, stateless NAND interpreter. No sponsor deployment or NFT.
-contract DevelopmentReferenceProcessor is IPolicyProcessor {
+contract DevelopmentReferenceProcessor is TestProfile, IPolicyProcessor {
     mapping(uint256 => bytes) private programs;
     uint256 public nextId = 1;
 

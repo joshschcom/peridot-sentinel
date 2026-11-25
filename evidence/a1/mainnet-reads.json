@@ -40,6 +40,12 @@
       "mainnetBytes": 295,
       "mainnetKeccak": "0x57aa306fd0be97087da3534e03398f5ff4efd533b5be4e45a405ce86fa6717d5",
       "testnetBytes": 0
+    },
+    {
+      "address": "0x336e9f0f4c3fee7c8c803377e4dea00293f4ae2a",
+      "mainnetBytes": 9376,
+      "mainnetKeccak": "0x8310648246b9825d2861cd4a5a980eed1d3b7165b2aed247b1c55abe049b7f60",
+      "testnetBytes": 0
     }
   ],
   "factorySlots": {
@@ -130,6 +136,89 @@
       1,
       2,
       10
+    ]
+  },
+  "observedTransitions": [
+    {
+      "contract": "0x1f09DAeFA827f02CBb40967cc91b259763760761",
+      "previousBlock": 75368047,
+      "previousValue": "0x000000000000000000000000b41c1e7602eb5734be2430b72178ccb814a5293d",
+      "changeBlock": 75368048,
+      "value": "0x000000000000000000000000336e9f0f4c3fee7c8c803377e4dea00293f4ae2a",
+      "logs": [
+        {
+          "topic0": "0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b",
+          "topics": [
+            "0x000000000000000000000000336e9f0f4c3fee7c8c803377e4dea00293f4ae2a"
+          ],
+          "tx": "0xdc1e1dd122e0fe295958067f0c924c01a5999715e8f5be0659f20ba56acc6368"
+        },
+        {
+          "topic0": "0xa21982987762038ad88edf36e2e4a90dbbeb5d2a5195eb68e3efa538f4624897",
+          "topics": [
+            "0x00000000000000000000000041cb2bfd1ccca8f505eedad0181eef44f1b9ce65"
+          ],
+          "tx": "0xdc1e1dd122e0fe295958067f0c924c01a5999715e8f5be0659f20ba56acc6368"
+        },
+        {
+          "topic0": "0x8c8be76b1981e4fdef0fbab2ca906c062be039dc6dad98eb2b11b3420f4acb88",
+          "topics": [],
+          "tx": "0xdc1e1dd122e0fe295958067f0c924c01a5999715e8f5be0659f20ba56acc6368"
+        },
+        {
+          "topic0": "0xdb5aafdb29539329e37d4e3ee869bc4031941fd55a5dfc92824fbe34b204e30d",
+          "topics": [],
+          "tx": "0xdc1e1dd122e0fe295958067f0c924c01a5999715e8f5be0659f20ba56acc6368"
+        },
+        {
+          "topic0": "0x99c94a5ea3f00d6c06c5ec594564a181798ac828f3e0dbacfb852782cd542c90",
+          "topics": [
+            "0x00000000000000000000000060e62efa9405d6873c5deabd4e6cc91c25363952",
+            "0x00000000000000000000000041cb2bfd1ccca8f505eedad0181eef44f1b9ce65"
+          ],
+          "tx": "0xdc1e1dd122e0fe295958067f0c924c01a5999715e8f5be0659f20ba56acc6368"
+        },
+        {
+          "topic0": "0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2",
+          "topics": [],
+          "tx": "0xdc1e1dd122e0fe295958067f0c924c01a5999715e8f5be0659f20ba56acc6368"
+        }
+      ]
+    },
+    {
+      "contract": "0xf70d1ed4f62CF3780157B0b421b7E2F45bD0991C",
+      "previousBlock": 73915512,
+      "previousValue": "0x0000000000000000000000001f09daefa827f02cbb40967cc91b259763760761",
+      "changeBlock": 73915513,
+      "value": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "logs": [
+        {
+          "topic0": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "topics": [
+            "0x0000000000000000000000001f09daefa827f02cbb40967cc91b259763760761",
+            "0x0000000000000000000000000000000000000000000000000000000000000000"
+          ],
+          "tx": "0x1a534cc3b4e46394430823f429df152e7fe741656641523bcade5773599f6fe3"
+        }
+      ]
+    }
+  ],
+  "sampleCpuBeaconSlot": {
+    "slot": "0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50",
+    "value": "0x000000000000000000000000f70d1ed4f62cf3780157b0b421b7e2f45bd0991c"
+  },
+  "factoryFees": {
+    "asset": "0x60e62Efa9405d6873C5deaBD4E6CC91c25363952",
+    "symbol": "BEM",
+    "decimals": 8,
+    "deployFeeBaseUnits": "10000000",
+    "protocolFeeBaseUnits": "1000000",
+    "verifiedViews": [
+      "factory.bem()",
+      "factory.deployFee()",
+      "factory.protocolFee()",
+      "bem.decimals()",
+      "bem.symbol()"
     ]
   }
 }

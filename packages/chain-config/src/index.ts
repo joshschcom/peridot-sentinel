@@ -22,6 +22,7 @@ export type DeploymentManifest = {
   chainId: 31337 | 1952 | 196;
   status: 'deployed' | 'not-deployed';
   commit: string | null;
+  provenance?: { baseCommit: string, sourceDigest: Address, sourcesDirty: boolean };
   contracts: Record<string, Address>;
   markets: { controller: Address, collateralMarket: Address, debtMarket: Address }[];
   tapeout: {

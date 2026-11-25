@@ -126,3 +126,57 @@ verification: ["All 4 truth-table inputs matched pinned TAP Python model. Two le
 known_limitations: ["Real processor evidence does not establish an official testnet deployment or an immutable factory."]
 next_dependency: A1 finish fork policy fabrication and organizer request.
 ```
+
+```yaml
+milestone: M3-sentinel-interface
+from: astra
+status: integrating
+commit: 58684b1 (interface v1 base)
+abi_version: v1
+chain_id: 31337
+manifest: packages/chain-config/deployments/1952.json
+contracts: [NOT_DEPLOYED]
+new_functions: ["createAccount(address,bytes32)", "accountOf(address,address)", "setAutoRepayTrigger(uint16)", "setOperator(address,uint16,uint256,uint64)", "operators(address)", "revokeOperator(address)", "autoRepay()", "supply(uint256)", "enterCollateral()", "borrow(uint256)", "redeem(uint256)", "repay(uint256)", "withdraw(address,uint256)"]
+changed_events_errors: ["AccountCreated(address,address,address,bytes32)", "AutoRepayExecuted(address,uint256,uint256,uint256)"]
+units_and_permissions: "One account per owner and controller. Grant mask supports borrow (4) and auto-repay (8), with a cumulative budget in raw debt units and timestamp expiry. Trigger in LTV bps; zero disables. Withdrawal destination is always owner."
+frontend_actions: ["Fund via token transfer to Sentinel; borrow and redeem settle into the account. Simulate as the actual sender. Use accountOf(owner,controller)."]
+verification: ["A3 published typed interface; implementation and integrated verification pending."]
+known_limitations: ["Displayed LTV uses accrued book state and may change at execution."]
+next_dependency: "A3 runtime verification, generated ABI export and A5 deployment."
+```
+
+```yaml
+milestone: M0-tapeout-spike
+from: astra
+status: implemented
+commit: fe0c60b (SDK templates and core; full fork evidence pending checkpoint)
+chain_id: "196 read-only; 31337 fork of 196 block 76844958"
+abi_version: v1
+manifest: evidence/a1/fork-policy-evaluations.json
+contracts: ["Real processor on fork 0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5; fork-only circuit IDs 2 and 3"]
+new_functions: ["Sponsor eval(uint256,bytes) from Solidity"]
+changed_events_errors: ["Stateful and unknown circuits rejected; raw sponsor inputs can be short or long. V1 caller enforces canonical inputs."]
+units_and_permissions: "Market 63 NAND, account 87 NAND. Actual sponsor component burn on local fork. Combined native fees 0.00326 simulated OKB. No public transaction."
+frontend_actions: ["Show fork circuits separately from public sample circuit and local development reference. Factory fees for new CPUs are denominated in BEM; legacy circuit fabrication on this fork used native OKB."]
+verification: ["451 CPU creation events enumerated through pin; 12/12 fork vectors matched; market Solidity eval gas 175392–175942, account 229723–230273."]
+known_limitations: ["Official testnet deployment and sponsor eligibility for our mixed evidence are unconfirmed."]
+next_dependency: "Organizer confirmation, A1 final spike document and A5 product-path fork rehearsal."
+```
+
+```yaml
+milestone: M3-sentinel-and-keeper
+from: astra
+status: implemented
+commit: fe0c60b (core/SDK base; Sentinel, keeper and local receipts pending Claude checkpoint)
+chain_id: "31337 unforked Anvil, local simulation"
+abi_version: "v1; INTERFACES documentation supplement v1.1"
+manifest: packages/chain-config/deployments/31337.json
+contracts: ["MarketFactory 0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82", "SentinelAccountFactory 0x9A676e781A523b5d0C0e43731313A708CB607508", "Demo account 0x8e80FFe6Dc044F4A766Afd6e5a8732Fe0977A493"]
+new_functions: ["Generated ABIs available as <ContractName>Abi in @peridot/chain-config; use interface supplement v1.1"]
+changed_events_errors: ["OwnerOnly(), AccountPolicyMissing(), OperatorExpired(), ExceedsOperatorLimit(), TriggerNotMet(); AutoRepayExecuted has amount and actual pre/post-action LTV in bps"]
+units_and_permissions: "After mock price drop, repay-only operator spent 20000000 raw mUSD from the account; event LTV 5001 to 3751 bps, including accrual."
+frontend_actions: ["Local-only manifest records exact build digest and base commit under provenance because contracts were built from a dirty tree; commit null. Accept only with matching local RPC and bytecode, or wait for a verified clean rebuild. Public writes remain disabled. New generated ABI and TypeScript builds ready."]
+verification: ["15/15 Foundry tests passed; 22 successful deployment/seed receipts. Keeper tx 0x6f124ca0bbf991ed202280dd1b0ff3a6fb9319253c964a7caaf58ef21462e9b6 block 32, status success, gas 231318. See deployments/local."]
+known_limitations: ["Unforked product uses DevelopmentReferenceProcessor. One early local borrow exhausted its gas limit; A5 recorded the receipt and verified a successful retry with headroom."]
+next_dependency: "Claude checkpoint Astra paths, A3 Sentinel and A5 deployment with attribution; Fable integrates actual ABIs and chain checks. Root lockfile should include @peridot/chain-config and @peridot/keeper workspace entries."
+```

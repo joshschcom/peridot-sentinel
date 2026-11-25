@@ -1,0 +1,240 @@
+{
+  "environment": "Anvil local fork simulation",
+  "chainId": 31337,
+  "sourceChainId": 196,
+  "sourceBlock": 76844958,
+  "sourceRpc": "https://rpc.xlayer.tech",
+  "sender": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+  "processor": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+  "transistors": "0x3896076BE165d6a7eC2a70CCF6876673fE245007",
+  "mintPriceWeiPerUnit": "0",
+  "mintProtocolFeeWei": "660000000000000",
+  "fabricationFeeWeiPerCircuit": "1300000000000000",
+  "nandMinted": 150,
+  "remainingBeforeMint": "9837",
+  "mint": {
+    "hash": "0xf22db71ba8b8bda9a1c05595e6533124477e93e2a1e11d4fd754193710831000",
+    "block": 76844960,
+    "gasUsed": 83599,
+    "valueWei": "660000000000000",
+    "contractAddress": null
+  },
+  "solidityProbe": {
+    "hash": "0x28c9a1f2de723480f6343855bb80005dd974cc1d96db28b9fdf0057b93f74d22",
+    "block": 76844959,
+    "gasUsed": 236192,
+    "valueWei": "0",
+    "contractAddress": "0x663f3ad617193148711d28f5334ee4ed07016602"
+  },
+  "policies": [
+    {
+      "kind": "MARKET",
+      "id": 2,
+      "netlistHash": "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+      "dimensions": [
+        20,
+        1,
+        0,
+        63
+      ],
+      "nandBurned": 63,
+      "fabrication": {
+        "hash": "0x6a0819b518c7d0fdb4efc6baf23818aa4b13202ef7acad6b75180bc8b5c8e6c1",
+        "block": 76844961,
+        "gasUsed": 402065,
+        "valueWei": "1300000000000000",
+        "contractAddress": null
+      },
+      "vectors": [
+        {
+          "input": "0x722c0b",
+          "allow": true,
+          "solidityCallGas": 175942
+        },
+        {
+          "input": "0x922c0b",
+          "allow": true,
+          "solidityCallGas": 175809
+        },
+        {
+          "input": "0xb22c0b",
+          "allow": false,
+          "solidityCallGas": 175677
+        },
+        {
+          "input": "0x822c0b",
+          "allow": false,
+          "solidityCallGas": 175392
+        },
+        {
+          "input": "0x922c03",
+          "allow": false,
+          "solidityCallGas": 175392
+        },
+        {
+          "input": "0x992c03",
+          "allow": true,
+          "solidityCallGas": 175790
+        }
+      ]
+    },
+    {
+      "kind": "ACCOUNT",
+      "id": 3,
+      "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+      "dimensions": [
+        20,
+        1,
+        0,
+        87
+      ],
+      "nandBurned": 87,
+      "fabrication": {
+        "hash": "0xa934989be987e01cde70ab8d8f26a590b36749c5410749ccc2b4b147ce84023a",
+        "block": 76844962,
+        "gasUsed": 448316,
+        "valueWei": "1300000000000000",
+        "contractAddress": null
+      },
+      "vectors": [
+        {
+          "input": "0x72af0a",
+          "allow": true,
+          "solidityCallGas": 230273
+        },
+        {
+          "input": "0x92af0a",
+          "allow": true,
+          "solidityCallGas": 230140
+        },
+        {
+          "input": "0xb2af0a",
+          "allow": false,
+          "solidityCallGas": 230008
+        },
+        {
+          "input": "0x82af0a",
+          "allow": false,
+          "solidityCallGas": 229723
+        },
+        {
+          "input": "0x92af02",
+          "allow": true,
+          "solidityCallGas": 229988
+        },
+        {
+          "input": "0x99af02",
+          "allow": false,
+          "solidityCallGas": 229856
+        }
+      ]
+    }
+  ],
+  "failureBehavior": {
+    "shortRawInputResult": "0x00",
+    "longRawInputResult": "0x01",
+    "shortSolidityInput": "Error: server returned an error response: error code 3: execution reverted: invalid v1 input, data: \"0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000010696e76616c696420763120696e70757400000000000000000000000000000000\"",
+    "statefulProcessor": "0x0565EA48CA41Ae559d8d491dbb0a9ec945DB551b",
+    "statefulCircuitId": 1,
+    "statefulEval": "Error: server returned an error response: error code 3: execution reverted: has latch: use step, data: \"0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000013686173206c617463683a20757365207374657000000000000000000000000000\"",
+    "missingCircuitEval": "Error: server returned an error response: error code 3: execution reverted: no circuit, data: \"0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a6e6f206369726375697400000000000000000000000000000000000000000000\""
+  },
+  "peridotAdapter": {
+    "registry": {
+      "hash": "0x847ea8bc0d838f5b58a02ffb197878b94eedfa3facc54601e5bc7f0ec5c44421",
+      "block": 76844963,
+      "gasUsed": 670728,
+      "valueWei": "0",
+      "contractAddress": "0x6e989c01a3e3a94c973a62280a72ec335598490e"
+    },
+    "adapter": {
+      "hash": "0xd51b4fcc490c3c8d7694d0d888f0b6c1a20284064c9a6a54049aaa66c292c567",
+      "block": 76844964,
+      "gasUsed": 299141,
+      "valueWei": "0",
+      "contractAddress": "0xf6168876932289d073567f347121a267095f3dd6"
+    },
+    "trustReceipt": {
+      "hash": "0xa8eeea4229e52634cc6d1fead752d8cd2d2c8134d65bbf43d7a6e847dda843e3",
+      "block": 76844965,
+      "gasUsed": 48330,
+      "valueWei": "0",
+      "contractAddress": null
+    },
+    "forwardedGasLimit": 1500000,
+    "policies": [
+      {
+        "policyId": "0xcba256c8059de43e8d0ccf75e14c6020191360afade4b11ec6d6295ed429be38",
+        "registrationReceipt": {
+          "hash": "0xf7a625e8176100f974121a1adf56dac9743d9db0026a9134a219215e06f6b5ee",
+          "block": 76844966,
+          "gasUsed": 264030,
+          "valueWei": "0",
+          "contractAddress": null
+        },
+        "vectors": [
+          {
+            "input": "0x722c0b",
+            "result": "allow"
+          },
+          {
+            "input": "0x922c0b",
+            "result": "allow"
+          },
+          {
+            "input": "0xb22c0b",
+            "result": "MarketPolicyRejected(bytes32,uint8)"
+          },
+          {
+            "input": "0x822c0b",
+            "result": "MarketPolicyRejected(bytes32,uint8)"
+          },
+          {
+            "input": "0x922c03",
+            "result": "MarketPolicyRejected(bytes32,uint8)"
+          },
+          {
+            "input": "0x992c03",
+            "result": "allow"
+          }
+        ]
+      },
+      {
+        "policyId": "0x34298e0f12f0dc38ab49c73f70cad2e3561a7e610eec6f3a9ca12c13afe56ed6",
+        "registrationReceipt": {
+          "hash": "0xb468cdc5be4dfa5a656b613a0169d0728fec70122b26d841e57cc232fbb51cbc",
+          "block": 76844967,
+          "gasUsed": 276121,
+          "valueWei": "0",
+          "contractAddress": null
+        },
+        "vectors": [
+          {
+            "input": "0x72af0a",
+            "result": "allow"
+          },
+          {
+            "input": "0x92af0a",
+            "result": "allow"
+          },
+          {
+            "input": "0xb2af0a",
+            "result": "AccountPolicyRejected(bytes32,uint8)"
+          },
+          {
+            "input": "0x82af0a",
+            "result": "AccountPolicyRejected(bytes32,uint8)"
+          },
+          {
+            "input": "0x92af02",
+            "result": "allow"
+          },
+          {
+            "input": "0x99af02",
+            "result": "AccountPolicyRejected(bytes32,uint8)"
+          }
+        ]
+      }
+    ]
+  }
+}

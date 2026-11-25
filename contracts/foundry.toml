@@ -3,6 +3,7 @@ src = "src"
 test = "test"
 out = "out"
 libs = ["lib"]
+fs_permissions = [{ access = "read", path = "out" }, { access = "read", path = "../packages/circuit-sdk/fixtures/policies-v1.json" }]
 solc_version = "0.8.26"
 evm_version = "paris"
 via_ir = true

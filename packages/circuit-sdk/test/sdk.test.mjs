@@ -84,3 +84,12 @@ test('TAP-02 NAND evaluator implements input padding, short reads, backward refe
   }
   assert.throws(() => evaluateNetlist(nand, 2, 2, '0x'))
 })
+
+test('SDK replays six real processor responses from X Layer block 76844958', () => {
+  const sample = JSON.parse(readFileSync(new URL('../fixtures/xlayer-mainnet-76844958.json', import.meta.url)))
+  const [nIn,nOut,nState] = sample.dimensions
+  assert.equal(nState, 0)
+  for (const {inputs,output} of sample.vectors) {
+    assert.equal(evaluateNetlist(sample.netlist,nIn,nOut,inputs),output)
+  }
+})

@@ -1,0 +1,72 @@
+{
+  "label": "Local Anvil simulation / development reference processor",
+  "chainId": 31337,
+  "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "operator": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "account": "0x8e80FFe6Dc044F4A766Afd6e5a8732Fe0977A493",
+  "controller": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+  "referenceAccountPolicy": "0x2203a619deefc167ac023b3c9d8c0194a48482f2dc894106ab94de7c64912833",
+  "borrowedUnits": "80000000",
+  "triggerBps": 4500,
+  "grantedDebtUnits": "20000000",
+  "ltvBpsBeforeMockMove": "4000",
+  "ltvBpsAfterMockMove": "5000",
+  "failedAttempts": [
+    {
+      "label": "borrow-demo-dollars",
+      "hash": "0x46b385ba38f5df7ebd46ec07353b23296b6601b70d3525c064e056101c35f6d0",
+      "block": "27",
+      "gasUsed": "485991"
+    }
+  ],
+  "transactions": {
+    "create-demo-account": {
+      "hash": "0x11e15a009ad615d382c3769a8787d7b3aea220b69fef4364738720238b9c3859",
+      "block": "23",
+      "blockHash": "0x0327bfb06b6decea99c87cdbfbb87b7db12bbd8998866562d457d5a833566c99",
+      "gasUsed": "1653365"
+    },
+    "mint-demo-collateral": {
+      "hash": "0x9549e6f22688e3dc48706a6a04d29887d014ee962c1bbbebc8773eb6c5e8ae98",
+      "block": "24",
+      "blockHash": "0x1f97d2b50972d1c1bd55fff53b655befb1f8ecb9727642261a2c3599b253993f",
+      "gasUsed": "68123"
+    },
+    "enter-collateral": {
+      "hash": "0xf2e9a1b93ebe822acefa6ca06183dbcd8c2debeb8abd028ae6f5b75420d5424c",
+      "block": "25",
+      "blockHash": "0x37dba18a01ab7e7cb4296d46c3b52c6b54335ff5cc0cb1c64e93be5ad457ce7c",
+      "gasUsed": "51056"
+    },
+    "supply-collateral": {
+      "hash": "0xac79083c3900fcf983e4316c143bac1e0ef198ab6b3d904c581c7bf621c03c7d",
+      "block": "26",
+      "blockHash": "0x252febfadc1a895f9433ed83d4ea4398462ec5f8465fefd492d7d797f36c6882",
+      "gasUsed": "455739"
+    },
+    "borrow-demo-dollars": {
+      "hash": "0xdba4048194f8c9c2b1c2c4cb5cc8593e34b99607552e11f7d98239b1a1a903ba",
+      "block": "28",
+      "blockHash": "0x1a7122d6b99cf8b3f2a8599ce002118e9a8fe6266c8a52dbc7153815e060443c",
+      "gasUsed": "531111"
+    },
+    "configure-trigger": {
+      "hash": "0x6d72273efef158e53e4f42deecb8928a4f4a8e83cc43c569940498eda81ae1c6",
+      "block": "29",
+      "blockHash": "0x6b29e32e0319e2e240d329254dc7382e0b2c0b00f1a42d79f68f14787abb4707",
+      "gasUsed": "44745"
+    },
+    "grant-repay-only": {
+      "hash": "0x6a4fc3545e1c5670701ed14669304bd7de7d3c8f9d8ea400e28cc5fa18e8e5d3",
+      "block": "30",
+      "blockHash": "0x314372c698d8d410fa81ecfdab63b241bc8189d603d5bd0a827fa1af67e402c5",
+      "gasUsed": "91348"
+    },
+    "move-mock-price": {
+      "hash": "0x4373eeeee57e206ff31743cf023095f1e5d291c20c2692386f4bcf9348e50a12",
+      "block": "31",
+      "blockHash": "0x05a79bcff478c5efd96b15e73f28dda0a70c2a4c5961ce92b1fc93270c2d33d7",
+      "gasUsed": "29002"
+    }
+  }
+}

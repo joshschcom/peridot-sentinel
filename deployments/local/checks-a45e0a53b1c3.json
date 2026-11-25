@@ -1,0 +1,36 @@
+{
+  "label": "Local Anvil simulation / development reference processor",
+  "method": "eth_call",
+  "chainId": 31337,
+  "block": "28",
+  "blockHash": "0x1a7122d6b99cf8b3f2a8599ce002118e9a8fe6266c8a52dbc7153815e060443c",
+  "probes": [
+    {
+      "surface": "SentinelAccount",
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "to": "0x8e80FFe6Dc044F4A766Afd6e5a8732Fe0977A493",
+      "calldata": "0xc5ebeaec0000000000000000000000000000000000000000000000000000000002160ec0",
+      "debtUnits": "35000000",
+      "expected": "AccountPolicyRejected",
+      "returnData": "0xbbe80a232203a619deefc167ac023b3c9d8c0194a48482f2dc894106ab94de7c649128330000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "surface": "MarketPToken",
+      "from": "0x8e80FFe6Dc044F4A766Afd6e5a8732Fe0977A493",
+      "to": "0x4ABEaCA4b05d8fA4CED09D26aD28Ea298E8afaC8",
+      "calldata": "0xc5ebeaec0000000000000000000000000000000000000000000000000000000002160ec0",
+      "debtUnits": "35000000",
+      "expected": "allowed",
+      "returnData": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "surface": "MarketPToken",
+      "from": "0x8e80FFe6Dc044F4A766Afd6e5a8732Fe0977A493",
+      "to": "0x4ABEaCA4b05d8fA4CED09D26aD28Ea298E8afaC8",
+      "calldata": "0xc5ebeaec0000000000000000000000000000000000000000000000000000000003938700",
+      "debtUnits": "60000000",
+      "expected": "MarketPolicyRejected",
+      "returnData": "0x3aad5358e21b3c464e79344521fb55d7a395f9ac0dff8a7b0206c7d350ef032308ccf09a0000000000000000000000000000000000000000000000000000000000000001"
+    }
+  ]
+}

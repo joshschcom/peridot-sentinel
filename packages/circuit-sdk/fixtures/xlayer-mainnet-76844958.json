@@ -1,0 +1,42 @@
+{
+  "label": "Read-only sponsor circuit on X Layer mainnet",
+  "chainId": 196,
+  "block": 76844958,
+  "blockHash": "0xa2558795a0e1feb6aa6e03b5226362b752c1308bd5e26e6be13897fd9f6e3bc8",
+  "processor": "0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+  "circuitId": "1",
+  "netlistHash": "0x04669453a8027de5f595aa0edb7ecde0ceeeeb53fa00d00d726ee64082e46be3",
+  "netlist": "0x0000000300000200000004000004",
+  "dimensions": [
+    2,
+    1,
+    0,
+    2
+  ],
+  "vectors": [
+    {
+      "inputs": "0x00",
+      "output": "0x00"
+    },
+    {
+      "inputs": "0x01",
+      "output": "0x00"
+    },
+    {
+      "inputs": "0x02",
+      "output": "0x00"
+    },
+    {
+      "inputs": "0x03",
+      "output": "0x01"
+    },
+    {
+      "inputs": "0x",
+      "output": "0x00"
+    },
+    {
+      "inputs": "0xffaa",
+      "output": "0x01"
+    }
+  ]
+}
