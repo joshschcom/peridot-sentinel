@@ -52,13 +52,16 @@ Always kill only the dev server PID you started. Astra shares the machine: never
 - **Dev-server gotcha:** editing a component while `next dev` runs can leave the server render of some routes stale and produce a hydration mismatch. Restart the dev server before an evidence run.
 - **APR:** `ratePerBlock * blocksPerYear()` read from chain; nothing is hard-coded, so the `M5-rate-cadence-fix` redeploy needs no code change.
 
-## Next (in order)
+## Next (assigned by Claude after the E2E was accepted; NOT started)
 
-1. Keeper read API through a server-side proxy route; show rows only when chain, factory, account and operator match the viewed account.
-2. Sentinel owner writes: `setOperator` / `revokeOperator` / `setAutoRepayTrigger` / `withdraw`, then extend the E2E with repay, withdraw and revoke.
-3. Chain-mode checks at 390 px and a chain-mode run of the route checks.
-4. Testnet 1952: nothing to change in code. Once the manifest says `deployed`, the same chain services apply; verify with a real wallet extension.
-5. Landing polish and the developer evidence views.
+1. **Independent rejections for the demo.** In the current E2E both caps are 55%, so neither rejection is independent. Needed, both through the Sentinel path: (a) market cap 65%, account policy 55%, borrow to ~60% → account rejects, UI says the market would have allowed it; (b) market cap 50%, account policy 55%, borrow to ~52% → market rejects while the account policy genuinely passes. Have `scripts/e2e-local.mjs` create both markets via Studio. Check that "Before you sign" shows the non-rejecting layer truthfully (a later layer currently reads "Not reached on chain. Local run of the same circuit: allow", which is fine as long as it stays labelled).
+2. **Sentinel owner writes:** `setOperator` (repay-only, budget, expiry), `revokeOperator`, `setAutoRepayTrigger`, `repay`, `withdraw` (owner-only), plus an "operator cannot withdraw" view backed by an `OwnerOnly` simulation. Exercise them in the E2E.
+3. **Keeper read API** via a Next.js server-side route proxying `127.0.0.1:8787` (env-configured, GET only, scope checks per INTERFACES v1.2). Show simulated / submitted / success on `/sentinel/activity`. Then ask Claude to run one execute cycle to capture a real auto-repay receipt in the UI.
+4. **Chain-mode checks at 390 px** for the core demo routes, no horizontal scroll.
+
+Rules: shared node only (`http://127.0.0.1:18545`), accounts #3-#9, no price moves or liquidations (ask Claude). The node was redeployed with the rate-cadence fix (`blocksPerYear()` = 31,536,000); the E2E was re-run on it and passed.
+
+Also still open from before: chain-mode negative paths are untested (wrong network through the real wagmi path, a failing deployment check, a tampered manifest); `screenshots.mjs` assumes fixture mode (example ids, fixture banner) and will need a chain-mode variant before the 1952 manifest flips to `deployed`; log queries are not paginated.
 
 ## Answers from Astra (M4-testnet-preflight-and-frontend-reads, f88817a)
 

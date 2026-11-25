@@ -4,17 +4,21 @@
 // The "wallet" is a test-only EIP-1193 provider injected into the page. It forwards to the loopback RPC and
 // lets Anvil sign with one of its unlocked accounts: there is no private key anywhere in this repo.
 // It refuses to run against anything but a loopback RPC on chain 31337.
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import { createPublicClient, http, parseAbi } from "viem";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const BASE = process.env.BASE_URL ?? "http://127.0.0.1:3211";
 const RPC = process.env.LOCAL_RPC ?? "http://127.0.0.1:18545";
+const MARKET_FACTORY = JSON.parse(readFileSync(resolve(here, "../../../packages/chain-config/deployments/31337.json"), "utf8")).contracts.MarketFactory;
 const ACCOUNT_INDEX = Number(process.env.E2E_ACCOUNT_INDEX ?? 3); // not #0 (deployer/demo owner), not #1 (keeper operator)
 const ACTIVITY_ONLY = process.argv.includes("--activity-only"); // read-only: loads the activity view, sends nothing
-const SHOTS = resolve(here, "../../../evidence/screenshots/local-e2e");
+// Evidence is run-scoped so a later run (for example after the shared node is redeployed) never overwrites it.
+const RUN_ID = `run-${new Date().toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15)}`;
+const SHOTS = resolve(here, "../../../evidence/screenshots/local-e2e", ACTIVITY_ONLY ? "activity-only" : RUN_ID);
 const OUT = resolve(here, "../../../evidence/fable");
 if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(RPC)) throw new Error("E2E only runs against a loopback RPC");
 if (ACCOUNT_INDEX < 2) throw new Error("Use a dedicated account (index >= 2)");
@@ -112,6 +116,21 @@ const transact = async (scope, button, label, expectTx = 1) => {
 };
 
 try {
+  // 0. The displayed borrow rate of market #0 must equal ratePerBlock x blocksPerYear() read from chain right now.
+  const chain = createPublicClient({ transport: http(RPC) });
+  const rateAbi = parseAbi(["function marketAt(uint256) view returns (address)", "function debtMarket() view returns (address)", "function borrowRatePerBlock() view returns (uint256)", "function interestRateModel() view returns (address)", "function blocksPerYear() view returns (uint256)"]);
+  const controller0 = await chain.readContract({ address: MARKET_FACTORY, abi: rateAbi, functionName: "marketAt", args: [0n] });
+  const debt0 = await chain.readContract({ address: controller0, abi: rateAbi, functionName: "debtMarket" });
+  const perBlock = await chain.readContract({ address: debt0, abi: rateAbi, functionName: "borrowRatePerBlock" });
+  const blocksPerYear = await chain.readContract({ address: await chain.readContract({ address: debt0, abi: rateAbi, functionName: "interestRateModel" }), abi: rateAbi, functionName: "blocksPerYear" });
+  const expectedBps = (perBlock * blocksPerYear * 10000n) / 10n ** 18n;
+  const expectedText = `${(Number(expectedBps) / 100).toFixed(2).replace(/\.?0+$/, "")}% APR`;
+  await go("/markets");
+  const shownRate = (await page.locator("main li").first().locator("dd").nth(2).innerText()).trim();
+  console.log(`market #0 borrow rate: shown "${shownRate}", on-chain ${perBlock} x ${blocksPerYear} blocks/yr = ${expectedBps} bps ("${expectedText}")`);
+  if (shownRate !== expectedText) throw new Error(`Displayed borrow rate ${shownRate} does not match the on-chain rate ${expectedText}`);
+  steps.push({ label: "rate display check (read-only)", txs: [], shown: shownRate, ratePerBlock: perBlock.toString(), blocksPerYear: blocksPerYear.toString(), expectedBps: expectedBps.toString() });
+
   let marketId = null;
   let sentinelRejection = "account-policy";
   let marketRejection = "market-policy";
@@ -228,6 +247,7 @@ try {
     driver: "apps/web/scripts/e2e-local.mjs: real browser (Playwright Chromium), the app's own wagmi wallet path, test-only injected EIP-1193 provider forwarding to Anvil's unlocked account",
     rpc: RPC,
     chainId: 31337,
+    runId: RUN_ID,
     account,
     accountIndex: ACCOUNT_INDEX,
     startBlock,
@@ -238,9 +258,9 @@ try {
     activityEntriesShown: activity.length,
     pageProblems: problems,
   };
-  writeFileSync(`${OUT}/local-e2e.json`, JSON.stringify(evidence, null, 2) + "\n");
+  writeFileSync(`${OUT}/local-e2e-${RUN_ID}.json`, JSON.stringify(evidence, null, 2) + "\n");
   const failed = receipts.filter((receipt) => receipt.status !== "success");
-  console.log(`\n${receipts.length} transactions, ${failed.length} reverted, ${problems.length} page problem(s). Evidence: evidence/fable/local-e2e.json`);
+  console.log(`\n${receipts.length} transactions, ${failed.length} reverted, ${problems.length} page problem(s). Evidence: evidence/fable/local-e2e-${RUN_ID}.json, screenshots: evidence/screenshots/local-e2e/${RUN_ID}/`);
   if (failed.length || sentinelRejection !== "account-policy" || marketRejection !== "market-policy" || activity.length === 0) process.exitCode = 1;
 } catch (error) {
   console.error("E2E FAILED:", error.message);

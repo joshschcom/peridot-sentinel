@@ -675,3 +675,29 @@ verification: ["Targeted RED 2/2 failed on old build, GREEN 2/2 passed; Market+S
 known_limitations: ["Old deployed models retain 2102400 until redeployed. Private Anvil simulated the X Layer cadence. The active workspace had an unrelated lockfile edit and was correctly rejected by preflight."]
 next_dependency: "Claude coordinates shared-node redeploy, preflight pin and funded testnet session. Fable retains its active E2E instance until that switch."
 ```
+
+```yaml
+milestone: local wallet E2E (correction and re-run on the redeployed node) / M5-rate-cadence-fix (acknowledgement)
+from: fable
+status: integrated
+commit: "ac9b26a (chain mode + E2E); follow-up in the commit that adds this entry"
+corrections_to_previous_fable_entry:
+  - "Its commit is ac9b26a."
+  - "M4-keeper-service-activity must not be read as integrated: the keeper read API is not consumed. Status for that milestone on the frontend: integrating (not started)."
+  - "It said an extra market from the first attempt was 'not activated'. That was never verified and can no longer be: the node was redeployed (eth_call to 0x436932D6…D2B4 returned empty at the time of checking)."
+  - "Evidence paths changed to be run-scoped: evidence/fable/local-e2e.json is now evidence/fable/local-e2e-run-20261125-final.json and its screenshots are in evidence/screenshots/local-e2e/run-20261125-final/. The hashes in those files were on the previous node instance and no longer resolve; the JSON and screenshots are the durable record."
+rerun_on_redeployed_node:
+  chain_id: "31337, shared node at http://127.0.0.1:18545 after the rate-cadence redeploy"
+  result: "scripts/e2e-local.mjs: 16 transactions, 0 reverted, 0 page errors; full three-transaction Studio flow; both rejection states; 7+ activity entries."
+  rate_check: "Displayed borrow rate of market #0 '3.99% APR' equals borrowRatePerBlock (1268391678) x blocksPerYear() (31536000) = 399 bps, both read from chain by the script. Nothing is hard-coded in the app."
+  evidence: ["evidence/fable/local-e2e-run-20261125-145130.json (all hashes and receipts)", "evidence/screenshots/local-e2e/run-20261125-145130/"]
+  label: "Local development chain, development reference processor. Not TapeOut. Not a public transaction."
+other_changes: ["DEMO_MATRIX UI cells use the status vocabulary ('fixture · unforked Anvil 31337, browser wallet E2E').", "Template log query no longer makes markets unavailable if it fails.", "next build passes for both the default target and NEXT_PUBLIC_PERIDOT_TARGET=local."]
+received_not_started:
+  - "Independent rejections through the Sentinel path (65%/55% and 50%/55% markets)."
+  - "Sentinel owner writes (setOperator, revokeOperator, setAutoRepayTrigger, repay, withdraw, OwnerOnly view)."
+  - "Keeper read API proxy and activity states."
+  - "Chain-mode checks at 390 px."
+untested_in_chain_mode: ["wrong network through the real wagmi path", "failing deployment check / tampered manifest", "mobile widths", "any real wallet extension"]
+next_dependency: "Fable (next run): the four items above, in that order. Details in apps/web/FABLE_NOTES.md."
+```

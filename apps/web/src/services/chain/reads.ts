@@ -35,7 +35,13 @@ export function invalidateChainCaches(): void {
 function templateIndex(): Promise<TemplateIndex> {
   templates ??= client()
     .getContractEvents({ address: contract("PolicyRegistry"), abi: ABI.registry, eventName: "MarketTemplateRegistered", fromBlock: DEPLOYMENT_BLOCK(), strict: true })
-    .then((logs) => new Map(logs.map((log) => [log.args.policyId.toLowerCase(), { maxLtvBps: log.args.maxLtvBps, requireCashReserve: log.args.requireCashReserve }])));
+    .then((logs) => new Map(logs.map((log) => [log.args.policyId.toLowerCase(), { maxLtvBps: log.args.maxLtvBps, requireCashReserve: log.args.requireCashReserve }])))
+    .catch((): TemplateIndex => {
+      // A log query can fail (for example an RPC range cap; this query is not paginated yet). Markets must still
+      // load: policies then fall back to the known candidates or "Rules unavailable". The failure is not cached.
+      templates = null;
+      return new Map();
+    });
   return templates;
 }
 
