@@ -104,3 +104,9 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   - the faucet, for both addresses;
   - the D8(b) decision;
   - organizer answers.
+
+## Update: session 3 analysis accepted (`6afa863`); session 4 fixing the rate cadence
+- **P1 margin:** deferred. The legacy engine cannot attach to the P0 markets through configuration. A labeled local mock version is estimated at 32–56 agent-hours after P0.
+- **Funded release:** all five §12 gates are open. Closing them is estimated at 104–178 agent-hours, so there is no basis for a funded mainnet launch by Dec 6/7. The recommendation is testnet only, plus D8(b) circuit-only evidence.
+- **BUG (P0), found by Astra:** the demo rate model uses 2,102,400 blocks/year, but X Layer 196 and 1952 both run 1 block/s (Claude measured 1952: 86,400 blocks in 86,400 s). Accrual is therefore ~15× the displayed APR. Astra session 4 is fixing it before the testnet deploy. Fable has been warned, and the shared node will be redeployed after the fix.
+- **Shared local node:** run by Claude at 127.0.0.1:18545, with state persisted. The keeper read service is on :8787 in simulate-only mode.
