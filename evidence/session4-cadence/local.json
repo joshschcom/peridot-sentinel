@@ -1,0 +1,67 @@
+{
+  "environment": "Disposable unforked Anvil 31337, mock assets, private port 18547",
+  "instance": "0x1ddacf46a69d1af214d30db5a5c48ca3e84be024748d76090bc7e2d5991d013c",
+  "fixCommit": "586af978bdba9ce249c867a9884a14e8334473fe",
+  "baselineCommit": "6afa863",
+  "successfulSetupBlocks": 30,
+  "comparison": {
+    "allNamedContracts": {
+      "MockCollateral": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "MockDebt": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "TestnetOracle": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "DemoRateModel": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "MarketPToken": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      "PolicyRegistry": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "TapeOutPolicyAdapter": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "DevelopmentReferenceProcessor": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "MarketFactory": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+      "SentinelAccountFactory": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82"
+    },
+    "marketBooks": {
+      "controller": "0x05242D4AC717Cdf38C36AF290F2b0DA99AA82c67",
+      "collateralMarket": "0x1F708C24a0D3A740cD47cC0444E9480899f3dA7D",
+      "debtMarket": "0xf41B47c54dEFF12f8fE830A411a09D865eBb120E"
+    },
+    "sentinel": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+    "distinctAddressesMatched": 14
+  },
+  "sourceMatch": {
+    "commit": "586af978bdba9ce249c867a9884a14e8334473fe",
+    "sourceCount": 36,
+    "artifactCount": 10,
+    "foundryConfigKeccak256": "0xcb1587fa065c9746fa188077e1f57c11411a6fa1b4c257c40d9d657237a4168e",
+    "policyFixturesKeccak256": "0x11fbe04ba7839472e532f5cf6fb393d80b4dede595caa6fa73a436d256a3447d",
+    "compiler": "0.8.26+commit.8a97fa7a",
+    "verification": "All transitive source hashes matched. Isolated rebuild of the committed source and Foundry configuration reproduced all compared creation and runtime bytecode."
+  },
+  "deployment": {
+    "hash": "0x2d6c9e86604c65583958e8ea42307780038ae29a3437cecc06abc084db5ff46b",
+    "block": "4",
+    "blockHash": "0x1fe81d718d525a0aaa4e187beafcd49633b6a95b2e8aa28e6cb905c2beb64f97",
+    "gasUsed": "312417"
+  },
+  "modelRuntimeHash": "0xea750e811ab6cdaaa1c2c2d04c8e5f72761209020b3ba6da81a4832e075db6d9",
+  "periods": "31536000",
+  "block30": {
+    "book": "0xf41B47c54dEFF12f8fE830A411a09D865eBb120E",
+    "cash": "120000000",
+    "reserves": "0",
+    "borrowRateWadPerBlock": "1268391678",
+    "supplyRateWadPerBlock": "456621004",
+    "borrowSimpleAprWad": "39999999957408000",
+    "supplySimpleAprWad": "14399999982144000"
+  },
+  "accrual": {
+    "tx": "0x8295ee72d9676820694bc005096ad36712c7cbab8593087883961309995080d2",
+    "status": "success",
+    "previousAccrualBlock": "27",
+    "block": "631",
+    "deltaBlocks": "604",
+    "totalDebtBeforeRaw": "80000000",
+    "totalDebtAfterRaw": "80000061",
+    "borrowerDebtBeforeRaw": "80000000",
+    "borrowerDebtAfterRaw": "80000061",
+    "expectedInterestRaw": "61",
+    "actualInterestRaw": "61"
+  }
+}

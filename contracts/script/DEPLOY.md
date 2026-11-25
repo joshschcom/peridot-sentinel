@@ -23,8 +23,8 @@ node packages/chain-config/scripts/check-manifest.mjs packages/chain-config/depl
 For **X Layer testnet**, fund the designated deployer with test OKB. Supply a reviewed Git commit for both the no-key preflight and the deployment. `--ops=price` seeds the market and Sentinel position, authorizes the designated testnet operator, and performs the labeled mock-price move.
 
 ```sh
-deployment_commit=a0b0b88ffc5322cf92186e40ad3df030dcf93dcf
-node contracts/script/deploy-demo.mjs testnet --source-commit="$deployment_commit" --preflight-only
+deployment_commit=586af978bdba9ce249c867a9884a14e8334473fe
+env -u PERIDOT_TESTNET_KEY node contracts/script/deploy-demo.mjs testnet --source-commit="$deployment_commit" --preflight-only
 
 DEMO_OPERATOR=0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88 \
 PERIDOT_TESTNET_KEY="$(cat /Users/joshua/Peridot/OKX/.testnet-keys/deployer.key)" \

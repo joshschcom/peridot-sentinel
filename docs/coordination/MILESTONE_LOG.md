@@ -655,3 +655,23 @@ known_limitations:
   - "During the first full run the dev server served a stale server render of the Sentinel pages after a hot edit (hydration warnings). After a server restart the final run had none."
 next_dependency: "Fable: keeper API via a server-side proxy, Sentinel operator/withdraw writes, chain-mode mobile checks. The E2E is re-runnable after the M5-rate-cadence-fix redeploy (it creates its own market and reads blocksPerYear() from chain)."
 ```
+
+```yaml
+milestone: M5-rate-cadence-fix
+from: astra
+status: implemented
+flag: BUG
+commit: 586af978bdba9ce249c867a9884a14e8334473fe
+contributors: ["Astra implemented the model/deploy fix, verified private 18547 settlement and performed the clean keyless 1952 preflight.", "A2 supplied RED/GREEN actual pToken regressions and ran both affected suites.", "A5 reviewed all cadence consumers and deterministic deployment addresses."]
+chain_id: "31337 disposable unforked Anvil, now stopped; 1952 keyless preflight only"
+abi_version: "INTERFACES v1.2, ABI v1; deployment now passes uint256 blocksPerYear_"
+manifest: evidence/session4-cadence/local.json
+contracts: ["Private 31337 model 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9; 14/14 previous local addresses reproduced with the same nonce sequence", "No 1952 deployment"]
+new_functions: []
+changed_events_errors: []
+units_and_permissions: "The corrected getter returns 31536000 and rates are WAD per block. Simple APR remains ratePerBlock × blocksPerYear()."
+frontend_actions: ["Claude can schedule the shared-node cutover after Fable E2E. Refresh instance-specific caches and check blocksPerYear()==31536000 on the book's linked model, even at the existing address.", "At 40% utilization private block 30 returned borrow 1268391678 and supply 456621004 WAD/block. The simple annual targets remain approximately 4.00% and 1.44%; truncating to basis points displays 3.99% and 1.43%."]
+verification: ["Targeted RED 2/2 failed on old build, GREEN 2/2 passed; Market+Sentinel 15 passed, 0 failed/skipped.", "18547: source-attested replay at block 30, 14/14 addresses; 604-block pToken accrual added 61 raw units, exactly predicted. Private node stopped.", "1952 READY: env -u PERIDOT_TESTNET_KEY node contracts/script/deploy-demo.mjs testnet --source-commit=586af978bdba9ce249c867a9884a14e8334473fe --preflight-only — exit 0, 36 source hashes, 11 matching ABI/creation/runtime artifacts; no key or broadcast. Run from a clean copy of that commit."]
+known_limitations: ["Old deployed models retain 2102400 until redeployed. Private Anvil simulated the X Layer cadence. The active workspace had an unrelated lockfile edit and was correctly rejected by preflight."]
+next_dependency: "Claude coordinates shared-node redeploy, preflight pin and funded testnet session. Fable retains its active E2E instance until that switch."
+```
