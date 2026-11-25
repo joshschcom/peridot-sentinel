@@ -2,7 +2,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 
 const names = [
   'PolicyRegistry', 'TapeOutPolicyAdapter', 'DevelopmentReferenceProcessor', 'MarketFactory',
-  'IsolatedController', 'MarketPToken', 'TestnetOracle', 'TestnetToken', 'SentinelAccount', 'SentinelAccountFactory'
+  'IsolatedController', 'MarketPToken', 'TestnetOracle', 'TestnetToken', 'SentinelAccount', 'SentinelAccountFactory',
+  'DemoRateModel'
 ];
 const declarations = await Promise.all(names.map(async (name) => {
   const path = new URL(`../../../contracts/out/${name}.sol/${name}.json`, import.meta.url);

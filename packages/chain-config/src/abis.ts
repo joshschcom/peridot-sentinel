@@ -346,3 +346,18 @@ export const SentinelAccountFactoryAbi = [
   {"type":"error","name":"UnknownMarket","inputs":[]},
   {"type":"error","name":"UnsupportedChain","inputs":[{"name":"chainId","type":"uint256","internalType":"uint256"}]}
 ] as const;
+
+export const DemoRateModelAbi = [
+  {"type":"constructor","inputs":[],"stateMutability":"nonpayable"},
+  {"type":"function","name":"baseRatePerBlock","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
+  {"type":"function","name":"blocksPerYear","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
+  {"type":"function","name":"getBorrowRate","inputs":[{"name":"cash","type":"uint256","internalType":"uint256"},{"name":"borrows","type":"uint256","internalType":"uint256"},{"name":"reserves","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
+  {"type":"function","name":"getSupplyRate","inputs":[{"name":"cash","type":"uint256","internalType":"uint256"},{"name":"borrows","type":"uint256","internalType":"uint256"},{"name":"reserves","type":"uint256","internalType":"uint256"},{"name":"reserveFactorMantissa","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
+  {"type":"function","name":"isInterestRateModel","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},
+  {"type":"function","name":"jumpMultiplierPerBlock","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
+  {"type":"function","name":"kink","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
+  {"type":"function","name":"multiplierPerBlock","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
+  {"type":"function","name":"utilizationRate","inputs":[{"name":"cash","type":"uint256","internalType":"uint256"},{"name":"borrows","type":"uint256","internalType":"uint256"},{"name":"reserves","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"pure"},
+  {"type":"event","name":"NewInterestParams","inputs":[{"name":"baseRatePerBlock","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"multiplierPerBlock","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"jumpMultiplierPerBlock","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"kink","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},
+  {"type":"error","name":"UnsupportedChain","inputs":[{"name":"chainId","type":"uint256","internalType":"uint256"}]}
+] as const;

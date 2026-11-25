@@ -1,14 +1,13 @@
 // Run from the repository root after npm install and (cd contracts && forge build).
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   createPublicClient, createWalletClient, decodeAbiParameters, decodeFunctionData, defineChain, encodeDeployData, encodeErrorResult, encodeFunctionData,
   getAddress, http, keccak256, parseEventLogs, toHex, zeroHash,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { compilePolicy, encodeContext, studioMarketTemplate, STUDIO_MARKET_ROOT } from '@peridot/circuit-sdk';
 import { preparePosition, runDemoOps } from './demo-ops.mjs';
 import { verifyBuildCommit } from './verify-build.mjs';
 import { checkManifest } from '../../packages/chain-config/scripts/check-manifest.mjs';
@@ -46,19 +45,37 @@ if (fork) {
     throw Error('Expected the isolated fork of A1’s fabricated X Layer policy circuits');
   }
 }
-const testnetKey = local ? '' : (process.env.PERIDOT_TESTNET_KEY ?? '').replace(/^0x/i,'');
-if (!local && !/^[0-9a-f]{64}$/i.test(testnetKey)) {
-  throw Error('Expected the isolated 32-byte PERIDOT_TESTNET_KEY for chain 1952');
-}
-const signer = local ? (await rpc.request({ method: 'eth_accounts' }))[fork ? 3 : 0]
-  : privateKeyToAccount('0x' + testnetKey);
-const sender = getAddress(local ? signer : signer.address);
-if (!local && sender !== getAddress('0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67')) {
-  throw Error('Unexpected testnet signer');
-}
-const wallet = createWalletClient({ account: signer, chain, transport: http(url, { retryCount: 0 }) });
-
 const fixturePath = 'packages/circuit-sdk/fixtures/policies-v1.json';
+const requestedCommit = process.argv.find(arg => arg.startsWith('--source-commit='))?.slice('--source-commit='.length);
+const publicInputs = [
+  'package.json','package-lock.json','contracts/foundry.toml','contracts/remappings.txt',
+  ':(glob)contracts/src/**/*.sol',':(glob)contracts/lib/**/*.sol',
+  'contracts/script/DemoRateModel.sol','contracts/script/deploy-demo.mjs','contracts/script/demo-ops.mjs',
+  'contracts/script/verify-build.mjs','packages/chain-config/scripts/check-manifest.mjs',
+  'packages/circuit-sdk/src','packages/circuit-sdk/package.json','packages/circuit-sdk/tsconfig.json',fixturePath,
+];
+function checkPublicInputs(ref) {
+  if (!ref || !/^[0-9a-f]{7,40}$/i.test(ref)) throw Error('Chain 1952 requires --source-commit=<reviewed Git SHA>');
+  const git = args => execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
+  const commit = git(['rev-parse','--verify',ref + '^{commit}']);
+  const changes = git(['status','--porcelain=v1','--untracked-files=all','--',...publicInputs]);
+  if (changes) throw Error('Dirty deployment inputs for chain 1952:\n' + changes);
+  const mismatch = git(['diff','--name-only',commit,'HEAD','--',...publicInputs]);
+  if (mismatch) throw Error('Deployment inputs differ from the pinned commit:\n' + mismatch);
+  return commit;
+}
+const publicCommit = local ? undefined : checkPublicInputs(requestedCommit);
+async function loadSdk() {
+  if (local) return import('@peridot/circuit-sdk');
+  // The workspace dist is ignored by Git. Build from the checked sources into a new directory.
+  mkdirSync(resolve(root,'.research'),{recursive:true});
+  const output = mkdtempSync(resolve(root,'.research/testnet-sdk-'));
+  writeFileSync(resolve(output,'package.json'),'{"type":"module"}');
+  execFileSync(process.execPath,[resolve(root,'node_modules/typescript/bin/tsc'),
+    '-p',resolve(root,'packages/circuit-sdk/tsconfig.json'),'--outDir',output],{cwd:root});
+  return import(pathToFileURL(resolve(output,'index.js')).href);
+}
+const {compilePolicy,encodeContext,studioMarketTemplate,STUDIO_MARKET_ROOT} = await loadSdk();
 const fixtures = JSON.parse(readFileSync(resolve(root, fixturePath), 'utf8')).policies;
 for (const fixture of fixtures) {
   const compiled = compilePolicy(fixture.spec);
@@ -84,6 +101,32 @@ for (const artifact of artifacts.values()) {
   }
 }
 const sourceDigest = keccak256(toHex(JSON.stringify([...sourceHashes].sort(([a],[b]) => a < b ? -1 : a > b ? 1 : 0))));
+// Preserve the original journal hash schema while also validating the account artifact used by seeded operations.
+const publicAccountArtifact = local ? undefined : JSON.parse(readFileSync(
+  resolve(root,'contracts/out/SentinelAccount.sol/SentinelAccount.json'),'utf8'));
+const publicMatch = local ? undefined : verifyBuildCommit(root,publicCommit,
+  new Map([...artifacts,['SentinelAccount',publicAccountArtifact]]),sourceHashes,fixturePath);
+if (!local) {
+  checkPublicInputs(publicCommit);
+  if (process.argv.includes('--preflight-only')) {
+    console.log(`Chain 1952 preflight passed at ${publicMatch.commit}: ${publicMatch.sourceCount} source hashes, ${publicMatch.artifactCount} matching artifacts. No signing or transactions.`);
+    process.exit(0);
+  }
+} else if (process.argv.includes('--preflight-only')) {
+  throw Error('--preflight-only is for the public 1952 deployment profile');
+}
+const testnetKey = local ? '' : (process.env.PERIDOT_TESTNET_KEY ?? '').replace(/^0x/i,'');
+if (!local && !/^[0-9a-f]{64}$/i.test(testnetKey)) {
+  throw Error('Expected the isolated 32-byte PERIDOT_TESTNET_KEY for chain 1952');
+}
+const signer = local ? (await rpc.request({ method: 'eth_accounts' }))[fork ? 3 : 0]
+  : privateKeyToAccount('0x' + testnetKey);
+const sender = getAddress(local ? signer : signer.address);
+if (!local && sender !== getAddress('0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67')) {
+  throw Error('Unexpected testnet signer');
+}
+const wallet = createWalletClient({ account: signer, chain, transport: http(url, { retryCount: 0 }) });
+
 const genesis = await rpc.getBlock({ blockNumber: 0n });
 const runId = local ? metadata.instanceId : genesis.hash;
 const directory = operation
@@ -115,8 +158,13 @@ function save(path, value) {
 const journal = existsSync(journalPath) ? JSON.parse(readFileSync(journalPath,'utf8'))
   : { chainId:id, runId, sender, baseCommit:base, sourcesDirty:!!dirty, buildHashes, steps:{} };
 if (JSON.stringify(journal.buildHashes) !== JSON.stringify(buildHashes)) throw Error('Deployment bytes changed since this run');
-const requestedCommit = process.argv.find(arg => arg.startsWith('--source-commit='))?.slice('--source-commit='.length);
-if (requestedCommit || (!journal.sourcesDirty && !journal.sourceMatch)) {
+if (publicMatch) {
+  if (journal.sourceMatch && journal.sourceMatch.commit !== publicMatch.commit) {
+    throw Error('Resume the public deployment with its original verified source commit');
+  }
+  journal.sourceMatch = publicMatch;
+  save(journalPath,journal);
+} else if (requestedCommit || (!journal.sourcesDirty && !journal.sourceMatch)) {
   journal.sourceMatch = verifyBuildCommit(root,requestedCommit ?? journal.baseCommit,artifacts,sourceHashes,fixturePath);
   save(journalPath,journal);
 }
@@ -150,6 +198,7 @@ async function transact(label, to, data, expectedRevert, actor = sender) {
     if (await rpc.getChainId() !== id) throw Error('Provider chain ID changed');
     // Accrual can take a costlier branch in the next block than it did during estimation.
     const estimate = expectedRevert && fork ? 1500000n : await rpc.estimateGas({ account:actor, to, data });
+    if (!local) checkPublicInputs(publicCommit);
     step.hash = await wallet.sendTransaction({ account:actor === sender ? signer : actor, to, data, nonce:step.nonce, gas:estimate + estimate / 3n + 30000n });
   }
   save(journalPath, journal);
@@ -304,7 +353,7 @@ if (operation || fork || process.argv.includes('--position')) {
   const operatorAddress = process.env.DEMO_OPERATOR ?? (local ? (await rpc.request({ method:'eth_accounts' }))[fork ? 4 : 1] : undefined);
   if (!operatorAddress || getAddress(operatorAddress) === sender) throw Error('Set a separate DEMO_OPERATOR address');
   const operator = getAddress(operatorAddress);
-  const accountAbi = JSON.parse(readFileSync(resolve(root,'contracts/out/SentinelAccount.sol/SentinelAccount.json'),'utf8'));
+  const accountAbi = publicAccountArtifact ?? JSON.parse(readFileSync(resolve(root,'contracts/out/SentinelAccount.sol/SentinelAccount.json'),'utf8'));
   artifacts.set('SentinelAccount',accountAbi);
   const accounts = local ? await rpc.request({method:'eth_accounts'}) : [];
   const ops = {call,event,readAt,rpc,anchor,sender,operator,market:manifest.markets[0],collateral,debt,oracle,

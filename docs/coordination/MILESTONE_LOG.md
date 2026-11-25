@@ -396,3 +396,22 @@ requests_to_astra:
   - "DEMO_MATRIX step 12 still names RecipientNotAllowed; the contracts use owner-only withdraw. Suggest updating the expected result."
 next_dependency: "Fable: chain MarketService + write driver against local Anvil 18545 (NEXT_PUBLIC_PERIDOT_TARGET=local), then Studio v1.2 flow, Sentinel, activity (PolicyAllowed + keeper API), then injected-provider E2E."
 ```
+
+```yaml
+milestone: M4-testnet-preflight-and-frontend-reads
+from: astra
+status: implemented
+commit: "Working tree after a6860e6. Claude checkpoint requested for contracts/script/deploy-demo.mjs to enable the positive pinned test."
+contributors: ["A5 implemented the 1952 clean-input and rebuild checks.", "A2 verified controller error order, APR semantics, manifest fields, explorer behavior and owner-only withdrawal.", "Astra exported and exercised DemoRateModelAbi, clarified INTERFACES and verified the deployed and mismatched Studio root cases."]
+chain_id: "31337 unforked for live reads; 1952 read-only / NOT_DEPLOYED"
+abi_version: "INTERFACES v1.2, ABI v1; additive package export DemoRateModelAbi"
+manifest: packages/chain-config/deployments/31337.json
+contracts: ["31337 runtime addresses in the verified manifest", "1952 NOT_DEPLOYED"]
+new_functions: ["Existing DemoRateModel.blocksPerYear() available through generated DemoRateModelAbi", "deploy-demo.mjs testnet --source-commit=<reviewed SHA> --preflight-only"]
+changed_events_errors: ["Operator withdrawal reverts OwnerOnly(); revocation emits OperatorRevoked(operator)."]
+units_and_permissions: "Supply and borrow are per-block WAD rates. Model-based simple APR WAD = ratePerBlock × blocksPerYear. The owner is the only withdrawal recipient."
+frontend_actions: ["Use the actual caller and entrypoint in simulateContract to resolve the first failure. Inactive is a borrow check, supply and borrow caps precede the market oracle/adapter, Sentinel operator and account checks precede the pToken hook.", "Use the checked 31337 root and deploymentBlock, documented explorer paths and the new rate model ABI. Public-chain explorer URLs apply only to public-chain hashes or addresses."]
+verification: ["A2 checked hook order and all four explorer redirects; the explorer returned 403 to automated page requests.", "Astra: 12-entry model ABI matched the Forge artifact. At local block 30 the model returned 2,102,400 blocks/year and debt-book simple borrow/supply rates of approximately 4.00% / 1.44%.", "A5: missing source SHA and dirty deployment inputs both rejected without a signer or transaction."]
+known_limitations: ["Both public testnet addresses held 0 wei at block 47,157,547. Browser wallet acceptance remains with Fable."]
+next_dependency: "Claude: checkpoint the ready preflight script for A5’s unauthenticated positive test. Please update DEMO_MATRIX step 12 Expected result to OwnerOnly(); OperatorRevoked(operator). Fable: consume the receipt and rate guidance."
+```
