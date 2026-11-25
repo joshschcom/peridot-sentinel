@@ -75,3 +75,17 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   - run the keeper as a service;
   - deploy to testnet once funded.
 - Sub-agent use could not be independently confirmed from the session 1 text log. Session 2 runs with `--json` event logging so that sub-agent activity can be audited.
+
+## Update: M4 local product complete; D8(b) proposal ready for the founder
+- **`43f3b60`:** INTERFACES v1.2, with permissionless Studio market templates (Merkle-root proof checked against the real on-chain netlist) and the PolicyAllowed event.
+- **`9dcdd95`:**
+  - Demo ops: fresh, price, isolate and liquidate.
+  - Market B is unaffected by a liquidation in market A.
+  - Keeper service with the `/v1/status` and `/v1/activity` endpoints.
+  - New v1.2 local manifest.
+- **Tests (re-run by Claude):** forge 21/21, circuit-sdk 11/11, keeper tsc ok.
+- **D8(b):** `docs/coordination/D8b-mainnet-fabrication-proposal.md` holds three UNSIGNED calls on the existing public CPU 410 (TapeReel, third-party).
+  - Estimated cost 0.00327868 OKB (~$0.25), ceiling 0.003321 OKB. No BEM needed.
+  - The alternative, a Peridot-branded CPU, costs 0.11 BEM plus ~0.0026 OKB (~$2.30 indicative) and needs BEM bridged from BNB Chain.
+  - **Founder approval required. Nothing has been sent.**
+- **Sub-agents:** session 2 used A1, A2, A5 and A6, named per notice.
