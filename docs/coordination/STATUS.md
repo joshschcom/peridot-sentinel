@@ -89,3 +89,18 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   - The alternative, a Peridot-branded CPU, costs 0.11 BEM plus ~0.0026 OKB (~$2.30 indicative) and needs BEM bridged from BNB Chain.
   - **Founder approval required. Nothing has been sent.**
 - **Sub-agents:** session 2 used A1, A2, A5 and A6, named per notice.
+
+## Update: Astra session 2 closed (exit 0); session 3 started, bounded
+- Session 2 closed at `d65e1ea`. The 1952 no-key preflight passed at `a0b0b88`, and the pinned deploy invocation is in `contracts/script/DEPLOY.md`.
+- Session 3 (log `.agent-logs/astra-s3.jsonl`) covers four items:
+  - answering open Fable requests;
+  - `docs/P1_MARGIN_FEASIBILITY.md`, design only;
+  - `docs/coordination/RELEASE_GAP_ANALYSIS.md`;
+  - cheap targeted hardening.
+
+  It has no deploy authority and no P1 implementation.
+- Claude runs a background watcher on the 1952 deployer balance. When it is funded, Claude starts a pinned testnet deploy session.
+- Blocked on the founder:
+  - the faucet, for both addresses;
+  - the D8(b) decision;
+  - organizer answers.
