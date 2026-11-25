@@ -13,6 +13,17 @@ export async function preparePosition(env) {
   await call('enter-collateral','SentinelAccount',account,'enterCollateral');
   await call('supply-collateral','SentinelAccount',account,'supply',[100n*wad]);
   const borrowed = await call('borrow-demo-dollars','SentinelAccount',account,'borrow',[80n*usd]);
+  const decisions = [
+    event(borrowed,'SentinelAccount','PolicyAllowed',account),
+    event(borrowed,'IsolatedController','PolicyAllowed',market.controller),
+  ];
+  for (const [i, decision] of decisions.entries()) {
+    assert.equal(decision.policyId,[accountPolicy,env.marketPolicy][i]);
+    assert.equal(getAddress(decision.account),account);
+    assert.equal(decision.op,2);
+    assert.equal(decision.postLtvBps,4000n);
+    assert.ok(decision.oracleFresh && decision.cashOk);
+  }
   const at = borrowed.blockNumber;
   const [ltv, debt, borrowedFunds, collateralShares] = await Promise.all([
     readAt('IsolatedController',market.controller,'currentLtvBps',[account],at),
@@ -29,7 +40,7 @@ export async function preparePosition(env) {
   const expiry = timestamp + 86400n;
   await call('grant-repay-only','SentinelAccount',account,'setOperator',[operator,8,20n*usd,expiry]);
   return {account,borrowed,snapshot:{account,owner:sender,operator,borrowBlock:at,ltvBps:ltv,debt,borrowedFunds,
-    collateralShares,triggerBps:4500,grantMask:8,grantRawDebtUnits:20n*usd,expiry}};
+    collateralShares,settledPolicyDecisions:decisions,triggerBps:4500,grantMask:8,grantRawDebtUnits:20n*usd,expiry}};
 }
 
 async function positionAt({readAt}, market, borrower, block) {

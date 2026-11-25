@@ -4,7 +4,7 @@
   "profile": "local",
   "chainId": 31337,
   "status": "deployed",
-  "commit": null,
+  "commit": "43f3b603398946e12b68809e98a532359ca0fd0c",
   "capabilities": {
     "studioMarketTemplateRoot": "0xec7861345eb0b7eb7e7c96d5ceec277180b86ef226c2c8c064e18576879e0a60",
     "policyAllowedEvents": true
@@ -14,7 +14,15 @@
     "baseCommit": "e3484af911020c8cf697acf53b9a4b242853a32a",
     "sourceDigest": "0x1af665449fa706ce168d056606824775a343739e6d4914e5d32f84f8d15d6c8e",
     "sourcesDirty": true,
-    "sourceMatch": null
+    "sourceMatch": {
+      "commit": "43f3b603398946e12b68809e98a532359ca0fd0c",
+      "sourceCount": 37,
+      "artifactCount": 10,
+      "foundryConfigKeccak256": "0xcb1587fa065c9746fa188077e1f57c11411a6fa1b4c257c40d9d657237a4168e",
+      "policyFixturesKeccak256": "0x11fbe04ba7839472e532f5cf6fb393d80b4dede595caa6fa73a436d256a3447d",
+      "compiler": "0.8.26+commit.8a97fa7a",
+      "verification": "All transitive source hashes matched. Isolated rebuild of the committed source and Foundry configuration reproduced all compared creation and runtime bytecode."
+    }
   },
   "contracts": {
     "MockCollateral": "0x057ef64E23666F000b34aE31332854aCBd1c8544",

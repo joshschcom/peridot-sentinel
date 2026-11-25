@@ -300,3 +300,60 @@ verification: ["A2: 5 targeted Studio tests passed. Astra: 1 targeted settled-bo
 known_limitations: ["Historical deployments omit the new capabilities. Testnet gas was still zero; local service and end-to-end receipts are being exercised."]
 next_dependency: "Claude relay to Fable and checkpoint validated v1.2 sources; A5 publishes verified local addresses."
 ```
+
+```yaml
+milestone: M4-unsigned-D8b-proposal
+from: astra
+specialists: {A1: "fresh fork, three unsigned envelopes, component acquisition and fee evidence", A6: "independent payload encoding and fee reconciliation", Astra: "founder handoff and primary price check"}
+status: implemented
+commit: 43f3b60 (unsigned evidence checkpoint; proposal in working tree)
+chain_id: "196 read-only at 76846436; local fork execution 31337"
+abi_version: v1
+manifest: evidence/session2-d8b/proposal-and-fork.json
+contracts: ["Existing public CPU 410 0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5", "Transistors 0x3896076be165d6a7ec2a70ccf6876673fe245007"]
+new_functions: []
+changed_events_errors: []
+units_and_permissions: "Proposed mint of 150 NAND plus two standalone fabrications. Sender, nonce and signature unassigned. No BEM on this route. Fork-only gas 933980; pinned native fee-inclusive estimate 0.00327867960093398 OKB, USD 0.2546; proposed ceiling 0.003321 OKB."
+frontend_actions: ["Only the existing processor is public. Peridot IDs #2 and #3 and all rehearsal receipts are fork-only."]
+verification: ["A1: 3/3 fork transactions succeeded; CPU netlists and 12/12 eval outputs verified.", "A6 independently re-encoded calldata lengths 68, 580 and 772 bytes and reconciled values. Astra confirmed the OKX index candle close of 77.65 USD."]
+known_limitations: ["D8(b) remains unsigned and unapproved. Factory is unsealed; quotes and remaining component supply are time-dependent."]
+next_dependency: "Claude relay docs/coordination/D8b-mainnet-fabrication-proposal.md to founder for review. No public execution."
+```
+
+```yaml
+milestone: M4-local-Studio-demo-operations
+from: astra
+specialists: {A2: "non-registrar Studio creation and canonical reuse", A5: "journaled demo commands, local and fork operations and published local deployment", Astra: "event integration and manifest verification"}
+status: implemented
+commit: 43f3b603398946e12b68809e98a532359ca0fd0c (verified contract source)
+chain_id: "31337 unforked Anvil and 31337 fork of 196"
+abi_version: "INTERFACES v1.2, manifest v1"
+manifest: packages/chain-config/deployments/31337.json
+contracts: ["Fable RPC http://127.0.0.1:18545", "See new manifest for registry and factory addresses", "Sentinel 0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08"]
+new_functions: ["deploy-demo.mjs <profile> --ops=fresh|price|isolate|liquidate|all", "Optional explicit --publish-manifest"]
+changed_events_errors: []
+units_and_permissions: "Test assets. Fresh position debt 80 mUSD, LTV 5000 bps after mock price movement. Repay-only grant 20 mUSD. Production governance path documented."
+frontend_actions: ["Use 18545 for local Studio/market wallet acceptance. Manifest supports Studio root and policyAllowedEvents, with deploymentBlock. Source, chain, root and 13 code addresses verified. Old session-1 factory addresses are historical."]
+verification: ["A2: 6234 bps registration tx 0x28a92c0e7fc338b167b7c1c4a5385a138be5ac88f0b49ecd07cc6b75a886b74b, market creation 0x91d65d668be303827de2c9c988db2f0bc9cf771a366fb39666692cded8d2975a; second market reused id.", "A5: local liquidation 0x6b2286f7f1185fa533f7399954d5b052d921dd4aa2b748795bceabc926f4d86f; fork liquidation 0x5e74e0614f5bafc8f6cc687d5581d01b966a331ebbe0a69244b67887ede8f553. Market B balances identical across liquidation. Replays added zero blocks."]
+known_limitations: ["The shared test feed affects both valuations. Independent books isolate balances and liquidation losses. Testnet deployer and separate operator still need test OKB."]
+next_dependency: "Claude relay canonical local manifest to Fable, who owns UI consumption and wallet UX acceptance."
+```
+
+```yaml
+milestone: M4-keeper-service-activity
+from: astra
+specialists: {Astra: "service, read API, policy approval events and scoped HTTP/RPC tests", A5: "journaled test position", A6: "cross-account reservation review, corrective guidance and verification"}
+status: implemented
+commit: 43f3b60 (base, scoped journal fix and final HTTP evidence in working tree)
+chain_id: "31337 local, development reference processor"
+abi_version: "INTERFACES v1.2, HTTP schemaVersion 1"
+manifest: evidence/session2-keeper/service-smoke.json
+contracts: ["Fable local read service http://127.0.0.1:8787/v1/status and /v1/activity; simulate-only on 18545"]
+new_functions: ["npm --prefix services/keeper run serve", "GET /v1/status", "GET /v1/activity?limit=50"]
+changed_events_errors: ["Existing ../.state testnet pending rows migrate in place. Unknown/other-account reservations produce a hash-free busy record."]
+units_and_permissions: "Raw debt units and wei are decimal strings; attempts, simulated denials and settled receipts are distinguished. HTTP GET routes cannot issue writes."
+frontend_actions: ["Verify top-level chain, factory, account, operator and local instance before displaying attempts. Use documented PolicyAllowed event-log and receipt queries for on-chain evidence."]
+verification: ["Astra: local service sent one repay 0x3632155303a8090ba3a3e3806ffe2a425fe25d2c4cca19cd78930878c9ddbcc7, block 31, 20 mUSD, LTV 5001→3751. HTTP returned gas-budget, simulated, submitted, success, simulation-failed. RPC fault exhausted configured 1 retry (2 attempts). Three pending-scope checks passed."]
+known_limitations: ["Local read service lasts for the local process lifetime. Public service hosting and funded 1952 execution remain pending."]
+next_dependency: "Claude checkpoint tested sources/evidence. Fable can consume API through a local or HTTPS read proxy."
+```

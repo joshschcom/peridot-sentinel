@@ -7,7 +7,7 @@ export const SHARD_COUNT = Math.ceil((MAX_LTV_BPS + 1) * 2 / SHARD_WIDTH)
 export const UPPER_WIDTH = 256
 export const EMPTY: Hex = `0x${'00'.repeat(32)}`
 
-export function marketSpec(maxLtvBps: number, requireCashReserve: boolean): PolicySpec {
+export function marketSpec(maxLtvBps: number, requireCashReserve: boolean): Extract<PolicySpec, {kind: 'MARKET'}> {
   return {schema: 'peridot.policy/v1', kind: 'MARKET', templateId: 'market-max-ltv-v0', templateVersion: 0,
     params: {maxLtvBps, requireCashReserve}}
 }

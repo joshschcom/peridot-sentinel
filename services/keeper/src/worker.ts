@@ -1,4 +1,4 @@
-import { mkdir, appendFile } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import {
@@ -13,7 +13,8 @@ import {
 
 import {localInstance,type KeeperConfig} from './config.js';
 
-const json = (value: unknown) => JSON.stringify(value, (_, v) => typeof v === 'bigint' ? v.toString() : v);
+import {recordAttempt} from './activity.js';
+
 export async function runOnce(config: KeeperConfig, execute: boolean): Promise<string> {
   const {chainId,rpc,account,operator,factory,directory} = config;
   const chain = chainId === 31337 ? foundry : defineChain(xLayerTestnet);
@@ -31,14 +32,16 @@ export async function runOnce(config: KeeperConfig, execute: boolean): Promise<s
 
   await mkdir(directory,{recursive:true, mode:0o700});
   const journal = new DatabaseSync(fileURLToPath(new URL('operator.sqlite',directory)));
-  journal.exec('CREATE TABLE IF NOT EXISTS pending(slot INTEGER PRIMARY KEY CHECK(slot=1), hash TEXT NOT NULL, nonce INTEGER NOT NULL)');
-  const activity = new URL('activity.jsonl',directory);
-  async function record(row: {state:string; [key:string]:unknown}) {
-    const line = json({at:new Date().toISOString(),chainId,account,operator,...row});
-    await appendFile(activity,line+'\n',{mode:0o600});
-    console.log(line);
-    return row.state;
-  }
+  journal.exec('PRAGMA busy_timeout=2000');
+  try {
+    journal.exec('BEGIN IMMEDIATE');
+    journal.exec('CREATE TABLE IF NOT EXISTS pending(slot INTEGER PRIMARY KEY CHECK(slot=1), hash TEXT NOT NULL, nonce INTEGER NOT NULL, account TEXT)');
+    // Preserve pending transactions from the original one-shot keeper. Their target may be unknown until mined.
+    const columns = journal.prepare('PRAGMA table_info(pending)').all();
+    if (!columns.some(column => column.name === 'account')) journal.exec('ALTER TABLE pending ADD COLUMN account TEXT');
+    journal.exec('COMMIT');
+  } catch (error) { journal.close(); throw error; }
+  const record = (row: Parameters<typeof recordAttempt>[1]) => recordAttempt(config,row);
   async function reconcile(hash: Hash, wait: boolean) {
     const receipt = wait ? await client.waitForTransactionReceipt({hash,timeout:60000,retryCount:0})
       : await client.getTransactionReceipt({hash});
@@ -47,14 +50,15 @@ export async function runOnce(config: KeeperConfig, execute: boolean): Promise<s
     await record({state:receipt.status,account:receipt.to,hash,block:receipt.blockNumber,gas:receipt.gasUsed,
       outcomes:events.map(event=>event.args)});
     journal.prepare('DELETE FROM pending WHERE slot=1 AND hash=?').run(hash);
-    return receipt.status;
+    return receipt.to?.toLowerCase() === account.toLowerCase() ? receipt.status : 'another-transaction-reconciled';
   }
   try {
-    const pending = journal.prepare('SELECT hash FROM pending WHERE slot=1').get() as {hash:Hash} | undefined;
+    const pending = journal.prepare('SELECT hash,account FROM pending WHERE slot=1').get() as {hash:Hash;account:string|null} | undefined;
     if (pending) {
       try { return await reconcile(pending.hash,false); }
       catch (error) {
         if (!(error instanceof TransactionReceiptNotFoundError)) throw error;
+        if (pending.account?.toLowerCase() !== account.toLowerCase()) return await record({state:'another-transaction-pending'});
         return await record({state:'awaiting-confirmation',hash:pending.hash});
       }
     }
@@ -89,7 +93,7 @@ export async function runOnce(config: KeeperConfig, execute: boolean): Promise<s
       data:encodeFunctionData({abi:SentinelAccountAbi,functionName:'autoRepay'})});
     const hash = keccak256(raw);
     // Each operator has one outstanding transaction. Reconciliation clears only the matching hash.
-    const reservation = journal.prepare('INSERT OR IGNORE INTO pending(slot,hash,nonce) VALUES(1,?,?)').run(hash,nonce);
+    const reservation = journal.prepare('INSERT OR IGNORE INTO pending(slot,hash,nonce,account) VALUES(1,?,?,?)').run(hash,nonce,account);
     if (!reservation.changes) { return await record({state:'another-transaction-pending'}); }
     const broadcast = await client.sendRawTransaction({serializedTransaction:raw});
     if (broadcast !== hash) throw Error('Unexpected transaction hash');

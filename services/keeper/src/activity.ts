@@ -1,5 +1,15 @@
-import {open} from 'node:fs/promises';
+import {appendFile,mkdir,open} from 'node:fs/promises';
 import type {KeeperConfig} from './config.js';
+
+export async function recordAttempt(config: KeeperConfig, row: {state:string; [key:string]:unknown}) {
+  const {chainId,account,operator,directory} = config;
+  const entry = {at:new Date().toISOString(),chainId,account,operator,...row};
+  const line = JSON.stringify(entry,(_,v)=>typeof v==='bigint'?v.toString():v);
+  await mkdir(directory,{recursive:true,mode:0o700});
+  await appendFile(new URL('activity.jsonl',directory),line+'\n',{mode:0o600});
+  console.log(line);
+  return row.state;
+}
 
 // The public reader scans only the newest part of this operator's private append-only journal.
 const windowBytes = 256 * 1024;

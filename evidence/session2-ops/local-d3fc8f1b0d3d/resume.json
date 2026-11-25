@@ -1,0 +1,14 @@
+{
+  "commands": [
+    "LOCAL_ANVIL_RPC=http://127.0.0.1:18546 node contracts/script/deploy-demo.mjs local --ops=fresh",
+    "LOCAL_ANVIL_RPC=http://127.0.0.1:18546 node contracts/script/deploy-demo.mjs local --ops=price",
+    "LOCAL_ANVIL_RPC=http://127.0.0.1:18546 node contracts/script/deploy-demo.mjs local --ops=isolate",
+    "LOCAL_ANVIL_RPC=http://127.0.0.1:18546 node contracts/script/deploy-demo.mjs local --ops=liquidate",
+    "LOCAL_ANVIL_RPC=http://127.0.0.1:18546 node contracts/script/deploy-demo.mjs local --ops=all"
+  ],
+  "instance": "0xd3fc8f1b0d3dc652891c24d869bf60911e401acd79bdd453a8831dab6e63982a",
+  "reusedReceipts": true,
+  "blockBefore": 44,
+  "blockAfter": 44,
+  "transactionsSent": 0
+}

@@ -25,6 +25,24 @@
     "debt": "80000000",
     "borrowedFunds": "80000000",
     "collateralShares": "100000000000000000000",
+    "settledPolicyDecisions": [
+      {
+        "policyId": "0x2203a619deefc167ac023b3c9d8c0194a48482f2dc894106ab94de7c64912833",
+        "account": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+        "op": 2,
+        "postLtvBps": "4000",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      {
+        "policyId": "0xe21b3c464e79344521fb55d7a395f9ac0dff8a7b0206c7d350ef032308ccf09a",
+        "account": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+        "op": 2,
+        "postLtvBps": "4000",
+        "oracleFresh": true,
+        "cashOk": true
+      }
+    ],
     "triggerBps": 4500,
     "grantMask": 8,
     "grantRawDebtUnits": "20000000",

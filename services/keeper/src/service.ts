@@ -1,7 +1,7 @@
 import {createServer} from 'node:http';
 import {setTimeout as sleep} from 'node:timers/promises';
 import {keeperConfig} from './config.js';
-import {recentActivity} from './activity.js';
+import {recentActivity,recordAttempt} from './activity.js';
 import {runOnce} from './worker.js';
 
 function integer(name: string, fallback: number, min: number, max: number) {
@@ -64,6 +64,7 @@ async function serve() {
           break;
         } catch {
           status.lastOutcome = 'tick-failed';
+          await recordAttempt(config,{state:'tick-failed',reason:'KeeperTickFailed'}).catch(()=>undefined);
           status.lastAt = new Date().toISOString();
           if (attempt === maxRetries) break;
           status.phase = 'retrying';

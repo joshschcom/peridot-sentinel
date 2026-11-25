@@ -1,0 +1,10 @@
+{
+  "commands": [
+    "LOCAL_ANVIL_RPC=http://127.0.0.1:19623 node contracts/script/deploy-demo.mjs sponsor-fork --ops=all"
+  ],
+  "instance": "0xd8c23ebb1e0be5463c1adb01676758afd9b2d2b6fc2e374853ff46a277702306",
+  "reusedReceipts": true,
+  "blockBefore": 76845008,
+  "blockAfter": 76845008,
+  "transactionsSent": 0
+}

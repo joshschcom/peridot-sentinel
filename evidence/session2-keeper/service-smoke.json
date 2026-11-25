@@ -1,0 +1,132 @@
+{
+  "label": "Unforked Anvil, mock assets and development reference processor",
+  "source": "evidence/session2-ops/local-6851f6d2d9a9",
+  "account": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+  "operator": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "activity": {
+    "schemaVersion": 1,
+    "environment": "anvil",
+    "instanceId": "0x6851f6d2d9a91c948d1c83863b22919fd679a3baf42fb42fd101815d91f7d9a7",
+    "chainId": 31337,
+    "factory": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+    "account": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+    "operator": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "items": [
+      {
+        "at": "2026-11-25T14:14:03.363Z",
+        "state": "simulation-failed",
+        "trigger": 4500,
+        "ltv": "3751",
+        "reason": "ExceedsOperatorLimit"
+      },
+      {
+        "at": "2026-11-25T14:14:02.327Z",
+        "state": "success",
+        "hash": "0x3632155303a8090ba3a3e3806ffe2a425fe25d2c4cca19cd78930878c9ddbcc7",
+        "block": "31",
+        "gas": "231318",
+        "outcomes": [
+          {
+            "operator": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+            "amount": "20000000",
+            "ltvBeforeBps": "5001",
+            "ltvAfterBps": "3751"
+          }
+        ]
+      },
+      {
+        "at": "2026-11-25T14:14:02.323Z",
+        "state": "submitted",
+        "hash": "0x3632155303a8090ba3a3e3806ffe2a425fe25d2c4cca19cd78930878c9ddbcc7",
+        "amount": "20000000",
+        "trigger": 4500,
+        "ltv": "5000"
+      },
+      {
+        "at": "2026-11-25T14:14:01.985Z",
+        "state": "simulated",
+        "amount": "20000000",
+        "trigger": 4500,
+        "ltv": "5000",
+        "fee": "331823139441948"
+      },
+      {
+        "at": "2026-11-25T14:14:01.715Z",
+        "state": "gas-budget",
+        "amount": "20000000",
+        "fee": "331823139441948",
+        "balance": "10000000000000000000000"
+      }
+    ],
+    "truncated": false
+  },
+  "status": {
+    "schemaVersion": 1,
+    "environment": "anvil",
+    "instanceId": "0x6851f6d2d9a91c948d1c83863b22919fd679a3baf42fb42fd101815d91f7d9a7",
+    "chainId": 31337,
+    "factory": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+    "account": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+    "operator": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "execute": true,
+    "intervalMs": 1000,
+    "maxRetries": 2,
+    "phase": "waiting",
+    "attempt": 1,
+    "cycles": 2,
+    "startedAt": "2026-11-25T14:14:02.272Z",
+    "lastAt": "2026-11-25T14:14:03.364Z",
+    "lastOutcome": "simulation-failed",
+    "nextAt": "2026-11-25T14:14:04.364Z"
+  },
+  "approvals": [
+    {
+      "emitter": "0x32467b43bfa67273fc7ddda0999ee9a12f2aaa08",
+      "hash": "0x428de14d41fbfbf9627e581284a6c03634db2a69591254f5825c6ee24755f9ab",
+      "logIndex": 2,
+      "args": {
+        "policyId": "0x2203a619deefc167ac023b3c9d8c0194a48482f2dc894106ab94de7c64912833",
+        "account": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+        "op": 2,
+        "postLtvBps": "4000",
+        "oracleFresh": true,
+        "cashOk": true
+      }
+    },
+    {
+      "emitter": "0x05242d4ac717cdf38c36af290f2b0da99aa82c67",
+      "hash": "0x428de14d41fbfbf9627e581284a6c03634db2a69591254f5825c6ee24755f9ab",
+      "logIndex": 3,
+      "args": {
+        "policyId": "0xe21b3c464e79344521fb55d7a395f9ac0dff8a7b0206c7d350ef032308ccf09a",
+        "account": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+        "op": 2,
+        "postLtvBps": "4000",
+        "oracleFresh": true,
+        "cashOk": true
+      }
+    }
+  ],
+  "faultInjection": {
+    "refused": 2,
+    "status": {
+      "schemaVersion": 1,
+      "environment": "anvil",
+      "instanceId": "0x6851f6d2d9a91c948d1c83863b22919fd679a3baf42fb42fd101815d91f7d9a7",
+      "chainId": 31337,
+      "factory": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      "account": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+      "operator": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "execute": false,
+      "intervalMs": 10000,
+      "maxRetries": 1,
+      "phase": "degraded",
+      "attempt": 2,
+      "cycles": 1,
+      "startedAt": "2026-11-25T14:14:03.709Z",
+      "lastAt": "2026-11-25T14:14:04.736Z",
+      "lastOutcome": "tick-failed",
+      "nextAt": "2026-11-25T14:14:14.736Z"
+    }
+  }
+}
