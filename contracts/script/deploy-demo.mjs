@@ -129,7 +129,18 @@ if (!local && sender !== getAddress('0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67'
 }
 const wallet = createWalletClient({ account: signer, chain, transport: http(url, { retryCount: 0 }) });
 
-const genesis = await rpc.getBlock({ blockNumber: 0n });
+// The public X Layer testnet RPC is load-balanced and some backends do not serve block 0
+// (observed ~25% success on 2026-11-25). Bounded read-only retry; no writes are involved.
+async function readGenesis() {
+  for (let attempt = 1; ; attempt++) {
+    try { return await rpc.getBlock({ blockNumber: 0n }); }
+    catch (error) {
+      if (local || attempt >= 20 || error?.name !== 'BlockNotFoundError') throw error;
+      await new Promise(r => setTimeout(r, 500));
+    }
+  }
+}
+const genesis = await readGenesis();
 const runId = local ? metadata.instanceId : genesis.hash;
 const directory = operation
   ? resolve(root,'evidence/session2-ops',`${mode}-${runId.slice(2,14)}`)
