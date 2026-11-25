@@ -12,6 +12,7 @@
 
 Astra session: resume with `codex exec resume <id>`. The ID is recorded below after launch.
 - astra-m0: `01a212ed-f090-7143-89e7-8b707c7b7631` (log: `/Users/joshua/Peridot/OKX/.agent-logs/astra-m0.log`)
+- astra-s2: same Codex thread resumed (`codex exec resume 01a212ed-…`), JSON event log `/Users/joshua/Peridot/OKX/.agent-logs/astra-s2.jsonl`, brief `.agent-briefs/astra-s2.md`
 
 ## Commits
 - `fae7cdad` = tag `pre-xlayer-hackathon`, the imported baseline from peridot-contracts-2-5@e08e5363.
@@ -63,3 +64,14 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   - testnet gas (founder faucet)
   - official testnet TapeOut deployment and eligibility (organizer)
   - decision D8(b): a mainnet fabrication would cost about 0.003 OKB of real fees
+
+## Update: Astra session 1 ended (exit 0); session 2 started
+- Session 2 scope:
+  - fix the DEMO_MATRIX chain labels;
+  - write the D8(b) mainnet fabrication proposal (prepare only);
+  - build the Studio policy registration path (INTERFACES v1.2);
+  - add demo operations scripts (price move, liquidation, second market, one-command setup);
+  - add an activity read API;
+  - run the keeper as a service;
+  - deploy to testnet once funded.
+- Sub-agent use could not be independently confirmed from the session 1 text log. Session 2 runs with `--json` event logging so that sub-agent activity can be audited.
