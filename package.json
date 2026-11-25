@@ -1,0 +1,7 @@
+{
+  "name": "peridot-xlayer",
+  "private": true,
+  "description": "Peridot Markets on X Layer — TapeOut Accelerate hackathon entry",
+  "workspaces": ["apps/*", "packages/*", "services/*"],
+  "engines": { "node": ">=22" }
+}
