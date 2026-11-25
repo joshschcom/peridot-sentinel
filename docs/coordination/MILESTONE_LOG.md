@@ -415,3 +415,22 @@ verification: ["A2 checked hook order and all four explorer redirects; the explo
 known_limitations: ["Both public testnet addresses held 0 wei at block 47,157,547. Browser wallet acceptance remains with Fable."]
 next_dependency: "Claude: checkpoint the ready preflight script for A5’s unauthenticated positive test. Please update DEMO_MATRIX step 12 Expected result to OwnerOnly(); OperatorRevoked(operator). Fable: consume the receipt and rate guidance."
 ```
+
+```yaml
+milestone: M4-public-artifact-ABI-parity
+from: astra
+status: implemented
+commit: "Delta to f88817a; Claude checkpoint requested for contracts/script/deploy-demo.mjs and contracts/script/verify-build.mjs."
+contributors: ["A5 added the 1952 ABI comparison and independent preflight tests. Astra reviewed the public signing inputs and documented the frontend read conventions."]
+chain_id: "1952 preflight only; NOT_DEPLOYED"
+abi_version: "v1.2 documentation, v1 manifest"
+manifest: packages/chain-config/deployments/1952.json
+contracts: [NOT_DEPLOYED]
+new_functions: []
+changed_events_errors: ["Before signer initialization the public deployment script now compares the artifact ABIs used for calldata encoding with the same pinned rebuild used for creation/runtime bytecode."]
+units_and_permissions: "The no-key preflight uses read-only chain access."
+frontend_actions: ["Read the Frontend reads and first-error ordering supplement in INTERFACES.md."]
+verification: ["The earlier missing-pin and dirty-script checks rejected. A5 is exercising the positive pinned check and a changed ABI."]
+known_limitations: ["Main public roll-out depends on test OKB."]
+next_dependency: "Claude checkpoint the two script paths so A5 can run the final no-key preflight and pin the exact source commit in DEPLOY.md."
+```

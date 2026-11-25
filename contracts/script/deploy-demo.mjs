@@ -105,11 +105,11 @@ const sourceDigest = keccak256(toHex(JSON.stringify([...sourceHashes].sort(([a],
 const publicAccountArtifact = local ? undefined : JSON.parse(readFileSync(
   resolve(root,'contracts/out/SentinelAccount.sol/SentinelAccount.json'),'utf8'));
 const publicMatch = local ? undefined : verifyBuildCommit(root,publicCommit,
-  new Map([...artifacts,['SentinelAccount',publicAccountArtifact]]),sourceHashes,fixturePath);
+  new Map([...artifacts,['SentinelAccount',publicAccountArtifact]]),sourceHashes,fixturePath,true);
 if (!local) {
   checkPublicInputs(publicCommit);
   if (process.argv.includes('--preflight-only')) {
-    console.log(`Chain 1952 preflight passed at ${publicMatch.commit}: ${publicMatch.sourceCount} source hashes, ${publicMatch.artifactCount} matching artifacts. No signing or transactions.`);
+    console.log(`Chain 1952 preflight passed at ${publicMatch.commit}: ${publicMatch.sourceCount} source hashes, ${publicMatch.artifactCount} matching ABI and bytecode artifacts. No signing or transactions.`);
     process.exit(0);
   }
 } else if (process.argv.includes('--preflight-only')) {

@@ -98,3 +98,21 @@ Activity returns `items` newest first and a boolean `truncated`. Limit is 1–10
 Status includes execute, intervalMs, maxRetries, phase, attempt, cycles, startedAt, lastAt, lastOutcome and nextAt. A tick-failed outcome signals a read/configuration/transport error. See ARCHITECTURE.md for retry and journal behavior.
 
 Revision v1.2, 2026-11-25. Added verifiable parameterized Studio registration, successful policy events, opt-in manifest capability fields and the keeper read service. All ABI additions are additive.
+
+### Frontend reads and first-error ordering for v1.2
+
+Simulate the selected pToken or Sentinel entrypoint from the wallet that will sign. `previewPolicy` computes circuit inputs from stored balances. It does not exercise all authorization, accrual, cap or token settlement checks. The controller authenticates the calling pToken before the hook checks shown here.
+
+| Operation | Order within the authenticated controller hook |
+|---|---|
+| Borrow | Debt book, active market, accrue both books, total borrow cap, policy preview, fresh prices, sufficient cash after minimum reserve and hard LTV limit, market circuit. |
+| Supply | Accrue both books, supply cap for this book, preview, fresh prices, market circuit. Inactive markets accept seed liquidity. |
+| Redeem or transfer | Accrue both books, preview the sender’s remaining shares, then for a positive removal of pledged collateral with outstanding debt check fresh prices, hard LTV and market circuit. Removing more pledged shares than held can fail during the preview arithmetic. |
+| Exit collateral | Verify collateral leg and membership, accrue and apply the removal check to the entire entered position. A positive debt against the removed collateral exceeds the hard LTV limit. |
+| Repay, seize or liquidate | Repay and seize authenticate the appropriate books. Liquidation additionally requires the correct pair, fresh prices, a position past the liquidation threshold and repayment within the close factor. These operations bypass custom circuits. |
+
+A Sentinel borrower using an operator first checks the operation mask, expiry and remaining grant. The account then checks the amount, accrues, previews and calls its account circuit before calling into the pToken and controller. A successful pToken call also depends on its own balance, cash and token settlement checks. Grant revocation emits `OperatorRevoked(operator)`. An operator calling `withdraw(asset, amount)` gets `OwnerOnly()`. A successful owner withdrawal always pays the immutable owner.
+
+For a book’s **model-based simple APR**, read `borrowRatePerBlock()` or `supplyRatePerBlock()` using `MarketPTokenAbi`. Read `interestRateModel()` from the same book, then `blocksPerYear()` using `DemoRateModelAbi` for the manifest’s demo model. Pin the reads to the same block. Multiply the per-block WAD by `blocksPerYear` with bigint and format the result as a percentage. At local block 30 the model used 2,102,400 blocks per year. The debt book returned approximately 4.00% borrow and 1.44% supply simple APR. A different rate model needs its own annualization convention.
+
+New deployed demo manifests publish `deploymentBlock`, `capabilities.studioMarketTemplateRoot` and `capabilities.policyAllowedEvents`. Missing fields on an older deployment disable the corresponding feature. An empty public manifest has no deployment fields. For a confirmed public receipt or address, append `/tx/<hash>` or `/address/<address>` to `xLayer.blockExplorers.default.url` or `xLayerTestnet.blockExplorers.default.url` from chain-config. Link local and fork activity to the recorded local evidence. OKX preserved all four public path shapes on redirect, then returned HTTP 403 to the automated page check.
