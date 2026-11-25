@@ -138,3 +138,18 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   4. testnet readiness: per-target gating, paginated logs, chain-mode negatives;
   5. 390px chain checks.
 - **Process note:** in run 1 the permission system denied Fable starting its own Anvil node. Fable did not work around it. Since then Claude has run a single shared local node (18545) and the keeper read service as orchestrator infrastructure, and Fable uses only that node.
+
+## Update: M4 TESTNET DEPLOYED (X Layer 1952) + live keeper auto-repay
+- The founder funded both testnet wallets with 0.2 OKB.
+- Deployed from pinned `39c0a54`, after the keyless preflight passed, as `34797b2`:
+  - 30 deployer txs (nonces 0..29, no duplicates), costing about 0.00045 OKB;
+  - 13 code addresses verified.
+- Public testnet auto-repay by the separate operator:
+  - tx `0x38cb05f1…f5a77`, block 47161960;
+  - LTV went from 5001 to 3751 bps, and the grant budget was consumed.
+- **Public RPC flakiness:** some backends serve stale state or no block 0. I committed a bounded genesis-read retry as `39c0a54`, and the journaled resume handled the stale post-write checks.
+- **Next:**
+  - Fable makes the default 1952 build correct, then runs independent rejections and the owner writes.
+  - DEMO_MATRIX 1952 cells still need filling.
+  - A fresh testnet keeper demo position is needed before recording.
+  - The D8(b) decision and the organizer answers are still pending.
