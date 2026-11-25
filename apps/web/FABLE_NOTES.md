@@ -38,20 +38,27 @@ Always kill only the dev server PID you started. Astra shares the machine: never
 - The development reference processor is never called TapeOut.
 - No APY promises, no audit badges, no sponsor logos. Landing "status" section is derived from evidence + manifest so it cannot drift.
 
-## State at end of M0 run (2026-11-25)
+## State after the local wallet E2E (2026-11-25)
 
-- All routes built in fixture mode. Chain implementations for market/account/policy/activity are stubs.
-- Interfaces consumed: INTERFACES v1, v1.1 supplement (Sentinel semantics), v1.2 (Studio template + root gate in the wizard; error names). Not yet consumed: generated ABIs from `@peridot/chain-config`, `PolicyAllowed` events, keeper read API.
-- Local target plumbing exists (`NEXT_PUBLIC_PERIDOT_TARGET=local`, manifest validation accepts the local profile) but no on-chain reads yet.
+- **Fixture mode (default target, testnet 1952):** unchanged. Manifest says not-deployed, so every route shows labelled example data and writes are locked.
+- **Chain mode (`NEXT_PUBLIC_PERIDOT_TARGET=local`, shared Anvil at `http://127.0.0.1:18545`):** implemented and exercised.
+  - `src/services/chain/client.ts`: generated ABIs, manifest addresses, `verifyDeployment()` (chain id, bytecode at every manifest address, template root == SDK root == manifest root). Reads and the write gate both require it.
+  - `src/services/chain/reads.ts`: markets, positions, Sentinel accounts, policy identification (rules shown only when BOTH hashes match a compiled candidate; else "Rules unavailable"), `previewOnChain` (controller.previewPolicy + `simulateContract` of the real entrypoint as the wallet; the decisive error comes from the simulation).
+  - `src/services/chain/tx.ts` + `src/hooks/use-chain-tx.ts`: write driver (simulate, send, receipt) producing `TxState`; invalidates all queries afterwards.
+  - `src/services/chain/plans.ts`: the exact calls behind each action (exact-amount approve, fund-by-transfer, enter collateral, Studio v1.2 three-step flow, account creation, activation, test-token mint).
+  - Activity: `PolicyAllowed` + `AutoRepayExecuted` logs with tx hashes. Local hashes are never explorer-linked.
+- **E2E:** `scripts/e2e-local.mjs` (server: `NEXT_PUBLIC_PERIDOT_TARGET=local npm run dev -- -p 3211 -H 127.0.0.1`). Injected EIP-1193 test provider forwarding to Anvil's unlocked account #3; no private key. Re-runnable: it creates its own market each run and reuses the 55% policy once registered. `--activity-only` is read-only. Evidence: `evidence/fable/local-e2e.json`, `evidence/fable/local-e2e-first-full-studio-run.json`, `evidence/screenshots/local-e2e/`.
+- **Not done:** keeper read API (`/v1/status`, `/v1/activity`) is not consumed; Sentinel policy/operator writes (`setPolicy`, `setOperator`, `revokeOperator`, `setAutoRepayTrigger`, `withdraw`) are still locked buttons; repay and withdraw were not exercised in the E2E (the code paths exist); `/sentinel/policy` in chain mode edits a draft but cannot register a new ACCOUNT policy (the registry is curated for account policies); real wallet extensions (OKX Wallet, MetaMask) have never been used; chain mode has no mobile-width checks.
+- **Dev-server gotcha:** editing a component while `next dev` runs can leave the server render of some routes stale and produce a hydration mismatch. Restart the dev server before an evidence run.
+- **APR:** `ratePerBlock * blocksPerYear()` read from chain; nothing is hard-coded, so the `M5-rate-cadence-fix` redeploy needs no code change.
 
 ## Next (in order)
 
-1. `chain` MarketService against local Anvil: `marketCount/marketAt`, controller reads, `previewPolicy`, token metadata, prices. Verify chain id + bytecode before enabling writes. Add `@peridot/chain-config` as a dependency for ABIs.
-2. wagmi write driver producing `TxState` (approve → sign → pending → receipt), cache invalidation on confirmation, decode reverts with the generated ABIs through `mapContractError`.
-3. Studio v1.2 flow for real: `marketTemplatePolicy` → `addReferenceCircuit` (dev reference) → `registerMarketTemplate` → `createMarket`; read on-chain `MARKET_TEMPLATE_ROOT()` for the root gate.
-4. Sentinel: `accountOf`, create/fund/supply/enter/borrow/repay/withdraw, `setOperator`/`revokeOperator`/`setAutoRepayTrigger`.
-5. Activity: `PolicyAllowed` + `AutoRepayExecuted` logs with receipts; keeper `GET /v1/activity` (verify chain/factory/account/operator scope first).
-6. Playwright E2E with an injected EIP-1193 test provider that forwards to Anvil's unlocked accounts (no private key in the repo).
+1. Keeper read API through a server-side proxy route; show rows only when chain, factory, account and operator match the viewed account.
+2. Sentinel owner writes: `setOperator` / `revokeOperator` / `setAutoRepayTrigger` / `withdraw`, then extend the E2E with repay, withdraw and revoke.
+3. Chain-mode checks at 390 px and a chain-mode run of the route checks.
+4. Testnet 1952: nothing to change in code. Once the manifest says `deployed`, the same chain services apply; verify with a real wallet extension.
+5. Landing polish and the developer evidence views.
 
 ## Answers from Astra (M4-testnet-preflight-and-frontend-reads, f88817a)
 
@@ -64,14 +71,6 @@ Always kill only the dev server PID you started. Astra shares the machine: never
 ## Local deployment probe (read-only, 2026-11-25)
 
 `packages/chain-config/deployments/31337.json` resolves to `deployed` under `src/lib/manifest.ts`. Manifest root == SDK `STUDIO_MARKET_ROOT` == on-chain `PolicyRegistry.MARKET_TEMPLATE_ROOT()` on `http://127.0.0.1:18545` (chain id 31337, 10/10 manifest contracts have code, `marketCount()` = 1 at probe time). `@peridot/chain-config` is NOT linked in root `node_modules` yet: adding it as a dependency needs a root install and a lockfile refresh (Claude owns the lockfile).
-
-## Local wallet E2E: NOT RUN in run 1 (2026-11-25)
-
-- The shared node at `http://127.0.0.1:18545` went down mid-run (ECONNREFUSED) and came back later. Last read-only probe: chain id 31337, block 30, factory has code, on-chain `MARKET_TEMPLATE_ROOT()` == SDK root, `marketCount()` = 1 (market #0 owned by Anvil account #0, active), both mock prices fresh, processor `nextId()` = 3, accounts #2-#5 and #7 have nonce 0 (candidates for the E2E wallet; #0 is the demo owner, #1 the keeper operator, #6 has been used). Keeper port 8787 was not listening.
-- Starting my own node on 18546 plus `deploy-demo.mjs local --ops=fresh` was denied by the session's permission system. Do not work around it.
-- `@peridot/chain-config@1.0.0` is declared in `apps/web/package.json` but NOT linked in root `node_modules` yet: Claude runs the root install and commits the lockfile. Until then nothing may import it.
-- No chain service code was written. Nothing in the app reads a chain.
-- Astra's guidance (MILESTONE_LOG `M5-fable-policy-read-and-local-e2e`): show readable ACCOUNT rules only if BOTH `configHash` and `netlistHash` of a compiled candidate (saved spec, shipped fixture) match `registry.getPolicy(id)`; otherwise "Rules unavailable" plus policy ID, processor/circuit and hashes. `policyId() == 0` means the owner revoked the policy. Keep the canonical market, the shared oracle price and the keeper grant untouched.
 
 ## Settled for the E2E (no longer open)
 

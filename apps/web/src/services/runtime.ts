@@ -11,12 +11,16 @@ import { WRITE_CHAIN_ID } from "../lib/chains.ts";
 import { type ManifestState, resolveManifest } from "../lib/manifest.ts";
 import type { DataSource, ServiceName } from "./types.ts";
 
-/** Flip a flag only when the chain implementation is real and verified against the generated ABIs. */
+/**
+ * Flip a flag only when the chain implementation is real and verified against the generated ABIs.
+ * All four are implemented (src/services/chain). They still only take effect on a target whose manifest
+ * is `deployed`; market and account must be flipped together because accounts reference chain market ids.
+ */
 export const CHAIN_IMPL_READY: Record<Exclude<ServiceName, "wallet">, boolean> = {
-  market: false,
-  account: false,
-  policy: false,
-  activity: false,
+  market: true,
+  account: true,
+  policy: true,
+  activity: true,
 };
 
 export interface ServiceMode {

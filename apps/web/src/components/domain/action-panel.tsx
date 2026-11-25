@@ -3,11 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Button, ExampleTag, Notice, Skeleton, cx } from "@/components/ui/core";
 import { IconAlert, IconLock } from "@/components/ui/icons";
 import { useOperationPreview } from "@/hooks/use-data";
+import { useChainTx } from "@/hooks/use-chain-tx";
 import { useWriteGate } from "@/hooks/use-wallet";
 import { formatAmount, formatBps, parseAmount } from "@/lib/amount";
 import { WRITE_CHAIN_ID } from "@/lib/chains";
 import { Op, type OpId } from "@/lib/policy";
 import { RUNTIME } from "@/services";
+import { mintTestTokensPlan, operationPlan } from "@/services/chain/plans";
 import type { ActingPath, Leg, Market, OperationRequest, Position, SentinelAccount } from "@/services/types";
 import { AmountInput } from "./amount-input";
 import { CheckList, PreviewEvidence, RejectionCallout, friendlyFromPreview } from "./policy-checks";
@@ -28,8 +30,11 @@ export function ActionPanel({ market, account, direct, initialTab = "supply", pa
   const [leg, setLeg] = useState<Leg>("collateral");
   const [text, setText] = useState("");
   const gate = useWriteGate("market");
-  const tx = useSimulatedTx();
-  const resetTx = tx.reset;
+  const simulatedTx = useSimulatedTx();
+  const chainTx = useChainTx();
+  const tx = gate.allowed ? chainTx : simulatedTx;
+  const resetSimulated = simulatedTx.reset;
+  const resetChain = chainTx.reset;
 
   const op = TABS.find((entry) => entry.id === tab)!.op;
   // Borrow and repay are always in the debt asset. Lending the debt asset is a wallet action; the Sentinel account supplies collateral only.
@@ -39,8 +44,9 @@ export function ActionPanel({ market, account, direct, initialTab = "supply", pa
 
   useEffect(() => {
     setText("");
-    resetTx();
-  }, [tab, path, effectiveLeg, resetTx]);
+    resetSimulated();
+    resetChain();
+  }, [tab, path, effectiveLeg, resetSimulated, resetChain]);
 
   const parsed = parseAmount(text, token.decimals);
   const amount = parsed.ok && parsed.value > 0n ? parsed.value : null;
@@ -64,9 +70,15 @@ export function ActionPanel({ market, account, direct, initialTab = "supply", pa
   const needsApproval = path === "direct" && (tab === "supply" || tab === "repay");
   const inactiveBlock = !market.active && tab === "borrow";
 
+  const summary = data ? `${formatAmount(data.request.amount, token.decimals)} ${token.symbol} · ${actionLabel}` : actionLabel;
+  const execute = async () => {
+    if (!data || !gate.allowed) return;
+    const result = await chainTx.run(operationPlan(market, data.request, path === "sentinel" ? account : null), summary);
+    if (result.ok) setText("");
+  };
   const simulate = () => {
     if (!data) return;
-    tx.run({
+    simulatedTx.run({
       approval: needsApproval ? `Approve ${token.symbol}` : undefined,
       action: `${actionLabel} from ${path === "sentinel" ? "your Sentinel account" : "your wallet"}`,
       simulatedFailure: rejection,
@@ -164,7 +176,7 @@ export function ActionPanel({ market, account, direct, initialTab = "supply", pa
       <TxFeedback state={tx.state} chainId={WRITE_CHAIN_ID} marketId={market.id} />
 
       <div className="space-y-2.5">
-        <Button className="w-full" size="lg" disabled={!gate.allowed || !data || rejection !== null || inactiveBlock}>
+        <Button className="w-full" size="lg" disabled={!gate.allowed || !data || rejection !== null || inactiveBlock || tx.state.phase === "running"} onClick={execute} data-testid="submit">
           {!gate.allowed ? <IconLock size={17} /> : null}
           {actionLabel}
         </Button>
@@ -176,6 +188,11 @@ export function ActionPanel({ market, account, direct, initialTab = "supply", pa
         {gate.allowed === false && gate.reason === "fixture" ? (
           <Button variant="secondary" className="w-full" disabled={!data || tx.state.phase === "running"} onClick={simulate} data-testid="simulate">
             {tx.state.phase === "done" ? "Run simulation again" : "Walk through as a simulation"}
+          </Button>
+        ) : null}
+        {gate.allowed && market.collateral.token.mock ? (
+          <Button variant="ghost" size="sm" className="w-full" disabled={tx.state.phase === "running"} onClick={() => chainTx.run(mintTestTokensPlan(market), "Test tokens minted to your wallet. They have no value.")} data-testid="mint-test-tokens">
+            Mint test tokens to my wallet
           </Button>
         ) : null}
       </div>

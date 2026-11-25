@@ -27,7 +27,7 @@ const wethPrice = { usdE18: 2_000n * E18, fresh: true, updatedAt: "2026-11-25T09
 const usdcPrice = { usdE18: 1n * E18, fresh: true, updatedAt: "2026-11-25T09:58:00Z", feed: FEED };
 
 function record<S extends Parameters<typeof compileSpec>[0]>(spec: S): PolicyRecord<S> {
-  return { spec, compiled: compileSpec(spec), registration: none(NOT_REGISTERED) };
+  return { identified: true, spec, compiled: compileSpec(spec), registration: none(NOT_REGISTERED) };
 }
 
 export const MARKET_POLICY_STANDARD = record(marketPolicySpec(6500, true, "Standard market guard"));

@@ -1,0 +1,178 @@
+{
+  "label": "Local development chain (unforked Anvil 31337) with the development reference processor. Not TapeOut, not a public transaction: these hashes exist only on this local node and must never be linked to an explorer.",
+  "note": "Earlier run of apps/web/scripts/e2e-local.mjs in the same session, kept because it is the run in which the 55% market policy was NEW: the Studio step sent all three wallet transactions (addReferenceCircuit, registerMarketTemplate, createMarket). The later run recorded in local-e2e.json reused that policy and sent createMarket only. Receipts re-read from the node when this file was written.",
+  "chainId": 31337,
+  "rpc": "http://127.0.0.1:18545",
+  "account": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+  "market": "0x72D1fE35eB1aEb7437eEeCa567A93F67dD76A9dA",
+  "steps": [
+    {
+      "label": "studio: (circuit on processor, register market template when the policy is new) + create market",
+      "receipts": [
+        {
+          "hash": "0x682a92911dda3045328a492a7f01ca629bb3e36bff71b57af35e6776f7eba126",
+          "to": "0xa513e6e4b8f2a923d98304ec87f64353c4d5c853",
+          "selector": "0x301311b6",
+          "block": 37,
+          "status": "success",
+          "gasUsed": 440658
+        },
+        {
+          "hash": "0xc1467f050f6e022cc56ffa75035c9c435979ae18e97838cef790d8ec6534eec2",
+          "to": "0x5fc8d32690cc91d4c39d9d3abcbd16989f875707",
+          "selector": "0x97a0d42c",
+          "block": 38,
+          "status": "success",
+          "gasUsed": 322610
+        },
+        {
+          "hash": "0x9f89ad684ba0b7adb026d9a3b2944161c2403ddc50a74b2f6140008bf235fcfa",
+          "to": "0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0",
+          "selector": "0x037bf465",
+          "block": 39,
+          "status": "success",
+          "gasUsed": 3113509
+        }
+      ]
+    },
+    {
+      "label": "wallet: mint test tokens (permissionless mock tokens)",
+      "receipts": [
+        {
+          "hash": "0x50da419f80963870b05f5ab1f287b4b73089032d46786e8ae3ece441f6938110",
+          "to": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+          "selector": "0x40c10f19",
+          "block": 40,
+          "status": "success",
+          "gasUsed": 33923
+        },
+        {
+          "hash": "0x9ce13058745bee1249b03d0e34684f01a1e36e29e80ad10fcfbdb075256ba261",
+          "to": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+          "selector": "0x40c10f19",
+          "block": 41,
+          "status": "success",
+          "gasUsed": 33875
+        }
+      ]
+    },
+    {
+      "label": "wallet: approve + supply 500 debt-asset liquidity (direct pToken mint)",
+      "receipts": [
+        {
+          "hash": "0x3ab9b16375da7feefb701ec3e82f33434983095da3979bc3b3e09e944f97f9dc",
+          "to": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+          "selector": "0x095ea7b3",
+          "block": 42,
+          "status": "success",
+          "gasUsed": 45926
+        },
+        {
+          "hash": "0x9973d303c49e0fb3837d0eff0c9cd9cee0d45ff07e3a90588c0c5af5ec61aff6",
+          "to": "0x46a9cf43b44f5ceb06747af10955a02fd6671783",
+          "selector": "0xa0712d68",
+          "block": 43,
+          "status": "success",
+          "gasUsed": 334766
+        }
+      ]
+    },
+    {
+      "label": "studio: activate market",
+      "receipts": [
+        {
+          "hash": "0x3218467fef354faae4bcb1844a31c4e8b26185fe632c8db968f0ae06bac14655",
+          "to": "0x72d1fe35eb1aeb7437eeeca567a93f67dd76a9da",
+          "selector": "0x0f15f4c0",
+          "block": 44,
+          "status": "success",
+          "gasUsed": 93845
+        }
+      ]
+    },
+    {
+      "label": "sentinel: create account for the new market",
+      "receipts": [
+        {
+          "hash": "0x8b3e318c58e37bfcd9336173a59ed156eb8478f5f15c9f914808d5ef8d233758",
+          "to": "0x0dcd1bf9a1b36ce34237eeafef220932846bcd82",
+          "selector": "0xf14ddffc",
+          "block": 45,
+          "status": "success",
+          "gasUsed": 1706969
+        }
+      ]
+    },
+    {
+      "label": "sentinel: fund account (plain transfer) + supply 10 collateral + enable collateral",
+      "receipts": [
+        {
+          "hash": "0x4adc138caab88b648419fbd1d67fe5944e97de44bda145812d7d5520988a349f",
+          "to": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+          "selector": "0xa9059cbb",
+          "block": 46,
+          "status": "success",
+          "gasUsed": 51275
+        },
+        {
+          "hash": "0x851cd9cc14004948097120312fe8941191be906107dae0f6b1f83fe1a2afc16c",
+          "to": "0x4abeaca4b05d8fa4ced09d26ad28ea298e8afac8",
+          "selector": "0x35403023",
+          "block": 47,
+          "status": "success",
+          "gasUsed": 458570
+        },
+        {
+          "hash": "0x4d3de6babe62c8821912fe853fdeddceb68ee251694e072efeac51ec7a0d51a1",
+          "to": "0x4abeaca4b05d8fa4ced09d26ad28ea298e8afac8",
+          "selector": "0xc1466108",
+          "block": 48,
+          "status": "success",
+          "gasUsed": 51056
+        }
+      ]
+    },
+    {
+      "label": "sentinel: borrow 5 (allowed by account policy and market policy)",
+      "receipts": [
+        {
+          "hash": "0x8c42f87138c59848f25c705d88e0dc370f418938eace4750a163b29ebc8a1af4",
+          "to": "0x4abeaca4b05d8fa4ced09d26ad28ea298e8afac8",
+          "selector": "0xc5ebeaec",
+          "block": 49,
+          "status": "success",
+          "gasUsed": 540099
+        }
+      ]
+    },
+    {
+      "label": "wallet: approve + supply 10 collateral + enter market (direct)",
+      "receipts": [
+        {
+          "hash": "0xa193c0a9b96c10d7289d49e3b20c570d468bd6abb15c62b11672cb7afca1ec3b",
+          "to": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+          "selector": "0x095ea7b3",
+          "block": 50,
+          "status": "success",
+          "gasUsed": 45962
+        },
+        {
+          "hash": "0x06562771534cd815cd920a8de8943d680b0f39bb09301ce69140ef77246b550b",
+          "to": "0x235b28c74f19083a5cace20c506513417a90be29",
+          "selector": "0xa0712d68",
+          "block": 51,
+          "status": "success",
+          "gasUsed": 297555
+        },
+        {
+          "hash": "0x66d3180c8a6f35e26102edcefed99c2001c4f42e68f30496af716e23daa81287",
+          "to": "0x72d1fe35eb1aeb7437eeeca567a93f67dd76a9da",
+          "selector": "0xc2998238",
+          "block": 52,
+          "status": "success",
+          "gasUsed": 47414
+        }
+      ]
+    }
+  ]
+}

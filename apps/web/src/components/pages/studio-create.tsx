@@ -5,10 +5,12 @@ import { AmountInput } from "@/components/domain/amount-input";
 import { TokenGlyph } from "@/components/domain/market-bits";
 import { PolicyIdentity, PolicyRules } from "@/components/domain/policy-card";
 import { TxFeedback, useSimulatedTx } from "@/components/domain/tx-feedback";
-import { Badge, Button, Card, EmptyState, ExampleTag, Mono, Notice, PageHeader, Skeleton, cx } from "@/components/ui/core";
+import { Badge, Button, ButtonLink, Card, EmptyState, ExampleTag, Mono, Notice, PageHeader, Skeleton, cx } from "@/components/ui/core";
 import { IconAlert, IconArrowRight, IconCheck, IconChevronRight, IconInfo, IconLock } from "@/components/ui/icons";
 import { useMarkets } from "@/hooks/use-data";
-import { useWriteGate } from "@/hooks/use-wallet";
+import { useChainTx } from "@/hooks/use-chain-tx";
+import { useDeploymentCheck, useWriteGate } from "@/hooks/use-wallet";
+import { createdMarket, studioCreatePlan } from "@/services/chain/plans";
 import { formatAmount, formatBps, parseAmount } from "@/lib/amount";
 import { WRITE_CHAIN_ID } from "@/lib/chains";
 import { EVIDENCE } from "@/lib/evidence";
@@ -28,7 +30,11 @@ const PRESETS = [
 export function StudioCreate() {
   const markets = useMarkets();
   const gate = useWriteGate("market");
-  const tx = useSimulatedTx();
+  const simulatedTx = useSimulatedTx();
+  const chainTx = useChainTx();
+  const deployment = useDeploymentCheck();
+  const [created, setCreated] = useState<string | null>(null);
+  const tx = gate.allowed ? chainTx : simulatedTx;
   const [step, setStep] = useState(0);
   const [preset, setPreset] = useState<(typeof PRESETS)[number]["id"]>("standard");
   const [borrow, setBorrow] = useState(7000);
@@ -41,13 +47,13 @@ export function StudioCreate() {
   const reference = markets.data?.status === "ok" ? (markets.data.value[0] ?? null) : null;
   const policy = useMemo<PolicyRecord>(() => {
     const spec = marketPolicySpec(cap, reserve);
-    return { spec, compiled: compileSpec(spec), registration: { status: "unavailable", reason: "Not registered yet. You register it from your wallet in step 2 of the transaction plan." } };
+    return { identified: true, spec, compiled: compileSpec(spec), registration: { status: "unavailable", reason: "Not registered yet. You register it from your wallet in step 2 of the transaction plan." } };
   }, [cap, reserve]);
   const template = useMemo(() => studioTemplate(cap, reserve), [cap, reserve]);
   // Creation is gated on SDK root == manifest root == on-chain MARKET_TEMPLATE_ROOT() (INTERFACES v1.2).
   const manifest = RUNTIME.manifest.state === "deployed" ? RUNTIME.manifest.manifest : null;
   const manifestRoot = manifest?.capabilities.studioMarketTemplateRoot ? okValue(manifest.capabilities.studioMarketTemplateRoot) : unavailable<string>(manifest ? "this deployment predates Studio templates" : "no deployment");
-  const rootCheck = checkTemplateRoots(manifestRoot, unavailable("on-chain reads are not enabled in this build"));
+  const rootCheck = checkTemplateRoots(manifestRoot, deployment.data?.ok ? okValue(deployment.data.root) : unavailable(deployment.data && !deployment.data.ok ? deployment.data.reason : "on-chain reads are not enabled in this build"));
   const processorMode = manifest?.tapeout.mode ?? null;
 
   if (markets.isPending) return <Skeleton className="h-96" data-loading />;
@@ -272,11 +278,16 @@ export function StudioCreate() {
                 Limits and caps are immutable once the market exists. Gas and any fabrication fee are not refundable. You can replace the policy later with another registered policy: immediately on testnet, timelocked in production.
               </Notice>
               <TxFeedback state={tx.state} chainId={WRITE_CHAIN_ID} />
+              {created ? (
+                <ButtonLink href={`/studio/${created}`} data-testid="open-created-market">
+                  Open your market <IconArrowRight size={16} />
+                </ButtonLink>
+              ) : null}
             </div>
           ) : null}
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
-            <Button variant="ghost" onClick={() => { tx.reset(); setStep(Math.max(0, step - 1)); }} disabled={step === 0}>
+            <Button variant="ghost" onClick={() => { simulatedTx.reset(); chainTx.reset(); setStep(Math.max(0, step - 1)); }} disabled={step === 0}>
               Back
             </Button>
             {step < 3 ? (
@@ -286,11 +297,20 @@ export function StudioCreate() {
             ) : (
               <div className="flex flex-wrap items-center justify-end gap-2">
                 {gate.allowed === false && gate.reason === "fixture" ? (
-                  <Button variant="secondary" disabled={tx.state.phase === "running"} onClick={() => tx.run({ action: "Create market", successSummary: "The market would be created inactive, owned by your wallet. Next: seed liquidity, then activate." })}>
+                  <Button variant="secondary" disabled={tx.state.phase === "running"} onClick={() => simulatedTx.run({ action: "Create market", successSummary: "The market would be created inactive, owned by your wallet. Next: seed liquidity, then activate." })}>
                     Walk through as a simulation
                   </Button>
                 ) : null}
-                <Button disabled={!gate.allowed || rootCheck.status !== "match" || template.status !== "ok"}>
+                <Button
+                  disabled={!gate.allowed || rootCheck.status !== "match" || template.status !== "ok" || !capsValid || !capsCoherent || !riskValid || tx.state.phase === "running" || created !== null}
+                  data-testid="create-market"
+                  onClick={async () => {
+                    if (template.status !== "ok" || !parsedCaps.collateral.ok || !parsedCaps.debt.ok || !parsedCaps.borrowCap.ok || !parsedCaps.minCash.ok) return;
+                    const limits = { borrowLtvBps: borrow, liquidationLtvBps: liquidation, collateralSupplyCap: parsedCaps.collateral.value, debtSupplyCap: parsedCaps.debt.value, borrowCap: parsedCaps.borrowCap.value, minCash: parsedCaps.minCash.value };
+                    const result = await chainTx.run(studioCreatePlan(template.value, limits), "Market created, inactive. You are its owner. Next: seed liquidity, then activate.");
+                    if (result.ok) setCreated(createdMarket(result.receipts.map((receipt) => receipt.logs)));
+                  }}
+                >
                   {!gate.allowed || rootCheck.status !== "match" ? <IconLock size={16} /> : null} Create market
                 </Button>
               </div>

@@ -49,6 +49,12 @@ export interface PolicyRegistration {
 }
 
 export interface PolicyRecord<S extends PolicySpec = PolicySpec> {
+  /**
+   * False when a registered policy's rules could not be recovered: the registry stores hashes only, and rules are
+   * shown only if a compiled candidate matches BOTH configHash and netlistHash. `spec` is then a placeholder and
+   * must not be displayed.
+   */
+  identified: boolean;
   spec: S;
   /** Compiled locally with @peridot/circuit-sdk: deterministic config hash, netlist hash and gate count. */
   compiled: Maybe<CompiledPolicy>;
@@ -139,7 +145,8 @@ export interface OperationRequest {
 }
 
 export type CheckId = "balance" | "account-policy" | "protocol" | "market-policy";
-export type CheckStatus = "pass" | "fail" | "not-applicable";
+/** `unknown`: not evaluated, because an earlier check already decided the outcome on chain. */
+export type CheckStatus = "pass" | "fail" | "not-applicable" | "unknown";
 
 export interface CheckResult {
   id: CheckId;

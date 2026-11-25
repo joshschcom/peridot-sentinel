@@ -30,7 +30,7 @@ export function TokenPair({ market, size = 36 }: { market: Market; size?: number
 export function TokenGlyph({ token, size = 36, className = "" }: { token: TokenInfo; size?: number; className?: string }) {
   return (
     <span className={`grid place-items-center rounded-full border border-line-strong bg-surface text-sm font-semibold ${className}`} style={{ width: size, height: size }}>
-      {token.symbol.replace(/^t/, "").slice(0, 1)}
+      {token.symbol.replace(/^[tm](?=[A-Z])/, "").slice(0, 1).toUpperCase()}
     </span>
   );
 }

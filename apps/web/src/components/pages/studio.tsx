@@ -1,10 +1,14 @@
 "use client";
 import Link from "next/link";
 import { MarketBadges, TokenPair, marketTitle, tokenAmount, usdOf, usdText, utilizationBps } from "@/components/domain/market-bits";
-import { PolicyIdentity, PolicyRules, SourceTag } from "@/components/domain/policy-card";
+import { PolicyIdentity, PolicyRules, SourceTag, capText } from "@/components/domain/policy-card";
 import { Badge, Button, ButtonLink, Card, CardHeader, DefinitionRow, EmptyState, Mono, Notice, PageHeader, Skeleton, Stat, Value } from "@/components/ui/core";
 import { IconAlert, IconArrowRight, IconCheck, IconChevronRight, IconLock, IconMinus } from "@/components/ui/icons";
+import { TxFeedback } from "@/components/domain/tx-feedback";
+import { useChainTx } from "@/hooks/use-chain-tx";
 import { useMarket, useMarkets } from "@/hooks/use-data";
+import { WRITE_CHAIN_ID } from "@/lib/chains";
+import { activatePlan } from "@/services/chain/plans";
 import { useWriteGate } from "@/hooks/use-wallet";
 import { formatBps } from "@/lib/amount";
 import { formatDay, shortAddress } from "@/lib/format";
@@ -63,7 +67,7 @@ export function StudioHome() {
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     <MarketBadges market={market} />
                   </div>
-                  <p className="mt-2 text-[0.8125rem] text-muted">{market.active ? `Policy cap ${formatBps(market.policy.spec.params.maxLtvBps)} · created ${formatDay(market.createdAt)}` : "Draft: needs liquidity and activation"}</p>
+                  <p className="mt-2 text-[0.8125rem] text-muted">{market.active ? `Policy cap ${capText(market.policy)} · created ${formatDay(market.createdAt)}` : "Draft: needs liquidity and activation"}</p>
                 </div>
                 <IconChevronRight size={20} className="shrink-0 text-faint" />
               </Link>
@@ -78,6 +82,7 @@ export function StudioHome() {
 export function StudioMarket({ id }: { id: string }) {
   const market = useMarket(id);
   const gate = useWriteGate("market");
+  const tx = useChainTx();
   if (market.isPending) return <Skeleton className="h-96" data-loading />;
   const m = market.data?.status === "ok" ? market.data.value : null;
   if (!m) {
@@ -125,17 +130,25 @@ export function StudioMarket({ id }: { id: string }) {
           <ul className="space-y-3 p-5 sm:p-6">
             <Check done={liquidity} title="Lending liquidity seeded" body={liquidity ? "The market holds borrowable funds." : `Supply ${m.debt.token.symbol} to the lending side first.`} />
             <Check done={feed} title="Price feed valid" body={feed ? "Both assets have a fresh, positive price." : "A price is missing or stale."} />
-            <Check done={policyReady} title="Policy circuit set" body={`Market max LTV ${formatBps(m.policy.spec.params.maxLtvBps)}.`} />
+            <Check done={policyReady} title="Policy circuit set" body={`Market max LTV ${capText(m.policy)}.`} />
           </ul>
           <div className="flex flex-wrap items-center gap-3 border-t border-line p-5 sm:p-6">
-            <Button disabled={!canAct || !liquidity || !feed}>
+            <Button disabled={!canAct || !liquidity || !feed || tx.state.phase === "running"} onClick={() => m.controller.status === "ok" && tx.run(activatePlan(m.controller.value), "Market activated. Borrowing is open under its policy.")} data-testid="activate-market">
               {!canAct ? <IconLock size={16} /> : null} Activate market
             </Button>
             <ButtonLink href={`/markets/${m.id}`} variant="secondary">
               Seed liquidity
             </ButtonLink>
-            <p className="text-[0.8125rem] text-muted">{!gate.allowed ? gate.message : !liquidity ? "Seed liquidity before activating." : ""}</p>
+            <p className="text-[0.8125rem] text-muted">{!gate.allowed ? gate.message : !m.ownedByViewer ? "Only the market owner can activate." : !liquidity ? "Seed liquidity before activating." : ""}</p>
           </div>
+
+        </Card>
+      ) : null}
+
+      {/* Outside the checklist card: that card disappears the moment the market becomes active. */}
+      {tx.state.phase !== "idle" ? (
+        <Card className="p-5 sm:p-6">
+          <TxFeedback state={tx.state} chainId={WRITE_CHAIN_ID} />
         </Card>
       ) : null}
 

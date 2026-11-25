@@ -11,9 +11,11 @@ const DAY = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", y
 
 /** Timestamps are rendered in UTC so server and client output match. */
 export function formatTime(iso: string): string {
-  return `${DATE.format(new Date(iso))} UTC`;
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "Time unavailable" : `${DATE.format(date)} UTC`;
 }
 
 export function formatDay(iso: string): string {
-  return DAY.format(new Date(iso));
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "date unavailable" : DAY.format(date);
 }

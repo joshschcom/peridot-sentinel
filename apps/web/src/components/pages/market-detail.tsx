@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ActionPanel, type ActionTab } from "@/components/domain/action-panel";
 import { LtvMeter } from "@/components/domain/ltv-meter";
 import { Amount, MarketBadges, TokenPair, marketTitle, tokenAmount, usdOf, usdText, utilizationBps } from "@/components/domain/market-bits";
-import { PolicyIdentity, PolicyRules, SourceTag } from "@/components/domain/policy-card";
+import { PolicyIdentity, PolicyRules, SourceTag, capText } from "@/components/domain/policy-card";
 import { Badge, Button, Card, CardHeader, DefinitionRow, EmptyState, Notice, Skeleton, Stat, Value, cx } from "@/components/ui/core";
 import { IconAlert, IconChevronRight } from "@/components/ui/icons";
 import { Sheet } from "@/components/ui/sheet";
@@ -126,8 +126,8 @@ export function MarketDetail({ id }: { id: string }) {
                     className="mt-6"
                     value={ltv}
                     markers={[
-                      ...(path === "sentinel" && sentinel ? [{ bps: sentinel.policy.spec.params.maxLtvBps, label: "Your cap" }] : []),
-                      { bps: m.policy.spec.params.maxLtvBps, label: "Market policy cap" },
+                      ...(path === "sentinel" && sentinel?.policy.identified ? [{ bps: sentinel.policy.spec.params.maxLtvBps, label: "Your cap" }] : []),
+                      ...(m.policy.identified ? [{ bps: m.policy.spec.params.maxLtvBps, label: "Market policy cap" }] : []),
                       { bps: m.limits.borrowLtvBps, label: "Borrowing limit", tone: "warning" as const },
                       { bps: m.limits.liquidationLtvBps, label: "Liquidation", tone: "danger" as const },
                     ]}
@@ -144,7 +144,7 @@ export function MarketDetail({ id }: { id: string }) {
 
           {/* Market policy */}
           <Card as="section" id="policy" className="scroll-mt-28">
-            <CardHeader eyebrow="Set by the market owner" title="Market policy" description="Applies to every account and wallet using this market, including direct contract calls." action={<Badge tone="outline">{m.policy.spec.params.maxLtvBps / 100}% cap</Badge>} />
+            <CardHeader eyebrow="Set by the market owner" title="Market policy" description="Applies to every account and wallet using this market, including direct contract calls." action={<Badge tone="outline">{capText(m.policy)} cap</Badge>} />
             <div className="space-y-4 p-5 sm:p-6">
               <PolicyRules record={m.policy} />
               <PolicyIdentity record={m.policy} />

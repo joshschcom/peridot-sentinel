@@ -610,3 +610,48 @@ verification: ["RED on old deployed model: market aggregate debt after 86,400 bl
 known_limitations: ["Old deployed instances retain their original rate model until redeployment. Unforked Anvil simulates the chosen cadence; it normally mines on demand."]
 next_dependency: "Claude: please checkpoint contracts/script/{DemoRateModel.sol,deploy-demo.mjs}, contracts/test/{markets/Market.t.sol,sentinel/Sentinel.t.sol} and packages/chain-config/src/abis.ts now for the new clean-commit public preflight; no signer or broadcast. Astra continues the rehearsal on 18547."
 ```
+
+```yaml
+milestone: M4-local-Studio-demo-operations / M4-keeper-service-activity / M5-fable-policy-read-and-local-e2e (local wallet E2E)
+from: fable
+status: integrated
+scope_of_integrated: "Studio create, market supply and activation, Sentinel account flow, policy rejections and the activity view, driven from the browser through the app's own wallet path on the shared local chain. The keeper read API is NOT integrated (see not_integrated)."
+commit: "the commit that adds this entry (apps/web chain mode + E2E); previous web commits a6860e6, 89ccd40, 519611f"
+chain_id: "31337, unforked Anvil at http://127.0.0.1:18545 (shared node), development reference processor. Not TapeOut. Not a public transaction."
+abi_version: "INTERFACES v1.2; generated ABIs from @peridot/chain-config@1.0.0"
+manifest: packages/chain-config/deployments/31337.json (validated; in-app check of chain id, bytecode at every manifest address, and template root SDK == manifest == on-chain before any read or write)
+wallet: "Anvil unlocked account #3 0x90F79bf6EB2c4f870365E785982E1f101E93b906 (not the deployer #0, not the keeper operator #1), behind a test-only injected EIP-1193 provider that forwards to the loopback RPC. No private key in the repo. Canonical market #0, the shared oracle price and the keeper grant were not touched."
+evidence:
+  files: ["evidence/fable/local-e2e.json (final clean run: 14 tx, 0 reverted, 0 page errors)", "evidence/fable/local-e2e-first-full-studio-run.json (earlier run in which the 55% policy was new: 16 tx, 0 reverted)", "evidence/screenshots/local-e2e/01..11-*.png"]
+  studio_full_flow_run: # policy 5500 bps / reserve on was new; market 0x72D1fE35eB1aEb7437eEeCa567A93F67dD76A9dA
+    addReferenceCircuit: "0x682a92911dda3045328a492a7f01ca629bb3e36bff71b57af35e6776f7eba126"
+    registerMarketTemplate: "0xc1467f050f6e022cc56ffa75035c9c435979ae18e97838cef790d8ec6534eec2"
+    createMarket: "0x9f89ad684ba0b7adb026d9a3b2944161c2403ddc50a74b2f6140008bf235fcfa"
+    supply_liquidity: ["0x3ab9b16375da7feefb701ec3e82f33434983095da3979bc3b3e09e944f97f9dc (approve)", "0x9973d303c49e0fb3837d0eff0c9cd9cee0d45ff07e3a90588c0c5af5ec61aff6 (mint 500 mUSD)"]
+    activate: "0x3218467fef354faae4bcb1844a31c4e8b26185fe632c8db968f0ae06bac14655"
+    sentinel_createAccount: "0x8b3e318c58e37bfcd9336173a59ed156eb8478f5f15c9f914808d5ef8d233758"
+    sentinel_fund_supply_enter: ["0x4adc138caab88b648419fbd1d67fe5944e97de44bda145812d7d5520988a349f", "0x851cd9cc14004948097120312fe8941191be906107dae0f6b1f83fe1a2afc16c", "0x4d3de6babe62c8821912fe853fdeddceb68ee251694e072efeac51ec7a0d51a1"]
+    sentinel_borrow: "0x8c42f87138c59848f25c705d88e0dc370f418938eace4750a163b29ebc8a1af4"
+  final_clean_run: # policy reused; market 0xc72500B2CA87DF8f964662A6bd3E4D94fA6Cf90d
+    createMarket: "0xb6c8fe017af0ef1503e969d907c72111bcb3db8d956eb6be6f9a3cbba7f04ea8"
+    supply_liquidity: ["0xcc2843edc04e66721ad3d6f045891052df6cb698e8c8060efbd437b88433cac4 (approve)", "0x0388e35ba0991d7efe25aa41b37b8fbcd741d4345d6b3364193edcca75f9aeb2 (mint 500 mUSD)"]
+    activate: "0x4b4f9347cf7a6b4dc1fac9b9405ea62cf105287eff4ea37b4ead1253a5ed0d69"
+    sentinel_createAccount: "0x8467b1724cc5406faedf59a149c148a921fb0f6734ab7b4e71549b803c791876"
+    sentinel_fund_supply_enter: ["0x2736fa382fc5f060bd3246df11447c029acaec393336b67bf95ca6a84fa0e536", "0x6b64e2968203eff8cd7fa54880ba752b6416d4c87c2cc20cf02712d4a8330d11", "0x5ddd0df20a74a6eb44af9101cc2b92732b6824af3cc739fdce06e18bcfb04bab"]
+    sentinel_borrow: "0x202f62f59c7010e23ef55eff20a0c3ead2086e5977ce4486dfd0b700acd48e17"
+    direct_supply_enter: ["0xcd530d76583907160f3dba37e1b4d1bc66769452f11cd46a5431ce50c2accb4d", "0xde372f1c68403f26aca4fcb204491d68764be6319553a70d04a4c084f4c61a2d", "0xe0da90fc5e451651081bcaff1065bbc9b4b452c363a4623f0acc3069907f93ba"]
+  rejections: "Both are eth_call simulations of the real entrypoint as the wallet; nothing was sent, so there is no hash. Sentinel borrow 9 mUSD against 10 mCOL (56.25%) -> AccountPolicyRejected (account cap 55%). Direct pToken borrow 9 mUSD (56.25%) -> MarketPolicyRejected (market cap 55%). The UI showed the two distinct rejection states (screenshots 07 and 09)."
+  activity: "/sentinel/activity listed 13 PolicyAllowed entries for this wallet and its Sentinel accounts with their transaction hashes, newest first (screenshot 10). A Sentinel borrow shows two entries (account + controller), as INTERFACES v1.2 describes."
+verification:
+  - "scripts/e2e-local.mjs final run: 14 transactions, 0 reverted, 0 page errors, both rejection states as expected, activity non-empty."
+  - "Default target (fixture mode) after enabling the chain services: npm test 31/31, tsc --noEmit clean, check-tokens clean, next build OK, scripts/screenshots.mjs --checks-only all passed."
+not_integrated:
+  - "Keeper read API (GET /v1/status, /v1/activity): not consumed. Activity shows on-chain events only."
+  - "Sentinel owner writes other than account creation, supply, enter collateral and borrow: setPolicy, setOperator, revokeOperator, setAutoRepayTrigger and withdraw are still locked buttons. Repay and withdraw paths exist in code but were not exercised."
+  - "Mined rejections from the frontend: none. The UI blocks a submit that simulation rejects, so the frontend evidence for rejections is simulation only (Astra's fork run has the mined reverts)."
+  - "No real wallet extension (OKX Wallet, MetaMask) was used. No chain-mode checks at mobile width."
+known_limitations:
+  - "The first E2E attempt of this session left two extra markets by account #3 on the shared node (one created with the 65% policy, not activated). They are isolated books owned by the test account."
+  - "During the first full run the dev server served a stale server render of the Sentinel pages after a hot edit (hydration warnings). After a server restart the final run had none."
+next_dependency: "Fable: keeper API via a server-side proxy, Sentinel operator/withdraw writes, chain-mode mobile checks. The E2E is re-runnable after the M5-rate-cadence-fix redeploy (it creates its own market and reads blocksPerYear() from chain)."
+```

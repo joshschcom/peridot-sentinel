@@ -113,7 +113,7 @@ export function TxFeedback({ state, chainId, marketId }: { state: TxState; chain
       ) : null}
       <ol className="space-y-0">
         {state.steps.map((step, index) => (
-          <li key={step.kind} className="relative flex gap-3 pb-4 last:pb-0">
+          <li key={`${index}-${step.title}`} className="relative flex gap-3 pb-4 last:pb-0">
             {index < state.steps.length - 1 ? <span className="absolute top-7 bottom-0 left-3 w-px bg-line" aria-hidden="true" /> : null}
             <StepIcon status={step.status} index={index} />
             <div className={cx("min-w-0 pt-0.5", (step.status === "upcoming" || step.status === "skipped") && "text-faint")}>

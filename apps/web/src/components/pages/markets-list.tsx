@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { MarketBadges, TokenPair, marketTitle, tokenAmount, utilizationBps } from "@/components/domain/market-bits";
-import { SourceTag } from "@/components/domain/policy-card";
+import { SourceTag, capText } from "@/components/domain/policy-card";
 import { Card, EmptyState, PageHeader, Skeleton, Value, cx } from "@/components/ui/core";
 import { IconChevronRight } from "@/components/ui/icons";
 import { useMarkets } from "@/hooks/use-data";
@@ -72,7 +72,7 @@ export function MarketsList() {
                       <Value of={util} short>{(v) => formatBps(v, 1)}</Value>
                     </Cell>
                     <Cell label="Policy cap · limit">
-                      {formatBps(market.policy.spec.params.maxLtvBps)} · {formatBps(market.limits.borrowLtvBps)}
+                      {capText(market.policy)} · {formatBps(market.limits.borrowLtvBps)}
                     </Cell>
                   </dl>
                 </Link>

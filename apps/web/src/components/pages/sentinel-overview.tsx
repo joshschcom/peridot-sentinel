@@ -5,7 +5,12 @@ import { Amount, marketTitle, tokenAmount, usdOf } from "@/components/domain/mar
 import { PolicyRules } from "@/components/domain/policy-card";
 import { Badge, Button, ButtonLink, Card, CardHeader, DefinitionRow, EmptyState, Notice, Skeleton, Stat, Value } from "@/components/ui/core";
 import { IconArrowRight, IconBot, IconLock, IconShield } from "@/components/ui/icons";
-import { useAccounts, useMarket } from "@/hooks/use-data";
+import { TxFeedback } from "@/components/domain/tx-feedback";
+import { useChainTx } from "@/hooks/use-chain-tx";
+import { useAccounts, useMarket, useMarkets } from "@/hooks/use-data";
+import { WRITE_CHAIN_ID } from "@/lib/chains";
+import { services } from "@/services";
+import { createAccountPlan } from "@/services/chain/plans";
 import { useWriteGate } from "@/hooks/use-wallet";
 import { formatBps, formatUsd } from "@/lib/amount";
 import { formatDay } from "@/lib/format";
@@ -30,6 +35,13 @@ export function SentinelOverview() {
         </div>
       ) : list === null ? (
         <EmptyState title="Account data unavailable">{accounts.data?.status === "unavailable" ? accounts.data.reason : "Your accounts could not be loaded."}</EmptyState>
+      ) : services.account.source === "chain" ? (
+        <>
+          {list.map((account) => (
+            <AccountView key={account.marketId} account={account} />
+          ))}
+          <CreateAccounts existing={list.map((account) => account.marketId)} />
+        </>
       ) : list.length === 0 ? (
         <EmptyState
           title="Create your Sentinel account"
@@ -101,8 +113,8 @@ function AccountView({ account }: { account: SentinelAccount }) {
           value={ltv}
           markers={[
             ...(account.autoRepayTriggerBps > 0 ? [{ bps: account.autoRepayTriggerBps, label: "Auto-repay trigger" }] : []),
-            { bps: account.policy.spec.params.maxLtvBps, label: "Your cap" },
-            { bps: m.policy.spec.params.maxLtvBps, label: "Market policy cap" },
+            ...(account.policy.identified ? [{ bps: account.policy.spec.params.maxLtvBps, label: "Your cap" }] : []),
+            ...(m.policy.identified ? [{ bps: m.policy.spec.params.maxLtvBps, label: "Market policy cap" }] : []),
             { bps: m.limits.liquidationLtvBps, label: "Liquidation", tone: "danger" as const },
           ]}
         />
@@ -171,6 +183,36 @@ function AccountView({ account }: { account: SentinelAccount }) {
         </Card>
       </div>
     </div>
+  );
+}
+
+/** Chain mode: one Sentinel account per market, created from the owner's wallet with the published account policy. */
+function CreateAccounts({ existing }: { existing: string[] }) {
+  const markets = useMarkets();
+  const gate = useWriteGate("account");
+  const tx = useChainTx();
+  const open = markets.data?.status === "ok" ? markets.data.value.filter((market) => !existing.includes(market.id)) : [];
+  if (open.length === 0 && tx.state.phase === "idle") return null;
+  return (
+    <Card as="section">
+      <CardHeader title="Create a Sentinel account" description="One account per market. The published account policy is attached at creation; you fund the account with a plain token transfer and can withdraw to your own wallet at any time." />
+      <ul className="divide-y divide-line">
+        {open.map((market) => (
+          <li key={market.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
+            <div className="text-sm">
+              <span className="font-medium">{marketTitle(market)}</span> <span className="text-muted">· market #{market.index}{market.active ? "" : " · inactive"}</span>
+            </div>
+            <Button size="sm" disabled={!gate.allowed || tx.state.phase === "running" || market.controller.status !== "ok"} onClick={() => market.controller.status === "ok" && tx.run(createAccountPlan(market.controller.value), `Sentinel account created for market #${market.index}.`)} data-testid={`create-account-${market.index}`}>
+              {!gate.allowed ? <IconLock size={15} /> : null} Create account
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <div className="space-y-3 p-5 sm:p-6">
+        {!gate.allowed ? <p className="text-[0.8125rem] text-muted">{gate.message}</p> : null}
+        <TxFeedback state={tx.state} chainId={WRITE_CHAIN_ID} />
+      </div>
+    </Card>
   );
 }
 

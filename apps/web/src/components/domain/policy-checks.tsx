@@ -37,6 +37,7 @@ function StatusDot({ status }: { status: CheckResult["status"] }) {
     pass: { className: "bg-success-soft text-success", icon: <IconCheck size={13} strokeWidth={2.4} />, label: "Passes" },
     fail: { className: "bg-danger-soft text-danger", icon: <IconX size={13} strokeWidth={2.4} />, label: "Fails" },
     "not-applicable": { className: "bg-raised text-faint", icon: <IconMinus size={13} strokeWidth={2.4} />, label: "Does not apply" },
+    unknown: { className: "border border-line-strong text-faint", icon: <span className="text-[0.625rem] font-semibold">?</span>, label: "Not evaluated" },
   }[status];
   return (
     <span className={cx("mt-0.5 grid size-5 shrink-0 place-items-center rounded-full", map.className)}>

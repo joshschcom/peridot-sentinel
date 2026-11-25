@@ -1,5 +1,5 @@
 "use client";
-import { PolicyIdentity, PolicyRules } from "@/components/domain/policy-card";
+import { PolicyIdentity, PolicyRules, SourceTag, capText } from "@/components/domain/policy-card";
 import { Badge, Card, CardHeader, DefinitionRow, ExampleTag, Mono, PageHeader, Skeleton } from "@/components/ui/core";
 import { IconArrowUpRight, IconCheck, IconX } from "@/components/ui/icons";
 import { useRegisteredPolicies, useTemplates } from "@/hooks/use-data";
@@ -168,7 +168,7 @@ export function Circuits() {
       <section className="space-y-4">
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-semibold tracking-tight">Policies in use</h2>
-          {fixture ? <ExampleTag /> : <Badge tone="success">Live</Badge>}
+          {fixture ? <ExampleTag /> : <SourceTag source="chain" />}
         </div>
         {registered.isPending ? (
           <Skeleton className="h-40" data-loading />
@@ -179,7 +179,7 @@ export function Circuits() {
                 <li key={index} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 p-4 sm:px-6">
                   <div className="min-w-0">
                     <div className="text-sm font-medium">
-                      {record.spec.label ?? record.spec.templateId} <span className="font-normal text-muted">· {record.spec.kind === "MARKET" ? "market" : "account"} · cap {record.spec.params.maxLtvBps / 100}%</span>
+                      {record.identified ? (record.spec.label ?? record.spec.templateId) : "Unidentified policy"} <span className="font-normal text-muted">· {record.spec.kind === "MARKET" ? "market" : "account"} · cap {capText(record)}</span>
                     </div>
                     <div className="num mt-0.5 text-xs text-faint">
                       {record.compiled.status === "ok" ? (

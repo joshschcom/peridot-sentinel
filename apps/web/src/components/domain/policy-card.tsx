@@ -1,5 +1,6 @@
 import { Advanced, Badge, ExampleTag, Mono } from "@/components/ui/core";
 import { IconCheck } from "@/components/ui/icons";
+import { TARGET_KIND } from "@/lib/chains";
 import { DEV_PROCESSOR_LABEL, describePolicy } from "@/lib/policy";
 import type { PolicyRecord } from "@/services/types";
 
@@ -11,6 +12,13 @@ const PROCESSOR_LABEL = {
 
 /** Readable rules first; circuit identity (hashes, gate count, registration) behind "Advanced". */
 export function PolicyRules({ record }: { record: PolicyRecord }) {
+  if (!record.identified) {
+    return (
+      <p className="rounded-control border border-line bg-subtle p-3.5 text-sm text-muted">
+        <span className="font-medium text-fg">Rules unavailable.</span> The registry stores only hashes for this policy, and no known rule set compiles to both of them. The circuit identity below is what is enforced.
+      </p>
+    );
+  }
   return (
     <ul className="space-y-2.5">
       {describePolicy(record.spec).map((rule) => (
@@ -29,9 +37,11 @@ export function PolicyIdentity({ record, open = false }: { record: PolicyRecord;
   const compiled = record.compiled;
   const body = (
     <dl className="space-y-2.5">
-      <Line label="Template">
-        <Mono>{record.spec.templateId}</Mono> · schema <Mono>{record.spec.schema}</Mono>
-      </Line>
+      {record.identified ? (
+        <Line label="Template">
+          <Mono>{record.spec.templateId}</Mono> · schema <Mono>{record.spec.schema}</Mono>
+        </Line>
+      ) : null}
       {compiled.status === "ok" ? (
         <>
           <Line label="Circuit">
@@ -66,7 +76,7 @@ export function PolicyIdentity({ record, open = false }: { record: PolicyRecord;
           <span className="text-faint">Unavailable: {record.registration.reason}</span>
         </Line>
       )}
-      <p className="text-xs text-faint">Hashes and gate count are computed in your browser by the Peridot circuit compiler from the rules above. They are deterministic and do not depend on any deployment.</p>
+      {record.identified ? <p className="text-xs text-faint">Hashes and gate count are computed in your browser by the Peridot circuit compiler from the rules above{record.registration.status === "ok" ? " and equal the registry entry" : ""}. They are deterministic.</p> : null}
     </dl>
   );
   if (open) return body;
@@ -83,5 +93,10 @@ function Line({ label, children }: { label: string; children: React.ReactNode })
 }
 
 export function SourceTag({ source }: { source: "fixture" | "chain" }) {
-  return source === "fixture" ? <ExampleTag /> : <Badge tone="success">Live</Badge>;
+  return source === "fixture" ? <ExampleTag /> : <Badge tone={TARGET_KIND === "local" ? "warning" : "success"}>{TARGET_KIND === "local" ? "Local chain" : "Live"}</Badge>;
+}
+
+/** Cap as text, or a dash when the policy's rules are not known. Never shows a placeholder number. */
+export function capText(record: PolicyRecord): string {
+  return record.identified ? `${record.spec.params.maxLtvBps / 100}%` : "—";
 }

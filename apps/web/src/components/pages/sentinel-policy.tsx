@@ -43,7 +43,7 @@ function Editor({ account }: { account: SentinelAccount }) {
 
   const draft = useMemo<PolicyRecord>(() => {
     const spec = accountPolicySpec(capBps, ops, account.policy.spec.label);
-    return { spec, compiled: compileSpec(spec), registration: { status: "unavailable", reason: "A changed policy is a new circuit. It must be fabricated and registered before it can be attached." } };
+    return { identified: true, spec, compiled: compileSpec(spec), registration: { status: "unavailable", reason: "A changed policy is a new circuit. It must be fabricated and registered before it can be attached." } };
   }, [capBps, ops, account.policy.spec.label]);
   const changed = capBps !== current.maxLtvBps || [...ops].sort().join() !== [...current.allowedOps].sort().join();
   const shown = changed ? draft : account.policy;

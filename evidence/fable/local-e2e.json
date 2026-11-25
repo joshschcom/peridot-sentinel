@@ -1,0 +1,198 @@
+{
+  "label": "Local development chain (unforked Anvil 31337) with the development reference processor. Not TapeOut, not a public transaction: these hashes exist only on this local node and must never be linked to an explorer.",
+  "driver": "apps/web/scripts/e2e-local.mjs: real browser (Playwright Chromium), the app's own wagmi wallet path, test-only injected EIP-1193 provider forwarding to Anvil's unlocked account",
+  "rpc": "http://127.0.0.1:18545",
+  "chainId": 31337,
+  "account": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+  "accountIndex": 3,
+  "startBlock": 52,
+  "endBlock": 66,
+  "market": "0xc72500B2CA87DF8f964662A6bd3E4D94fA6Cf90d",
+  "steps": [
+    {
+      "label": "studio: (circuit on processor, register market template when the policy is new) + create market",
+      "txs": [
+        "0xb6c8fe017af0ef1503e969d907c72111bcb3db8d956eb6be6f9a3cbba7f04ea8"
+      ]
+    },
+    {
+      "label": "wallet: mint test tokens (permissionless mock tokens)",
+      "txs": [
+        "0x2ffd62d0fa32b048563fc43c5df74c7edba2152c0f000015f3ceebc80c23d544",
+        "0x9062ffa1559ac04f11e0514399646ad04acf047e1d83fc9e67e43c2a3ff282bf"
+      ]
+    },
+    {
+      "label": "wallet: approve + supply 500 debt-asset liquidity (direct pToken mint)",
+      "txs": [
+        "0xcc2843edc04e66721ad3d6f045891052df6cb698e8c8060efbd437b88433cac4",
+        "0x0388e35ba0991d7efe25aa41b37b8fbcd741d4345d6b3364193edcca75f9aeb2"
+      ]
+    },
+    {
+      "label": "studio: activate market",
+      "txs": [
+        "0x4b4f9347cf7a6b4dc1fac9b9405ea62cf105287eff4ea37b4ead1253a5ed0d69"
+      ]
+    },
+    {
+      "label": "sentinel: create account for the new market",
+      "txs": [
+        "0x8467b1724cc5406faedf59a149c148a921fb0f6734ab7b4e71549b803c791876"
+      ]
+    },
+    {
+      "label": "sentinel: fund account (plain transfer) + supply 10 collateral + enable collateral",
+      "txs": [
+        "0x2736fa382fc5f060bd3246df11447c029acaec393336b67bf95ca6a84fa0e536",
+        "0x6b64e2968203eff8cd7fa54880ba752b6416d4c87c2cc20cf02712d4a8330d11",
+        "0x5ddd0df20a74a6eb44af9101cc2b92732b6824af3cc739fdce06e18bcfb04bab"
+      ]
+    },
+    {
+      "label": "sentinel: borrow 9 rejected in eth_call simulation (nothing sent)",
+      "txs": [],
+      "rejection": "account-policy"
+    },
+    {
+      "label": "sentinel: borrow 5 (allowed by account policy and market policy)",
+      "txs": [
+        "0x202f62f59c7010e23ef55eff20a0c3ead2086e5977ce4486dfd0b700acd48e17"
+      ]
+    },
+    {
+      "label": "wallet: approve + supply 10 collateral + enter market (direct)",
+      "txs": [
+        "0xcd530d76583907160f3dba37e1b4d1bc66769452f11cd46a5431ce50c2accb4d",
+        "0xde372f1c68403f26aca4fcb204491d68764be6319553a70d04a4c084f4c61a2d",
+        "0xe0da90fc5e451651081bcaff1065bbc9b4b452c363a4623f0acc3069907f93ba"
+      ]
+    },
+    {
+      "label": "wallet: direct borrow 9 rejected in eth_call simulation (nothing sent)",
+      "txs": [],
+      "rejection": "market-policy"
+    },
+    {
+      "label": "activity view",
+      "txs": [],
+      "entries": 13
+    }
+  ],
+  "receipts": [
+    {
+      "hash": "0xb6c8fe017af0ef1503e969d907c72111bcb3db8d956eb6be6f9a3cbba7f04ea8",
+      "to": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+      "selector": "0x037bf465",
+      "block": 53,
+      "status": "success",
+      "gasUsed": 3113509
+    },
+    {
+      "hash": "0x2ffd62d0fa32b048563fc43c5df74c7edba2152c0f000015f3ceebc80c23d544",
+      "to": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "selector": "0x40c10f19",
+      "block": 54,
+      "status": "success",
+      "gasUsed": 33923
+    },
+    {
+      "hash": "0x9062ffa1559ac04f11e0514399646ad04acf047e1d83fc9e67e43c2a3ff282bf",
+      "to": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "selector": "0x40c10f19",
+      "block": 55,
+      "status": "success",
+      "gasUsed": 33875
+    },
+    {
+      "hash": "0xcc2843edc04e66721ad3d6f045891052df6cb698e8c8060efbd437b88433cac4",
+      "to": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "selector": "0x095ea7b3",
+      "block": 56,
+      "status": "success",
+      "gasUsed": 45926
+    },
+    {
+      "hash": "0x0388e35ba0991d7efe25aa41b37b8fbcd741d4345d6b3364193edcca75f9aeb2",
+      "to": "0x9ace813B1adA8a75DF6518A6d1b50f1A418CdAB7",
+      "selector": "0xa0712d68",
+      "block": 57,
+      "status": "success",
+      "gasUsed": 334766
+    },
+    {
+      "hash": "0x4b4f9347cf7a6b4dc1fac9b9405ea62cf105287eff4ea37b4ead1253a5ed0d69",
+      "to": "0xc72500B2CA87DF8f964662A6bd3E4D94fA6Cf90d",
+      "selector": "0x0f15f4c0",
+      "block": 58,
+      "status": "success",
+      "gasUsed": 93845
+    },
+    {
+      "hash": "0x8467b1724cc5406faedf59a149c148a921fb0f6734ab7b4e71549b803c791876",
+      "to": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      "selector": "0xf14ddffc",
+      "block": 59,
+      "status": "success",
+      "gasUsed": 1706957
+    },
+    {
+      "hash": "0x2736fa382fc5f060bd3246df11447c029acaec393336b67bf95ca6a84fa0e536",
+      "to": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "selector": "0xa9059cbb",
+      "block": 60,
+      "status": "success",
+      "gasUsed": 51275
+    },
+    {
+      "hash": "0x6b64e2968203eff8cd7fa54880ba752b6416d4c87c2cc20cf02712d4a8330d11",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0x35403023",
+      "block": 61,
+      "status": "success",
+      "gasUsed": 458570
+    },
+    {
+      "hash": "0x5ddd0df20a74a6eb44af9101cc2b92732b6824af3cc739fdce06e18bcfb04bab",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0xc1466108",
+      "block": 62,
+      "status": "success",
+      "gasUsed": 51056
+    },
+    {
+      "hash": "0x202f62f59c7010e23ef55eff20a0c3ead2086e5977ce4486dfd0b700acd48e17",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0xc5ebeaec",
+      "block": 63,
+      "status": "success",
+      "gasUsed": 540099
+    },
+    {
+      "hash": "0xcd530d76583907160f3dba37e1b4d1bc66769452f11cd46a5431ce50c2accb4d",
+      "to": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "selector": "0x095ea7b3",
+      "block": 64,
+      "status": "success",
+      "gasUsed": 45962
+    },
+    {
+      "hash": "0xde372f1c68403f26aca4fcb204491d68764be6319553a70d04a4c084f4c61a2d",
+      "to": "0xa8F7C1571e3522ED545F949558eCB7B8e72529B2",
+      "selector": "0xa0712d68",
+      "block": 65,
+      "status": "success",
+      "gasUsed": 297555
+    },
+    {
+      "hash": "0xe0da90fc5e451651081bcaff1065bbc9b4b452c363a4623f0acc3069907f93ba",
+      "to": "0xc72500B2CA87DF8f964662A6bd3E4D94fA6Cf90d",
+      "selector": "0xc2998238",
+      "block": 66,
+      "status": "success",
+      "gasUsed": 47414
+    }
+  ],
+  "activityEntriesShown": 13,
+  "pageProblems": []
+}
