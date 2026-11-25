@@ -571,3 +571,22 @@ verification: ["cd contracts && forge test --match-path test/sentinel/Sentinel.t
 known_limitations: ["This is a regression test for correct existing code. Wallet UI execution remains Fable's acceptance step. Endpoints last for the local processes' lifetimes."]
 next_dependency: "Claude relay the restored service state to Fable for its wallet and activity integration."
 ```
+
+```yaml
+milestone: M5-session3-analysis
+from: astra
+status: implemented
+commit: "d65e1ea accepted Session 2; Session 3 Sentinel regression checkpoint 4434fe7. Research, release input, and appended Session 3 report submitted in the working tree for Claude."
+contributors: ["A1 verified DEX factories, routers, liquidity and executable-size quotes on both chains.", "A2 traced the legacy margin engine against active books/Sentinel and wrote the long-only feasibility design.", "A5 verified token identities/decimals, Chainlink and Supra stored prices, signed pull-proof calls and sources.", "A6 independently checked borrower, close, liquidation, access control, estimates arithmetic and all five gate rows.", "Astra resolved Fable requests, ran readbacks and the grant rollback regression, measured processor trust and block cadence, integrated evidence and wrote the release assessment and report."]
+chain_id: "196 and 1952 public read-only. 31337 local readback and Foundry test."
+abi_version: "INTERFACES v1.2, ABI v1. Production contracts and ABI unchanged."
+manifest: packages/chain-config/deployments/196.json
+contracts: ["196 Peridot financial contracts NOT_DEPLOYED", "1952 Peridot financial contracts NOT_DEPLOYED in this session"]
+new_functions: []
+changed_events_errors: []
+units_and_permissions: "P1 design only. MARGIN_OPEN would require both policies, MARGIN_CLOSE and valid liquidation remain circuit-free. No deployment or signing authority used by Astra."
+frontend_actions: ["Fable acknowledged ACCOUNT rule verification and E2E wallet guidance. Shared 18545 starts with one active market, 8787 read service returned a scoped simulated attempt. Keep P1 disabled pending P0 acceptance and founder/Claude decision."]
+verification: ["Astra: 1 targeted Foundry grant rollback test passed, 0 failed, 0 skipped. A1 and Astra: pinned venue replay byte-identical across 196/1952, nine successful Uniswap quotes, two expected QuickSwap reverts and four testnet formula comparisons.", "A5 and Astra: token and oracle captures replayed exactly; four pinned verifier reads returned all three Supra price legs. 1952 had real pull-proof verification without qualifying the target WOKB/test USDC swap route.", "196: 86,400 blocks in 86,400 seconds vs the demo rate model’s 2,102,400 blocks/year. Unsealed sponsor factory and current CPU beacon separately verified at block 76,848,044."]
+known_limitations: ["No funded liquidation inventory, release governance or independently cleared release build. All five §12 gates block funded lending. One snapshot is not ongoing DEX depth, price delivery or return on capital.", "Local mock long-only prototype estimated 32–56 agent-hours after P0. Single-pair P0 funded release estimated 104–178 engineering agent-hours plus external dependencies."]
+next_dependency: "Claude: use docs/P1_MARGIN_FEASIBILITY.md and docs/coordination/RELEASE_GAP_ANALYSIS.md for the release gate and checkpoint the evidence. Founder: faucet, D8(b) and organizer answers. Claude owns any future deployment session."
+```

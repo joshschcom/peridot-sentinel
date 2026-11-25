@@ -1,0 +1,148 @@
+{
+  "196": {
+    "url": "https://reference-data-directory.vercel.app/feeds-ethereum-mainnet-xlayer-1.json",
+    "fullResponseSha256": "a5aa1ae54e3a0bd9b7a63e1807c59a11dced8be31142d2b8e6992495722f91d9",
+    "totalDirectoryEntries": 41,
+    "selected": [
+      {
+        "name": "USDT / USD",
+        "path": "usdt-usd",
+        "contractAddress": "0x6f226e497DE205FB9648d7F5cc7aeF398Be6c073",
+        "proxyAddress": "0xb928a0678352005a2e51F614efD0b54C9830dB80",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.5,
+        "feedCategory": "low",
+        "attributeType": "cex_price",
+        "clicProductName": "USDT/USD-RefPrice-DF-XLayer-001",
+        "stablecoinCapped": true
+      },
+      {
+        "name": "USDT0 / USD",
+        "path": "usdt0-usd",
+        "contractAddress": "0x78D84a2C6F76dc13a8d8d717B277B046b0660f16",
+        "proxyAddress": "0x673b428Fd1df93a6F77fA7ea1F8eeD8A4Ff36b9f",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.5,
+        "feedCategory": "medium",
+        "attributeType": "dex_state_price",
+        "clicProductName": "USDT0/USD-RefPrice-DF-XLayer-001"
+      },
+      {
+        "name": "L2 Sequencer Uptime Status Feed",
+        "path": "l2-sequencer-uptime-status-feed",
+        "contractAddress": "0x95BcCbBBaCBB7ed224AC2EE38531f2467DF41Ea4",
+        "proxyAddress": "0x45c2b8C204568A03Dc7A2E32B71D67Fe97F908A9",
+        "decimals": 0,
+        "heartbeat": null,
+        "threshold": 0,
+        "feedCategory": "custom"
+      },
+      {
+        "name": "OKB / USD",
+        "path": "okb-usd",
+        "contractAddress": "0xA1173Df277e126567b5F67433c5cdc694E417B19",
+        "proxyAddress": "0x4Ff345b18a2bF894F8627F41501FBf30d5C5e7BE",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.5,
+        "feedCategory": "medium",
+        "attributeType": "cex_price",
+        "clicProductName": "OKB/USD-RefPrice-DF-XLayer-001"
+      },
+      {
+        "name": "USDG / USD",
+        "path": "usdg-usd",
+        "contractAddress": "0xD51BaF49600F01e2c289dD0848d550c526D38010",
+        "proxyAddress": "0x385C6bDDE06b0E438319bF4ddBfFe51C521ABf3D",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.5,
+        "feedCategory": "medium",
+        "attributeType": "cex_price",
+        "clicProductName": "USDG/USD-RefPrice-DF-XLayer-001"
+      },
+      {
+        "name": "USDC / USD",
+        "path": "usdc-usd",
+        "contractAddress": "0xc48c93Ddd31cc8A9d7722Acc458773F8135cb160",
+        "proxyAddress": "0xB8a08c178D96C315FbFB5661ABD208477391BC40",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.5,
+        "feedCategory": "low",
+        "attributeType": "cex_price",
+        "clicProductName": "USDC/USD-RefPrice-DF-XLayer-001",
+        "stablecoinCapped": true
+      }
+    ]
+  },
+  "1952": {
+    "url": "https://reference-data-directory.vercel.app/feeds-ethereum-testnet-sepolia-xlayer-1.json",
+    "fullResponseSha256": "9e302dfa0c1d503d7d1d59dcd6ca36f8913332e0ed17cb3d8f38974ffc5440ff",
+    "totalDirectoryEntries": 6,
+    "selected": [
+      {
+        "name": "USDT / USD",
+        "path": "usdt-usd",
+        "contractAddress": "0x055990195c24ae0F8C28283D1C98b9DCe749103B",
+        "proxyAddress": "0xC2D024Cf0Ed041A7242B99E44dea2F2E17253275",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.1,
+        "feedCategory": ""
+      },
+      {
+        "name": "ETH / USD",
+        "path": "eth-usd",
+        "contractAddress": "0x3Db30bCcdDA9d87D8F5644A0EdAa661413c8cfC1",
+        "proxyAddress": "0xdA4C8f84f670Aa8884aC3E11417b98E39A5C7da8",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.1,
+        "feedCategory": ""
+      },
+      {
+        "name": "BTC / USD",
+        "path": "btc-usd",
+        "contractAddress": "0x6Be042e896E0dCf474d19E1f79A30D613fdA52D3",
+        "proxyAddress": "0x486b9BcBBC2607edB9353631b072B1148aF8f0F4",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.1,
+        "feedCategory": ""
+      },
+      {
+        "name": "OKB / USD",
+        "path": "okb-usd",
+        "contractAddress": "0xBCEF563694D0C626B8b563111872906F75F0A80A",
+        "proxyAddress": "0xF6195DE070F6bf0da411Fb6F1e109a424a6C8c0e",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.1,
+        "feedCategory": ""
+      },
+      {
+        "name": "USDC / USD",
+        "path": "usdc-usd",
+        "contractAddress": "0xCD202dAFeBd4492A7C5ca6d6420E2C6309306960",
+        "proxyAddress": "0x4ae05835D465505F1d19bB2ff447De7146D9b8de",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.1,
+        "feedCategory": ""
+      },
+      {
+        "name": "LINK / USD",
+        "path": "link-usd",
+        "contractAddress": "0xd2949df7534fe82d13Ec7A49C0c9dCaEDE68E21B",
+        "proxyAddress": "0x333e5Ec2E201b93d7473e55EC16B8Fac2d4951fb",
+        "decimals": 8,
+        "heartbeat": 86400,
+        "threshold": 0.1,
+        "feedCategory": ""
+      }
+    ]
+  }
+}

@@ -1,0 +1,504 @@
+{
+  "sources": {
+    "uniswap": "https://developers.uniswap.org/docs/protocols/v3/deployments/v3-xlayer-deployments",
+    "quickswap": "https://docs.quickswap.exchange/overview/contracts-and-addresses",
+    "circle": "https://www.circle.com/blog/now-available-native-usdc-cctp-on-x-layer",
+    "circleNetworks": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+    "tokens": "https://github.com/okx/xlayer-tokenlist/blob/443b0e3057ccf494a7f82f3dda095d1de9580cad/xlayer.tokenlist.json",
+    "paxos": "https://docs.paxos.com/guides/stablecoin/usdg/mainnet",
+    "quaestor": "https://github.com/N-45div/Quaestor/blob/7dc08d144df27f2b3d4208dda483c4c5cfa342ef/deployments/xlayerTestnet.json",
+    "quaestorCode": "https://github.com/N-45div/Quaestor/blob/7dc08d144df27f2b3d4208dda483c4c5cfa342ef/contracts/QuaestorDEX.sol",
+    "rangePilot": "https://github.com/RangePilot/RangePilot/blob/553e940edaf1f0afbe6485b50d63fc326fa66091/packages/contracts/deployments/xlayer-testnet.json",
+    "rangePilotPair": "https://github.com/RangePilot/RangePilot/blob/553e940edaf1f0afbe6485b50d63fc326fa66091/packages/contracts/broadcast/CreatePoolAndBindVault.s.sol/1952/run-latest.json"
+  },
+  "chain196": {
+    "chainId": 196,
+    "url": "https://rpc.xlayer.tech",
+    "number": "76847934",
+    "hash": "0xc7b2a1993b2522b89d2fa52d7fb3ddc0a36d352472f6af3d2f685dd9722bb28a",
+    "timestamp": "1795616970",
+    "UTC": "2026-11-25T14:29:30.000Z",
+    "runtime": {
+      "uniFactory": {
+        "address": "0x4B2ab38DBF28D31D467aA8993f6c2585981D6804",
+        "bytes": 24535,
+        "runtimeHash": "0x98cde3564f540d7529feb2c697e2d79b85e3bc864d088ebe09fd5dcfc60a5c0e"
+      },
+      "uniRouter": {
+        "address": "0x4f0C28f5926AFDA16bf2506D5D9e57Ea190f9bcA",
+        "bytes": 24497,
+        "runtimeHash": "0x83ee2f04768ca84e762b139bf36844bf7efbd75b3c7cc898705169eacb9d5102"
+      },
+      "uniQuoter": {
+        "address": "0xD1b797D92d87B688193A2B976eFc8D577D204343",
+        "bytes": 8273,
+        "runtimeHash": "0xfd872b486699c79a91db9b977e6e271edfed3535fb624a6973bb05d6dac2a277"
+      },
+      "quickFactory": {
+        "address": "0xd2480162Aa7F02Ead7BF4C127465446150D58452",
+        "bytes": 13503,
+        "runtimeHash": "0xd54656d7f12b78d5474388cc4c98cc95317223bdcef1a44f8a98b05b978910f8"
+      },
+      "quickRouter": {
+        "address": "0x4B9f4d2435Ef65559567e5DbFC1BbB37abC43B57",
+        "bytes": 12697,
+        "runtimeHash": "0xccd506f650fbb26f1c492c3c1141488a453c8ab7eff205fd6aaa0c56bb37d356"
+      },
+      "quickQuoter": {
+        "address": "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+        "bytes": 5028,
+        "runtimeHash": "0x6a8e34cd039aa88aec72b957718019fdd8024cb7096eadf14c3ae7eef6735594"
+      },
+      "quickPoolDeployer": {
+        "address": "0x56c2162254b0E4417288786eE402c2B41d4e181e",
+        "bytes": 23712,
+        "runtimeHash": "0x1b3b961d38456522f4342ee631d2e3e9801bd521de466baabf3e42ed361567bc"
+      }
+    },
+    "bindings": {
+      "uniRouter": {
+        "factory": "0x4B2ab38DBF28D31D467aA8993f6c2585981D6804",
+        "wrappedNative": "0xe538905cf8410324e03A5A23C1c177a474D59b2b"
+      },
+      "uniQuoter": {
+        "factory": "0x4B2ab38DBF28D31D467aA8993f6c2585981D6804",
+        "wrappedNative": "0xe538905cf8410324e03A5A23C1c177a474D59b2b"
+      },
+      "quickRouter": {
+        "factory": "0xd2480162Aa7F02Ead7BF4C127465446150D58452"
+      },
+      "quickQuoter": {
+        "factory": "0xd2480162Aa7F02Ead7BF4C127465446150D58452"
+      }
+    },
+    "tokens": {
+      "WOKB": {
+        "address": "0xe538905cf8410324e03A5A23C1c177a474D59b2b",
+        "bytes": 3474,
+        "runtimeHash": "0xde187307e119db7066ef4d8d154ba1617313e4c9a410c70378abe475cd2cffd2",
+        "symbol": "WOKB",
+        "decimals": 18
+      },
+      "USDC": {
+        "address": "0xB6CEceAB302E2E4948951eE7843FC24E92933061",
+        "bytes": 1798,
+        "runtimeHash": "0xa259d230afe44e97f1500ce5c06cd2e5bdafb129f25c104d8716470cb4fff0be",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "oldBridgedUSDC": {
+        "address": "0x74b7F16337b8972027F6196A17a631aC6dE26d22",
+        "bytes": 1550,
+        "runtimeHash": "0xe8de16445c59006a2552e1a6faebcd94e3660a4b2ecbdbc8f0bb206d436b040e",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "USDT0": {
+        "address": "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
+        "bytes": 2227,
+        "runtimeHash": "0x4d9be648c5bf39973670d9f8b481d5d0b971e6a2db2deccc6b98cde21c5dd83e",
+        "symbol": "USD₮0",
+        "decimals": 6
+      },
+      "USDG": {
+        "address": "0x4ae46a509F6b1D9056937BA4500cb143933D2dc8",
+        "bytes": 708,
+        "runtimeHash": "0x5e4dcb0bb1910f6429e5fe91678990088a51c6d1cfe1b31d05fb9d948cc7867c",
+        "symbol": "USDG",
+        "decimals": 6
+      }
+    },
+    "directWokbFactoryResults": {
+      "USDC": {
+        "uniswapByFeePips": {
+          "100": "0x0000000000000000000000000000000000000000",
+          "500": "0x9f73888Fb725A3409548BC8d2e42365AC063E148",
+          "3000": "0x0000000000000000000000000000000000000000",
+          "10000": "0x0000000000000000000000000000000000000000"
+        },
+        "quickswap": "0x0000000000000000000000000000000000000000"
+      },
+      "oldBridgedUSDC": {
+        "uniswapByFeePips": {
+          "100": "0x3c2a3E37A6A905b3308861222a92fF2bE2d6DA62",
+          "500": "0x92Ae4136f5F141F9d20eAa0c3533f48c21Fa8580",
+          "3000": "0x1bE3a8c2ecDba107d73A6C5f129dcf2aE0bfCD7D",
+          "10000": "0x0000000000000000000000000000000000000000"
+        },
+        "quickswap": "0x0D1DfF29789604849096B6a60e655De2DB7CF7E6"
+      },
+      "USDT0": {
+        "uniswapByFeePips": {
+          "100": "0x9e485CC2Ec10E87A9B6e58602889Df392B7F6453",
+          "500": "0xe3BE6A0137f1b0602Fc1a4841686f43B340a5082",
+          "3000": "0x63d62734847E55A266FCa4219A9aD0a02D5F6e02",
+          "10000": "0x0000000000000000000000000000000000000000"
+        },
+        "quickswap": "0x5a6F06390e2F844F5481Ed7DebA3dC90904Ee998"
+      },
+      "USDG": {
+        "uniswapByFeePips": {
+          "100": "0x01Cd955cba093127A5f6f8c7DED4fB773e150761",
+          "500": "0x5d7E3Ad08B0C52e460787677B0632Cd024Df437C",
+          "3000": "0xa1cf44535Bd9878996FDdA49f906B3Ce207eb049",
+          "10000": "0x0000000000000000000000000000000000000000"
+        },
+        "quickswap": "0x0000000000000000000000000000000000000000"
+      }
+    },
+    "nativeUsdcUniswapPool": {
+      "address": "0x9f73888Fb725A3409548BC8d2e42365AC063E148",
+      "bytes": 22142,
+      "runtimeHash": "0x0638025baf2d03329bad2146cc46a54850d42e665b400c64ae59f1637d82186d",
+      "factory": "0x4B2ab38DBF28D31D467aA8993f6c2585981D6804",
+      "token0": "0xB6CEceAB302E2E4948951eE7843FC24E92933061",
+      "token1": "0xe538905cf8410324e03A5A23C1c177a474D59b2b",
+      "balancesRaw": [
+        "462719122702",
+        "10088725905155118047677"
+      ],
+      "inRangeLiquidity": "290043810400100759",
+      "state": [
+        "8966427922022610315015852451168256",
+        232744,
+        349,
+        720,
+        720,
+        68,
+        true
+      ],
+      "feePips": 500,
+      "stateFields": [
+        "sqrtPriceX96",
+        "tick",
+        "observationIndex",
+        "observationCardinality",
+        "observationCardinalityNext",
+        "feeProtocol",
+        "unlocked"
+      ]
+    },
+    "nativeUsdcUniswapQuoterV2": {
+      "exactInput_WOKB_USDC": [
+        {
+          "fixed": "WOKB",
+          "size": "1",
+          "fixedAmountRaw": "1000000000000000000",
+          "result": "USDC",
+          "amountRaw": "78035069",
+          "amount": "78.035069",
+          "sqrtPriceX96After": "8966700944737088416134913804802197",
+          "initializedTicksCrossed": 0,
+          "quoterGasEstimate": "98679"
+        },
+        {
+          "fixed": "WOKB",
+          "size": "10",
+          "fixedAmountRaw": "10000000000000000000",
+          "result": "USDC",
+          "amountRaw": "780136903",
+          "amount": "780.136903",
+          "sqrtPriceX96After": "8969158149167391326206465987507667",
+          "initializedTicksCrossed": 0,
+          "quoterGasEstimate": "98707"
+        },
+        {
+          "fixed": "WOKB",
+          "size": "100",
+          "fixedAmountRaw": "100000000000000000000",
+          "result": "USDC",
+          "amountRaw": "7780054107",
+          "amount": "7780.054107",
+          "sqrtPriceX96After": "8993732750541379063249148297422814",
+          "initializedTicksCrossed": 1,
+          "quoterGasEstimate": "129492"
+        }
+      ],
+      "exactInput_USDC_WOKB": [
+        {
+          "fixed": "USDC",
+          "size": "100",
+          "fixedAmountRaw": "100000000",
+          "result": "WOKB",
+          "amountRaw": "1280105069295247393",
+          "amount": "1.280105069295247393",
+          "sqrtPriceX96After": "8966078249425475581472257716925657",
+          "initializedTicksCrossed": 0,
+          "quoterGasEstimate": "87432"
+        },
+        {
+          "fixed": "USDC",
+          "size": "1000",
+          "fixedAmountRaw": "1000000000",
+          "result": "WOKB",
+          "amountRaw": "12796559333006520601",
+          "amount": "12.796559333006520601",
+          "sqrtPriceX96After": "8962932422907975478225919143836103",
+          "initializedTicksCrossed": 1,
+          "quoterGasEstimate": "96113"
+        },
+        {
+          "fixed": "USDC",
+          "size": "10000",
+          "fixedAmountRaw": "10000000000",
+          "result": "WOKB",
+          "amountRaw": "127518380249191210833",
+          "amount": "127.518380249191210833",
+          "sqrtPriceX96After": "8931612108037229420788863508279969",
+          "initializedTicksCrossed": 1,
+          "quoterGasEstimate": "126756"
+        }
+      ],
+      "exactOutput_WOKB_USDC": [
+        {
+          "fixed": "USDC",
+          "size": "100",
+          "fixedAmountRaw": "100000000",
+          "result": "WOKB",
+          "amountRaw": "1281486110829244417",
+          "amount": "1.281486110829244417",
+          "sqrtPriceX96After": "8966777796839154900060508541670965",
+          "initializedTicksCrossed": 0,
+          "quoterGasEstimate": "99895"
+        },
+        {
+          "fixed": "USDC",
+          "size": "1000",
+          "fixedAmountRaw": "1000000000",
+          "result": "WOKB",
+          "amountRaw": "12819363073967577785",
+          "amount": "12.819363073967577785",
+          "sqrtPriceX96After": "8969927899326945277681837704132066",
+          "initializedTicksCrossed": 0,
+          "quoterGasEstimate": "99865"
+        },
+        {
+          "fixed": "USDC",
+          "size": "10000",
+          "fixedAmountRaw": "10000000000",
+          "result": "WOKB",
+          "amountRaw": "128645774847682961230",
+          "amount": "128.64577484768296123",
+          "sqrtPriceX96After": "9001626613138455473602946024585258",
+          "initializedTicksCrossed": 2,
+          "quoterGasEstimate": "154330"
+        }
+      ]
+    },
+    "quickswapUsdt0Pool": {
+      "address": "0x5a6F06390e2F844F5481Ed7DebA3dC90904Ee998",
+      "bytes": 22562,
+      "runtimeHash": "0x0b4120d1e6080a5a7da08fdb1f51b20a5002a38d1114c008594d56b34ba8221c",
+      "factory": "0xd2480162Aa7F02Ead7BF4C127465446150D58452",
+      "token0": "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
+      "token1": "0xe538905cf8410324e03A5A23C1c177a474D59b2b",
+      "balancesRaw": [
+        "1262",
+        "11306744175"
+      ],
+      "inRangeLiquidity": "0",
+      "state": [
+        "1461446703485210103287273052203988822378723970341",
+        887271,
+        135,
+        2926,
+        0,
+        0,
+        true
+      ],
+      "stateFields": [
+        "sqrtPriceX96",
+        "tick",
+        "fee",
+        "timepointIndex",
+        "communityFeeToken0",
+        "communityFeeToken1",
+        "unlocked"
+      ],
+      "quotes": [
+        {
+          "input": "WOKB",
+          "output": "USDT0",
+          "amountIn": "1000000000000000000",
+          "revert": "SPL"
+        },
+        {
+          "input": "USDT0",
+          "output": "WOKB",
+          "amountIn": "100000000",
+          "revert": "Unexpected error"
+        }
+      ]
+    }
+  },
+  "chain1952": {
+    "chainId": 1952,
+    "url": "https://testrpc.xlayer.tech",
+    "number": "47158133",
+    "hash": "0x612abc213803019d79ed94ada3321c3d31a56426447191ed506af4e4e109a40f",
+    "timestamp": "1795616970",
+    "UTC": "2026-11-25T14:29:30.000Z",
+    "mainnetAddressChecks": {
+      "uniFactory": {
+        "address": "0x4B2ab38DBF28D31D467aA8993f6c2585981D6804",
+        "bytes": 0,
+        "runtimeHash": null
+      },
+      "uniRouter": {
+        "address": "0x4f0C28f5926AFDA16bf2506D5D9e57Ea190f9bcA",
+        "bytes": 0,
+        "runtimeHash": null
+      },
+      "uniQuoter": {
+        "address": "0xD1b797D92d87B688193A2B976eFc8D577D204343",
+        "bytes": 0,
+        "runtimeHash": null
+      },
+      "quickFactory": {
+        "address": "0xd2480162Aa7F02Ead7BF4C127465446150D58452",
+        "bytes": 0,
+        "runtimeHash": null
+      },
+      "quickRouter": {
+        "address": "0x4B9f4d2435Ef65559567e5DbFC1BbB37abC43B57",
+        "bytes": 0,
+        "runtimeHash": null
+      },
+      "quickQuoter": {
+        "address": "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+        "bytes": 0,
+        "runtimeHash": null
+      },
+      "quickPoolDeployer": {
+        "address": "0x56c2162254b0E4417288786eE402c2B41d4e181e",
+        "bytes": 0,
+        "runtimeHash": null
+      }
+    },
+    "projectAddresses": {
+      "USDC": {
+        "address": "0xDec90b78111Ba2fc6FC6d84d8B9ec159A2d4b9B3",
+        "bytes": 1798,
+        "runtimeHash": "0x20bd4e53c9c59b9a5e412da21ffc71466b518f06407b4db87d1489c3c1e2e933"
+      },
+      "quaestorDex": {
+        "address": "0x7cf23d5D7A49ca4113ed4b72e465b227E7978c12",
+        "bytes": 3295,
+        "runtimeHash": "0x5d52eb4e63f3e92a47df397c1d31995b4a9b7e62d04c9c9624ba67f1f6e62bbd"
+      },
+      "qUSD": {
+        "address": "0x99D7fcf0153b1CB171F0de432D8aC159Abc63b24",
+        "bytes": 2190,
+        "runtimeHash": "0xbf0f1a85af05560a23be771275df6c02e69374452d23d7a519c9686a01aa0ee5"
+      },
+      "rangePilotManager": {
+        "address": "0x6df5DAE1e6216578e9eC63b239BFa6990AE6ed50",
+        "bytes": 17151,
+        "runtimeHash": "0x8cd6757c860b6d304d3d9fb848f2c69d75e2d08fd29b08305dc1ed3622985482"
+      },
+      "rangePilotView": {
+        "address": "0x1cf2f6b229E313bAC1174F9e6c6a5Cd567F07F3E",
+        "bytes": 2784,
+        "runtimeHash": "0xaab89a607967a2e802155f417eaf6f5ec0861fabf80304f986858e472ba3ee29"
+      },
+      "rangePilotTokenA": {
+        "address": "0x9e29b3AaDa05Bf2D2c827Af80Bd28Dc0b9b4FB0c",
+        "bytes": 1528,
+        "runtimeHash": "0xd75579a121bb5f3f6f5e171f50992d321a99630a8137fdc5d3f901a3be7a2d0c"
+      },
+      "rangePilotTokenB": {
+        "address": "0xcB8BF24c6cE16Ad21D707c9505421a17f2bec79D",
+        "bytes": 1798,
+        "runtimeHash": "0xc2059a483ceeca165dfcc9727922e7c8c7b99710e84eca06cf765c235b133893"
+      }
+    },
+    "tokens": {
+      "USDC": {
+        "address": "0xDec90b78111Ba2fc6FC6d84d8B9ec159A2d4b9B3",
+        "bytes": 1798,
+        "runtimeHash": "0x20bd4e53c9c59b9a5e412da21ffc71466b518f06407b4db87d1489c3c1e2e933",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "qUSD": {
+        "address": "0x99D7fcf0153b1CB171F0de432D8aC159Abc63b24",
+        "bytes": 2190,
+        "runtimeHash": "0xbf0f1a85af05560a23be771275df6c02e69374452d23d7a519c9686a01aa0ee5",
+        "symbol": "qUSD",
+        "decimals": 18
+      },
+      "rangePilotTokenA": {
+        "address": "0x9e29b3AaDa05Bf2D2c827Af80Bd28Dc0b9b4FB0c",
+        "bytes": 1528,
+        "runtimeHash": "0xd75579a121bb5f3f6f5e171f50992d321a99630a8137fdc5d3f901a3be7a2d0c",
+        "symbol": "USD₮0",
+        "decimals": 6
+      },
+      "rangePilotTokenB": {
+        "address": "0xcB8BF24c6cE16Ad21D707c9505421a17f2bec79D",
+        "bytes": 1798,
+        "runtimeHash": "0xc2059a483ceeca165dfcc9727922e7c8c7b99710e84eca06cf765c235b133893",
+        "symbol": "USDC_TEST",
+        "decimals": 6
+      }
+    },
+    "quaestor": {
+      "reservesTuple": [
+        "reserveNative",
+        "reserveToken",
+        "totalShares"
+      ],
+      "qUSD": [
+        "130665000000000000",
+        "1918762685676312762",
+        "500000000000000000"
+      ],
+      "circleUSDC": [
+        "0",
+        "0",
+        "0"
+      ],
+      "feeNum": "997",
+      "feeDen": "1000",
+      "sample": [
+        {
+          "input": "testOKB",
+          "output": "qUSD",
+          "amountIn": "10000000000000000",
+          "amountOut": "136026337513370343",
+          "formattedOut": "0.136026337513370343"
+        },
+        {
+          "input": "testOKB",
+          "output": "qUSD",
+          "amountIn": "1000000000000000000",
+          "amountOut": "1696431473548690279",
+          "formattedOut": "1.696431473548690279"
+        },
+        {
+          "input": "qUSD",
+          "output": "testOKB",
+          "amountIn": "1000000000000000000",
+          "amountOut": "44678877893583820",
+          "formattedOut": "0.04467887789358382"
+        },
+        {
+          "input": "qUSD",
+          "output": "testOKB",
+          "amountIn": "100000000000000000000",
+          "amountOut": "128197787059222528",
+          "formattedOut": "0.128197787059222528"
+        }
+      ]
+    },
+    "rangePilot": {
+      "poolId": "0xb66f3b888223eafafbad9dcea1af3c57eae6cfebf5629f2c81a9902d644c251e",
+      "linkedManager": "0x6df5DAE1e6216578e9eC63b239BFa6990AE6ed50",
+      "rangePilotLiquidity": "1002552082",
+      "pairFromProjectBroadcast": [
+        "0x9e29b3aada05bf2d2c827af80bd28dc0b9b4fb0c",
+        "0xcb8bf24c6ce16ad21d707c9505421a17f2bec79d"
+      ]
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "chainId": 196,
+  "rpc": "https://rpc.xlayer.tech",
+  "block": "76848044",
+  "hash": "0x479df1e0e72972371bc9d0c37c8fc5a6450dc779f3fb5660db3d2d50bcce0786",
+  "timestamp": "2026-11-25T14:31:20.000Z",
+  "classification": "Public read-only RPC",
+  "addresses": {
+    "factory": "0x1f09DAeFA827f02CBb40967cc91b259763760761",
+    "factoryImplementation": "0x336e9F0F4c3fEe7C8c803377e4DEA00293f4ae2a",
+    "cpu410": "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5",
+    "beacon": "0xf70d1ed4f62CF3780157B0b421b7E2F45bD0991C",
+    "processorImplementation": "0x977f217887E085D298Cb3819cDAD5A0ee35F29B2"
+  },
+  "codeHashes": {
+    "factory": "0x5cddc08137fc81eb8ba1d37902e77553152c2f639b6bf6f601ecb094e2cae5c8",
+    "factoryImplementation": "0x8310648246b9825d2861cd4a5a980eed1d3b7165b2aed247b1c55abe049b7f60",
+    "cpu410": "0x8c799a18cd8e0d5f5f3c0cec4fbc145e2daf79f70c2b131c09d0f380921db545",
+    "beacon": "0xc7cc9854e1465f48d6d8d6d220c04efa6509939832930be4b04ee7fe86575362",
+    "processorImplementation": "0x7a15c353205e5245f40f5f5524542a982a4bb3b9a28476e4f10845163f941b30"
+  },
+  "factoryOwner": "0xB3D85b42A045c1A88D800CAD0F55d2566a4D3138",
+  "factorySealed": false,
+  "cpuBeaconFromSlot": "0xf70d1ed4f62CF3780157B0b421b7E2F45bD0991C",
+  "beaconOwner": "0x0000000000000000000000000000000000000000",
+  "baseFeePerGasWei": "20000000"
+}

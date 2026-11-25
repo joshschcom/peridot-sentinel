@@ -1,0 +1,19 @@
+{
+  "chainId": 196,
+  "rpc": "https://rpc.xlayer.tech",
+  "method": "eth_getBlockByNumber for both public blocks",
+  "first": {
+    "number": "76761644",
+    "hash": "0xc39e282ba327c4fb1e7a03c61a2f62e62dea78f1cedbf2b5128a5907cba3a3c0",
+    "unixSeconds": "1795530680"
+  },
+  "last": {
+    "number": "76848044",
+    "hash": "0x479df1e0e72972371bc9d0c37c8fc5a6450dc779f3fb5660db3d2d50bcce0786",
+    "unixSeconds": "1795617080"
+  },
+  "blockDifference": "86400",
+  "secondsElapsed": "86400",
+  "annualBlocksAtSampleCadence": "31536000",
+  "demoModelBlocksPerYear": "2102400"
+}
