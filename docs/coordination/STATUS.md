@@ -39,3 +39,12 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
 - INTERFACES v1 committed at `58684b1` and relayed to Fable.
 - **Process note:** the Codex sandbox blocks writes to `.git`, so Astra leaves its work in the working tree and Claude commits its reviewed paths with `Agent: astra` attribution.
 - **Blocker (M0-testnet-gas):** the X Layer faucet is a web form at https://web3.okx.com/xlayer/faucet/xlayerfaucet (0.2 OKB/day). The founder needs to request OKB for `0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67`. Local and fork work continues in the meantime.
+
+## Update: M1 and M2 implemented locally; first real TapeOut evaluation
+- **`fe0c60b`** contains Astra's M1 work (PolicyRegistry, TapeOutPolicyAdapter, DevelopmentReferenceProcessor, @peridot/circuit-sdk) and M2 work (MarketFactory, IsolatedController, MarketPToken, mocks).
+  - Claude re-ran the tests: `forge test` on test/policies passed 4/4 and on test/markets passed 6/6; `npm --prefix packages/circuit-sdk test` passed 8/8. Nothing failed or was skipped.
+  - Baseline deviation in PToken: exact-underlying redeems now round redeemTokens up (ceil), and mints that round to zero shares are rejected.
+- **TapeOut mainnet, read-only (evidence/a1/mainnet-reads.json):**
+  - Processor CPU 275 `0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF`, circuit 1, block 76844958. Its eval matched the pinned TAP Python model on 4/4 truth-table inputs. eth_estimateGas came back at 50,601–51,183.
+  - Trust finding: the official factory `0x1f09…` reports itself **unsealed**. Its owner is `0xB3D85b42A045c1A88D800CAD0F55d2566a4D3138`, and the current proxy implementation `0x336e9f0f…ae2a` is not the TAP-10 candidate. The adapter must pin the processor and fail closed, and this belongs in SECURITY_MODEL.
+- Still open: fork fabrication of the Peridot policy circuits (A1), any official testnet deployment, testnet gas, and Sentinel (M3).
