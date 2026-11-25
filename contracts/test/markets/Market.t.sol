@@ -7,7 +7,7 @@ import {MarketPToken} from "../../src/markets/MarketPToken.sol";
 import {TestProfile} from "../../src/markets/TestProfile.sol";
 import {TestnetToken} from "../../src/mocks/TestnetToken.sol";
 import {TestnetOracle} from "../../src/mocks/TestnetOracle.sol";
-import {JumpRateModel} from "../../src/core/JumpRateModel.sol";
+import {DemoRateModel} from "../../script/DemoRateModel.sol";
 
 interface VmMarket {
     function startPrank(address) external;
@@ -72,7 +72,7 @@ contract MarketTest {
         oracle.setPrice(address(col), 2e18);
         oracle.setPrice(address(debt), 1e18);
         policy = new MarketPolicyFixture();
-        address model = address(new JumpRateModel(0.02e18, 0.05e18, 0.2e18, 0.8e18));
+        address model = address(new DemoRateModel(31_536_000));
         address book = deployArtifact("MarketPToken.sol:MarketPToken", "");
         factory = MarketFactory(
             deployArtifact(
@@ -102,6 +102,54 @@ contract MarketTest {
         joined[0] = address(pc);
         controller.enterMarkets(joined);
         vm.stopPrank();
+    }
+
+    error AccrualMismatch(uint256 expected, uint256 actual);
+
+    function testOneSecondCadenceAccruesAnnualCurveToBothBorrowers() external {
+        controller.activate();
+        vm.prank(USER);
+        pc.transfer(address(this), 40e18);
+        address[] memory joined = new address[](1);
+        joined[0] = address(pc);
+        controller.enterMarkets(joined);
+        pd.borrow(40e6);
+        vm.prank(USER);
+        pd.borrow(60e6);
+        require(pd.getCash() == 100e6 && pd.totalBorrows() == 100e6 && pd.totalReserves() == 0);
+
+        // One interval starts at 50% utilization: annual simple rate = 2% + 0.5 * 5% = 4.5%.
+        // No intermediate accrual, payments or cash movements change the rate for this interval.
+        vm.roll(block.number + 1 days);
+        vm.warp(block.timestamp + 1 days);
+        pd.accrueInterest();
+        _checkDailyDebt(100e6, pd.totalBorrows());
+        _checkDailyDebt(40e6, pd.borrowBalanceStored(address(this)));
+        _checkDailyDebt(60e6, pd.borrowBalanceStored(USER));
+    }
+
+    function _checkDailyDebt(uint256 principal, uint256 actual) private pure {
+        uint256 expected = principal + principal * 450 / (10_000 * 365);
+        // The model floors its per-block coefficients before the lending book floors to raw token units.
+        if (actual > expected || expected - actual > 1) revert AccrualMismatch(expected, actual);
+    }
+
+    function testDemoAnnualCurveAtZeroKinkAndFullUtilization() external view {
+        DemoRateModel model = DemoRateModel(address(pd.interestRateModel()));
+        _checkAnnualRate(model.getBorrowRate(100, 0, 0), 0.02e18);
+        _checkAnnualRate(model.getBorrowRate(20, 80, 0), 0.06e18);
+        _checkAnnualRate(model.getBorrowRate(0, 100, 0), 0.10e18);
+        require(model.getSupplyRate(100, 0, 0, 0.1e18) == 0);
+        _checkAnnualRate(model.getSupplyRate(0, 100, 0, 0.1e18), 0.09e18);
+        require(model.blocksPerYear() == 365 days);
+    }
+
+    function _checkAnnualRate(uint256 perBlock, uint256 expectedWad) private pure {
+        uint256 actualWad = perBlock * 365 days;
+        // Up to five one-wei rate truncations for the two slopes, base and reserve-adjusted supplier rate.
+        if (actualWad > expectedWad || expectedWad - actualWad > 5 * 365 days) {
+            revert AccrualMismatch(expectedWad, actualWad);
+        }
     }
 
     function testLifecycleAccrualAndIsolation() external {

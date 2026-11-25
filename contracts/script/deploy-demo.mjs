@@ -26,6 +26,8 @@ const fork = mode === 'sponsor-fork';
 const local = mode !== 'testnet';
 const profile = local ? 'local' : 'testnet';
 const id = local ? 31337 : 1952;
+// The local, fork and testnet demos all model X Layer at one block per second.
+const blocksPerYear = 31_536_000n;
 const url = local ? process.env.LOCAL_ANVIL_RPC ?? (fork ? 'http://127.0.0.1:19622' : 'http://127.0.0.1:18545') : 'https://testrpc.xlayer.tech';
 if (local && !['127.0.0.1', 'localhost', '[::1]'].includes(new URL(url).hostname)) {
   throw Error('Local deployment requires a loopback Anvil RPC');
@@ -260,7 +262,10 @@ function event(receipt, name, eventName, emitter) {
 const collateral = await deploy('TestnetToken', ['Mock collateral','mCOL',18], 'MockCollateral');
 const debt = await deploy('TestnetToken', ['Mock dollar','mUSD',6], 'MockDebt');
 const oracle = await deploy('TestnetOracle');
-const model = await deploy('DemoRateModel');
+const model = await deploy('DemoRateModel',[blocksPerYear]);
+if (await read('DemoRateModel',model,'blocksPerYear') !== blocksPerYear) {
+  throw Error('Deployed rate model has the wrong X Layer cadence');
+}
 const book = await deploy('MarketPToken');
 const registry = await deploy('PolicyRegistry',[sender]);
 const adapter = await deploy('TapeOutPolicyAdapter',[registry]);

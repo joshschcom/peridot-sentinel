@@ -7,7 +7,7 @@ import {MarketFactory} from "../../src/markets/MarketFactory.sol";
 import {MarketPToken} from "../../src/markets/MarketPToken.sol";
 import {TestnetToken} from "../../src/mocks/TestnetToken.sol";
 import {TestnetOracle} from "../../src/mocks/TestnetOracle.sol";
-import {JumpRateModel} from "../../src/core/JumpRateModel.sol";
+import {DemoRateModel} from "../../script/DemoRateModel.sol";
 import {PolicyRegistry} from "../../src/policies/PolicyRegistry.sol";
 import {DevelopmentReferenceProcessor} from "../../src/policies/DevelopmentReferenceProcessor.sol";
 import {TapeOutPolicyAdapter} from "../../src/policies/TapeOutPolicyAdapter.sol";
@@ -75,7 +75,7 @@ contract SentinelTest {
         oracle = new TestnetOracle();
         oracle.setPrice(address(col), 1e18);
         oracle.setPrice(address(debt), 1e18);
-        address model = address(new JumpRateModel(0.02e18, 0.05e18, 0.2e18, 0.8e18));
+        address model = address(new DemoRateModel(31_536_000));
         address pToken = _artifact("MarketPToken.sol:MarketPToken", "");
         MarketFactory markets = MarketFactory(
             _artifact(

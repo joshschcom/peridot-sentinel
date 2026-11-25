@@ -348,7 +348,7 @@ export const SentinelAccountFactoryAbi = [
 ] as const;
 
 export const DemoRateModelAbi = [
-  {"type":"constructor","inputs":[],"stateMutability":"nonpayable"},
+  {"type":"constructor","inputs":[{"name":"blocksPerYear_","type":"uint256","internalType":"uint256"}],"stateMutability":"nonpayable"},
   {"type":"function","name":"baseRatePerBlock","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
   {"type":"function","name":"blocksPerYear","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
   {"type":"function","name":"getBorrowRate","inputs":[{"name":"cash","type":"uint256","internalType":"uint256"},{"name":"borrows","type":"uint256","internalType":"uint256"},{"name":"reserves","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},

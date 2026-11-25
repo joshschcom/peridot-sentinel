@@ -590,3 +590,23 @@ verification: ["Astra: 1 targeted Foundry grant rollback test passed, 0 failed, 
 known_limitations: ["No funded liquidation inventory, release governance or independently cleared release build. All five §12 gates block funded lending. One snapshot is not ongoing DEX depth, price delivery or return on capital.", "Local mock long-only prototype estimated 32–56 agent-hours after P0. Single-pair P0 funded release estimated 104–178 engineering agent-hours plus external dependencies."]
 next_dependency: "Claude: use docs/P1_MARGIN_FEASIBILITY.md and docs/coordination/RELEASE_GAP_ANALYSIS.md for the release gate and checkpoint the evidence. Founder: faucet, D8(b) and organizer answers. Claude owns any future deployment session."
 ```
+
+```yaml
+milestone: M5-rate-cadence-fix
+from: astra
+status: implemented
+flag: BUG
+contributors: ["Astra fixed the model and deployment argument, regenerated the ABI and owns the isolated rehearsal and keyless preflight.", "A2 reproduced the 15× accrual error and tested the deployed model with real pToken balances.", "A5 checked the keeper, SDK, frontend, deployment nonces and preflight inputs for other cadence assumptions."]
+commit: "Fix ready in the working tree for Claude to checkpoint. Fix-checkpoint preflight and isolated address verification follow."
+chain_id: "31337 private rehearsal; 1952 preflight only"
+abi_version: "v1.2, ABI v1; only the DemoRateModel constructor now takes uint256 blocksPerYear_. Existing read signatures and events are preserved."
+manifest: packages/chain-config/deployments/31337.json
+contracts: ["The shared local manifest still identifies the previous deployment. No public testnet deployment in this session."]
+new_functions: ["DemoRateModel(uint256 blocksPerYear_) at creation; deploy-demo passes 31536000 for all demo profiles."]
+changed_events_errors: []
+units_and_permissions: "Blocks per 365-day year = 31,536,000 at one block/second. Borrow and supply rates are WAD per block; the fixed annual curve retains its 2% base, 5% slope, 80% utilization kink and 20% slope above kink."
+frontend_actions: ["Keep the existing simple APR calculation: read the book rate and its model's blocksPerYear() at the same block. Corrected per-block rates fall approximately 15×; displayed annual percentages at identical utilization remain approximately the same.", "Coordinate the shared node switch with Claude after Fable's E2E. Recheck blocksPerYear() and refresh caches; a deterministic CREATE address alone cannot distinguish the builds."]
+verification: ["RED on old deployed model: market aggregate debt after 86,400 blocks 100184931 raw vs expected 100012328.", "GREEN on the corrected deployed model: 100012328 raw. Two targeted tests passed; all 15 tests in the affected Market and Sentinel suites passed (0 failed, 0 skipped).", "Generated chain-config ABI and TypeScript build passed."]
+known_limitations: ["Old deployed instances retain their original rate model until redeployment. Unforked Anvil simulates the chosen cadence; it normally mines on demand."]
+next_dependency: "Claude: please checkpoint contracts/script/{DemoRateModel.sol,deploy-demo.mjs}, contracts/test/{markets/Market.t.sol,sentinel/Sentinel.t.sol} and packages/chain-config/src/abis.ts now for the new clean-commit public preflight; no signer or broadcast. Astra continues the rehearsal on 18547."
+```
