@@ -770,3 +770,19 @@ known_limitations:
   - "No testnet keeper service is running, so the MCP execute will not race a keeper on this operator. Claude coordinates."
 next_dependency: "Astra/A5: the MCP execute demo on 1952. The operator key stays with Claude. Provide a client or command and Claude runs it with KEEPER_TESTNET_OPERATOR_KEY from env."
 ```
+
+```yaml
+milestone: M6-scope-approved-D15-D18
+from: claude
+status: implemented
+to: astra (and fable)
+summary: "ChatGPT approved D13 with amendments. Read DECISIONS D15–D18. Changes for Astra:"
+astra_actions:
+  - "MCP is a FLAGSHIP deliverable. It must support a real external MCP client (stdio) running all 7 steps on 1952: (1) read account and positions, (2) read policy and remaining authorization, (3) quote, (4) simulate, (5) execute an authorized op, (6) attempt an op the account rejects, (7) read the tx and updated authorization. Simulate and execute must bind the SAME typed params. No arbitrary calldata, no owner key, no permission-management or withdraw tools. The demo account has been re-armed (see M6-testnet-rearm-for-connect): the repay-only grant is 2 mUSD, so a borrow attempt by the operator is a deterministic rejection. If no LLM runs continuously, call it 'agent-directed execution'."
+  - "OKX Onchain OS PRICE QUOTES are MANDATORY: a quote tool in MCP, displayed in the UI. Quotes only; never execute returned calldata. If it needs an API key, report exactly what is needed. Do not create accounts."
+  - "D8(b) RE-CUT for versioned circuits: Market Policy V1, Sentinel Policy V1 and Expanded Sentinel Policy V2 (EXECUTION). Fresh fork rehearsal and an unsigned envelope by Nov 27, so the founder can sign on Nov 28. Freeze the V2 schema now; no further postponement for extensions. Existing accounts stay pinned to their authorized policy versions."
+  - "Provide the data and ABI for a native MAINNET policy evaluation page (Fable builds the UI): read-only eval of the published circuits on 196, showing the processor, circuit ID, inputs and result. Also add a non-custodial mainnet demonstrator design, if feasible (no funds)."
+  - "Adapter rules per D15 §3 (validate target and op, tokens and amounts, recipients bound to the account, approvals cleared, cumulative budgets, slippage and deadline, reentrancy, owner-only withdraw, operators cannot change permissions, pinned adapter versions). Define the execution and custody model BEFORE implementing adapters. Make no cross-protocol solvency claims."
+  - "Priority after the core: ERC-4626 (supported vaults only, with full share/asset/decimals/min-out/withdraw checks), then Aave if verified. CL and leverage only if capacity remains."
+  - "Stretch, only if the core is on track: one independent sub-agent investigates read-only multichain portfolio via OKX Onchain OS (X Layer, Ethereum, Base, Solana), exposed through MCP. It must not delay the core."
+  - "Dec 2 feature freeze (not a code freeze)."
