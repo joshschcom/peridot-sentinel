@@ -7,6 +7,7 @@ import { IconBorrow, IconBot, IconCircuit, IconConnect, IconEarn, IconInfo, Icon
 import { Sheet } from "@/components/ui/sheet";
 import { AVAILABILITY_LABEL, type Availability } from "@/lib/brand";
 import { connectVerified } from "@/lib/connect";
+import { EXPANSION } from "@/lib/expansion";
 import { Brand } from "./brand";
 import { DeploymentBanner, FixtureBanner, GasBanner, NetworkPill, WrongNetworkBanner } from "./status";
 import { ThemeToggle } from "./theme-toggle";
@@ -14,8 +15,8 @@ import { WalletButton } from "./wallet-button";
 
 /**
  * Navigation labels follow the Peridot Sentinel product areas (DECISIONS D11); the routes are unchanged.
- * An item is a link only if something real is behind it in this build. "Trade" has no adapter deployed, so it is
- * shown as planned and is not a link. Earn and Borrow are two views of the same markets (`?view=`).
+ * An item is a link only if something real is behind it in this build. "Trade" links to the read-only v2 page when
+ * the build holds the public v2 manifest, and is a planned non-link otherwise. Earn and Borrow are two views of the same markets (`?view=`).
  */
 interface NavItem {
   key: string;
@@ -33,7 +34,9 @@ const PRIMARY: NavItem[] = [
   { key: "overview", label: "Overview", icon: IconShield, href: "/sentinel", active: (pathname) => under(pathname, "/sentinel") },
   { key: "earn", label: "Earn", icon: IconEarn, href: "/markets?view=earn", active: (pathname, view) => under(pathname, "/markets") && view !== "borrow" },
   { key: "borrow", label: "Borrow", icon: IconBorrow, href: "/markets?view=borrow", active: (pathname, view) => under(pathname, "/markets") && view === "borrow" },
-  { key: "trade", label: "Trade", icon: IconTrade, status: "planned", active: () => false },
+  // v2 is deployed on testnet with a mock venue. The page is read-only, so the entry keeps an "In development" chip.
+  // Without a v2 manifest in the build it stays a planned, non-link entry.
+  EXPANSION.manifest.status === "ok" ? { key: "trade", label: "Trade", icon: IconTrade, href: "/trade", status: "development", active: (pathname) => under(pathname, "/trade") } : { key: "trade", label: "Trade", icon: IconTrade, status: "planned", active: () => false },
   { key: "automate", label: "Automate", icon: IconBot, href: "/automate", active: (pathname) => under(pathname, "/automate") },
   { key: "studio", label: "Studio", icon: IconStudio, href: "/studio", active: (pathname) => under(pathname, "/studio") },
 ];

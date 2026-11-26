@@ -70,7 +70,16 @@ const evidence = {
   connectTools: { file: "evidence/session5-mcp/tools.json", json: readEvidence("evidence/session5-mcp/tools.json") },
   // Policy vectors rehearsed on a mainnet FORK (never public): used to test the input encoders and as labelled examples.
   tapeoutVectors: { file: "evidence/session5-d8b/proposal-and-fork.json", json: slimVectors(readEvidence("evidence/session5-d8b/proposal-and-fork.json")) },
+  // Sentinel v2 on public testnet 1952: owner supply, swap-only grant, mined EXECUTION denial, operator swap (mock venue).
+  v2Demo: { file: "evidence/session6-v2/1952.json", json: readEvidence("evidence/session6-v2/1952.json") },
+  // Two MINED reverts on public testnet 1952: one stopped by the account policy only, one by the market policy only.
+  publicRejections: { file: "evidence/session6-rejections/public-1952.json", json: slimRejections(readEvidence("evidence/session6-rejections/public-1952.json")) },
 };
+function slimRejections(json) {
+  if (!json || !Array.isArray(json.rejections)) return null;
+  const keep = ["market", "controller", "account", "amountRaw", "postLtvBps", "block", "blockHash", "hash", "status", "logs", "gasUsed", "from", "to", "reasonSource", "minedRevert", "decisions", "storedDebtBefore", "storedDebtAfter"];
+  return { label: json.label ?? null, chainId: json.chainId ?? null, fork: json.fork ?? null, profile: json.profile ?? null, rejections: json.rejections.map((entry) => Object.fromEntries(keep.map((key) => [key, entry[key] ?? null]))) };
+}
 // Only what the app shows or tests: the fork calldata and envelopes stay out of the bundle (the selector is kept).
 function slimVectors(json) {
   if (!json || !Array.isArray(json.evaluations)) return null;

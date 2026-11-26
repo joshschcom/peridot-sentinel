@@ -12,6 +12,7 @@ import { formatBps } from "@/lib/amount";
 import { services } from "@/services";
 import type { Market, Position, SentinelAccount } from "@/services/types";
 import { positionLtv } from "./market-detail";
+import { V2Portfolio } from "./public-records";
 
 /** A wallet's "idle" fields are its plain token balances, which are not positions. */
 const hasAny = (position: Position) => position.collateralSupplied > 0n || position.lent > 0n || position.debt > 0n;
@@ -52,8 +53,9 @@ export function Portfolio({ accounts }: { accounts: SentinelAccount[] }) {
           </table>
         </div>
       )}
+      <V2Portfolio />
       <p className="border-t border-line px-5 py-3 text-xs text-faint sm:px-6" data-testid="portfolio-scope">
-        Position types shown: Peridot lending only. Swaps, vault deposits and liquidity positions are not supported by the deployed contracts, so none can exist for this account. Idle tokens inside a Sentinel account are listed on its card below.
+        Position types shown: Peridot lending, held by a v1 Sentinel account or by your wallet, and, on testnet, the idle tokens and lending exposure of a Sentinel v2 account. Vault deposits and liquidity positions are not read by this app. Idle tokens inside a v1 Sentinel account are shown on its account card.
       </p>
     </Card>
   );

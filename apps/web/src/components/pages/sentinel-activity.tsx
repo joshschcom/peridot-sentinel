@@ -17,6 +17,7 @@ import { extendLogWindow } from "@/services/chain/client";
 import { verifyKeeperReceipts } from "@/services/chain/reads";
 import type { ActivityEntry, ActivityEvidence } from "@/services/types";
 import { KeeperPanel } from "./keeper-panel";
+import { ActivitySnapshot, MinedRejections } from "./public-records";
 import { SentinelHeader } from "./sentinel-common";
 
 type Filter = "all" | "allowed" | "rejected";
@@ -90,6 +91,8 @@ export function SentinelActivity() {
 
       <KeeperPanel />
 
+      <ActivitySnapshot />
+      <MinedRejections />
       <RecordedEvidence />
     </div>
   );

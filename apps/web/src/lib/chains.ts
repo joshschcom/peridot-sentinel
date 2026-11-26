@@ -26,12 +26,17 @@ export const xLayerMainnet = defineChain({
 /**
  * Local development chain (unforked Anvil, test profile). Only used when the app is started with
  * NEXT_PUBLIC_PERIDOT_TARGET=local; it is labelled "Local development chain" everywhere, never "Testnet".
+ *
+ * A build for the public testnet (the default, and the hosted app) must not contain a loopback address at all, so
+ * the local RPC URL exists only in a local-target build. The comparison is on the literal env reference so the
+ * bundler can drop the other branch. In a testnet build the chain keeps a reserved ".invalid" host: nothing reads it.
  */
+const LOCAL_RPC_URL: string = process.env.NEXT_PUBLIC_PERIDOT_TARGET === "local" ? process.env.NEXT_PUBLIC_LOCAL_RPC_URL || "http://127.0.0.1:18545" : "http://local-target-not-built.invalid";
 export const localDevChain = defineChain({
   id: 31337,
   name: "Local development chain",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: { default: { http: [process.env.NEXT_PUBLIC_LOCAL_RPC_URL || "http://127.0.0.1:18545"] } },
+  rpcUrls: { default: { http: [LOCAL_RPC_URL] } },
   testnet: true,
 });
 

@@ -47,7 +47,7 @@ const expect = (condition, message) => {
   if (!condition) failures.push(message);
 };
 const browser = await chromium.launch();
-const ROUTES = ["/sentinel", "/sentinel/policy", "/sentinel/activity", "/automate", "/connect", "/markets", "/studio", "/studio/create", "/circuits"];
+const ROUTES = ["/sentinel", "/sentinel/policy", "/sentinel/activity", "/automate", "/connect", "/trade", "/markets", "/studio", "/studio/create", "/circuits"];
 
 async function open(path, { width = 1440, walletChainId = "0x7a69", connect = true, watch = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height: width < 500 ? 844 : 1000 }, colorScheme: "light", reducedMotion: "reduce", deviceScaleFactor: width < 500 ? 2 : 1 });
@@ -220,6 +220,9 @@ if (mode === "wrong-network") {
   const expectedTxUrl = explorerTxUrl(1952, receipt.txHash);
   expect(expectedTxUrl === `${DOCS_EXPLORER_ROOT}/tx/${receipt.txHash}`, `the app's explorer root differs from the documented one: ${expectedTxUrl}`);
   const market = manifest.markets[0].controller;
+  const v2Manifest = JSON.parse(readFileSync(new URL("../../../packages/chain-config/expansion/deployments/1952.json", import.meta.url), "utf8"));
+  const v2Demo = JSON.parse(readFileSync(new URL("../../../evidence/session6-v2/1952.json", import.meta.url), "utf8"));
+  const rejectionsFile = JSON.parse(readFileSync(new URL("../../../evidence/session6-rejections/public-1952.json", import.meta.url), "utf8"));
   const demoOwner = process.env.WATCH_ADDRESS ?? "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"; // public address from AGENTS.md; no key is used or needed
   const wallets = [{ name: "empty-wallet", address: account }, { name: "demo-owner-watch-only", address: demoOwner }];
   const only = process.env.ONLY_WALLET;
@@ -232,7 +235,7 @@ if (mode === "wrong-network") {
   const loads = { total: 0, deploymentBanner: 0, pageErrors: 0, slowest: { ms: 0, tag: "" } };
   for (const who of wallets.filter((entry) => !only || entry.name === only)) {
     for (const width of widths) {
-      for (const path of ["/", "/markets", "/markets?view=borrow", `/markets/${market}`, "/sentinel", `/sentinel/policy?market=${market}`, `/automate?market=${market}`, "/sentinel/activity", "/connect", "/studio", "/studio/create", "/circuits"]) {
+      for (const path of ["/", "/markets", "/markets?view=borrow", `/markets/${market}`, "/sentinel", `/sentinel/policy?market=${market}`, `/automate?market=${market}`, "/sentinel/activity", "/connect", "/trade", "/studio", "/studio/create", "/circuits"]) {
         // ONLY_PATHS=<regex> narrows a development run. An evidence run never sets it (the result file records it).
         if (process.env.ONLY_PATHS && !new RegExp(process.env.ONLY_PATHS).test(path)) continue;
         const tag = `${who.name} ${path.replace(market, "<market0>")} @${width}`;
@@ -335,7 +338,8 @@ if (mode === "wrong-network") {
             notes.push({ wallet: who.name, rail });
             expect(rail.map((item) => item.key).join(",") === "overview,earn,borrow,trade,automate,studio,circuits,connect,about", `${tag}: rail items are ${rail.map((item) => item.key).join(",")}`);
             const trade = rail.find((item) => item.key === "trade");
-            expect(trade && !trade.link && trade.status === "planned" && /Planned/.test(trade.text), `${tag}: Trade must be a non-link marked Planned: ${JSON.stringify(trade)}`);
+            // v2 is deployed on testnet (mock venue) and the page is read-only: a link that still says "In development".
+            expect(trade && trade.link && trade.status === "development" && /In development/.test(trade.text), `${tag}: Trade must be a link marked "In development": ${JSON.stringify(trade)}`);
             // Connect was verified on public testnet (evidence/session5-mcp/flagship-1952.json): a real link, no "In development".
             const connectNav = rail.find((item) => item.key === "connect");
             expect(connectNav?.link === true && connectNav.status === "live" && !/In development|Planned/.test(connectNav.text), `${tag}: Connect must be a live link without a status chip: ${JSON.stringify(connectNav)}`);
@@ -344,15 +348,23 @@ if (mode === "wrong-network") {
             expect(tabs.join(",") === "overview,earn,borrow,automate,more", `${tag}: tab bar is ${tabs.join(",")}`);
             await page.locator('[data-nav="more"]:visible').click();
             const more = await page.locator('[data-testid="more-nav"] [data-nav]').evaluateAll((nodes) => nodes.map((node) => ({ key: node.dataset.nav, link: node.tagName === "A", text: node.innerText.replace(/\s+/g, " ").trim() })));
-            expect(more.map((item) => item.key).join(",") === "trade,studio,circuits,connect,about" && more.find((item) => item.key === "trade")?.link === false, `${tag}: "More" lists ${JSON.stringify(more)}`);
+            expect(more.map((item) => item.key).join(",") === "trade,studio,circuits,connect,about" && more.find((item) => item.key === "trade")?.link === true && /In development/.test(more.find((item) => item.key === "trade")?.text ?? ""), `${tag}: "More" lists ${JSON.stringify(more)}`);
             await shot(page, `testnet-${who.name}-more-nav-${width}`);
             await page.locator("dialog[open]").getByRole("button", { name: "Close" }).click();
           }
           const portfolio = await page.locator('[data-testid="portfolio"] tr[data-portfolio-row]').evaluateAll((nodes) => nodes.map((node) => ({ kind: node.dataset.portfolioRow, text: node.innerText.replace(/\s+/g, " ").trim() })));
           notes.push({ wallet: who.name, width, portfolio });
-          expect(/Peridot lending only/.test(await page.locator('[data-testid="portfolio-scope"]').innerText()), `${tag}: the portfolio does not say which position types it covers`);
+          expect(/Position types shown: Peridot lending/.test(await page.locator('[data-testid="portfolio-scope"]').innerText()) && /Sentinel v2 account/.test(await page.locator('[data-testid="portfolio-scope"]').innerText()), `${tag}: the portfolio does not say which position types it covers`);
+          // v2 positions: the demo owner owns the public v2 demo account; a wallet without one sees "no v2 account".
+          const v2 = page.locator('[data-testid="portfolio-v2"]');
+          await page.waitForFunction(() => !["loading", null].includes(document.querySelector('[data-testid="portfolio-v2"]')?.getAttribute("data-state") ?? null), null, { timeout: 60_000 }).catch(() => {});
+          const v2State = { state: await v2.getAttribute("data-state"), account: await v2.getAttribute("data-account"), rows: await v2.locator("[data-portfolio-row]").evaluateAll((nodes) => nodes.map((node) => `${node.dataset.portfolioRow}: ${node.innerText.replace(/\s+/g, " ")}`)) };
+          notes.push({ wallet: who.name, width, portfolioV2: v2State });
+          if (who.name === "demo-owner-watch-only") expect(v2State.state === "account" && v2State.account?.toLowerCase() === v2Manifest.contracts.account.toLowerCase() && v2State.rows.some((row) => /^v2-idle: .*mWOKB.*mUSDC/.test(row)), `${tag}: the demo owner's v2 account is not in the portfolio: ${JSON.stringify(v2State)}`);
+          else expect(v2State.state === "none" && v2State.rows.length === 0, `${tag}: a v2 account is shown for a wallet that has none: ${JSON.stringify(v2State)}`);
           if (who.name === "demo-owner-watch-only") expect(portfolio.some((row) => row.kind === "sentinel" && /100 mCOL/.test(row.text) && /mUSD/.test(row.text)), `${tag}: the demo account's lending position is not in the portfolio: ${JSON.stringify(portfolio)}`);
-          else expect(portfolio.length === 1 && portfolio[0].kind === "none", `${tag}: positions shown for a wallet that has none: ${JSON.stringify(portfolio)}`);
+          // One "no position" row per market. The public testnet has more than one market since the mined-rejection run.
+          else expect(portfolio.length >= 1 && portfolio.every((row) => row.kind === "none"), `${tag}: positions shown for a wallet that has none: ${JSON.stringify(portfolio)}`);
           await shot(page, `testnet-${who.name}-sentinel-${width}`);
         }
         if (path.startsWith("/sentinel/policy") && who.name === "demo-owner-watch-only") {
@@ -395,6 +407,37 @@ if (mode === "wrong-network") {
             expect((await page.locator('[data-testid="emergency-stop"]').count()) === 0, `${tag}: an emergency stop is offered without an account`);
           }
           await shot(page, `testnet-${who.name}-automate-${width}`);
+        }
+        if (path === "/trade") {
+          const { erc20Abi, createPublicClient, http } = await import("viem");
+          const { xLayerTestnet } = await import("../src/lib/chains.ts");
+          await page.waitForFunction(() => ["ok", "error"].includes(document.querySelector('[data-testid="v2-account"]')?.getAttribute("data-state") ?? "") && ["ok", "error"].includes(document.querySelector('[data-testid="v2-quote"]')?.getAttribute("data-state") ?? ""), null, { timeout: 90_000 }).catch(() => {});
+          expect(/Mock swap on testnet; real Uniswap v3 verified on mainnet fork/.test(main) && /inventory-backed mock swap venue/.test(main) && /not an OKX quote/.test(main), `${tag}: the Trade page does not carry the mock-venue labels`);
+          expect((await page.locator('[data-testid="v2-deployment"]').getAttribute("data-state")) === "ok", `${tag}: the v2 deployment check is "${await page.locator('[data-testid="v2-deployment"]').getAttribute("data-state")}"`);
+          // No v2 transaction is offered: one input (the quote amount), and no button except read actions.
+          expect((await page.locator('[data-testid="trade"] input').count()) === 1 && (await page.locator('[data-testid="trade"] button').count()) === 0, `${tag}: the Trade page offers a control beyond the read-only quote amount`);
+          const accountCard = page.locator('[data-testid="v2-account"]');
+          const shown = { state: await accountCard.getAttribute("data-state"), block: await accountCard.getAttribute("data-block"), usdc: await accountCard.getAttribute("data-usdc"), wokb: await accountCard.getAttribute("data-wokb"), operators: await accountCard.getAttribute("data-operators"), grants: await accountCard.locator("[data-v2-grant]").evaluateAll((nodes) => nodes.map((node) => `${node.dataset.v2Grant}:${node.dataset.remaining}`)) };
+          expect(shown.state === "ok", `${tag}: the v2 account read is "${shown.state}"`);
+          if (shown.state === "ok") {
+            // Direct RPC reads at the block the page names must give the same balances.
+            const rpc = createPublicClient({ transport: http(xLayerTestnet.rpcUrls.default.http[0], { retryCount: 5, retryDelay: 400 }) });
+            const at = { blockNumber: BigInt(shown.block) };
+            const [usdc, wokb] = await Promise.all([rpc.readContract({ address: v2Manifest.contracts.mockUsdc, abi: erc20Abi, functionName: "balanceOf", args: [v2Manifest.contracts.account], ...at }), rpc.readContract({ address: v2Manifest.contracts.mockWokb, abi: erc20Abi, functionName: "balanceOf", args: [v2Manifest.contracts.account], ...at })]);
+            expect(usdc.toString() === shown.usdc && wokb.toString() === shown.wokb, `${tag}: the page shows ${shown.wokb} / ${shown.usdc} but the RPC says ${wokb} / ${usdc} at block ${shown.block}`);
+            expect(Number(shown.operators) >= 1 && (await accountCard.locator(`[data-v2-operator]`).evaluateAll((nodes) => nodes.map((node) => node.dataset.v2Operator.toLowerCase()))).includes(v2Demo.operator.toLowerCase()), `${tag}: the enumerated operators do not include the recorded operator`);
+          }
+          const quote = page.locator('[data-testid="v2-quote"]');
+          expect((await quote.getAttribute("data-state")) === "ok" && BigInt((await quote.getAttribute("data-expected")) || "0") > 0n, `${tag}: the venue quote is "${await quote.getAttribute("data-state")}"`);
+          // Receipts by kind: operator execution, mined revert, simulation without a link, owner actions.
+          const receipts = await page.locator('[data-testid="v2-receipts"] [data-receipt]').evaluateAll((nodes) => nodes.map((node) => ({ kind: node.dataset.receipt, hash: node.dataset.hash, href: node.querySelector("a")?.getAttribute("href") ?? null, text: node.innerText.replace(/\s+/g, " ") })));
+          const byKind = Object.fromEntries(receipts.map((row) => [row.kind, row]));
+          expect(byKind["operator-swap"]?.hash === v2Demo.operatorSwap.hash && byKind["operator-swap"].href === explorerTxUrl(1952, v2Demo.operatorSwap.hash) && /Operator execution · mock venue/.test(byKind["operator-swap"].text), `${tag}: operator swap row is ${JSON.stringify(byKind["operator-swap"])}`);
+          expect(byKind["mined-denial"]?.hash === v2Demo.denial.hash && byKind["mined-denial"].href === explorerTxUrl(1952, v2Demo.denial.hash) && /Mined revert/.test(byKind["mined-denial"].text) && /ExecutionPolicyDenied/.test(byKind["mined-denial"].text), `${tag}: mined denial row is ${JSON.stringify(byKind["mined-denial"])}`);
+          expect(byKind["simulated-denial"] && byKind["simulated-denial"].href === null && /Simulated rejection · nothing sent/.test(byKind["simulated-denial"].text), `${tag}: the simulated denial must have no link: ${JSON.stringify(byKind["simulated-denial"])}`);
+          expect(byKind["owner-setup-swap"]?.hash === v2Manifest.swap.receipt && /Owner action · not operator execution/.test(byKind["owner-setup-swap"].text), `${tag}: the owner setup swap is not labelled as an owner action`);
+          notes.push({ wallet: who.name, width, v2: { ...shown, quoteExpected: await quote.getAttribute("data-expected"), receipts: receipts.map((row) => `${row.kind}:${row.hash}`) } });
+          await shot(page, `testnet-${who.name}-trade-${width}`);
         }
         if (path === "/connect") {
           const flagship = JSON.parse(readFileSync(new URL("../../../evidence/session5-mcp/flagship-1952.json", import.meta.url), "utf8"));
@@ -457,6 +500,16 @@ if (mode === "wrong-network") {
           const coverage = (await coverageNode.innerText().catch(() => "")).replace(/\s+/g, " ");
           const ranges = Number((await coverageNode.locator("[data-ranges]").getAttribute("data-ranges").catch(() => null)) ?? 0);
           const gap = (await coverageNode.locator("[data-gap]").getAttribute("data-gap").catch(() => null)) ?? null;
+          // Historical snapshot (labelled with its range, terminal hash re-read) and the two mined reverts.
+          const snapshotFile = JSON.parse(readFileSync(new URL("../../../packages/chain-config/activity/1952.json", import.meta.url), "utf8"));
+          const snap = page.locator('[data-testid="activity-snapshot"]');
+          await page.waitForFunction(() => !["checking", null].includes(document.querySelector('[data-testid="activity-snapshot"]')?.getAttribute("data-state") ?? null), null, { timeout: 60_000 }).catch(() => {});
+          const snapShown = { state: await snap.getAttribute("data-state"), from: await snap.getAttribute("data-from"), to: await snap.getAttribute("data-to"), events: await snap.getAttribute("data-events"), gap: await snap.locator('[data-testid="snapshot-gap"]').getAttribute("data-gap").catch(() => null), listed: await snap.locator("[data-snapshot-event]").count() };
+          expect(snapShown.state === "canonical" && snapShown.from === snapshotFile.coverage.fromBlock && snapShown.to === snapshotFile.coverage.toBlock && snapShown.events === String(snapshotFile.events.length) && snapShown.gap !== null, `${tag}: the activity snapshot is shown as ${JSON.stringify(snapShown)}`);
+          expect(/Historical snapshot/i.test(await snap.innerText()) && /not a live feed/.test(await snap.innerText()), `${tag}: the snapshot is not labelled as historical`);
+          const mined = await page.locator('[data-testid="mined-rejections"] [data-mined-rejection]').evaluateAll((nodes) => nodes.map((node) => ({ error: node.dataset.minedRejection, hash: node.dataset.hash, href: node.querySelector("a")?.getAttribute("href") ?? null })));
+          expect(mined.length === 2 && rejectionsFile.rejections.every((entry) => mined.some((row) => row.hash === entry.hash && row.error === entry.minedRevert.name && row.href === explorerTxUrl(1952, entry.hash))) && /Mined reverts/.test(await page.locator('[data-testid="mined-rejections"]').innerText()), `${tag}: mined rejections are shown as ${JSON.stringify(mined)}`);
+          notes.push({ wallet: who.name, width, snapshot: snapShown, minedRejections: mined });
           // The keeper service on this machine watches the LOCAL chain. On a 1952 build it must never contribute rows.
           // Without KEEPER_API_URL the panel is not rendered at all ("hidden"), which is what the hosted app must do.
           const keeper = (await page.locator('[data-testid="keeper-panel"]').count()) === 0 ? "hidden" : await page.locator('[data-testid="keeper-panel"]').getAttribute("data-keeper");
