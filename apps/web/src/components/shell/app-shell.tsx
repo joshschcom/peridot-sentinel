@@ -55,16 +55,16 @@ function RailItem({ item, active, onNavigate }: { item: NavItem; active: boolean
   if (!item.href) {
     return (
       <span className={className} aria-disabled="true" data-nav={item.key} data-nav-status={item.status}>
-        <item.icon size={19} />
-        {item.label}
+        <item.icon size={19} className="shrink-0" />
+        <span className="min-w-0 truncate">{item.label}</span>
         {item.status ? <StatusChip status={item.status} /> : null}
       </span>
     );
   }
   return (
     <Link href={item.href} aria-current={active ? "page" : undefined} className={className} onClick={onNavigate} data-nav={item.key} data-nav-status={item.status ?? "live"}>
-      <item.icon size={19} />
-      {item.label}
+      <item.icon size={19} className="shrink-0" />
+      <span className="min-w-0 truncate">{item.label}</span>
       {item.status ? <StatusChip status={item.status} /> : null}
     </Link>
   );

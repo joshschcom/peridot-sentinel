@@ -14,6 +14,16 @@ import { EVIDENCE } from "@/lib/evidence";
 import { evalLive, readLiveCircuit } from "@/services/chain/mainnet-eval";
 import type { Address } from "@/services/types";
 
+/**
+ * Peridot's own circuits (DECISIONS D16). `id` stays null until a circuit is actually published on chain 196; a
+ * simulated ID from a fork must never be written here.
+ */
+const PERIDOT_MAINNET_CIRCUITS: Array<{ name: string; id: string | null }> = [
+  { name: "Market Policy V1", id: null },
+  { name: "Sentinel Policy V1", id: null },
+  { name: "Expanded Sentinel Policy V2 (execution)", id: null },
+];
+
 const hexByte = (value: number): Hex => `0x${value.toString(16).padStart(2, "0")}`;
 
 export function LiveMainnetEval() {
@@ -25,6 +35,11 @@ export function LiveMainnetEval() {
     queryKey: ["mainnet-eval", processor, circuitId?.toString()],
     queryFn: async () => {
       const circuit = await readLiveCircuit(processor!, circuitId!);
+      // Identity first, evaluation second: if the chain does not hold the recorded circuit (other netlist or other
+      // dimensions), nothing is evaluated and nothing is shown as a result.
+      const expected = sample.status === "ok" ? sample.value : null;
+      if (!expected || circuit.netlistHash.toLowerCase() !== expected.netlistHash.toLowerCase()) throw new Error("The netlist on chain does not match the recorded circuit, so it was not evaluated");
+      if (String(circuit.dimensions.nIn) !== expected.dimensions.nIn || String(circuit.dimensions.nOut) !== expected.dimensions.nOut || String(circuit.dimensions.nState) !== expected.dimensions.nState) throw new Error("The circuit's dimensions on chain differ from the recorded ones, so it was not evaluated");
       // Small circuits get their whole truth table, read at one block. Larger ones are evaluated per chosen input.
       const inputs = circuit.dimensions.nIn <= 3 ? Array.from({ length: 2 ** circuit.dimensions.nIn }, (_, value) => hexByte(value)) : [];
       const outputs = await Promise.all(inputs.map((input) => evalLive(processor!, circuitId!, input, circuit.block)));
@@ -84,7 +99,7 @@ export function LiveMainnetEval() {
             <DefinitionRow label="Netlist hash" mono>
               <span className="break-all">{data.circuit.netlistHash}</span>
               <span className={`mt-1 block font-sans text-xs ${hashMatches ? "text-success" : "text-danger"}`} data-testid="live-netlist-match" data-match={String(hashMatches)}>
-                {hashMatches ? "keccak256 of the netlist read just now equals the recorded hash." : "This differs from the recorded hash: the circuit on chain is not the one in the repository record."}
+                {hashMatches ? "keccak256 of the netlist read just now equals the recorded hash. The circuit is evaluated only when it does." : "This differs from the recorded hash: the circuit on chain is not the one in the repository record."}
               </span>
             </DefinitionRow>
           </dl>
@@ -149,8 +164,20 @@ export function LiveMainnetEval() {
           )}
 
           <Notice title="This is not a Peridot circuit">
-            It is a circuit that already existed on the official TapeOut deployment, used here to show a real evaluation on mainnet. Peridot's policy circuits have not been published on mainnet; they will be listed here with their processor and circuit IDs once they are. The fork evidence further down is a simulation and stays labelled as one.
+            It is a circuit that already existed on the official TapeOut deployment, used here to show a real evaluation on mainnet. The fork evidence further down is a simulation and stays labelled as one: circuit IDs from a fork are never looked up on mainnet.
           </Notice>
+          <div data-testid="peridot-mainnet-circuits">
+            <h3 className="text-sm font-medium">Peridot circuits on X Layer mainnet</h3>
+            <ul className="mt-2 divide-y divide-line rounded-control border border-line text-sm">
+              {PERIDOT_MAINNET_CIRCUITS.map((circuit) => (
+                <li key={circuit.name} className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5" data-published={String(circuit.id !== null)}>
+                  <span>{circuit.name}</span>
+                  <Badge tone="outline">{circuit.id === null ? "Not published · no mainnet ID" : `Circuit #${circuit.id}`}</Badge>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-xs text-faint">None of these has been published on mainnet. Each will be evaluated here, like the example above, once its publication transaction exists and its netlist hash has been checked.</p>
+          </div>
           <div className="flex flex-wrap items-center gap-3 text-xs text-faint">
             <Button size="sm" variant="secondary" onClick={() => void live.refetch()} disabled={live.isFetching} data-testid="live-refresh">
               {live.isFetching ? "Reading…" : "Read again"}

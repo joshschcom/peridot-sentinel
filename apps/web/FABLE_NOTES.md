@@ -78,6 +78,27 @@ Always kill only the dev server PID you started. Astra shares the machine: never
 
 **Native TapeOut evidence (`src/components/pages/live-eval.tsx`, `src/services/chain/mainnet-eval.ts`):** on `/circuits`, the browser calls `circuitInfo`, `netlist` and `eval` on the public processor on chain 196 (CPU 275, circuit 1, from `evidence/a1/mainnet-reads.json`) and compares with the recorded reference. Labelled "not a Peridot circuit". Add Peridot's circuits when their mainnet IDs exist.
 
+**E2E is idempotent** (`scripts/e2e-local.mjs`, commit 1abc0d9): automation steps run on `/automate`; a leftover grant or trigger is cleared first through the emergency stop (recorded as a normalisation step); the last owner write is the emergency stop. Two consecutive green runs: `evidence/fable/local-e2e-run-20261126-141607.json` (8 tx) and `-141635.json` (6 tx). Known limit: each run repays 2 and withdraws 1 mUSD and borrows 5 when idle funds run low, so debt on market A creeps up by about 1 mUSD per two runs. After a few dozen runs the allowed borrow would hit the 55% cap; switch to a fresh account with `E2E_ACCOUNT_INDEX` (#3-#9) when that happens.
+
+**Fixture mode** (`NEXT_PUBLIC_PERIDOT_DATA=fixture npm run dev -- -p 3212`, then `screenshots.mjs --checks-only`): all UI checks pass with the new navigation, including 360 px (the compact wordmark drops the gem below 380 px so the phone header fits).
+
+**Two `next dev` servers cannot share this directory** (both write `.next/dev`). Stop the local-target dev server before starting the fixture one. `next start` (port 3220) can run next to one dev server, but must be restarted after every `next build`.
+
+**Astra's M6 notices read on 2026-11-26 (not committed by Astra yet, so I did not stage MILESTONE_LOG):**
+- `M6-native-eval-page-data`: done as asked. Identity is checked before `eval` (code, dimensions, keccak256(netlist) against the record); Peridot's three circuits are listed as "Not published · no mainnet ID"; fork IDs are never resolved on 196. Astra also offers CPU #410 circuit #1 (`evidence/session5-d8b/public-read.json`) as an example: not used yet, the page shows CPU 275 circuit 1 as Claude specified.
+- `M6-connect-external-client-ready` / `M6-execution-circuit-and-connect-wire`: MCP server and client exist, no public 1952 execute receipt yet. Connect therefore stays "In development" (`CONNECT_AVAILABILITY`).
+- `M6-onchainos-quote-access`: blocked on credentials. No quote UI exists. When it comes: render "unavailable" with no number, never use quote calldata.
+- `M6-v2-abi-and-1952-rehearsal`: v2 ABIs exist, no public manifest (`packages/chain-config/expansion/deployments/1952.json` is not there). Nothing wired. v2 grant op ids differ from v1 masks (supply 0, redeem 1, borrow 2, repay 3, swap 5): do not reuse the v1 mask UI for v2.
+
+## Not done after run 3
+
+1. Market-only rejection on PUBLIC testnet (needs a second market with a lower cap, so a funded test wallet). The account-only rejection is shown on testnet as a read-only simulation.
+2. No write has ever been sent from the app on 1952, and no real wallet extension (OKX Wallet, MetaMask) has been used.
+3. Activity between the two scanned block ranges on 1952 is not visible (needs an indexer or a testnet keeper read API).
+4. OKX Onchain OS quote display, v2 adapter UI, Trade: waiting for Astra's public manifests and notices.
+5. `DEMO_MATRIX.md` UI cells were not updated in run 3 (the file has Astra's uncommitted edits).
+6. Chain-mode negative checks (`wrong-network`, `broken-deployment`, `rejected-manifest`, `testnet-unverified`) were not re-run after the rebrand. They use test ids and routes that did not change, but that is an inference, not a run.
+
 ## Answers from Astra (M4-testnet-preflight-and-frontend-reads, f88817a)
 
 - **Check order:** do not hand-order in chain mode. Resolve the first failure with `simulateContract` as the actual caller on the actual entrypoint. Facts: `Inactive` is borrow-only; supply/borrow caps come before the oracle and the adapter; Sentinel operator and account checks come before the pToken hook. (The fixture preview treats `Inactive` as blocking collateral supply too: fix when touching `fixture/preview.ts`.)

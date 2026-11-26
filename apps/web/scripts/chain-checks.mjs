@@ -41,7 +41,7 @@ const expect = (condition, message) => {
   if (!condition) failures.push(message);
 };
 const browser = await chromium.launch();
-const ROUTES = ["/sentinel", "/sentinel/policy", "/sentinel/activity", "/markets", "/studio", "/studio/create", "/circuits"];
+const ROUTES = ["/sentinel", "/sentinel/policy", "/sentinel/activity", "/automate", "/markets", "/studio", "/studio/create", "/circuits"];
 
 async function open(path, { width = 1440, walletChainId = "0x7a69", connect = true, watch = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height: width < 500 ? 844 : 1000 }, colorScheme: "light", reducedMotion: "reduce", deviceScaleFactor: width < 500 ? 2 : 1 });
@@ -181,7 +181,7 @@ if (mode === "wrong-network") {
   const loads = { total: 0, deploymentBanner: 0, pageErrors: 0, slowest: { ms: 0, tag: "" } };
   for (const who of wallets.filter((entry) => !only || entry.name === only)) {
     for (const width of widths) {
-      for (const path of ["/", "/markets", `/markets/${market}`, "/sentinel", `/sentinel/policy?market=${market}`, "/sentinel/activity", "/studio", "/studio/create", "/circuits"]) {
+      for (const path of ["/", "/markets", "/markets?view=borrow", `/markets/${market}`, "/sentinel", `/sentinel/policy?market=${market}`, `/automate?market=${market}`, "/sentinel/activity", "/studio", "/studio/create", "/circuits"]) {
         const tag = `${who.name} ${path.replace(market, "<market0>")} @${width}`;
         const started = Date.now();
         // "/" is the landing page: it has no wallet button and no app shell.
@@ -209,6 +209,10 @@ if (mode === "wrong-network") {
           expect(/Contracts deployed on X Layer testnet/.test(main) && /mock tokens and a mock price feed/i.test(main), `${tag}: the landing status does not describe the testnet deployment honestly: ${main.slice(0, 200)}`);
           expect(!/No Peridot contract is deployed/.test(main), `${tag}: the landing page still says nothing is deployed`);
           expect(/development reference processor/i.test(main), `${tag}: the landing page does not name the development reference processor`);
+          const landing = await page.evaluate(() => ({ title: document.title, brand: document.querySelector('[data-testid="brand"]')?.textContent ?? "", tagline: document.querySelector('[data-testid="tagline"]')?.textContent ?? "", positioning: document.querySelector('[data-testid="positioning"]')?.textContent ?? "", body: document.body.innerText }));
+          expect(/Peridot Sentinel/.test(landing.title) && landing.brand.includes("sentinel.") && landing.brand.includes("By Peridot"), `${tag}: wordmark or title is not Peridot Sentinel (${landing.title} / ${landing.brand})`);
+          expect(/Your money\.\s*Your rules\.\s*Your intelligence\./.test(landing.tagline) && landing.positioning.includes("The Financial Operating System for the Agent Economy."), `${tag}: tagline or positioning line missing`);
+          expect(!/Peridot Markets/.test(landing.body), `${tag}: the old product name is still shown`);
           await shot(page, `testnet-landing-${width}`);
           expect(wallet.sent.length === 0 && wallet.refused.length === 0, `${tag}: the page asked the wallet for ${JSON.stringify(wallet.refused)}`);
           await context.close();
@@ -217,7 +221,13 @@ if (mode === "wrong-network") {
         expect((await page.locator('[data-testid="wrong-network-banner"]').count()) === 0, `${tag}: wrong-network banner for a wallet on 1952`);
         expect((await page.locator('[data-testid="network-pill"]:visible').first().innerText()).includes("Testnet"), `${tag}: network label is not Testnet`);
         const gas = await page.locator('[data-testid="gas-banner"]').count();
+        if (path === "/markets?view=borrow") {
+          expect((await page.locator("[data-view]").first().getAttribute("data-view")) === "borrow" && (await page.locator("h1").innerText()) === "Borrow" && /Borrow rate/.test(main) && /Policy cap/.test(main), `${tag}: the Borrow view does not lead with borrowing terms`);
+          if (width === 1440) expect((await page.locator('aside nav [data-nav="borrow"][aria-current="page"]').count()) === 1 && (await page.locator('aside nav [data-nav="earn"][aria-current="page"]').count()) === 0, `${tag}: the Borrow nav item is not the active one`);
+          await shot(page, `testnet-${who.name}-borrow-${width}`);
+        }
         if (path === "/markets") {
+          expect((await page.locator("[data-view]").first().getAttribute("data-view")) === "earn" && (await page.locator("h1").innerText()) === "Earn" && /Supply rate/.test(main), `${tag}: the Earn view does not lead with the supply rate`);
           expect(/mCOL|MockCollateral|Test tokens/.test(main), `${tag}: market list did not load from testnet: ${main.slice(0, 200)}`);
           expect(/Test tokens/.test(main), `${tag}: mock tokens are not labelled "Test tokens"`);
           const faucet = await page.locator('[data-testid="gas-banner"] a').getAttribute("href").catch(() => null);
@@ -264,15 +274,59 @@ if (mode === "wrong-network") {
           notes.push({ wallet: who.name, width, sentinelAccounts: accounts });
           if (who.name === "demo-owner-watch-only") expect(accounts.some((entry) => entry?.toLowerCase() === receipt.sentinelAccount.toLowerCase()), `${tag}: the demo Sentinel account ${receipt.sentinelAccount} is not shown for its owner (got ${JSON.stringify(accounts)})`);
           else expect(accounts.length === 0, `${tag}: accounts shown for a wallet that has none`);
+          // Navigation: product areas per D11, and nothing planned is a link.
+          const brand = (await page.locator('[data-testid="brand"]:visible').first().innerText()).replace(/\s+/g, " ");
+          expect(brand.includes("sentinel."), `${tag}: wordmark is "${brand}"`);
+          if (width === 1440) {
+            const rail = await page.locator("aside nav [data-nav]").evaluateAll((nodes) => nodes.map((node) => ({ key: node.dataset.nav, status: node.dataset.navStatus, link: node.tagName === "A", text: node.innerText.replace(/\s+/g, " ").trim() })));
+            notes.push({ wallet: who.name, rail });
+            expect(rail.map((item) => item.key).join(",") === "overview,earn,borrow,trade,automate,studio,circuits,connect,about", `${tag}: rail items are ${rail.map((item) => item.key).join(",")}`);
+            const trade = rail.find((item) => item.key === "trade");
+            expect(trade && !trade.link && trade.status === "planned" && /Planned/.test(trade.text), `${tag}: Trade must be a non-link marked Planned: ${JSON.stringify(trade)}`);
+            expect(/In development/.test(rail.find((item) => item.key === "connect")?.text ?? ""), `${tag}: Connect is not marked "In development"`);
+          } else {
+            const tabs = await page.locator('nav[aria-label="Primary"]:visible [data-nav]').evaluateAll((nodes) => nodes.map((node) => node.dataset.nav));
+            expect(tabs.join(",") === "overview,earn,borrow,automate,more", `${tag}: tab bar is ${tabs.join(",")}`);
+            await page.locator('[data-nav="more"]:visible').click();
+            const more = await page.locator('[data-testid="more-nav"] [data-nav]').evaluateAll((nodes) => nodes.map((node) => ({ key: node.dataset.nav, link: node.tagName === "A", text: node.innerText.replace(/\s+/g, " ").trim() })));
+            expect(more.map((item) => item.key).join(",") === "trade,studio,circuits,connect,about" && more.find((item) => item.key === "trade")?.link === false, `${tag}: "More" lists ${JSON.stringify(more)}`);
+            await shot(page, `testnet-${who.name}-more-nav-${width}`);
+            await page.locator("dialog[open]").getByRole("button", { name: "Close" }).click();
+          }
+          const portfolio = await page.locator('[data-testid="portfolio"] tr[data-portfolio-row]').evaluateAll((nodes) => nodes.map((node) => ({ kind: node.dataset.portfolioRow, text: node.innerText.replace(/\s+/g, " ").trim() })));
+          notes.push({ wallet: who.name, width, portfolio });
+          expect(/Peridot lending only/.test(await page.locator('[data-testid="portfolio-scope"]').innerText()), `${tag}: the portfolio does not say which position types it covers`);
+          if (who.name === "demo-owner-watch-only") expect(portfolio.some((row) => row.kind === "sentinel" && /100 mCOL/.test(row.text) && /mUSD/.test(row.text)), `${tag}: the demo account's lending position is not in the portfolio: ${JSON.stringify(portfolio)}`);
+          else expect(portfolio.length === 1 && portfolio[0].kind === "none", `${tag}: positions shown for a wallet that has none: ${JSON.stringify(portfolio)}`);
           await shot(page, `testnet-${who.name}-sentinel-${width}`);
         }
         if (path.startsWith("/sentinel/policy") && who.name === "demo-owner-watch-only") {
-          // Operator candidates come from a paged log scan, which finishes after the page's first paint.
-          await page.locator('[data-testid="automation"] li[data-operator]').first().waitFor({ timeout: 60_000 }).catch(() => {});
-          const operators = await page.locator('[data-testid="automation"] li[data-operator]').evaluateAll((nodes) => nodes.map((node) => ({ operator: node.dataset.operator, text: node.innerText.replace(/\s+/g, " ").slice(0, 220) })));
-          notes.push({ wallet: who.name, width, operators });
-          expect(operators.some((entry) => entry.operator?.toLowerCase() === receipt.operator.toLowerCase()), `${tag}: the live operator grant for ${receipt.operator} is not shown (got ${JSON.stringify(operators)})`);
+          expect((await page.locator('[data-testid="open-automate"]').getAttribute("href")) === `/automate?market=${market}`, `${tag}: the policy page does not point at Automate`);
           await shot(page, `testnet-${who.name}-policy-${width}`);
+        }
+        if (path.startsWith("/automate")) {
+          const modes = Object.fromEntries(await page.locator('[data-testid="automation-modes"] [data-mode]').evaluateAll((nodes) => nodes.map((node) => [node.dataset.mode, node.dataset.availability])));
+          notes.push({ wallet: who.name, width, modes });
+          // Only what works is called live. Connect stays "development" until the MCP flow is verified on testnet.
+          expect(modes["rule-based"] === "live" && modes.connect === "development" && modes.hosted === "planned", `${tag}: mode availability is ${JSON.stringify(modes)}`);
+          expect(/not available in this app yet/.test(await page.locator("#connect").innerText()) && /does not exist yet/.test(await page.locator("#hosted").innerText()), `${tag}: Connect or hosted AI is not described as unavailable`);
+          expect((await page.locator("#connect button:not([disabled]), #connect input, #hosted button, #hosted input").count()) === 0, `${tag}: an unavailable mode offers a control`);
+          if (who.name === "demo-owner-watch-only") {
+            // Operator candidates come from a paged log scan, which finishes after the page's first paint.
+            await page.locator('[data-testid="automation"] li[data-operator]').first().waitFor({ timeout: 60_000 }).catch(() => {});
+            const operators = await page.locator('[data-testid="automation"] li[data-operator]').evaluateAll((nodes) => nodes.map((node) => ({ operator: node.dataset.operator, mask: node.dataset.mask, text: node.innerText.replace(/\s+/g, " ").slice(0, 220) })));
+            const stop = page.locator('[data-testid="emergency-stop"]');
+            const outline = await page.locator('[data-testid="strategy-outline"] [data-field]').evaluateAll((nodes) => nodes.map((node) => ({ field: node.dataset.field, status: node.dataset.availability, text: node.innerText.replace(/\s+/g, " ").slice(0, 160) })));
+            notes.push({ wallet: who.name, width, operators, emergencyStop: { operators: await stop.getAttribute("data-operators"), trigger: await stop.getAttribute("data-trigger"), scope: (await page.locator('[data-testid="emergency-stop-scope"]').innerText()).replace(/\s+/g, " ") }, outline });
+            expect(operators.some((entry) => entry.operator?.toLowerCase() === receipt.operator.toLowerCase() && entry.mask === "8"), `${tag}: the live repay-only grant for ${receipt.operator} is not shown (got ${JSON.stringify(operators)})`);
+            expect((await stop.getAttribute("data-operators")) === "1" && Number(await stop.getAttribute("data-trigger")) > 0, `${tag}: the emergency stop does not see the live operator and trigger`);
+            expect(outline.length === 6 && outline.find((row) => row.field === "Approved protocols")?.status === "planned" && outline.filter((row) => row.status === "live").length === 5, `${tag}: strategy outline is ${JSON.stringify(outline.map((row) => [row.field, row.status]))}`);
+            expect((await page.locator('[data-testid="connect-grant"]').count()) === 1, `${tag}: the Connect section does not show the authorisation an agent would use`);
+          } else {
+            expect(/No Sentinel account yet/.test(main), `${tag}: no empty state for a wallet without an account`);
+            expect((await page.locator('[data-testid="emergency-stop"]').count()) === 0, `${tag}: an emergency stop is offered without an account`);
+          }
+          await shot(page, `testnet-${who.name}-automate-${width}`);
         }
         if (path === "/sentinel/activity") {
           const row = page.locator('[data-testid="testnet-auto-repay"]');
@@ -304,6 +358,27 @@ if (mode === "wrong-network") {
           if (who.name === "demo-owner-watch-only") expect(chainRows.some((entry) => /Auto-repay/.test(entry.text) && entry.link === expectedTxUrl), `${tag}: the scan from the deployment block did not find the recorded auto-repay ${receipt.txHash} (${chainRows.length} entries)`);
           else expect(chainRows.length === 0, `${tag}: on-chain entries shown for a wallet with no activity`);
           await shot(page, `testnet-${who.name}-activity-${width}`);
+        }
+        if (path === "/circuits") {
+          // Native TapeOut evidence: a real circuit on X Layer MAINNET, evaluated read-only from this browser.
+          const card = page.locator('[data-testid="live-mainnet-eval"]');
+          await card.locator('[data-testid="live-result"]').waitFor({ timeout: 45_000 }).catch(() => {});
+          const state = await card.getAttribute("data-state");
+          const result = card.locator('[data-testid="live-result"]');
+          const first = { input: await result.getAttribute("data-input").catch(() => null), output: await result.getAttribute("data-output").catch(() => null) };
+          await card.locator('[data-testid="live-input-0"]').click().catch(() => {});
+          const second = { input: await result.getAttribute("data-input").catch(() => null), output: await result.getAttribute("data-output").catch(() => null) };
+          const table = await card.locator("tr[data-live-row]").evaluateAll((rows) => rows.map((row) => `${row.dataset.liveRow}->${row.dataset.output}`));
+          const processorHref = await card.locator('[data-testid="live-processor"]').getAttribute("href").catch(() => null);
+          const text = (await card.innerText()).replace(/\s+/g, " ");
+          notes.push({ wallet: who.name, width, liveMainnetEval: { state, block: await card.locator('[data-testid="live-block"]').innerText().catch(() => null), first, second, table, processorHref, netlistMatches: await card.locator('[data-testid="live-netlist-match"]').getAttribute("data-match").catch(() => null) } });
+          expect(state === "ok", `${tag}: live mainnet evaluation is "${state}": ${text.slice(0, 200)}`);
+          expect(first.input === "0x03" && first.output === "0x01" && second.input === "0x02" && second.output === "0x00", `${tag}: eval results ${JSON.stringify([first, second])}, expected 0x03->0x01 then 0x02->0x00`);
+          expect(table.join(",") === "0x00->0x00,0x01->0x00,0x02->0x00,0x03->0x01", `${tag}: live truth table is ${table.join(",")}`);
+          expect(processorHref === "https://www.okx.com/web3/explorer/xlayer/address/0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF", `${tag}: processor link is ${processorHref}`);
+          expect(/chain 196/.test(text) && /not a Peridot circuit/i.test(text) && /no wallet, no transaction/i.test(text), `${tag}: the live evaluation is not labelled as a read-only mainnet read of a non-Peridot circuit`);
+          expect((await overflow(page)) <= 0, `${tag}: overflow ${await overflow(page)}px with the live evaluation`);
+          await shot(page, `testnet-${who.name}-circuits-live-eval-${width}`);
         }
         // A watch-only wallet must never be asked to sign or send by merely browsing.
         expect(wallet.sent.length === 0 && wallet.refused.length === 0, `${tag}: the page asked the wallet for ${JSON.stringify(wallet.refused)}`);
