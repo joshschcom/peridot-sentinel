@@ -1,0 +1,163 @@
+{
+  "profile": "private Anvil fork of testnet",
+  "chainId": 1952,
+  "actor": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "steps": {
+    "deploy-mockVault": {
+      "to": null,
+      "dataHash": "0xcc243ac7b0f0bb3f2b3865d758ef94d31fe3a926201d3eae575348d2c5601eed",
+      "value": "0",
+      "expected": "success",
+      "nonce": 52,
+      "gasLimit": "1339470",
+      "hash": "0xb82234cda537a1b946ffc589978839212620e863a6c68bf07695de8fd107a52e",
+      "status": "success",
+      "block": "47249127",
+      "blockHash": "0xa7193f471615cd7955588858f9d79f3fb8cd11908456baba3a05c34edfb5f26e",
+      "gasUsed": "982102"
+    },
+    "deploy-vaultAdapter": {
+      "to": null,
+      "dataHash": "0x7c2a1a2c0623e425b5db989e59009451c6d50f895a35ff83c22dc01dd8014f3a",
+      "value": "0",
+      "expected": "success",
+      "nonce": 53,
+      "gasLimit": "964472",
+      "hash": "0xa842066828bceb0900b729a33f8200cfdce859e4112f5dc5b00e4d21b8b600b0",
+      "status": "success",
+      "block": "47249128",
+      "blockHash": "0xed460d56012a7692822f57231e88560f979b190df32131aafa23e085b03bc1c6",
+      "gasUsed": "700854"
+    },
+    "deploy-vaultFactory": {
+      "to": null,
+      "dataHash": "0xf620b7ffee4cb4dff86c523a313978e008ebbc1c352569bd54cb47083039dd0e",
+      "value": "0",
+      "expected": "success",
+      "nonce": 54,
+      "gasLimit": "7108550",
+      "hash": "0x766798df61c29debd8334d2122f103a1ccfce2de86edb126857cf9dbfbc61dce",
+      "status": "success",
+      "block": "47249129",
+      "blockHash": "0xa0ea0102d849fc0a7b0aa008d8f5cac4b9d7f5e6d92422d18795abc3c55b3627",
+      "gasUsed": "5308912"
+    },
+    "create-optional-vault-account": {
+      "to": "0x8015303a77179E72dBE5B652EA56505ea49Ae3B1",
+      "dataHash": "0xefd7d7d1e36ac1c9eea29043423cbb53064648cb13d98d194fd3a579dbfb9962",
+      "value": "0",
+      "expected": "success",
+      "nonce": 55,
+      "gasLimit": "5801691",
+      "hash": "0x6f8147121dbb92b53b4ff1ba3369c730154ac2ba0bbe736f229ac0719a7c3bfc",
+      "status": "success",
+      "block": "47249130",
+      "blockHash": "0xb66c37aa21baccc22a60e831533c5f257ac62ab498274a209d8472091351c68f",
+      "gasUsed": "4284425"
+    },
+    "mint-valueless-mUSDC": {
+      "to": "0x3A6cb8BEdc251C37dc8258a27575127990A67E95",
+      "dataHash": "0x8f823c3e03f415e15f6d50e00beaab60774a0c3ce22f7878bd9582641f4a7dee",
+      "value": "0",
+      "expected": "success",
+      "nonce": 56,
+      "gasLimit": "97951",
+      "hash": "0x6f9b4c239bf43d77f2602ad3a6719c678f71dccb3837ddd3da599d52bfd5dc26",
+      "status": "success",
+      "block": "47249131",
+      "blockHash": "0x441580db288a62a34db735b6861b68ee6597389da77d4a62ac3da7008fce44ee",
+      "gasUsed": "50963"
+    },
+    "set-vault-deposit-limits": {
+      "to": "0x6802fbe96fbaB8494A772535D4bDa51bc64C760E",
+      "dataHash": "0x1add58ca17b17ca0c66f091153ef5622eb5b560b142f7b5a8633242159ddb6a4",
+      "value": "0",
+      "expected": "success",
+      "nonce": 57,
+      "gasLimit": "121063",
+      "hash": "0x2f7e60512628e19c45ec3bc33061756688bbc274a205edaad17dd3d0f8e933e9",
+      "status": "success",
+      "block": "47249132",
+      "blockHash": "0x138bd10b55e626a08d7405dd0f242162ab89e162cf36b7e39e99a83f590369ce",
+      "gasUsed": "68297"
+    },
+    "deposit-10-mUSDC": {
+      "to": "0x6802fbe96fbaB8494A772535D4bDa51bc64C760E",
+      "dataHash": "0x8912e168532d9dfa65f494276be88b1ba1db9485bf6f5139964d593bb3b8c3a5",
+      "value": "0",
+      "expected": "success",
+      "nonce": 58,
+      "gasLimit": "285927",
+      "hash": "0xf0db4cb386ebda7cbf7b74c1d425898e8ffa9727ee9fb3c70d83e9fe8ddad479",
+      "status": "success",
+      "block": "47249133",
+      "blockHash": "0xc910a3a962a61b23356ef04cd8377790a32cdaa9aa10fa6c667b12ec24637be1",
+      "gasUsed": "151808"
+    },
+    "withdraw-2-mUSDC": {
+      "to": "0x6802fbe96fbaB8494A772535D4bDa51bc64C760E",
+      "dataHash": "0x6b9e70a8d713640037d61323c4a62e5221cf3287881c995d202ef0fbc59e2877",
+      "value": "0",
+      "expected": "success",
+      "nonce": 59,
+      "gasLimit": "167075",
+      "hash": "0x3cfe1d3d604bc3e3583b3ca62902137a2aa9106081121d5ef347603fc55e56d6",
+      "status": "success",
+      "block": "47249134",
+      "blockHash": "0xe5beaf586b3b8e5e7abe1b96565ed29b212366b4996c7a7899a87f4308c12ead",
+      "gasUsed": "80720"
+    },
+    "redeem-4-mock-vault-shares": {
+      "to": "0x6802fbe96fbaB8494A772535D4bDa51bc64C760E",
+      "dataHash": "0x9a6061a7d15b4e80985261944b8e802e7e0d9ecf1662da1cf7151c0f9adb7fa6",
+      "value": "0",
+      "expected": "success",
+      "nonce": 60,
+      "gasLimit": "162620",
+      "hash": "0x01e280aa86aa83b1386db187840f456f79c8f020ea37199a7c03ada0f34dd262",
+      "status": "success",
+      "block": "47249135",
+      "blockHash": "0x0b7de22ec479e6f365be9d8de1f989df67dc2be8febe495464751bb4b03e812a",
+      "gasUsed": "77824"
+    }
+  },
+  "data": {
+    "build": {
+      "sourceCommit": null,
+      "sourceHashes": {
+        "contracts/expansion/foundry.toml": "0x1ff9692f922fee4e578d25f11b80c415238b66b477f23c7a6cc35d31806a8c93",
+        "contracts/expansion/script/session6-transactions.mjs": "0x2ebc14ad9fab60e10896641e55594925cdfba08e8e2fbaff0a5ed0ac4916aebf",
+        "contracts/expansion/script/vault/deploy.mjs": "0x900538c1b2fcf7dc6d15bbc51835066a8e131ab393244cb1183ca3e8d4e41c68",
+        "contracts/expansion/src/account/PeridotLendingAdapter.sol": "0x52e97a57dce1d792c7596db7a1df414a5d1d6c4a2384a41484281359c519a14e",
+        "contracts/expansion/src/account/SentinelAccountV2.sol": "0x2aee7d95d06f62bc81862a74410a19857e9693003af97bf21f307a09891779e9",
+        "contracts/expansion/src/vault/SingleVaultAdapter.sol": "0x5707e598f1ab63d714af3e36e36050d36524d46ab02b88e1df10bc4cdcf957fb",
+        "contracts/expansion/src/vault/TestnetSavingsVault.sol": "0xc78fecca25b1792f3c4258f400be3a1d01ffc6e4780768d0159fd53fc6d0a13a",
+        "contracts/expansion/src/vault/VaultSentinelAccountFactoryV2.sol": "0xedc7e824c10e579e7e1774b7c27a9f8d40b50a1dce4a0e3d8586a4ff6c24dd1e",
+        "contracts/expansion/src/vault/VaultSentinelAccountV2.sol": "0xd69b02ec499178677bc23f04fc378737fdfc211316af0d0214201988a23c16e0",
+        "contracts/lib/openzeppelin/interfaces/draft-IERC6093.sol": "0x880da465c203cec76b10d72dbd87c80f387df4102274f23eea1f9c9b0918792b",
+        "contracts/lib/openzeppelin/token/ERC20/ERC20.sol": "0xbf61ab2ae1d575a17ea58fbb99ca232baddcc4e0eeea180e84cbc74b0c348b31",
+        "contracts/lib/openzeppelin/token/ERC20/IERC20.sol": "0xe06a3f08a987af6ad2e1c1e774405d4fe08f1694b67517438b467cecf0da0ef7",
+        "contracts/lib/openzeppelin/token/ERC20/extensions/IERC20Metadata.sol": "0x70f2f713b13b7ce4610bcd0ac9fec0f3cc43693b043abcb8dc40a42a726eb330",
+        "contracts/lib/openzeppelin/utils/Context.sol": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
+        "contracts/lib/openzeppelin/utils/Panic.sol": "0xf7fe324703a64fc51702311dc51562d5cb1497734f074e4f483bfb6717572d7a",
+        "contracts/lib/openzeppelin/utils/math/Math.sol": "0xa00be322d7db5786750ce0ac7e2f5b633ac30a5ed5fa1ced1e74acfc19acecea",
+        "contracts/lib/openzeppelin/utils/math/SafeCast.sol": "0x195533c86d0ef72bcc06456a4f66a9b941f38eb403739b00f21fd7c1abd1ae54"
+      },
+      "creationHashes": {
+        "mockVault": "0x3dd6d11cce014bb476a28724196caf265642766ede48d2e5ffa87cf72f3f93a6",
+        "vaultAdapter": "0x0a5990ffff5629278ae78775c2df01988868cf70274c9521e516c8e07c9afe87",
+        "vaultFactory": "0x2994d6073592573818fe266db35a4b7edc52318ae6e710739bd3ae07ee19119f",
+        "vaultAccount": "0x378369f8c7ef3872c99102d2f34d79893cac256ceb88401806f618379f727c1f"
+      }
+    },
+    "core": {
+      "lending": "0xdad2bbf5ce7bc43a932c78b5bcd5e0d284348101",
+      "swap": "0xf2e6d955158fe77252713d982f9d376f467e7cd3",
+      "execution": "0xc72a18670c185f6a5e39dfbf10c27f025aa96d9c",
+      "mockUsdc": "0x3a6cb8bedc251c37dc8258a27575127990a67e95"
+    },
+    "deadline-deposit-10-mUSDC": "1795711583",
+    "deadline-withdraw-2-mUSDC": "1795711585",
+    "deadline-redeem-4-mock-vault-shares": "1795711585"
+  }
+}

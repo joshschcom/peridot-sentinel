@@ -1,0 +1,75 @@
+{
+  "profile": "public testnet",
+  "chainId": 1952,
+  "actor": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "steps": {
+    "mint-demo-swap-inventory": {
+      "to": "0x3a5F909912c4adbEE8776264E6b9faD130321b26",
+      "dataHash": "0xe88cae65f0946d81763a60ae328d7aefbe2a7f90d7f6427ad4d426783e6ea7d1",
+      "value": "0",
+      "expected": "success",
+      "nonce": 50,
+      "gasLimit": "75692",
+      "hash": "0xc7591d50cfa92389e8fbe7105116a7778c5c465c215758a561844d3ff89ca0a2",
+      "status": "success",
+      "block": "47249112",
+      "blockHash": "0x23de7473b386653d1b20a3657bcca23837a45594f6ee815107d7c37773aecb5f",
+      "gasUsed": "33911"
+    },
+    "mint-v2-lending-collateral": {
+      "to": "0xe1dA369f92596c3c10c353E200c05343C9F19c92",
+      "dataHash": "0xd3652dbdcad94122ac23740a407fd3cb150641cdab561939ee385ffd3653476c",
+      "value": "0",
+      "expected": "success",
+      "nonce": 51,
+      "gasLimit": "98538",
+      "hash": "0xc46ade4a56a145d694ba7dc72fe4cbba6bcdf716e1e6694d0d563ce09002a0e3",
+      "status": "success",
+      "block": "47249120",
+      "blockHash": "0x4514cbb5a8b5fab6b48c9433e710744da9902e88d51ec58d3f7e7d9cf6baf93f",
+      "gasUsed": "51011"
+    },
+    "owner-supply": {
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "dataHash": "0x5fcd7f9c3f20af72592834016fdc70c80be28fb82f3b2abc9cd64431f591a6fe",
+      "value": "0",
+      "expected": "success",
+      "nonce": 67,
+      "gasLimit": "682230",
+      "hash": "0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b",
+      "status": "success",
+      "block": "47249401",
+      "blockHash": "0x24927bbda07e05d3fc335b41346e8cbd9124f886cc8f3388f228474dbfdf37b6",
+      "gasUsed": "438899"
+    },
+    "bounded-swap-grant": {
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "dataHash": "0xfe9d75ebd9677005d557220a14821576554450bf7f9841df165cb6fdb8b2bf34",
+      "value": "0",
+      "expected": "success",
+      "nonce": 68,
+      "gasLimit": "254123",
+      "hash": "0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342",
+      "status": "success",
+      "block": "47249410",
+      "blockHash": "0x97ecea521d39d054fb4c2bb6ece2c2971dc2cd4ba4e5394e8cde1675a51464db",
+      "gasUsed": "165610"
+    },
+    "denied-at-101-bps": {
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "dataHash": "0x0314f0c85a552a045f6caa37fffb0bcf30263cc48f6a814a246ad0467c25db77",
+      "value": "0",
+      "expected": "reverted",
+      "nonce": 69,
+      "gasLimit": "1500000",
+      "hash": "0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12",
+      "status": "reverted",
+      "block": "47249418",
+      "blockHash": "0x872796f9643d8690602939c3c28429f84fe8f7640c17377ceac5f8692e4ca5e8",
+      "gasUsed": "136855"
+    }
+  },
+  "data": {
+    "expiry": "1795794344"
+  }
+}

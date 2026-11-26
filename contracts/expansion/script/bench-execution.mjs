@@ -28,7 +28,8 @@ const abi=parseAbi(['function mint(uint256,uint256) payable','function protocolF
 const read=(address,functionName,args=[])=>rpc.readContract({address,abi,functionName,args})
 const receipts=[]
 async function send(label, request) {
-  const hash=await wallet.sendTransaction({account:actor,chain:null,...request})
+  const estimate=await rpc.estimateGas({account:actor,...request})
+  const hash=await wallet.sendTransaction({account:actor,chain:null,...request,gas:estimate+estimate/3n+30_000n})
   const receipt=await rpc.waitForTransactionReceipt({hash,timeout:60_000})
   assert.equal(receipt.status,'success')
   assert.equal((await rpc.getBlock({blockNumber:receipt.blockNumber})).hash,receipt.blockHash)

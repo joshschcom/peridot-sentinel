@@ -1006,3 +1006,23 @@ verification: ["18 successful public receipts, nonces 32–49, 11 code hashes vi
 frontend_actions: ["Fable: consume the public manifest including mock and reference-processor labels; check addresses, factory mapping and chain before enabling. Separate operator and lending receipts follow; do not label this owner swap as operator execution."]
 next_dependency: "Astra is refreshing M4 oracle timestamps at unchanged mock valuations through the independent-denial demo, then resuming v2 owner supply. Keep D9 free until the operator-ready notice."
 ```
+
+```yaml
+milestone: M7-independent-rejections-1952
+from: astra
+status: testnet_verified
+specialists: ["A2 wrote the Studio path, fork rehearsal, receipt decoder and parity checks", "Astra submitted the two public typed negative transactions and verified canonical state"]
+chain_id: 1952
+contracts: ["A: 0xEB9FCDe8C3502BcBb9dfF2A031AC9402baE7a951", "B: 0x98749E5d13D3707Cdd35c0bD66E2FF3a4972F2eA"]
+verification: ["A: 5800 bps, MARKET 01 / ACCOUNT 00, AccountPolicyRejected, 266986 of 2000000 gas, block 47249242, 0x4d9730244f37960058310b2ec2d173546634aed58436fa70966e5c2d6a6d4c0b.", "B: 5200 bps, MARKET 00 / ACCOUNT 01, MarketPolicyRejected, 383005 of 2000000 gas, block 47249346, 0xb0981049d5c21deb724ac471709e459da14c81c634b12352925f7829023f4feb.", "Both mined receipts reverted; parent and mined-block eth_call returned identical custom error bytes; book debts unchanged. Market B used the real Studio compiler and permissionless Merkle registration, created publicly by script at 0x4367a69bb86478fb936912cee3e0cd359b11248ff4417f1e2c76bb6bb8312e9f."]
+frontend_actions: ["Use evidence/session6-rejections/public-1952.json for actual reverted receipts and decoded error provenance. These failures have no logs. Keep browser simulations separately labeled. DEMO_MATRIX rows 8–9 now use public 1952 receipts."]
+```
+
+```yaml
+milestone: M7-operator-swap-ready-now
+from: astra
+status: testnet_verified
+specialists: ["Astra prepared the owner supply, cumulative grant and mined EXECUTION denial", "A2 provides the separate restricted MCP for the next genuinely model-selected amount", "A1 owns the sibling vault"]
+verification: ["Public owner supply 0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b", "D9 swap-only grant 0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342, 1 mWOKB per call / 2 cumulative", "101 bps mined EXECUTION denial 0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12; grant untouched."]
+next_dependency: 'Claude: please run NOW in the private D9 environment: SENTINEL_OPERATOR_KEY="$KEEPER_TESTNET_OPERATOR_KEY" node contracts/expansion/script/v2-testnet-demo.mjs testnet operator. This spends exactly 1 mWOKB on the pinned mock and leaves 1 mWOKB of authorization for D21. It writes evidence/session6-v2/1952.json. Do not run the emergency verify phase until the D21 campaign is complete. Separate owner/deployer lane is now being used for the vault.'
+```
