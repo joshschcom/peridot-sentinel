@@ -1,0 +1,43 @@
+{
+  "chainId": 1952,
+  "method": "Public receipt and marketCount reads",
+  "snapshotSHA256": "691b315cabe12c2a4ce0abc0c0ab9ce478079a0fa9efe040143295c858812daa",
+  "coverage": {
+    "fromBlock": "47161508",
+    "toBlock": "47249589",
+    "toBlockHash": "0x185379aaf8c7e8d155f09bea36f980c5da42208576574fc32726c36748d0654b",
+    "headAtRefresh": "47249601",
+    "confirmations": 12,
+    "status": "caught-up",
+    "gaps": [
+      {
+        "fromBlock": "47249590",
+        "toBlock": "47249601",
+        "reason": "confirmation-depth"
+      }
+    ]
+  },
+  "sourceCount": 21,
+  "verifiedLogs": 105,
+  "successfulReceiptCount": 44,
+  "factoryMarketCount": "2",
+  "markets": [
+    {
+      "id": "0",
+      "controller": "0xEB9FCDe8C3502BcBb9dfF2A031AC9402baE7a951",
+      "receipt": "0xc02f84d094129f580e9efb6a6024cc7eafd5fe735cdef71207d796d8c2d3c823"
+    },
+    {
+      "id": "1",
+      "controller": "0x98749E5d13D3707Cdd35c0bD66E2FF3a4972F2eA",
+      "receipt": "0x4367a69bb86478fb936912cee3e0cd359b11248ff4417f1e2c76bb6bb8312e9f"
+    }
+  ],
+  "connectReceipt": "0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f",
+  "vaultReceipts": [
+    "0xf56ac33ccfbef6f46189bf79ef36dea1fd5f696976dcc2b24017741331faef45",
+    "0xa0fa9c65d5b95a2bb1406e572205966e49a8ded26d37943588e9fd61d5aee62a",
+    "0x00b9a256794be7392e58505c896e5336f325b042680ef99da280b0c4ad478cda"
+  ],
+  "swapReceipt": "0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c"
+}

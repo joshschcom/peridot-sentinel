@@ -1099,3 +1099,31 @@ verification: ["All 18 source-pinned deployment/setup receipts and 11 runtime ha
 frontend_actions: ["Show the public mock venue, account as recipient and execution source. Fable owns UI acceptance before feature activation."]
 next_dependency: "D9 lane reserved for the D21 genuinely model-selected partial amount. Vault uses separate contracts and manifest."
 ```
+
+```yaml
+milestone: M7-vault-public-and-activity
+from: astra
+status: testnet_verified
+chain_id: 1952
+specialists: ["A1 implemented the pinned vault adapter and sibling, proved the real Spark path on a 196 fork and checked public mock receipts on both RPCs", "A2 provided the common operator epoch", "A5 indexed and independently reconciled all three vault settlements", "Astra ran the public deployment and acceptance"]
+manifest: packages/chain-config/expansion/deployments/vault-1952.json
+commit: a48f203a802f15d34502f56e2ec0c0a2b74d1434
+contracts:
+  mockVault: "0x934C3DeCb3DEE28fFA1EbDA13Cce314d2e6d9eA8"
+  vaultAdapter: "0xdA483ece7dca16aB9B6d814b184f9ca410B8fC74"
+  vaultFactory: "0x8e8279b8532124bd727AfF4622e8d3711f01E874"
+  vaultAccount: "0xa167627CD59445dD9792d0F3d8D465C2bC41E574"
+transactions:
+  deploy-mockVault: "0xd18377d6de94d9a4a4e5d3b7bed588ca4508ed36d32ab20783a14c81fc3370f9"
+  deploy-vaultAdapter: "0xd32e8b8e7665d7e3328cbcc0b8e8912d507be15e0003777c26fd20a811cc011a"
+  deploy-vaultFactory: "0x767cb242ad4bdea7edfe71a7c07cacf3bbca4aed87c0707d7f35cda40b13fe7e"
+  create-optional-vault-account: "0xc61efd04e599ba6f8a86e8578e53d7acdf01793394c22fe78ee2bdee14db37f3"
+  mint-valueless-mUSDC: "0xf182f6def06422f99c9e7f54626823f96c90811ed27a3bc08a14ee1e53acc97b"
+  set-vault-deposit-limits: "0xada590370e7ff4bd0115df145b11196dfd6da06f786fddca53ccfe96f4cffb3f"
+  deposit-10-mUSDC: "0xf56ac33ccfbef6f46189bf79ef36dea1fd5f696976dcc2b24017741331faef45"
+  withdraw-2-mUSDC: "0xa0fa9c65d5b95a2bb1406e572205966e49a8ded26d37943588e9fd61d5aee62a"
+  redeem-4-mock-vault-shares: "0x00b9a256794be7392e58505c896e5336f325b042680ef99da280b0c4ad478cda"
+verification: ["Four 6-decimal shares remain after deposit (10 mUSDC), exact withdrawal (2 mUSDC) and redemption (4 shares). Idle 8 mUSDC, zero allowances. Real Spark spUSDC and its upgradeable implementation were used only on private 196 fork.", "First vault-inclusive snapshot covers 47161508–47249589, 12 successor blocks; 105/105 event positions matched 44 public successful receipts from 21 sources."]
+frontend_actions: ["Three vault methods target the optional sibling account. Grant 6 uses asset units, grant 7 uses shares, grant 8 is charged the actual previewed/burned shares. Label mock/simple price and liquidity and show current limits. Keep disabled until Fable accepts the UI by December 2.", "Read packages/chain-config/activity/1952.json as a historical snapshot, verify terminal hash, merge subsequent canonical events and disclose any unscanned gap. Reverted receipts have separate evidence. Refresh every 15 minutes during demos."]
+next_dependency: "Claude checkpoint services/indexer, packages/chain-config/activity/1952.json and evidence/session6-indexer. Fable owns browser integration."
+```

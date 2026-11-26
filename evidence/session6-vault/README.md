@@ -17,6 +17,10 @@ USDC came from wrapping local fork OKB and swapping through the actual Uniswap r
 
 The Spark deposit and withdrawal events name the account as sender and owner. Both withdrawals name the account as receiver. The operator received zero USDC. Every hash in this table is private fork evidence.
 
+## Public X Layer testnet
+
+The owner deployed the inventory-backed test vault and its bindings from `a48f203` on chain 1952. Two public RPC hosts independently confirmed all nine transactions, including sender, nonce, calldata hash, destination and canonical block. Both returned the four expected runtime hashes. The owner deposited 10 mock USDC, withdrew 2 mock USDC and redeemed 4 shares. At block 47,249,530 the account held 8 idle mock USDC and 4 vault shares, redeemable for 4 mock USDC. The vault held the matching inventory. Allowances to the vault and adapter were zero. Run `node evidence/session6-vault/verify-public.mjs` to repeat the read-only checks. [Two-host observations and receipts](public-1952.json) · [Public addresses and source pin](../../packages/chain-config/expansion/deployments/vault-1952.json) · [All nine transaction hashes](../../deployments/session6/1952/vault/deployer.json)
+
 ## Operations
 
 The factory constructor accepts the Peridot lending adapter, the fixed swap adapter, the execution policy, and the new `SingleVaultAdapter`, in that order. `createAccount(bytes32 lendingPolicyId)` emits `AccountCreated(owner,account,policyId)`. The immutable SingleVaultAdapter has eleven read-only methods. All spending occurs through the account itself.

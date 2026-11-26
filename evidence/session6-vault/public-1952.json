@@ -1,0 +1,106 @@
+{
+  "label": "Public X Layer testnet 1952. Inventory-backed mock ERC-4626 vault and test tokens.",
+  "block": "47249530",
+  "hash": "0x9f4add659dac92df0cef602932390a5a497202343ebde522948f1d1615eefe95",
+  "source": "a48f203a802f15d34502f56e2ec0c0a2b74d1434",
+  "contracts": {
+    "mockVault": "0x934C3DeCb3DEE28fFA1EbDA13Cce314d2e6d9eA8",
+    "vaultAdapter": "0xdA483ece7dca16aB9B6d814b184f9ca410B8fC74",
+    "vaultFactory": "0x8e8279b8532124bd727AfF4622e8d3711f01E874",
+    "vaultAccount": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574"
+  },
+  "results": [
+    {
+      "host": "https://testrpc.xlayer.tech",
+      "checkedReceipts": 9,
+      "checkedRuntimeHashes": 4,
+      "events": [
+        {
+          "name": "deposit-10-mUSDC",
+          "hash": "0xf56ac33ccfbef6f46189bf79ef36dea1fd5f696976dcc2b24017741331faef45",
+          "block": "47249514",
+          "blockHash": "0x6f4c189016756e1cf401ca1c4289e1a810141c2342c119ef420c7935e45bf06d",
+          "gasUsed": "151808",
+          "status": "success",
+          "operation": 6,
+          "assets": "10000000",
+          "shares": "10000000"
+        },
+        {
+          "name": "withdraw-2-mUSDC",
+          "hash": "0xa0fa9c65d5b95a2bb1406e572205966e49a8ded26d37943588e9fd61d5aee62a",
+          "block": "47249522",
+          "blockHash": "0x5cf10805c0be484ba277226513bd71ec271217874503aa4caa404cd41f78dd80",
+          "gasUsed": "80720",
+          "status": "success",
+          "operation": 8,
+          "assets": "2000000",
+          "shares": "2000000"
+        },
+        {
+          "name": "redeem-4-mock-vault-shares",
+          "hash": "0x00b9a256794be7392e58505c896e5336f325b042680ef99da280b0c4ad478cda",
+          "block": "47249530",
+          "blockHash": "0x9f4add659dac92df0cef602932390a5a497202343ebde522948f1d1615eefe95",
+          "gasUsed": "77824",
+          "status": "success",
+          "operation": 7,
+          "assets": "4000000",
+          "shares": "4000000"
+        }
+      ],
+      "position": [
+        "4000000",
+        "4000000",
+        "4000000",
+        "4000000"
+      ]
+    },
+    {
+      "host": "https://xlayertestrpc.okx.com",
+      "checkedReceipts": 9,
+      "checkedRuntimeHashes": 4,
+      "events": [
+        {
+          "name": "deposit-10-mUSDC",
+          "hash": "0xf56ac33ccfbef6f46189bf79ef36dea1fd5f696976dcc2b24017741331faef45",
+          "block": "47249514",
+          "blockHash": "0x6f4c189016756e1cf401ca1c4289e1a810141c2342c119ef420c7935e45bf06d",
+          "gasUsed": "151808",
+          "status": "success",
+          "operation": 6,
+          "assets": "10000000",
+          "shares": "10000000"
+        },
+        {
+          "name": "withdraw-2-mUSDC",
+          "hash": "0xa0fa9c65d5b95a2bb1406e572205966e49a8ded26d37943588e9fd61d5aee62a",
+          "block": "47249522",
+          "blockHash": "0x5cf10805c0be484ba277226513bd71ec271217874503aa4caa404cd41f78dd80",
+          "gasUsed": "80720",
+          "status": "success",
+          "operation": 8,
+          "assets": "2000000",
+          "shares": "2000000"
+        },
+        {
+          "name": "redeem-4-mock-vault-shares",
+          "hash": "0x00b9a256794be7392e58505c896e5336f325b042680ef99da280b0c4ad478cda",
+          "block": "47249530",
+          "blockHash": "0x9f4add659dac92df0cef602932390a5a497202343ebde522948f1d1615eefe95",
+          "gasUsed": "77824",
+          "status": "success",
+          "operation": 7,
+          "assets": "4000000",
+          "shares": "4000000"
+        }
+      ],
+      "position": [
+        "4000000",
+        "4000000",
+        "4000000",
+        "4000000"
+      ]
+    }
+  ]
+}

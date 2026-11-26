@@ -14,6 +14,7 @@ const tip=BigInt(manifest.demo.block)
 const steps=Object.values(j.steps)
 assert.equal(steps.length,9)
 assert.equal(new Set(steps.map(s=>s.nonce)).size,9)
+assert.equal(new Set(steps.map(s=>s.hash)).size,9)
 async function retry(fn) {
   let error
   for(let i=0;i<8;i++){
@@ -36,8 +37,16 @@ for(const host of hosts){
     await retry(async()=>assert.equal(keccak256(await c.getCode({address,blockNumber:tip})),manifest.runtimeCodeHashes[name]))
   }
   for(const s of steps)await retry(async()=>{
-    const r=await c.getTransactionReceipt({hash:s.hash})
+    const [r,tx]=await Promise.all([c.getTransactionReceipt({hash:s.hash}),c.getTransaction({hash:s.hash})])
     assert.equal(r.status,'success')
+    assert.equal(tx.chainId,1952)
+    assert.equal(getAddress(tx.from),getAddress(j.actor))
+    assert.equal(tx.to && getAddress(tx.to),s.to && getAddress(s.to))
+    assert.equal(tx.nonce,s.nonce)
+    assert.equal(tx.value,BigInt(s.value))
+    assert.equal(keccak256(tx.input),s.dataHash)
+    assert.equal(tx.hash,s.hash)
+    assert.equal(tx.blockHash,s.blockHash)
     assert.equal(r.blockHash,s.blockHash)
     assert.equal((await c.getBlock({blockNumber:r.blockNumber})).hash,s.blockHash)
   })
