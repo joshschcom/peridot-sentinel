@@ -1,0 +1,157 @@
+{
+  "label": "PRIVATE FORK of X Layer testnet 1952 (loopback Anvil, auto-impersonation). Not public transactions: none of these hashes exists on the public chain, and none may be explorer-linked.",
+  "driver": "Playwright Chromium + injected test EIP-1193 provider forwarding to the fork; the owner is impersonated by the node; no private key",
+  "rpc": "http://127.0.0.1:19750",
+  "nodeClient": "anvil/v1.7.1",
+  "chainId": 1952,
+  "runId": "run-20261126-175729",
+  "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "operator": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+  "headAfter": {
+    "number": "47255921",
+    "hash": "0x2ef509f5f4bc1f1bfbc04f3848841d370dd7ce3c583440cd7434619e075f3689"
+  },
+  "result": "passed",
+  "steps": [
+    {
+      "label": "v1-adopt: acknowledged review 0x1aa77ec61255fd7c36c95aee09b34a4ce1de9ab4d3bfec7be0959129e849d20c",
+      "warnings": [
+        "Changing the account-wide trigger affects every existing repay operator. V1 cannot enumerate all operators on-chain. Check historical grants before confirming this change."
+      ]
+    },
+    {
+      "label": "v1 adoption (debt protection)",
+      "templateHash": "0x243bfc2001572f8aae2e6bad905d4aa30d648a8f6522a604999cc607437d6bb1",
+      "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+      "operator": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "triggerBefore": 4500,
+      "triggerAfter": 5000,
+      "grant": {
+        "mask": 8,
+        "remainingRaw": "1500000",
+        "expiry": "1795719425"
+      },
+      "signed": [
+        {
+          "method": "setAutoRepayTrigger",
+          "hash": "0x1d935e77ec7e534f2cddc519d7199f2abe44cfebf53f1eb5eb85cdb7b43e9150",
+          "to": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "data": "0x8411e7690000000000000000000000000000000000000000000000000000000000001388",
+          "block": "47255917",
+          "gasUsed": "27645",
+          "listedBefore": [
+            "setAutoRepayTrigger",
+            "setOperator"
+          ]
+        },
+        {
+          "method": "setOperator",
+          "hash": "0x9425a7b570ebf479e741afdc63f605a9f6f40f643432f2b9a1edac22298aea0c",
+          "to": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "data": "0xaf5900780000000000000000000000009965507d1a55bcc2695c58ba16fb37d819b0a4dc0000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000016e360000000000000000000000000000000000000000000000000000000006b088101",
+          "block": "47255918",
+          "gasUsed": "91348",
+          "listedBefore": [
+            "setOperator"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "v1 revocation (this operator only; the trigger stays)",
+      "signed": [
+        {
+          "method": "revokeOperator",
+          "hash": "0x47f00a6b15c96ebe07e92cae98ee3ec404063debf8648358ae0d82a9d92943bc",
+          "to": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "data": "0xfad8b32a0000000000000000000000009965507d1a55bcc2695c58ba16fb37d819b0a4dc",
+          "block": "47255919",
+          "gasUsed": "30683",
+          "listedBefore": [
+            "revokeOperator"
+          ]
+        }
+      ],
+      "grantAfter": [
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "label": "v2 adoption (restricted agent swap)",
+      "templateHash": "0x67440ddba9e5d6caecc4f3193c9c37d8cd7c59750c4b38b7d61a136ed01ac0ac",
+      "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "operator": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "adapter": "0xf2e6D955158FE77252713d982F9d376F467E7cD3",
+      "inputAsset": "0x3a5F909912c4adbEE8776264E6b9faD130321b26",
+      "grant": [
+        "250000000000000000",
+        "750000000000000000",
+        "1795719428"
+      ],
+      "signed": [
+        {
+          "method": "setGrant",
+          "hash": "0x2e38406d165c0cfab8596a1f874b085d6afdeb33f16dbc3486d38c05452f0ab4",
+          "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+          "data": "0x9230fb3e0000000000000000000000009965507d1a55bcc2695c58ba16fb37d819b0a4dc000000000000000000000000f2e6d955158fe77252713d982f9d376f467e7cd300000000000000000000000000000000000000000000000000000000000000050000000000000000000000003a5f909912c4adbee8776264e6b9fad130321b2600000000000000000000000000000000000000000000000003782dace9d900000000000000000000000000000000000000000000000000000a688906bd8b0000000000000000000000000000000000000000000000000000000000006b088104",
+          "block": "47255920",
+          "gasUsed": "165610",
+          "listedBefore": [
+            "setGrant"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "v2 revocation (this route only)",
+      "signed": [
+        {
+          "method": "revokeGrant",
+          "hash": "0x9cfc08e75e2aaaf543aed66b75c61a427cdb2b2f2bc4653c3e717ddf419b3d9a",
+          "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+          "data": "0xd12295320000000000000000000000009965507d1a55bcc2695c58ba16fb37d819b0a4dc000000000000000000000000f2e6d955158fe77252713d982f9d376f467e7cd300000000000000000000000000000000000000000000000000000000000000050000000000000000000000003a5f909912c4adbee8776264e6b9fad130321b26",
+          "block": "47255921",
+          "gasUsed": "49669",
+          "listedBefore": [
+            "revokeGrant"
+          ]
+        }
+      ],
+      "grantAfter": [
+        "0",
+        "0",
+        "0"
+      ]
+    }
+  ],
+  "transactions": [
+    {
+      "hash": "0x1d935e77ec7e534f2cddc519d7199f2abe44cfebf53f1eb5eb85cdb7b43e9150",
+      "to": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+      "selector": "0x8411e769"
+    },
+    {
+      "hash": "0x9425a7b570ebf479e741afdc63f605a9f6f40f643432f2b9a1edac22298aea0c",
+      "to": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+      "selector": "0xaf590078"
+    },
+    {
+      "hash": "0x47f00a6b15c96ebe07e92cae98ee3ec404063debf8648358ae0d82a9d92943bc",
+      "to": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+      "selector": "0xfad8b32a"
+    },
+    {
+      "hash": "0x2e38406d165c0cfab8596a1f874b085d6afdeb33f16dbc3486d38c05452f0ab4",
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "selector": "0x9230fb3e"
+    },
+    {
+      "hash": "0x9cfc08e75e2aaaf543aed66b75c61a427cdb2b2f2bc4653c3e717ddf419b3d9a",
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "selector": "0xd1229532"
+    }
+  ],
+  "pageProblems": []
+}
