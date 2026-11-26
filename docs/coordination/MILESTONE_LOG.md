@@ -962,3 +962,24 @@ astra_actions:
   - "D8(b) (founder signs Nov 28): write `docs/coordination/D8b-presign-check.sh` (read-only, no key) that re-verifies chain 196, factory membership of CPU 410, CPU and beacon implementation codehashes, the three netlist hashes in the envelopes, selectors and destinations, value totals vs the 0.004647 ceiling, zero approvals or token transfers, current fees, and NAND capacity. Plus `D8b-postpublish.mjs`, which takes the receipt hashes, extracts public circuit IDs, runs boundary vectors against the dev processor (parity), measures eval gas, and writes the pinned circuit config for Fable."
   - "NEXT INTEGRATION (after publication): the Sentinel v2 authorization path consuming the REAL published circuits on a 196 mainnet fork (account v2 + adapters + registry pointing at CPU 410 and the public IDs). Design a non-custodial mainnet demonstrator as a proposal only; deployment needs founder authorization."
   - "OKX quote: record the timestamp, chain, token addresses and amounts. 'unavailable' must never be replaced by a mock."
+
+```yaml
+milestone: M7-1952-preflight-and-gas
+from: astra
+status: implemented
+specialists: ["Astra audited the keeper, MCP and both deployment paths and verified preflight", "A2 supplied and tested the pinned revocation implementation", "A1 and A5 are developing vault and public activity integrations"]
+commit: "81fb45770d3bc36ae9006fbd60e72a5475c3ded4"
+verification: ["Public 1952 keyless preflight verified 24 source hashes and 11 creation artifacts. Independent isolated git-archive build matched seven expansion ABIs and both bytecodes. Original M4 keyless preflight matched 36 source hashes and 11 artifacts at 39c0a54.", "Keeper gas now estimate +25% +30000, same as Connect. Expansion deploy and session6 transactions use approximately +33% +30000. Pinned v1 deploy/ops already used +33% +30000. Keeper build and 10 updated account tests pass."]
+next_dependency: "Public 1952 deployment is in progress from the clean source pin; manifest follows confirmed receipts."
+```
+
+```yaml
+milestone: M7-demo-and-vault-wires
+from: astra
+status: implemented
+specialists: ["A2 rehearsed both v1 denials using the Studio compiler and registry/factory; A2 now owns restricted Connect v2", "A1 fork-verified real Spark deposits/exits", "A5 owns D20 indexer and D8(b) pre/post checks", "Astra handles all public deployer writes"]
+new_functions: ["VaultSentinelAccountV2.setVaultDepositLimits(uint256,uint256), depositToVault(uint256,uint256,uint64), redeemFromVault(uint256,uint256,uint64), withdrawFromVault(uint256,uint256,uint64), exitVaultShares(uint256), vaultPosition()"]
+verification: ["Private 1952 fork: 15 txs, independent 5800 bps ACCOUNT and 5200 bps MARKET mined denials, both below 2m gas, other circuit allowed. Private 196 fork: 50 native USDC → 49.674782 spUSDC, tx 0xd87f7cfc7e1f3f54a6f5d4334915c79af7a45d57baa93b439493f9ad49702a7e; minimum-share denial 0x984af745060f45bc1f6de2d8793b58d7900c6dd3ec80e9e3ebeb6e6bf12df05f."]
+frontend_actions: ["Separate vault-capable account/factory; use authoritative vault shares and maxRedeem/maxWithdraw. Enable after public deployment and UI acceptance. Core factory/account are distinct."]
+next_dependency: "Claude: checkpoint contracts/expansion/script/session6-transactions.mjs, independent-rejections.mjs and v2-testnet-demo.mjs. Once the public grant notice arrives, execute exactly SENTINEL_OPERATOR_KEY=\"$KEEPER_TESTNET_OPERATOR_KEY\" node contracts/expansion/script/v2-testnet-demo.mjs testnet operator from your authorized shell. D9 receives a max 1 mWOKB per call, cumulative 2 mWOKB grant; after the fixed demo another 1 remains for the genuine LLM choice. Astra will preserve it until that run."
+```
