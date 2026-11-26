@@ -248,3 +248,18 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   - judge-01 grants expire 2026-12-03 16:50 UTC; create judge-02 on demo day.
   - The local M4 oracle goes stale about 24 h after the refresh on 11-26.
   - Feature freeze 2026-12-02.
+
+## Resumed after the usage-limit pause
+- **Fable run 5** (`bbef59b`…`64a79a2`, pushed) did the D23 strategy-first redesign:
+  - new routes: Portfolio, Strategies, Discover and Activity (old URLs redirect);
+  - redesigned landing and Studio;
+  - strategy adoption and revocation signed in a browser on the private 1952 fork (both templates);
+  - local v2 and vault owner flows accepted in a browser;
+  - v1 local E2E green.
+- **Claude re-verified** run 5's final code: npm test 83/83, tsc clean, token check clean, next build OK.
+- **Fable run 6 (running):**
+  - fix the stale check scripts and run every check;
+  - accept the vault and v2 owner flows on the 1952 fork, which is the precondition for flipping vault `uiEnabled` on 1952;
+  - run-4 leftovers (tools.json, judge-01 wiring, onboarding alignment, merged activity);
+  - screenshots and a fresh-clone build.
+- **Services up:** 18545, 8787, 19750.
