@@ -12,7 +12,7 @@ import { mapContractError } from "../../lib/errors.ts";
 import { retryRead } from "../../lib/retry.ts";
 import { ok, unavailable } from "../../lib/maybe.ts";
 import type { Address } from "../types.ts";
-import { verifyDeployment } from "./client.ts";
+import { client, verifyDeployment } from "./client.ts";
 import { wagmiConfig } from "./wagmi.ts";
 
 export interface TxCall {
@@ -38,6 +38,23 @@ export interface TxRun {
   ok: boolean;
   hashes: Hex[];
   receipts: TransactionReceipt[];
+}
+
+/**
+ * Gas limit with headroom. A node's estimate is the smallest limit that worked at estimation time. These calls run
+ * policy circuits several calls deep (each level keeps 1/64 of the gas) and accrue interest by block time, so the
+ * same call can need a little more when it is mined: a borrow sent with the bare estimate ran out of gas on the
+ * local chain (tx 0x33ab5fcc…97e3, block 98, 2026-11-26). Unused gas is not charged. If the estimate itself fails,
+ * no limit is passed and the wallet decides, as before.
+ */
+const GAS_HEADROOM_PERCENT = 30n;
+async function gasWithHeadroom(wallet: Address, call: TxCall): Promise<bigint | undefined> {
+  try {
+    const estimate = await retryRead(() => client().estimateContractGas({ account: wallet, address: call.address, abi: call.abi as never, functionName: call.functionName as never, args: call.args as never }), { attempts: 2 });
+    return (estimate * (100n + GAS_HEADROOM_PERCENT)) / 100n;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function runPlan(plan: TxPlanStep[], successSummary: string, onState: (state: TxState) => void): Promise<TxRun> {
@@ -80,7 +97,7 @@ export async function runPlan(plan: TxPlanStep[], successSummary: string, onStat
       // a supply depends on). Only the SIMULATION, which is a read, is asked again. A write is never re-sent.
       const simulation = receipts.length > 0 ? await retryRead(simulate, { attempts: 4, baseDelayMs: 700 }) : await simulate();
       if (call.returnsCode && typeof simulation.result === "bigint" && simulation.result !== 0n) return fail(index, { name: "MarketOperationFailed", args: [simulation.result] });
-      const hash = await writeContract(wagmiConfig, simulation.request as never);
+      const hash = await writeContract(wagmiConfig, { ...simulation.request, gas: await gasWithHeadroom(wallet, call) } as never);
       hashes.push(hash);
       const receipt = await waitForTransactionReceipt(wagmiConfig, { hash, chainId: WRITE_CHAIN.id });
       receipts.push(receipt);

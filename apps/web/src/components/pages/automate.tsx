@@ -11,7 +11,10 @@
  * budget, expiry and the trigger. Everything else is listed as planned and has no input that could be mistaken
  * for a setting.
  */
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { isAddress } from "viem";
+import { LogCoverageText, coverageRanges } from "@/components/domain/log-coverage";
 import { marketTitle, tokenAmount } from "@/components/domain/market-bits";
 import { SourceTag } from "@/components/domain/policy-card";
 import { TxFeedback } from "@/components/domain/tx-feedback";
@@ -22,11 +25,12 @@ import { useAccounts, useMarket, useMarkets } from "@/hooks/use-data";
 import { useWriteGate } from "@/hooks/use-wallet";
 import { formatBps } from "@/lib/amount";
 import { AVAILABILITY_LABEL, type Availability } from "@/lib/brand";
-import { WRITE_CHAIN_ID } from "@/lib/chains";
-import { formatDay, shortAddress } from "@/lib/format";
+import { WRITE_CHAIN_ID, explorerTxUrl } from "@/lib/chains";
+import { formatDay, shortAddress, shortHash } from "@/lib/format";
 import { Op } from "@/lib/policy";
 import { services } from "@/services";
 import { emergencyStopPlan } from "@/services/chain/plans";
+import { readAutoRepays, readStopState } from "@/services/chain/reads";
 import type { Address, Market, SentinelAccount } from "@/services/types";
 import { Automation } from "./automation";
 import { KeeperPanel } from "./keeper-panel";
@@ -134,7 +138,8 @@ export function Automate() {
 
       <section id="agent-activity" className="scroll-mt-28 space-y-3">
         <h2 className="text-lg font-semibold tracking-tight">Agent activity</h2>
-        <p className="max-w-2xl text-sm text-muted">What the automation service reports (checked, simulated, submitted) next to what the chain confirms. A report alone is never shown as confirmed.</p>
+        <p className="max-w-2xl text-sm text-muted">What the chain confirms for this account, and separately what the automation service reports (checked, simulated, submitted). A report alone is never shown as confirmed.</p>
+        {account ? <AccountRepays account={account} market={markets.data?.status === "ok" ? (markets.data.value.find((entry) => entry.id === account.marketId) ?? null) : null} /> : null}
         <KeeperPanel />
         <ButtonLink href="/sentinel/activity" variant="secondary" size="sm">
           All account activity
@@ -259,22 +264,41 @@ function StrategyOutline({ account, market }: { account: SentinelAccount; market
   );
 }
 
-/** One control that ends all automation on the account: every operator revoked, then the trigger cleared. */
+/**
+ * One control that ends automation on the account: the operators this page knows about are revoked, then the
+ * trigger is cleared. Operators are found from events in the block ranges that were read, so when that scan has a
+ * gap the copy says "found", never "every", and the owner can add an address by hand. After the transactions are
+ * mined the chain is read again (with retries) and only that read is reported as the outcome.
+ */
 function EmergencyStop({ account }: { account: SentinelAccount }) {
   const gate = useWriteGate("account");
   const chain = services.account.source === "chain";
   const tx = useChainTx();
+  const [extra, setExtra] = useState("");
+  const [confirmed, setConfirmed] = useState<{ stillAuthorised: Address[]; triggerBps: number } | { error: string } | null>(null);
   const address = account.address.status === "ok" ? account.address.value : null;
-  const operators = account.operators.flatMap((entry) => (!entry.revoked && entry.operator.status === "ok" ? [entry.operator.value as Address] : []));
+  const listed = account.operators.flatMap((entry) => (!entry.revoked && entry.operator.status === "ok" ? [entry.operator.value as Address] : []));
+  const extraValid = isAddress(extra);
+  const operators = extraValid && !listed.some((operator) => operator.toLowerCase() === extra.toLowerCase()) ? [...listed, extra as Address] : listed;
+  const discovery = account.operatorDiscovery;
+  const partial = chain && discovery !== undefined && (!discovery.complete || discovery.failed);
   const triggerOn = account.autoRepayTriggerBps > 0;
   const count = operators.length + (triggerOn ? 1 : 0);
   const busy = tx.state.phase === "running";
-  const stop = () => {
+  const stop = async () => {
     if (!address || count === 0) return;
-    void tx.run(emergencyStopPlan(address, operators), "All automation stopped: no operator is authorised and the auto-repay trigger is cleared.");
+    setConfirmed(null);
+    const targets = operators;
+    const run = await tx.run(emergencyStopPlan(address, targets, triggerOn), "Emergency stop transactions mined. Reading the account again to confirm…");
+    if (!run.ok) return;
+    try {
+      setConfirmed(await readStopState(address, targets));
+    } catch (error) {
+      setConfirmed({ error: error instanceof Error ? error.message.split("\n")[0]! : "The account could not be read again" });
+    }
   };
   return (
-    <Card as="section" className="border-danger" data-testid="emergency-stop" data-operators={operators.length} data-trigger={account.autoRepayTriggerBps}>
+    <Card as="section" className="border-danger" data-testid="emergency-stop" data-operators={listed.length} data-trigger={account.autoRepayTriggerBps} data-discovery={partial ? "partial" : "complete"}>
       <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div className="flex min-w-0 gap-3.5">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-danger-soft text-danger">
@@ -283,30 +307,113 @@ function EmergencyStop({ account }: { account: SentinelAccount }) {
           <div className="min-w-0">
             <h2 className="text-base font-semibold tracking-tight">Emergency stop</h2>
             <p className="mt-1 max-w-xl text-sm text-muted">
-              Revokes every operator on this account, then clears the auto-repay trigger. An operator can no longer act from the moment its revocation is mined. Your position and funds are not touched, and withdrawing was always yours alone.
+              Revokes {partial ? "the operators this page found on" : "every operator on"} this account, then clears the auto-repay trigger. An operator can no longer act from the moment its revocation is mined. Your position and funds are not touched, and withdrawing was always yours alone.
             </p>
             <p className="mt-2 text-[0.8125rem]" data-testid="emergency-stop-scope">
               {count === 0 ? (
-                <span className="text-muted">Nothing to stop: no operator is authorised and the trigger is disabled.</span>
+                <span className="text-muted">{partial ? "Nothing found to stop: no operator was found in the blocks that were read, and the trigger is disabled." : "Nothing to stop: no operator is authorised and the trigger is disabled."}</span>
               ) : (
                 <span>
-                  Now active: {operators.length === 0 ? "no operator" : operators.map((operator) => shortAddress(operator)).join(", ")}
+                  Now active: {operators.length === 0 ? "no operator found" : operators.map((operator) => shortAddress(operator)).join(", ")}
                   {triggerOn ? `, trigger at ${formatBps(account.autoRepayTriggerBps)}` : ", trigger disabled"}. This sends {count} transaction{count === 1 ? "" : "s"}, one at a time.
                 </span>
               )}
             </p>
           </div>
         </div>
-        <Button variant="danger" size="lg" className="shrink-0" disabled={!chain || !gate.allowed || !address || count === 0 || busy} onClick={stop} data-testid="emergency-stop-submit">
+        <Button variant="danger" size="lg" className="shrink-0" disabled={!chain || !gate.allowed || !address || count === 0 || busy} onClick={() => void stop()} data-testid="emergency-stop-submit">
           {!gate.allowed ? <IconLock size={16} /> : null} Stop all automation
         </Button>
       </div>
-      {!gate.allowed ? <p className="border-t border-line px-5 py-3 text-[0.8125rem] text-muted sm:px-6">{gate.message}</p> : null}
-      {tx.state.phase !== "idle" ? (
-        <div className="border-t border-line p-5 sm:p-6">
-          <TxFeedback state={tx.state} chainId={WRITE_CHAIN_ID} marketId={account.marketId} />
+      {partial ? (
+        <div className="space-y-2 border-t border-line px-5 py-4 text-[0.8125rem] sm:px-6" data-testid="emergency-stop-partial">
+          <p className="text-warning">
+            {discovery?.failed ? "The operator list could not be read from the chain's events just now." : "The operator list comes from events in the blocks this app has read, which is not the account's whole history."} An operator authorised in unread blocks would not be listed above.
+            {discovery?.coverage ? <span className="text-muted"> Read so far: {coverageRanges(discovery.coverage)}.</span> : null}
+          </p>
+          <label className="block">
+            <span className="text-muted">Also revoke this address (optional)</span>
+            <input id="emergency-extra" type="text" spellCheck={false} autoComplete="off" value={extra} onChange={(event) => setExtra(event.target.value.trim())} placeholder="0x…" className="mt-1.5 h-10 w-full max-w-xl min-w-0 rounded-control border border-line-strong bg-bg px-3 font-mono text-[0.8125rem] outline-none focus:border-fg" />
+          </label>
+          {extra !== "" && !extraValid ? <p className="text-danger">This is not a valid address.</p> : null}
         </div>
       ) : null}
+      {!gate.allowed ? <p className="border-t border-line px-5 py-3 text-[0.8125rem] text-muted sm:px-6">{gate.message}</p> : null}
+      {tx.state.phase !== "idle" ? (
+        <div className="space-y-3 border-t border-line p-5 sm:p-6">
+          <TxFeedback state={tx.state} chainId={WRITE_CHAIN_ID} marketId={account.marketId} />
+          {confirmed === null ? null : "error" in confirmed ? (
+            <p className="text-sm text-warning" data-testid="emergency-stop-confirmed" data-confirmed="unknown">
+              The transactions were mined, but the account could not be read again to confirm the result: {confirmed.error}. Check the list above after refreshing.
+            </p>
+          ) : confirmed.stillAuthorised.length === 0 && confirmed.triggerBps === 0 ? (
+            <p className="text-sm text-success" data-testid="emergency-stop-confirmed" data-confirmed="true">
+              Confirmed by a fresh read of the account: {partial ? "the revoked operators have no authorisation" : "no listed operator has an authorisation"} and the auto-repay trigger is 0.
+            </p>
+          ) : (
+            <p className="text-sm text-danger" data-testid="emergency-stop-confirmed" data-confirmed="false">
+              Not confirmed yet. The latest read still shows {confirmed.stillAuthorised.length ? `an authorisation for ${confirmed.stillAuthorised.map((operator) => shortAddress(operator)).join(", ")}` : ""}
+              {confirmed.stillAuthorised.length && confirmed.triggerBps ? " and " : ""}
+              {confirmed.triggerBps ? `a trigger of ${formatBps(confirmed.triggerBps)}` : ""}. The network's RPC can lag behind a mined transaction: refresh in a moment before relying on this.
+            </p>
+          )}
+        </div>
+      ) : null}
+    </Card>
+  );
+}
+
+/** AutoRepayExecuted events emitted by THIS account, read from the chain. Independent of any keeper service. */
+function AccountRepays({ account, market }: { account: SentinelAccount; market: Market | null }) {
+  const address = account.address.status === "ok" ? account.address.value : null;
+  const repays = useQuery({ queryKey: ["account-auto-repays", WRITE_CHAIN_ID, address], queryFn: () => readAutoRepays(address as Address), enabled: address !== null && services.activity.source === "chain", staleTime: 30_000 });
+  if (services.activity.source !== "chain" || !address) return null;
+  const token = market?.debt.token ?? null;
+  return (
+    <Card as="section" data-testid="account-repays" data-count={repays.data?.events.length ?? ""}>
+      <CardHeader eyebrow="On chain" title="Automated repayments on this account" description="AutoRepayExecuted events emitted by your Sentinel account in mined transactions, whoever sent them." />
+      {repays.isPending ? (
+        <Skeleton className="m-5 h-20" />
+      ) : repays.isError || !repays.data ? (
+        <p className="p-5 text-sm text-muted sm:p-6">The account's events could not be read right now. This says nothing about whether a repayment happened.</p>
+      ) : (
+        <>
+          {repays.data.events.length === 0 ? (
+            <p className="p-5 text-sm text-muted sm:p-6">No automated repayment{repays.data.coverage.complete ? " has been executed for this account." : " was found in the blocks that were read."}</p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {repays.data.events.map((event) => {
+                const url = explorerTxUrl(WRITE_CHAIN_ID, event.hash);
+                return (
+                  <li key={event.hash} className="p-5 text-sm sm:px-6" data-account-repay={event.hash}>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Badge tone="success">Mined</Badge>
+                      <Badge tone="outline">Operator</Badge>
+                    </div>
+                    <p className="num mt-1.5 text-muted">
+                      Repaid {token ? tokenAmount(event.amount, token) : `${event.amount.toString()} raw units`}, loan-to-value {formatBps(event.ltvBeforeBps)} → {formatBps(event.ltvAfterBps)}, block {event.blockNumber.toString()}, operator <Mono>{shortAddress(event.operator)}</Mono>.
+                    </p>
+                    <p className="mt-1 text-xs">
+                      {url ? (
+                        <a href={url} target="_blank" rel="noreferrer" className="font-medium underline underline-offset-4" data-testid="account-repay-link">
+                          {shortHash(event.hash)} on the explorer
+                        </a>
+                      ) : (
+                        <span className="font-mono break-all text-faint">{event.hash}</span>
+                      )}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {repays.data.coverage.complete ? null : (
+            <p className="border-t border-line px-5 py-3 text-xs text-faint sm:px-6">
+              <LogCoverageText coverage={repays.data.coverage} />
+            </p>
+          )}
+        </>
+      )}
     </Card>
   );
 }

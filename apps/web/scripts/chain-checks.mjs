@@ -321,6 +321,14 @@ if (mode === "wrong-network") {
             expect(operators.some((entry) => entry.operator?.toLowerCase() === receipt.operator.toLowerCase() && entry.mask === "8"), `${tag}: the live repay-only grant for ${receipt.operator} is not shown (got ${JSON.stringify(operators)})`);
             expect((await stop.getAttribute("data-operators")) === "1" && Number(await stop.getAttribute("data-trigger")) > 0, `${tag}: the emergency stop does not see the live operator and trigger`);
             expect(outline.length === 6 && outline.find((row) => row.field === "Approved protocols")?.status === "planned" && outline.filter((row) => row.status === "live").length === 5, `${tag}: strategy outline is ${JSON.stringify(outline.map((row) => [row.field, row.status]))}`);
+            // On-chain agent activity for THIS account, independent of any keeper service: the public auto-repay.
+            const repays = page.locator('[data-testid="account-repays"]');
+            await repays.locator("[data-account-repay]").first().waitFor({ timeout: 60_000 }).catch(() => {});
+            const repayRows = await repays.locator("[data-account-repay]").evaluateAll((nodes) => nodes.map((node) => ({ hash: node.dataset.accountRepay, link: node.querySelector("a")?.getAttribute("href") ?? null })));
+            notes.push({ wallet: who.name, width, accountRepays: repayRows, discovery: await stop.getAttribute("data-discovery"), partialNote: (await page.locator('[data-testid="emergency-stop-partial"]').innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 260) });
+            expect(repayRows.some((row) => row.hash?.toLowerCase() === receipt.txHash.toLowerCase() && row.link === expectedTxUrl), `${tag}: the account's public auto-repay ${receipt.txHash} is not shown on Automate with its explorer link: ${JSON.stringify(repayRows)}`);
+            // The operator list comes from a scan with a gap on testnet: the stop must say "found", not "every".
+            expect((await stop.getAttribute("data-discovery")) === "partial" && /the operators this page found/.test(await stop.innerText()) && !/Revokes every operator/.test(await stop.innerText()) && (await page.locator("#emergency-extra").count()) === 1, `${tag}: the emergency stop overstates what it knows about operators on a partially scanned chain`);
             expect((await page.locator('[data-testid="connect-grant"]').count()) === 1, `${tag}: the Connect section does not show the authorisation an agent would use`);
           } else {
             expect(/No Sentinel account yet/.test(main), `${tag}: no empty state for a wallet without an account`);

@@ -134,6 +134,12 @@ export interface SentinelAccount {
   /** Auto-repay trigger as LTV in bps. 0 disables auto-repay. */
   autoRepayTriggerBps: number;
   operators: OperatorGrant[];
+  /**
+   * Chain mode: how the operator list was found. Grants live in a mapping, so candidates come from OperatorSet events
+   * in the block ranges that were read. `complete` false (or `failed`) means an operator authorised in unread blocks
+   * can exist without being listed. Absent in fixture mode.
+   */
+  operatorDiscovery?: { complete: boolean; failed: boolean; coverage?: LogCoverage };
   position: Position;
 }
 

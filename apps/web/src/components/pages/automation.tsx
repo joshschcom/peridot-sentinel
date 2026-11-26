@@ -97,7 +97,9 @@ export function Automation({ account, market }: { account: SentinelAccount; mark
       <div className="space-y-3">
         <h3 className="text-sm font-medium">Authorised operators</h3>
         {grants.length === 0 ? (
-          <p className="text-sm text-muted" data-testid="no-operator">No operator is authorised on this account.</p>
+          <p className="text-sm text-muted" data-testid="no-operator">
+            {chain && account.operatorDiscovery && (!account.operatorDiscovery.complete || account.operatorDiscovery.failed) ? "No operator was found in the blocks this app has read. An authorisation made in unread blocks would not be listed." : "No operator is authorised on this account."}
+          </p>
         ) : (
           <ul className="divide-y divide-line rounded-control border border-line">
             {grants.map((entry) => {

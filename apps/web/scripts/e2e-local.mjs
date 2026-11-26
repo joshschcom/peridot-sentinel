@@ -412,7 +412,29 @@ try {
       });
       return marketState(state.controller);
     };
-    if (A.debt < USD(3) || A.idleDebtAsset < USD(3)) A = await borrowAllowed("A", A, "5");
+    if (A.debt < USD(3) || A.idleDebtAsset < USD(3)) {
+      // Re-runs: every run repays 2 mUSD and withdraws 1, so the account borrows again every other run and its debt
+      // creeps up. Keep this borrow an ALLOWED one on any run: if 5 mUSD more would pass 50% loan-to-value (the
+      // account policy caps at 55%), the owner first adds collateral through the same Sentinel path.
+      const price = (asset) => read(C.TestnetOracle, TestnetOracleAbi, "price", [asset]);
+      const [[collateralPrice], [debtPrice]] = await Promise.all([price(A.collateralAsset), price(A.debtAsset)]);
+      const ltvAfter = (((A.debt + USD(5)) * debtPrice) / 10n ** 6n) * 10_000n / ((A.collateralUnderlying * collateralPrice) / WAD);
+      if (ltvAfter > 5000n) {
+        const beforeTopUp = A;
+        await go(`/markets/${A.controller}`);
+        if (A.walletCollateral < 10n * WAD) await transact(panel, panel.locator('[data-testid="mint-test-tokens"]'), "wallet: mint test tokens for the collateral top-up (permissionless mock tokens)");
+        await panel.getByRole("button", { name: /^Sentinel account/ }).click();
+        await panel.getByRole("tab", { name: "Supply" }).click();
+        await amount.fill("10");
+        await previewReady();
+        await transact(panel, submit, `sentinel A: top up collateral by 10 mCOL (a 5 mUSD borrow would otherwise reach ${Number(ltvAfter) / 100}% on a re-run)`, async () => {
+          A = await marketState(A.controller);
+          assert(A.collateralUnderlying >= beforeTopUp.collateralUnderlying + 10n * WAD - 10n, `collateral went from ${beforeTopUp.collateralUnderlying} to ${A.collateralUnderlying}`);
+          return `account collateral ${beforeTopUp.collateralUnderlying / WAD} -> ${A.collateralUnderlying / WAD} mCOL`;
+        });
+      }
+      A = await borrowAllowed("A", A, "5");
+    }
     await shot("06-market-A-sentinel-borrow-confirmed");
     stopIf("borrow");
 
@@ -441,6 +463,8 @@ try {
         if (before.mask !== 0) assert(revoked.length === 1 && same(revoked[0].args.operator, operator), "OperatorRevoked was not emitted for the operator");
         const locked = await revertName(operator, A.sentinel, SentinelAccountAbi, "autoRepay", []);
         assert(locked === "OperatorNotAuthorized", `autoRepay() as the operator after the stop: ${locked}`);
+        // The page must confirm the stop from its own fresh read of the account, not from the receipts alone.
+        await emergency.locator('[data-testid="emergency-stop-confirmed"][data-confirmed="true"]').waitFor({ timeout: 30000 });
         return `${txs.length} tx: ${before.mask !== 0 ? "revokeOperator (OperatorRevoked emitted)" : "no grant to revoke"}, ${before.trigger !== 0 ? `setAutoRepayTrigger(0) from ${before.trigger}` : "trigger already 0"}; operators(operator) cleared, autoRepayTriggerBps() == 0, autoRepay() as the operator reverts OperatorNotAuthorized`;
       });
     };

@@ -78,7 +78,7 @@ Always kill only the dev server PID you started. Astra shares the machine: never
 
 **Native TapeOut evidence (`src/components/pages/live-eval.tsx`, `src/services/chain/mainnet-eval.ts`):** on `/circuits`, the browser calls `circuitInfo`, `netlist` and `eval` on the public processor on chain 196 (CPU 275, circuit 1, from `evidence/a1/mainnet-reads.json`) and compares with the recorded reference. Labelled "not a Peridot circuit". Add Peridot's circuits when their mainnet IDs exist.
 
-**E2E is idempotent** (`scripts/e2e-local.mjs`, commit 1abc0d9): automation steps run on `/automate`; a leftover grant or trigger is cleared first through the emergency stop (recorded as a normalisation step); the last owner write is the emergency stop. Two consecutive green runs: `evidence/fable/local-e2e-run-20261126-141607.json` (8 tx) and `-141635.json` (6 tx). Known limit: each run repays 2 and withdraws 1 mUSD and borrows 5 when idle funds run low, so debt on market A creeps up by about 1 mUSD per two runs. After a few dozen runs the allowed borrow would hit the 55% cap; switch to a fresh account with `E2E_ACCOUNT_INDEX` (#3-#9) when that happens.
+**E2E is idempotent** (`scripts/e2e-local.mjs`, commit 1abc0d9): automation steps run on `/automate`; a leftover grant or trigger is cleared first through the emergency stop (recorded as a normalisation step); the last owner write is the emergency stop. Two consecutive green runs: `evidence/fable/local-e2e-run-20261126-141607.json` (8 tx) and `-141635.json` (6 tx). Each run repays 2 and withdraws 1 mUSD and borrows 5 when idle funds run low, so debt on market A creeps up; the script tops up collateral when needed (see below).
 
 **Fixture mode** (`NEXT_PUBLIC_PERIDOT_DATA=fixture npm run dev -- -p 3212`, then `screenshots.mjs --checks-only`): all UI checks pass with the new navigation, including 360 px (the compact wordmark drops the gem below 380 px so the phone header fits).
 
@@ -89,6 +89,14 @@ Always kill only the dev server PID you started. Astra shares the machine: never
 - `M6-connect-external-client-ready` / `M6-execution-circuit-and-connect-wire`: MCP server and client exist, no public 1952 execute receipt yet. Connect therefore stays "In development" (`CONNECT_AVAILABILITY`).
 - `M6-onchainos-quote-access`: blocked on credentials. No quote UI exists. When it comes: render "unavailable" with no number, never use quote calldata.
 - `M6-v2-abi-and-1952-rehearsal`: v2 ABIs exist, no public manifest (`packages/chain-config/expansion/deployments/1952.json` is not there). Nothing wired. v2 grant op ids differ from v1 masks (supply 0, redeem 1, borrow 2, repay 3, swap 5): do not reuse the v1 mask UI for v2.
+
+**Gas headroom on every app-sent transaction** (`gasWithHeadroom` in `src/services/chain/tx.ts`, +30% on the node's estimate). Found by the E2E: a Sentinel borrow that passed the preview and the simulation was mined with the bare estimate and ran out of gas inside the nested policy-circuit calls (local tx `0x33ab5fccc562505d48bf9b3c2f9dc734ca4c3e8b4f3a2f166c784d3a163a97e3`, block 98, evidence `evidence/fable/local-e2e-run-20261126-143559.json`). The same can happen on a public chain. Not yet exercised on 1952 (no write has been sent there).
+
+**Emergency stop says only what it knows.** Operators are discovered from `OperatorSet` events in the block ranges that were read (`SentinelAccount.operatorDiscovery`). When that scan has a gap or failed (always the case on 1952 today), the card says "the operators this page found", offers "Also revoke this address", and never says "every operator". The plan no longer skips a listed operator on one read. After the transactions are mined, `readStopState` re-reads the account with retries and only that read is shown as "Confirmed" (`emergency-stop-confirmed`). "Budget left X of Y" shows Y only when the grant's event is in the head range or the scan is complete.
+
+**On-chain agent activity on Automate** (`AccountRepays`): `AutoRepayExecuted` events of the viewed account with explorer links, independent of the keeper service, with the coverage note.
+
+**E2E re-runs** add 10 mCOL of collateral when the allowed 5 mUSD borrow would pass 50% (it did after three runs). Four green runs today: `-141607` (8 tx), `-141635` (6 tx), `-143650` (7 tx), `-143718` (6 tx).
 
 ## Not done after run 3
 

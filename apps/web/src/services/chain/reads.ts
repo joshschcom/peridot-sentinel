@@ -11,6 +11,7 @@ import { type AccountPolicySpec, LOCAL_PREVIEW_LABEL, type MarketPolicySpec, Op,
 import type { Address, CheckResult, LogCoverage, Market, OperationPreview, OperationRequest, OperatorGrant, PolicyRecord, Position, RejectionSource, SentinelAccount, TokenInfo } from "../types.ts";
 import { WRITE_CHAIN_ID } from "../../lib/chains.ts";
 import { rememberedOperators } from "../../lib/local-memory.ts";
+import { retryRead } from "../../lib/retry.ts";
 import { ABI, client, contract, feedLabel, isMockToken, manifest, scanLogs, withErrors } from "./client.ts";
 
 const WAD = 10n ** 18n;
@@ -220,17 +221,19 @@ export async function readAccount(market: Market, owner: Address): Promise<Senti
   const account = await accountOf(owner, addr(market.controller));
   if (!account) return null;
   const rpc = client();
-  const [policyId, trigger, position, grants, block] = await Promise.all([
+  const [policyId, trigger, position, grantScan, block] = await Promise.all([
     rpc.readContract({ address: account, abi: ABI.sentinel, functionName: "policyId" }),
     rpc.readContract({ address: account, abi: ABI.sentinel, functionName: "autoRepayTriggerBps" }),
     readPosition(market, account, "sentinel"),
     // Grants live in a mapping, so candidates come from OperatorSet logs in the scanned window, from this browser's
     // memory of grants it made, and from hints (the keeper's configured operator). The chain read below decides.
     scanLogs(`operator-set:${account}`, (fromBlock, toBlock) => rpc.getContractEvents({ address: account, abi: ABI.sentinel, eventName: "OperatorSet", fromBlock, toBlock, strict: true }))
-      .then((scan) => scan.logs)
-      .catch(() => []),
+      .then((scan) => ({ logs: scan.logs, complete: scan.complete, failed: false, headFrom: scan.fromBlock, coverage: { ranges: scan.ranges, complete: scan.complete } }))
+      // A failed scan is reported, not hidden: the operator list may then be incomplete.
+      .catch(() => ({ logs: [], complete: false, failed: true, headFrom: 0n, coverage: undefined })),
     rpc.getBlock(),
   ]);
+  const grants = grantScan.logs;
   const candidates = new Map<string, Address>();
   for (const operator of [...grants.map((log) => log.args.operator), ...rememberedOperators(WRITE_CHAIN_ID, account), ...(hintedOperators.get(account.toLowerCase()) ?? [])]) candidates.set(operator.toLowerCase(), operator);
   const operators: OperatorGrant[] = await Promise.all(
@@ -242,14 +245,16 @@ export async function readAccount(market: Market, owner: Address): Promise<Senti
         label: "Operator",
         opsMask: mask,
         remaining,
-        granted: lastGrant && mask !== 0 ? ok(lastGrant.args.maxAmount) : unavailable<bigint>("The grant's event is outside the scanned block range"),
+        // The newest OperatorSet seen is the current grant only if no newer one can hide in unread blocks: the scan is
+        // complete, or the event lies in the most recent range (which runs to the head).
+        granted: lastGrant && mask !== 0 && (grantScan.complete || lastGrant.blockNumber >= grantScan.headFrom) ? ok(lastGrant.args.maxAmount) : unavailable<bigint>("The grant's event is outside the block ranges that were read"),
         expiresAt: new Date(Number(expiry) * 1000).toISOString(),
         expired: mask !== 0 && expiry <= block.timestamp,
         revoked: mask === 0,
       };
     }),
   );
-  return { marketId: market.id, address: ok(account), owner: ok(owner), policy: await readPolicy(policyId, "ACCOUNT"), autoRepayTriggerBps: trigger, operators, position };
+  return { marketId: market.id, address: ok(account), owner: ok(owner), policy: await readPolicy(policyId, "ACCOUNT"), autoRepayTriggerBps: trigger, operators, operatorDiscovery: { complete: grantScan.complete, failed: grantScan.failed, coverage: grantScan.coverage }, position };
 }
 
 /* ---------- what an operator can and cannot do ---------- */
@@ -508,4 +513,20 @@ export async function previewOnChain(request: OperationRequest, wallet: Address)
     checks,
     outcome,
   };
+}
+
+/**
+ * After an emergency stop: what the chain says now, asked again (reads only) until it shows everything cleared or the
+ * attempts run out. A lagging RPC backend can still report the old state right after the transactions are mined.
+ */
+export async function readStopState(account: Address, operators: Address[]): Promise<{ stillAuthorised: Address[]; triggerBps: number }> {
+  const rpc = client();
+  const read = async () => {
+    const [masks, trigger] = await Promise.all([
+      Promise.all(operators.map(async (operator) => (await rpc.readContract({ address: account, abi: ABI.sentinel, functionName: "operators", args: [operator] }))[0])),
+      rpc.readContract({ address: account, abi: ABI.sentinel, functionName: "autoRepayTriggerBps" }),
+    ]);
+    return { stillAuthorised: operators.filter((_, index) => masks[index] !== 0), triggerBps: Number(trigger) };
+  };
+  return retryRead(read, { attempts: 5, baseDelayMs: 600, accept: (state) => state.stillAuthorised.length === 0 && state.triggerBps === 0 });
 }

@@ -1,0 +1,159 @@
+{
+  "label": "Local development chain (unforked Anvil 31337) with the development reference processor. Not TapeOut, not a public transaction: these hashes exist only on this local node and must never be linked to an explorer.",
+  "driver": "apps/web/scripts/e2e-local.mjs: real browser (Playwright Chromium), the app's own wagmi wallet path, test-only injected EIP-1193 provider forwarding to Anvil's unlocked account",
+  "rpc": "http://127.0.0.1:18545",
+  "chainId": 31337,
+  "nodeInstanceId": "0xb5c6d66bb5f479feeedb14b148e63b526d74c86b029e3c71727ffd7509961552",
+  "manifestCommit": "ac9b26ae146d08d89db9548660697f255f574276",
+  "runId": "run-20261126-143559",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "accountIndex": 4,
+  "operator": "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc",
+  "operatorIndex": 5,
+  "startBlock": 95,
+  "endBlock": 98,
+  "markets": {
+    "A": {
+      "controller": "0x72D1fE35eB1aEb7437eEeCa567A93F67dD76A9dA",
+      "policyCapBps": 6500,
+      "sentinel": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51"
+    },
+    "B": {
+      "controller": "0xc72500B2CA87DF8f964662A6bd3E4D94fA6Cf90d",
+      "policyCapBps": 5000,
+      "sentinel": "0x1881d02D05a44713a69d6eDDE3e7167792A636d6"
+    },
+    "accountPolicyCapBps": 5500
+  },
+  "steps": [
+    {
+      "label": "rate display check (read-only)",
+      "txs": [],
+      "shown": "3.99% APR",
+      "ratePerBlock": "1268391678",
+      "blocksPerYear": "31536000",
+      "expectedBps": "399"
+    },
+    {
+      "label": "sentinel A: borrow 5.6 mUSD to 60% LTV, eth_call simulation only (nothing sent)",
+      "txs": [],
+      "shown": {
+        "rejection": "account-policy",
+        "checks": {
+          "account-policy": {
+            "status": "fail",
+            "basis": "simulation",
+            "text": "Fails Your Sentinel policy Set by you The circuit denied this operation in the simulation. Loan-to-value after: 60%, cap 55%."
+          },
+          "protocol": {
+            "status": "unknown",
+            "basis": "none",
+            "text": "? Not evaluated Protocol safety limits Always enforced Not reached: your Sentinel policy already rejected the operation."
+          },
+          "market-policy": {
+            "status": "pass",
+            "basis": "local-preview",
+            "text": "Passes Market policyLocal preview Set by the market owner Would allow. Not reached on chain, because your Sentinel policy rejected first. Local preview (reference evaluator) of the same circuit on the same inputs: allow. Loan-to-value after: 60%, cap 65%. A separate eth_call of the deployed circuit on these inputs returns allow."
+          }
+        },
+        "otherLayer": {
+          "layer": "market-policy",
+          "verdict": "allow",
+          "basis": "local-preview",
+          "text": "The market's policy circuit would allow this operation. Only your own Sentinel rule stops it. Local preview of the same circuit on the same inputs. It was not reached on chain."
+        },
+        "submitDisabled": true
+      },
+      "onChain": {
+        "previewPolicy": {
+          "applies": true,
+          "oracleFresh": true,
+          "postLtvBps": 6000,
+          "cashOk": true
+        },
+        "entrypointRevert": "AccountPolicyRejected",
+        "accountCircuit": "AccountPolicyRejected",
+        "marketCircuit": "allow"
+      }
+    },
+    {
+      "label": "sentinel B: borrow 4.32 mUSD to 52% LTV, eth_call simulation only (nothing sent)",
+      "txs": [],
+      "shown": {
+        "rejection": "market-policy",
+        "checks": {
+          "account-policy": {
+            "status": "pass",
+            "basis": "simulation",
+            "text": "Passes Your Sentinel policy Set by you Allowed in the simulation: this circuit ran inside the same eth_call and passed. Loan-to-value after: 52%, cap 55%."
+          },
+          "protocol": {
+            "status": "pass",
+            "basis": "simulation",
+            "text": "Passes Protocol safety limits Always enforced Loan-to-value after: 52%, borrowing limit 70%, liquidation at 80%."
+          },
+          "market-policy": {
+            "status": "fail",
+            "basis": "simulation",
+            "text": "Fails Market policy Set by the market owner The circuit denied this operation in the simulation. Loan-to-value after: 52%, cap 50%."
+          }
+        },
+        "otherLayer": {
+          "layer": "account-policy",
+          "verdict": "allow",
+          "basis": "simulation",
+          "text": "Your Sentinel policy allows this operation. Only the market's rule stops it. It ran and passed inside the same simulation, before the market was asked."
+        },
+        "submitDisabled": true
+      },
+      "onChain": {
+        "previewPolicy": {
+          "applies": true,
+          "oracleFresh": true,
+          "postLtvBps": 5200,
+          "cashOk": true
+        },
+        "entrypointRevert": "MarketPolicyRejected",
+        "accountCircuit": "allow",
+        "marketCircuit": "MarketPolicyRejected"
+      }
+    },
+    {
+      "label": "sentinel A: top up collateral by 10 mCOL (a 5 mUSD borrow would otherwise reach 56.25% on a re-run)",
+      "txs": [
+        "0x2b603f0734b7842e528fdec68898272fa262106d13be99d124f10fee2436efc1",
+        "0x307f62fb2403adda7ce0c5605bd8a72fa01f941000cd4c21592ea471886312b3"
+      ],
+      "asserted": "account collateral 10 -> 20 mCOL"
+    }
+  ],
+  "receipts": [
+    {
+      "hash": "0x2b603f0734b7842e528fdec68898272fa262106d13be99d124f10fee2436efc1",
+      "to": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "selector": "0xa9059cbb",
+      "block": 96,
+      "status": "success",
+      "gasUsed": 51275
+    },
+    {
+      "hash": "0x307f62fb2403adda7ce0c5605bd8a72fa01f941000cd4c21592ea471886312b3",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0x35403023",
+      "block": 97,
+      "status": "success",
+      "gasUsed": 407128
+    },
+    {
+      "hash": "0x33ab5fccc562505d48bf9b3c2f9dc734ca4c3e8b4f3a2f166c784d3a163a97e3",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0xc5ebeaec",
+      "block": 98,
+      "status": "reverted",
+      "gasUsed": 388458
+    }
+  ],
+  "activityEntriesShown": null,
+  "stoppedAfter": "FAILED: sentinel A: borrow 5 mUSD (allowed by the account policy and the market policy): failed in the app: FAILED",
+  "pageProblems": []
+}

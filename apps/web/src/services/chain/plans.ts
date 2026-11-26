@@ -160,28 +160,20 @@ export function setTriggerPlan(account: Address, bps: number): TxPlanStep[] {
 }
 
 /**
- * Emergency stop for one account: revoke every authorised operator, then clear the auto-repay trigger.
- * Revocations go first because one mined revocation already ends what that operator can do. Each step re-reads the
- * chain when it is built, so an operator that is already revoked (or a trigger that is already zero) is skipped
- * instead of costing a transaction. If a step fails, the steps before it stay mined and the result says which did not run.
+ * Emergency stop for one account: revoke every operator the caller lists, then clear the auto-repay trigger.
+ * Revocations go first because one mined revocation already ends what that operator can do. Nothing is skipped on
+ * the strength of a single read: on a load-balanced RPC a lagging backend can report "no grant" for a grant that
+ * was just mined, and a stop that quietly does nothing is the worst outcome. Revoking an address without a grant
+ * is harmless. If a step fails, the steps before it stay mined and the result says which did not run.
  */
-export function emergencyStopPlan(account: Address, operators: Address[]): TxPlanStep[] {
+export function emergencyStopPlan(account: Address, operators: Address[], clearTrigger: boolean): TxPlanStep[] {
   const abi = withErrors(ABI.sentinel);
   return [
     ...operators.map((operator, index): TxPlanStep => ({
       title: `Revoke operator ${operator.slice(0, 6)}…${operator.slice(-4)}${operators.length > 1 ? ` (${index + 1} of ${operators.length})` : ""}`,
-      build: async () => {
-        const [mask] = await client().readContract({ address: account, abi: ABI.sentinel, functionName: "operators", args: [operator] });
-        return mask === 0 ? null : { address: account, abi, functionName: "revokeOperator", args: [operator] };
-      },
+      build: async () => ({ address: account, abi, functionName: "revokeOperator", args: [operator] }),
     })),
-    {
-      title: "Clear the auto-repay trigger",
-      build: async () => {
-        const trigger = await client().readContract({ address: account, abi: ABI.sentinel, functionName: "autoRepayTriggerBps" });
-        return Number(trigger) === 0 ? null : { address: account, abi, functionName: "setAutoRepayTrigger", args: [0] };
-      },
-    },
+    ...(clearTrigger ? [{ title: "Clear the auto-repay trigger", build: async () => ({ address: account, abi, functionName: "setAutoRepayTrigger", args: [0] }) } satisfies TxPlanStep] : []),
   ];
 }
 
