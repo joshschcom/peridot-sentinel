@@ -1,0 +1,80 @@
+{
+  "label": "Anvil 31337 fork of X Layer 196; simulated transactions",
+  "pin": "76846436",
+  "pinHash": "0xb88c64f8d0b5bc53d215371a0c71b2c7c42a7258e1ec20b2d3bdab3225dccb4e",
+  "cpu": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+  "circuitId": "2",
+  "schema": "sentinel-execution-swap-v1",
+  "nIn": 20,
+  "nOut": 1,
+  "nState": 0,
+  "gateCount": 59,
+  "maxLossBps": 100,
+  "netlistHash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b",
+  "netlist": "0x00000001000002000000160000160000000300000300000017000018000000190000190000001a0000040000001b00001b000000050000050000001c00001d0000001e00001e0000001f000006000000200000200000002100000700000022000022000000230000080000002400002400000025000009000000260000260000000a00000a00000028000001000000290000290000000b00000b0000002b00002a0000002c00002c0000000c00000c0000002e00002e0000002d00002d0000002f0000300000000d00000d00000032000031000000330000330000000e00000e00000035000034000000360000360000000f00000f00000038000038000000370000370000003900003a000000100000100000003c00003c0000003b00003b0000003d00003e000000110000110000004000003f0000004100004100000012000012000000430000420000004400004400000013000013000000460000450000004700004700000014000014000000150000150000004900004a0000004b00004b0000004800004c0000004d00004d0000002700004e0000004f00004f",
+  "receipts": [
+    {
+      "label": "mint NAND on fork",
+      "hash": "0xac8f26f204f16df14250eb9ab12e4dd18c586bc8c3ca414e16e63def3202c2dd",
+      "gas": "83599",
+      "block": "76846437",
+      "blockHash": "0xe3373bd9be749fb265acd479e0b7bb5cfbbe2a46850d57d2cb6160c197b2f59b"
+    },
+    {
+      "label": "fabricate EXECUTION on fork",
+      "hash": "0x0c17d75e3f277d5ec0b1015392a30fe66a9a2877d35794973374e64e8eb3207e",
+      "gas": "385906",
+      "block": "76846438",
+      "blockHash": "0xee4bf47e3ee99b104806471703edeefe1cf523a80d867b147dac8276fb0775c9"
+    },
+    {
+      "label": "deploy Solidity caller on fork",
+      "hash": "0xf5aa1ae3ec064e391cf81814ca30437473895b79c74ba45bfdd9fd3483830b7b",
+      "gas": "328346",
+      "block": "76846439",
+      "blockHash": "0x978392304d4be0290443a3f3ddb5ecbb9f40f2c7c38fe1a7364217bd34d2143e"
+    }
+  ],
+  "vectors": [
+    {
+      "flags": 15,
+      "loss": 0,
+      "context": "0xf50000",
+      "output": "0x01",
+      "evalGas": "186992",
+      "enforceGas": "193165"
+    },
+    {
+      "flags": 15,
+      "loss": 100,
+      "context": "0xf56400",
+      "output": "0x01",
+      "evalGas": "187467",
+      "enforceGas": "193648"
+    },
+    {
+      "flags": 15,
+      "loss": 101,
+      "context": "0xf56500",
+      "output": "0x00",
+      "evalGas": "187333",
+      "enforceGas": null
+    },
+    {
+      "flags": 7,
+      "loss": 0,
+      "context": "0x750000",
+      "output": "0x00",
+      "evalGas": "186568",
+      "enforceGas": null
+    },
+    {
+      "flags": 15,
+      "loss": 500,
+      "context": "0xf5f401",
+      "output": "0x00",
+      "evalGas": "187615",
+      "enforceGas": null
+    }
+  ]
+}

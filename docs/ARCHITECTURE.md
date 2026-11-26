@@ -1,4 +1,4 @@
-# Peridot Markets development architecture
+# Peridot Sentinel architecture
 
 Each market has its own controller and two cloned Peridot ERC-20 lending books. The factory fixes the collateral asset, debt asset, oracle, rate model, registry, adapter and pToken implementation for a deployment. Creation assigns an owner and immutable limits. Debt liquidity must be supplied before the owner can activate borrowing. The approved pair and fixtures in the development deployment carry no real value.
 
@@ -39,3 +39,11 @@ For a public testnet keeper supply KEEPER_TESTNET_OPERATOR_KEY only in the keepe
 ## Deployment evidence
 
 The deployment manifest is under packages/chain-config/deployments and the ABIs come from contracts/out. The code check verifies the chain and deployed code before a client enables writes. The on-chain development reference processor supports only the 20-input stateless policy subset. See TAPEOUT_INTEGRATION.md for sponsor mainnet read and fork evidence. The production release requires its own contracts, governance configuration, tests and approval.
+
+## Sentinel Connect and external execution
+
+The v2 account owns its Peridot books and idle tokens. Its typed lending adapter resolves the controller's approved books. Its swap adapter pins one router, pool, pair and fee tier. Sentinel Circuits evaluates the user's minimum output against a separate fresh quote before settlement. The frontend discovers v2 through a separate manifest. The M4 v1 manifest is the authority for the original accounts and keeper. [Expansion wire contract](coordination/INTERFACES_V2.md)
+
+The optional server-side OnchainOS estimate runs with `node services/onchainos/quote.mjs WOKB 1000000000000000000`. It requests an informational WOKB/USDC quote on 196 and returns a fixed schema of assets and raw amounts. Configure OKX_API_KEY, OKX_API_SECRET and OKX_API_PASSPHRASE privately on the server. On November 26 the anonymous trade quote required a key. The separate market-price endpoint offered an x402 payment challenge. Credentialed quotes await approved access. [OKX API authentication](https://web3.okx.com/onchainos/dev-docs/home/api-access-and-usage) · [Market price API](https://web3.okx.com/onchainos/dev-docs-v5/dex-api/dex-market-price) · [Unauthenticated probe responses](../evidence/session5-onchainos)
+
+A separate MCP client can exercise the seven-step agent-directed repayment demo over stdio on chain 1952. Read the v1 account and positions, inspect policy and authorization, request an OKX quote, simulate and propose, execute the authorized repayment, simulate a denied operator borrow, then read the canonical receipt and updated grant. The quote is informational and carries its own availability and chain. The process uses a dedicated operator key inherited via the environment. [Sentinel Connect setup](../services/mcp/README.md) · [SDK types and usage](../packages/sentinel-sdk/README.md)

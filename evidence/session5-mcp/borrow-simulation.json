@@ -1,0 +1,37 @@
+{
+  "transport": "MCP stdio subprocess",
+  "server": {
+    "name": "sentinel-connect",
+    "version": "1.1.0"
+  },
+  "command": "reject",
+  "results": {
+    "sentinel_simulate_operator_borrow": {
+      "result": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47242062",
+          "hash": "0xed6b60c9388d8232746433b5e404c8073a7fc24570ab758ca42a9c2d666ef0a2",
+          "timestamp": "1795700899",
+          "confirmations": "2"
+        },
+        "data": {
+          "method": "eth_call",
+          "operation": "borrow",
+          "amountRaw": "1000000",
+          "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "rejected": true,
+          "error": "OperatorNotAuthorized",
+          "args": [
+            "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+            2
+          ],
+          "revertData": "0x749338670000000000000000000000002c7e78e47debc84efac28d336f98d54b4c1fce880000000000000000000000000000000000000000000000000000000000000002"
+        }
+      }
+    }
+  }
+}

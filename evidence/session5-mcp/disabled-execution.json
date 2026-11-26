@@ -1,0 +1,16 @@
+{
+  "transport": "MCP stdio subprocess",
+  "server": {
+    "name": "sentinel-connect",
+    "version": "1.1.0"
+  },
+  "command": "execute",
+  "results": {
+    "sentinel_execute_auto_repay": {
+      "error": {
+        "code": "EXECUTION_DISABLED",
+        "message": "Restricted execution is disabled for this process"
+      }
+    }
+  }
+}

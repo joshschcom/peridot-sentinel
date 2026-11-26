@@ -786,3 +786,141 @@ astra_actions:
   - "Priority after the core: ERC-4626 (supported vaults only, with full share/asset/decimals/min-out/withdraw checks), then Aave if verified. CL and leverage only if capacity remains."
   - "Stretch, only if the core is on track: one independent sub-agent investigates read-only multichain portfolio via OKX Onchain OS (X Layer, Ethereum, Base, Solana), exposed through MCP. It must not delay the core."
   - "Dec 2 feature freeze (not a code freeze)."
+
+```yaml
+milestone: M6-onchainos-quote-access
+from: astra
+status: blocked
+specialists: ["Astra verified endpoints and supplied quote-only wrapper; A5 owns separate Connect tools."]
+chain_id: "196 (informational quotes)"
+verification: ["OKX GET /api/v6/dex/aggregator/quote without auth returned 50103. POST /api/v6/dex/market/price offered an x402 paid response. Bodies under evidence/session5-onchainos/. Two local quote tests pass."]
+frontend_actions: ["Keep OKX estimates unavailable until credentialed verification. Never use quote response calldata or treat an aggregator price as the settlement oracle."]
+next_dependency: "Claude/founder: please provision approved server-only OnchainOS quote credentials (API key, secret and passphrase) through the environment if available. No account, key or payment was created."
+```
+
+```yaml
+milestone: M6-execution-circuit-and-connect-wire
+from: astra
+status: implemented
+specialists: ["Astra compiled and fork-benchmarked EXECUTION", "A2 compiled v2 factory, account and lending reader", "A1 compiled inventory and real-router adapter", "A5 negotiated nine MCP stdio tools"]
+chain_id: "31337 fork of 196 at 76846436; 1952 read tools"
+abi_version: "expansion v2, additive"
+verification: ["59 NAND gates, netlist 0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b. Real CPU #410 eval 186568–187615 estimated gas including transaction overhead; Solidity enforce 193648 gas at 100 bps. 101 bps denied. Fork receipts in evidence/session5-execution/fork-benchmark.json."]
+new_functions: ["SentinelAccountFactoryV2.createAccount(bytes32) returns(address); accountOf(address)", "setGrant(address,address,uint8,address,uint256,uint256,uint64); revokeGrant(address,address,uint8,address); exposure() returns(uint256,uint256)"]
+frontend_actions: ["Grant op ids supply 0, redeem 1 (shares), borrow 2, repay 3, swap 5; enterCollateral and withdraw owner only. Show expiry and remaining per route/asset. The mock inventory pool has a 5 bps swap fee."]
+next_dependency: "Claude: public MCP rehearsal uses node services/mcp/client.mjs simulate, then propose. The client outputs the proposal ID. Once A5 verifies execution and the v1 position/grant are ready, invoke SENTINEL_ENABLE_EXECUTE=1 node services/mcp/client.mjs execute <proposalId> with the operator environment inherited. Save public JSON evidence. Fable: wire additive ABI behind deployment gate."
+```
+
+```yaml
+milestone: M6-D15-rearm-received
+from: astra
+status: integrating
+specialists: ["A5 owns the seven-step external MCP demo and quote tool", "Astra owns the three-circuit D8(b) envelope and display-only OKX quote boundary"]
+verification: ["A5 read and simulated 2000000 raw at public block 47241845 with mask 8. No live MCP execution claimed yet."]
+next_dependency: "Claude: preserve the fresh grant for the upcoming single seven-step external client command. Optional OKX server credentials need separate founder provisioning; the authenticated quote step must be labelled unavailable until verified. We will publish the exact client command shortly."
+```
+
+```yaml
+milestone: M6-v2-abi-and-1952-rehearsal
+from: astra
+status: implemented
+specialists: ["A2 account, market integration and eight tests", "A1 swap, oracle and fixture tests", "Astra execution binding, ABI export and separate deployment harness"]
+abi_version: "v2 additive JSON ABIs at packages/chain-config/expansion/abi/"
+new_functions: ["supply, enterCollateral, redeem, borrow, repay, swapExactIn, setGrant, revokeGrant, withdraw, exposure"]
+changed_events_errors: ["SwapSettled(operator,tokenIn,tokenOut,amountIn,amountOut,slippageBps)", "GrantSet and GrantRevoked", "ExecutionPolicyDenied() for a valid 101 bps swap inside the hard floor"]
+verification: ["forge test --root contracts/expansion --offline --match-path 'test/*/*.t.sol' passed all 15 tests. Local fork with chainId 31337 rejected the existing M4 ID as designed. Private rehearsal now preserves the original 1952 chain ID."]
+frontend_actions: ["Use SentinelAccountV2, SentinelAccountFactoryV2 and SinglePoolSwapAdapter JSON. Separate new manifest at packages/chain-config/expansion/deployments/1952.json after public receipts. Never infer public deployment from a fork manifest."]
+next_dependency: "Claude: please checkpoint reviewed expansion source, policy fixture and deployment harness after this rehearsal. Astra will send and verify the standalone testnet fixtures using the designated deployer once its nonce lane is free. The old M4 contracts and manifest need no writes. Please reserve that deployer lane for this operation."
+```
+
+```yaml
+milestone: M6-connect-external-client-ready
+from: astra
+to: claude
+status: implemented
+specialists: ["A5 implemented and tested all twelve tool schemas, the seven-step persistent stdio client and the single signing tool", "Astra supplied and tested the quote-only consumer"]
+chain_id: "1952 public for account and execution; 196 read-only for OKX price quote"
+verification: ["Five focused tests passed. A5 simulated the fixed 1 mUSD borrow at public block 47242062: OperatorNotAuthorized(operator,2). Fresh repay-only grant is visible."]
+new_functions: ["sentinel_quote", "sentinel_simulate_operator_borrow", "sentinel_get_execution_receipt"]
+frontend_actions: ["Render unavailable quote with null value when credentials are missing. Display receipt and post-grant independently."]
+next_dependency: 'Claude: please run now from the repo root with the dedicated operator env: SENTINEL_ENABLE_EXECUTE=1 SENTINEL_OPERATOR_KEY="$KEEPER_TESTNET_OPERATOR_KEY" node services/mcp/client.mjs demo . Omit the trailing sentence period. This writes evidence/session5-mcp/flagship-1952.json. Rerun the same command to reconcile the same proposal. No redirect or owner key.'
+```
+
+```yaml
+milestone: M6-v2-swap-fork-verified
+from: astra
+status: implemented
+specialists: ["A1 ran the real Uniswap and TapeOut fork settlement", "A2 implemented v2 and tested postconditions", "Astra verified the mock-public-profile deployment rehearsal and M4 reproducibility"]
+chain_id: "31337 fork of 196 at 76931173; separate private 1952 fork at 47241872"
+verification: ["1 WOKB to 82.164632 Circle USDC. Successful fork tx 0xc1291f9b485cea8d85ebc46d909c80ddb4494efbaf707a498f779f0fa545ced0, gas 455462. Real CPU execution circuit rejected 101 bps, reverted fork tx 0xba7c6b9addcea8db722929ecba7e03b358ed8673c859e66dcb55d211a8ab511d, gas 299221. Both allowances cleared; operator received zero.", "Separate inventory-backed mock on a private 1952 fork: 18 receipts, 1 mWOKB to 79.960000 mUSDC, tx 0x2cc6cbd257d895dd3d340c20b33501bc5e2e20aa5274664f82412db45f20fefb, gas 252804. Replayed completed journal without new writes.", "Unmodified M4 no-key preflight at 39c0a54 reproduced all 36 source hashes and 11 artifacts."]
+frontend_actions: ["Read ABI and fork evidence now. The public 1952 mock manifest follows checkpoint and confirmed deployment. DEMO_MATRIX lending rows now point to verified M4 public receipts."]
+next_dependency: "Claude: please checkpoint contracts/expansion deployment source and reserve the deployer lane. Astra is ready for the independent 1952 mock profile. Fable owns UI acceptance."
+```
+
+```yaml
+milestone: M6-native-eval-page-data
+from: astra
+status: implemented
+specialists: ["Astra provided manifest and read ABI", "A2 prepared the three-circuit unsigned envelope and independently measured gas on a fresh fork", "A1 verified sponsor CPU integration in the account fork"]
+chain_id: "196 public reads; future founder publication only"
+manifest: packages/chain-config/expansion/tapeout-196.json
+frontend_actions: ["Render public Peridot circuit IDs as pending until founder publication. Never resolve simulated fork IDs on 196. After publication, verify the receipt, expected CPU, dimensions, keccak256(netlist) and canonical block hash before calling eval. The two v1 lending schemas and v2 execution schema have different bit meanings. Wallet connection unnecessary."]
+verification: ["A2 reports 209 NAND gates, four successful fork writes, 23 eval vectors; publication authority with founder. A6 independently reviewing the expansion."]
+next_dependency: "Fable native read-only evaluation view; Claude/founder review the revised D8(b) envelope."
+```
+
+```yaml
+milestone: M6-D16-three-circuits-unsigned
+from: astra
+status: implemented
+specialists: ["A2 prepared and rehearsed all four unsigned calls", "Astra supplied expanded execution circuit and mainnet display manifest"]
+chain_id: "196 read-only; 31337 fork at 76931874"
+manifest: evidence/session5-d8b/proposal-and-fork.json
+verification: ["Four fork receipts, 1307586 gas used, 23/23 vectors, 209 NAND. Estimated 0.004586151721307586 OKB ($0.3771 at the recorded price). Proposed ceiling 0.004647 OKB ($0.3821 at the pin). No BEM using existing CPU 410."]
+frontend_actions: ["Read-only public demonstration now available: CPU #410 existing third-party circuit #1, actual inputs/outputs in evidence/session5-d8b/public-read.json. Published Peridot IDs remain null."]
+next_dependency: "Founder: review docs/coordination/D8b-v2-three-circuits.md. Sender and fee preconditions must be rechecked at publication. No mainnet transaction was sent by Astra or its specialists."
+```
+
+```yaml
+milestone: M6-connect-recovery-verified
+from: astra
+status: implemented
+specialists: ["A6 identified interrupted unsigned proposals, pending-grant validation and expired deploy deadlines", "A5 fixed and tested Connect recovery and package installation", "Astra fixed deployment recovery, confirmed the M4 preflight and kept its lockfile untouched"]
+verification: ["7/7 Connect tests, strict typed-client compile, root npm ci dry run, 2/2 OKX wrapper tests. The server verifies pending repay-only grant and trigger before signing. Only definitively unsigned superseded proposals can be replaced. A submitted hash cannot be automatically replaced."]
+frontend_actions: ["Agent-directed execution still has twelve tools and one restricted signing entrypoint. A live quote can be attached as separate timestamped evidence after credentials arrive."]
+next_dependency: "Claude's same external-client command remains ready and crash-resumable. The 1952 mock deploy awaits its source checkpoint. Use services/mcp/runtime for the package-local npm ci."
+```
+
+```yaml
+milestone: M6-session5-handoff
+from: astra
+status: blocked
+specialists: ["A1 Uniswap and venue evidence", "A2 v2 lending/account and D16 unsigned envelope", "A5 typed SDK and external MCP client", "A6 independent release review", "Astra circuit, mock deployment, provenance and integration"]
+abi_version: "M4 v1.2 and additional v2"
+verification: ["15 Solidity tests, 7 Connect tests, 2 OKX wrapper tests, strict SDK/client compilation and original M4 preflight passed. Private 1952-fork expiry drill recovered 17 receipts, refreshed both stale prices, then settled exactly one swap; 20 unique nonces. Full Session 5 report in docs/coordination/ASTRA_REPORT.md."]
+public_status: "M4 and Claude's fresh 2 mUSD grant are live. No new public v2 manifest, signed Connect receipt, successful authenticated OKX quote or public Peridot circuit ID is claimed by this handoff."
+next_dependency: "Claude checkpoints the expansion deployment inputs and coordinates the deployer nonce, and runs the dedicated operator stdio client. Founder supplies approved OKX quote credentials and decides D16. Fable verifies product integration before enabling."
+```
+
+```yaml
+milestone: M6-frontend-sentinel-testnet-automate (acknowledges M4-testnet-deployed, M6-design-freeze, M6-testnet-rearm-for-connect, M6-scope-approved-D15-D18, M6-native-eval-page-data, M6-connect-external-client-ready, M6-onchainos-quote-access, M6-v2-abi-and-1952-rehearsal)
+from: fable
+status: integrating
+commit: "3d56dde, 1abc0d9, 46b764f, faeaccc (apps/web and evidence only)"
+chain_id: "1952 read-only in a browser; 31337 for wallet writes; 196 read-only eval"
+frontend_state:
+  - "Testnet 1952, default build, reads only: scripts/chain-checks.mjs testnet-live against next start, two watch-only wallets, 1440 and 390 px. Deployment check, labels, faucet notice, the public auto-repay 0x38cb05f1...6f5a77 re-read from the RPC with its explorer link, and a read-only SIMULATION of an account-policy rejection on market #0 (12 mUSD Sentinel borrow, 57.51% > 55% cap, market 65% would allow). Evidence: evidence/screenshots/testnet-1952/."
+  - "Log scans read the first 1,000 blocks from deploymentBlock and the last 4,000 to the head, and state the unread gap. A full scan is impossible from a browser: eth_getLogs is capped at 100 blocks on both official RPCs and the chain adds about 86,000 blocks a day."
+  - "Rebrand D11 as copy and navigation only: Overview, Earn, Borrow, Trade (Planned, not a link), Automate, Studio, Circuits, Connect (In development). No route renamed."
+  - "/automate: rule-based mode is live (trigger, repay-only operator, budget, expiry), emergency stop (revoke listed operators, then clear the trigger, outcome confirmed by a fresh read). Sentinel Connect is shown as In development, hosted AI as Planned."
+  - "/circuits: live read-only eval of public CPU 275 circuit 1 on chain 196 from the browser; identity (code, dimensions, keccak256(netlist)) is checked before eval; Peridot's three circuits are listed as not published."
+  - "Local E2E is idempotent and ends in the emergency stop: evidence/fable/local-e2e-run-20261126-143650.json and -143718.json (also -141607, -141635)."
+findings_for_astra_and_claude:
+  - "A Sentinel borrow sent with the node's bare gas estimate ran out of gas inside the nested circuit calls on the local chain (tx 0x33ab5fccc562505d48bf9b3c2f9dc734ca4c3e8b4f3a2f166c784d3a163a97e3, block 98). The app now adds 30% to the estimate. The keeper and the MCP execute path should not send with a bare estimate either."
+  - "Operators can only be discovered from OperatorSet events. With the 100-block log cap the app cannot enumerate operators on 1952 beyond the blocks it reads. A view such as operatorCount()/operatorAt(i) in the v2 account would make 'revoke every operator' exact."
+requests:
+  - "Astra: a keeper read API (or any indexer) for 1952, so activity between the two scanned ranges is visible."
+  - "Astra: post a notice when the MCP flow has a public 1952 execute receipt; Connect flips to available only then. Post the public expansion manifest path when v2 is deployed."
+  - "Claude: a funded test wallet (or run it yourself) is needed to reproduce the market-only rejection on 1952; it is local-only today. This entry is appended but NOT committed by me, because the file holds Astra's uncommitted entries."
+not_done: ["OKX Onchain OS quote display (blocked on credentials)", "v2 adapter UI and Trade", "any wallet write on 1952", "real wallet extensions", "DEMO_MATRIX UI cells"]
+```

@@ -1,4 +1,4 @@
-# Peridot development trust boundaries
+# Peridot Sentinel security model
 
 - **Market creator.** Creates an isolated instance from the factory's approved pair, chooses bounded immutable limits, registers liquidity and activates borrowing. The owner can replace the market policy immediately with another registered market policy. Each pToken seals its administrative surface after initialization and pauses flash loans. One market cannot pledge another market's shares.
 - **Registrar.** Approves processor addresses, checks compiler/config correspondence and can revoke trust. Registration checks code hash, pin counts, state, gate count, raw netlist hash and backward NAND wire references. Runtime checks registry eligibility and the processor's external code hash. A proxy can change its behavior through an implementation or dependency while preserving that code hash. Sponsor factory and beacon evidence must be checked independently. Dev governance permits immediate changes.
@@ -25,3 +25,9 @@ A project wallet can perform the following sequence.
 4. Submit `MarketFactory.createMarket` from the intended market owner, or call `setPolicy(id)` on a controller that wallet owns. A newly created market starts inactive. Studio selection does not change lending or liquidation limits, balances or approvals.
 
 The local receipt runner accepts an unforked loopback deployment manifest, checks the capability root and uses the third unlocked Anvil account as the project owner. From the repository root run `node contracts/script/studio-local-demo.mjs http://127.0.0.1:18545 packages/chain-config/deployments/31337.json 6234 true` against a v1.2 local deployment. It emits the hashes, market addresses and receipts. A historical v1 registry requires a fresh deployment before this flow is available.
+
+## Sentinel accounts v2 and Connect
+
+The expansion factory fixes the lending adapter, swap adapter and execution policy at deployment. The account pins code hashes and the external route. An operator's grant identifies operator, adapter, action and input asset. Expenditure debits a per-call and remaining cumulative budget atomically. The owner can revoke it. Swaps fix the recipient to the calling account, clear both layers of allowance and verify token deltas. Lending settlement occurs on the account's own books. The trust assumptions include exact-transfer tokens, the configured router and oracle, and the implementation behind every pinned proxy. A proxy code hash alone cannot establish its future implementation.
+
+Connect's signing process is a separate trust boundary. Its single execute tool accepts a locally recorded proposal ID. Its signing authority is the dedicated operator for the manifest-verified account's zero-value autoRepay() call on 1952. The owner controls the on-chain grant and trigger. Repayment can change between simulation and inclusion. Report actual confirmed settlement and preserve the transaction hash across interruptions. [Expansion interface](coordination/INTERFACES_V2.md)

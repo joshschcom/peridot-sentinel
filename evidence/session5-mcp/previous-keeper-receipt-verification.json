@@ -1,0 +1,56 @@
+{
+  "label": "Read-only verification of the earlier keeper transaction. This transaction was not submitted through MCP.",
+  "result": {
+    "state": "confirmed",
+    "proposalId": null,
+    "receipt": {
+      "hash": "0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+      "blockNumber": "47161960",
+      "blockHash": "0xd305154cd0eac760018aa8ebf2681a3e192e3c9c144aef6b1967d57e963ad5c4",
+      "gasUsed": "244593",
+      "status": "success",
+      "from": "0x2c7e78e47debc84efac28d336f98d54b4c1fce88",
+      "to": "0xad7c0077cbdde5cbbcdd207f612b124f0c3776a0",
+      "nonce": 0,
+      "selector": "0x59b632ce",
+      "valueWei": "0",
+      "explorer": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77"
+    },
+    "actual": {
+      "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+      "amount": "20000000",
+      "ltvBeforeBps": "5001",
+      "ltvAfterBps": "3751"
+    },
+    "repayBookEvent": {
+      "payer": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+      "borrower": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+      "repayAmount": "20000000",
+      "accountBorrows": "60000016",
+      "totalBorrows": "60000016"
+    },
+    "beforeBlock": {
+      "number": "47161959",
+      "hash": "0xbabb210ca698592ea9f7d42ef766e723172c32a3fd7cbf81f923adce37d09873",
+      "timestamp": "1795620796",
+      "confirmations": "79943"
+    },
+    "before": {
+      "debtStoredRaw": "80000000",
+      "walletDebtAssetRaw": "80000000",
+      "remainingGrantRaw": "20000000"
+    },
+    "afterBlock": {
+      "number": "47161960",
+      "hash": "0xd305154cd0eac760018aa8ebf2681a3e192e3c9c144aef6b1967d57e963ad5c4"
+    },
+    "after": {
+      "debtStoredRaw": "60000016",
+      "walletDebtAssetRaw": "60000000",
+      "remainingGrantRaw": "0"
+    },
+    "stateScope": "Before/after are block-end snapshots. Emitted events identify the exact transaction amount.",
+    "confirmations": "79939",
+    "chainId": 1952
+  }
+}

@@ -1,0 +1,254 @@
+{
+  "transport": "MCP stdio subprocess",
+  "server": {
+    "name": "sentinel-connect",
+    "version": "1.0.0"
+  },
+  "command": "inspect",
+  "results": {
+    "sentinel_get_portfolio": {
+      "result": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47241787",
+          "hash": "0x0bd7e2252662b09d28196b9db3f20c9a0b1ccc721265165fb59f25bfb11c8827",
+          "timestamp": "1795700624",
+          "confirmations": "2"
+        },
+        "data": {
+          "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+          "netUsdWad": "159994679000000000000",
+          "amounts": [
+            {
+              "asset": "0xe1dA369f92596c3c10c353E200c05343C9F19c92",
+              "priceUsdWad": "1600000000000000000",
+              "idleUsdWad": "0",
+              "suppliedUsdWad": "160000000000000000000",
+              "debtUsdWad": "0"
+            },
+            {
+              "asset": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+              "priceUsdWad": "1000000000000000000",
+              "idleUsdWad": "80000000000000000000",
+              "suppliedUsdWad": "0",
+              "debtUsdWad": "80005321000000000000"
+            }
+          ],
+          "accounting": "Stored book balances at the pinned block; idle underlying shown separately."
+        }
+      }
+    },
+    "sentinel_get_positions": {
+      "result": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47241799",
+          "hash": "0xf4567bc630febfd27e1e6a7c8fea3f558c38a6be34c6042f8b1e5f511af59a5a",
+          "timestamp": "1795700636",
+          "confirmations": "2"
+        },
+        "data": [
+          {
+            "kind": "collateral",
+            "asset": "0xe1dA369f92596c3c10c353E200c05343C9F19c92",
+            "book": "0x1176cdef595A4e3bEBC3CfA9721a4C2a50cfa351",
+            "symbol": "mCOL",
+            "decimals": 18,
+            "idleRaw": "0",
+            "bookSharesRaw": "100000000000000000000",
+            "suppliedRaw": "100000000000000000000",
+            "borrowedStoredRaw": "0",
+            "exchangeRateStoredWad": "1000000000000000000"
+          },
+          {
+            "kind": "debt",
+            "asset": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+            "book": "0xB736dAA8784092C88ACABf6344DC360DcC5E411d",
+            "symbol": "mUSD",
+            "decimals": 6,
+            "idleRaw": "80000000",
+            "bookSharesRaw": "0",
+            "suppliedRaw": "0",
+            "borrowedStoredRaw": "80005321",
+            "exchangeRateStoredWad": "1000023950000000000"
+          }
+        ]
+      }
+    },
+    "sentinel_get_markets": {
+      "result": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47241811",
+          "hash": "0x77c7406f55e53df8cc29a5d3f8bdf5f8a30e7b90149a7b468352d7e177756039",
+          "timestamp": "1795700648",
+          "confirmations": "2"
+        },
+        "data": [
+          {
+            "controller": "0xEB9FCDe8C3502BcBb9dfF2A031AC9402baE7a951",
+            "collateralMarket": "0x1176cdef595A4e3bEBC3CfA9721a4C2a50cfa351",
+            "debtMarket": "0xB736dAA8784092C88ACABf6344DC360DcC5E411d",
+            "active": true,
+            "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+            "policyId": "0x9ef84d1131340546fad30750710d0f402f8cb7b2cbe74a6d8b008da66c286dd5",
+            "debtCashRaw": "120000000",
+            "totalDebtRaw": "80005321",
+            "borrowLtvBps": 7500,
+            "liquidationLtvBps": 8500,
+            "collateralSupplyCapRaw": "500000000000000000000",
+            "debtSupplyCapRaw": "1000000000",
+            "borrowCapRaw": "900000000",
+            "minDebtCashRaw": "10000000"
+          }
+        ]
+      }
+    },
+    "sentinel_get_rates": {
+      "result": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47241821",
+          "hash": "0xca34653d14974a97a999227e071ce6b002047fd152419f9f52b699b1696b04d6",
+          "timestamp": "1795700658",
+          "confirmations": "2"
+        },
+        "data": [
+          {
+            "book": "0x1176cdef595A4e3bEBC3CfA9721a4C2a50cfa351",
+            "model": "0x0796A0772Ef9aF1F610Fd460EFC008Cc53dCE23B",
+            "blocksPerYear": "31536000",
+            "borrowRatePerBlockWad": "634195839",
+            "supplyRatePerBlockWad": "0",
+            "simpleBorrowAprWad": "19999999978704000",
+            "simpleSupplyAprWad": "0"
+          },
+          {
+            "book": "0xB736dAA8784092C88ACABf6344DC360DcC5E411d",
+            "model": "0x0796A0772Ef9aF1F610Fd460EFC008Cc53dCE23B",
+            "blocksPerYear": "31536000",
+            "borrowRatePerBlockWad": "1268418670",
+            "supplyRatePerBlockWad": "456650156",
+            "simpleBorrowAprWad": "40000851177120000",
+            "simpleSupplyAprWad": "14400919319616000"
+          }
+        ]
+      }
+    },
+    "sentinel_get_policies": {
+      "result": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47241832",
+          "hash": "0xb2691264404960dce13c84bdca5d965ef46fa6322599ac306b2655349825a964",
+          "timestamp": "1795700669",
+          "confirmations": "2"
+        },
+        "data": [
+          {
+            "layer": "market",
+            "id": "0x9ef84d1131340546fad30750710d0f402f8cb7b2cbe74a6d8b008da66c286dd5",
+            "registry": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+            "entry": {
+              "chainId": "1952",
+              "processor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+              "circuitId": "1",
+              "processorCodeHash": "0x517d307fe4b14e4ff7b5b6a471683050078abadab2a5a74c985303a2516f54de",
+              "kind": 0,
+              "schemaVersion": 1,
+              "templateVersion": 0,
+              "gateCount": 63,
+              "netlistHash": "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+              "configHash": "0xf3203f5920dcf756a23524407169c93d0acb9a0a63397f6d893f6206af2149f6",
+              "metadataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "publisher": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"
+            }
+          },
+          {
+            "layer": "account",
+            "id": "0x0cd3ed21613f573d3c5232f9f521f84db52523b2f0fc4715233446129fc025f3",
+            "registry": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+            "entry": {
+              "chainId": "1952",
+              "processor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+              "circuitId": "2",
+              "processorCodeHash": "0x517d307fe4b14e4ff7b5b6a471683050078abadab2a5a74c985303a2516f54de",
+              "kind": 1,
+              "schemaVersion": 1,
+              "templateVersion": 0,
+              "gateCount": 87,
+              "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+              "configHash": "0xf86d0e324da289ecf444622df590d5ee4c55af1a17c38dbd00dc9482b2570871",
+              "metadataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "publisher": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"
+            }
+          }
+        ]
+      }
+    },
+    "sentinel_get_strategies": {
+      "result": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47241840",
+          "hash": "0xeebe60a5e5bc8a7b123e36bd2063ea499c4fe67c200a9aa3d4d1d5ae7e6d5bc1",
+          "timestamp": "1795700677",
+          "confirmations": "2"
+        },
+        "data": {
+          "name": "v1-auto-repay",
+          "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "triggerBps": 4500,
+          "opMask": 8,
+          "remainingDebtRaw": "2000000",
+          "expiry": "1796305268",
+          "repayOnly": true,
+          "grantLive": true
+        }
+      }
+    },
+    "sentinel_simulate_auto_repay": {
+      "result": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47241845",
+          "hash": "0x9e6f9d8674cc53c6d82ebae6b918427578c4511b694b63c81d90545988549acd",
+          "timestamp": "1795700682",
+          "confirmations": "2"
+        },
+        "data": {
+          "eligible": true,
+          "amountRaw": "2000000",
+          "asset": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+          "grant": {
+            "name": "v1-auto-repay",
+            "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+            "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+            "triggerBps": 4500,
+            "opMask": 8,
+            "remainingDebtRaw": "2000000",
+            "expiry": "1796305268",
+            "repayOnly": true,
+            "grantLive": true
+          }
+        }
+      }
+    }
+  }
+}

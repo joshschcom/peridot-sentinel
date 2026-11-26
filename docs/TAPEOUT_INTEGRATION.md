@@ -1,4 +1,4 @@
-# TapeOut integration on X Layer
+# Peridot Sentinel and TapeOut on X Layer
 
 On 25 November 2026, Peridot read an existing public circuit on X Layer mainnet and compared its outputs with TapeOut's reference evaluator. In a local Anvil fork of the same block, Peridot fabricated its two SDK policies on a factory-registered processor, then evaluated them through its Solidity adapter. Both policies passed all six of their vectors, including denials. A sponsor deployment on X Layer testnet remains unconfirmed.
 
@@ -105,4 +105,10 @@ cast call --rpc-url https://rpc.xlayer.tech --block 76844958 0xB04EB79D1A5EECaab
 
 ## Draft organizer request
 
-Peridot Markets has verified a live processor on X Layer and fabricated two policy circuits in a local fork. Our public financial demo targets X Layer testnet 1952. Could you share any official testnet factory, processor and component faucet addresses, or the licensed factory/processor/transistor source and reproducible build for a self-deployment? Would a testnet financial demo accompanied by public mainnet read evidence and clearly labeled fork-only Peridot circuit IDs meet the submission criteria? If live public circuit IDs are required, please identify the minimum acceptable demonstration and confirm the supported fabrication fees and assets.
+Peridot Sentinel has verified a live processor on X Layer and rehearsed three policy circuits on a private mainnet fork. Our public lending demo runs on X Layer testnet 1952 using mock assets and a development reference processor. Could you share any official testnet factory, processor and component faucet addresses, or the licensed factory/processor/transistor source and reproducible build for a self-deployment? Would a testnet financial demo accompanied by public mainnet read evidence and clearly labeled fork-only Peridot circuit IDs meet the submission criteria? If live public circuit IDs are required, please identify the minimum acceptable demonstration and confirm the supported fabrication fees and assets.
+
+## Sentinel Circuits execution program
+
+The expansion adds a 59-NAND stateless swap program alongside the 63-gate MARKET and 87-gate ACCOUNT programs. The freeze retains the two lending hashes. A proposal covering all three requires 209 NAND components and a third fabrication, with fees refreshed at proposal time. D14 reserves public signing for the founder. No public ID for the execution program follows from this rehearsal.
+
+On a fresh local fork of public block 76,846,436, CPU #410 accepted the compiled bytes, returned the expected five decisions, and accepted 100 bps while rejecting 101 bps. Direct eval estimates including transaction overhead ranged from 186,568 to 187,615 gas. A call through the Solidity binding estimated 193,648 gas at the 100 bps boundary. The public testnet uses a development reference processor. [Pinned fork transactions, netlist and gas](../evidence/session5-execution/fork-benchmark.json) · [Bit layout and D8(b) decision](coordination/INTERFACES_V2.md)

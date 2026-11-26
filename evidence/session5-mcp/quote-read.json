@@ -1,0 +1,22 @@
+{
+  "transport": "MCP stdio subprocess",
+  "server": {
+    "name": "sentinel-connect",
+    "version": "1.1.0"
+  },
+  "command": "quote",
+  "results": {
+    "sentinel_quote": {
+      "result": {
+        "provider": "OKX OnchainOS",
+        "kind": "informational external spot-swap quote",
+        "chainId": 196,
+        "from": "USDC",
+        "amountRaw": "1000000",
+        "status": "blocked",
+        "code": "OKX_CREDENTIALS_UNAVAILABLE",
+        "quote": null
+      }
+    }
+  }
+}

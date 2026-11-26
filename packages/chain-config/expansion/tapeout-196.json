@@ -1,0 +1,18 @@
+{
+  "chainId": 196,
+  "mode": "read-only",
+  "status": "awaiting-founder-publication",
+  "rpcUrl": "https://rpc.xlayer.tech",
+  "processor": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+  "circuitInfoOutputs": ["inputs","outputs","stateBits","gates"],
+  "abi": [
+    {"type":"function","name":"circuitInfo","stateMutability":"view","inputs":[{"name":"id","type":"uint256"}],"outputs":[{"type":"uint32"},{"type":"uint32"},{"type":"uint32"},{"type":"uint32"}]},
+    {"type":"function","name":"netlist","stateMutability":"view","inputs":[{"name":"id","type":"uint256"}],"outputs":[{"type":"bytes"}]},
+    {"type":"function","name":"eval","stateMutability":"view","inputs":[{"name":"id","type":"uint256"},{"name":"inputs","type":"bytes"}],"outputs":[{"type":"bytes"}]}
+  ],
+  "circuits": [
+    {"name":"Market Policy V1","schema":"lending-v1","kind":"MARKET","gates":63,"netlistHash":"0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09","publishedId":null,"publicReceipt":null},
+    {"name":"Sentinel Policy V1","schema":"lending-v1","kind":"ACCOUNT","gates":87,"netlistHash":"0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818","publishedId":null,"publicReceipt":null},
+    {"name":"Expanded Sentinel Policy V2","schema":"sentinel-execution-swap-v1","kind":"EXECUTION","gates":59,"netlistHash":"0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b","publishedId":null,"publicReceipt":null}
+  ]
+}

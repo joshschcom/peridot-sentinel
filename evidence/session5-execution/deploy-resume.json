@@ -1,0 +1,64 @@
+{
+  "label": "Private Anvil fork of 1952; interruption and expiry exercise",
+  "publicForkBlock": 47241872,
+  "interruption": "Deliberate process interruption after saving the unsigned swap deadline and before reserving the swap hash",
+  "elapsedSimulationSeconds": 90000,
+  "previousConfirmedSteps": 17,
+  "confirmedStepsAfterResume": 20,
+  "resumedOperations": [
+    [
+      "refresh-mockWokb-1795701552",
+      {
+        "hash": "0x44d24ab4987e7ffabc0bfacbcab336875018a5c3353ca3f502ff483619c02bb7",
+        "nonce": 35,
+        "to": "0xe3cb9fc831a82b0d08aea187a8e1de86d1d789e1",
+        "dataHash": "0x951f2cff43f30840069b971e41179e14ae39422d48b75b17a6612720a29a46b5",
+        "block": "47241909",
+        "blockHash": "0xe1d0ad4922088e0037e4357231c6208b80deacb57783ddac98e4155c7f904470",
+        "gas": "29014"
+      }
+    ],
+    [
+      "refresh-mockUsdc-1795701552",
+      {
+        "hash": "0x01e50c9cf27453c35df51aefc7020c507bd33d6818348ede8cb23a623ea55d78",
+        "nonce": 36,
+        "to": "0xe3cb9fc831a82b0d08aea187a8e1de86d1d789e1",
+        "dataHash": "0x90e8abba3adbfffe83e60c38e78b71b31237ffa0563b312597dc85877c347aa1",
+        "block": "47241910",
+        "blockHash": "0xe5b99ebb6d83cd1e3491ad714517147f1de4676115d2fb35062081246ccec1ae",
+        "gas": "29002"
+      }
+    ],
+    [
+      "swap-exact-input",
+      {
+        "hash": "0x9cd9cbaee0efad90440ced9303f0b96c79aa6f5e2f7ae6bbd7cd414bba15764b",
+        "nonce": 37,
+        "to": "0x31A16C0D011668A623520883e1e37D5f2f292E63",
+        "dataHash": "0x789beda4f062c624e12eac5ef7a4256aade277e75a34b2e0f7fcc30082869fb4",
+        "block": "47241911",
+        "blockHash": "0x1ec3ba1e56fa2f12c8c69d4184386fdf6651e1f20144953ac6a6ec54b6f2a829",
+        "gas": "252544"
+      }
+    ]
+  ],
+  "swap": {
+    "feePpm": 500,
+    "hardMaxLossBps": 500,
+    "policyMaxLossBps": 100,
+    "mockWokbDecimals": 18,
+    "mockUsdcDecimals": 6,
+    "receipt": "0x9cd9cbaee0efad90440ced9303f0b96c79aa6f5e2f7ae6bbd7cd414bba15764b",
+    "block": "47241911",
+    "amountIn": "1000000000000000000",
+    "amountOut": "79960000",
+    "denial": {
+      "method": "eth_call",
+      "block": "47241910",
+      "blockHash": "0xe5b99ebb6d83cd1e3491ad714517147f1de4676115d2fb35062081246ccec1ae",
+      "lossBps": 101,
+      "revertSelector": "0x84a6f8c3"
+    }
+  }
+}

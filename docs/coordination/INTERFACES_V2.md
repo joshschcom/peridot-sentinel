@@ -28,3 +28,11 @@ Version one of Connect reads the deployed v1 manifest. Stdio tools are sentinel_
 ## Integration status
 
 Design freeze only. Enable a route only after its verified manifest and UI acceptance exist. Fork receipts use a local chain ID and cannot identify public transactions. The December 2 cut line requires fork verification and UI integration.
+
+## Implemented ABI and external client
+
+The generated JSON ABIs live in `packages/chain-config/expansion/abi/`. Factory constructor arguments are lending adapter, swap adapter and execution policy. The factory exposes `createAccount(bytes32 accountPolicyId)` and `accountOf(address owner)`. Account grants use operation IDs 0 supply, 1 redeem, 2 borrow, 3 repay and 5 swap. The read-only `exposure()` returns collateral-book shares and stored underlying debt at the last accrual. The account emits `SwapSettled(operator,tokenIn,tokenOut,amountIn,amountOut,slippageBps)`. The bps field is the allowed loss implied by minOut. Read actual input and output from the receipt. A captured 101 bps rejection uses selector `0x84a6f8c3`. [Generated ABIs](../../packages/chain-config/expansion/abi) · [Fork receipts](../../evidence/session5-swap/fork.json)
+
+D15 adds three read-only tools to the nine in the freeze. `sentinel_quote({from,amountRaw})` returns an informational 196 quote or a typed blocked result. `sentinel_simulate_operator_borrow({})` runs a fixed 1 mUSD borrow as the repay-only operator using eth_call. `sentinel_get_execution_receipt({proposalId})` reconciles the signed transaction and confirmed post-state. Stdio exposes twelve tools and exactly one execute tool. Bigint values cross the JSON boundary as decimal strings. [SDK types](../../packages/sentinel-sdk/npm/index.d.mts) · [External client instructions](../../services/mcp/README.md)
+
+The 1952 expansion manifest is separate from M4. It binds `contracts`, `runtimeCodeHashes`, creation and source hashes, `m4.accountPolicy`, `execution`, `swap` and the public journal. `uiEnabled:false` means the deployment has not yet passed frontend acceptance. The local testnet fork has its own explicit profile label because the v1 registry requires the original chain ID even on a fork.

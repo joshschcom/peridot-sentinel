@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 2,
+  "profile": "local-fork-of-1952",
+  "chainId": 1952,
+  "label": "Local Anvil fork of public testnet with inventory-funded mock venue and development reference processor",
+  "uiEnabled": false,
+  "source": {
+    "baseSourceCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+    "expansionCommit": null,
+    "sourceHashes": {
+      "contracts/expansion/foundry.toml": "0x1ff9692f922fee4e578d25f11b80c415238b66b477f23c7a6cc35d31806a8c93",
+      "contracts/expansion/policy/compile.mjs": "0x72d341883954e7f153f74983304a6eb9f16e563b1e8fea8db941da6930f2ccfa",
+      "contracts/expansion/policy/execution.json": "0x13bbf70ac67d44e170d399b1d374fdc5e75e8ef58d8a81e6dbf1831a27760e94",
+      "contracts/expansion/script/deploy-expansion.mjs": "0x522556c3997388ac296da8106a8b4f6cbcdb3025f77266b823aade31a56e30bf",
+      "contracts/expansion/src/account/PeridotLendingAdapter.sol": "0x52e97a57dce1d792c7596db7a1df414a5d1d6c4a2384a41484281359c519a14e",
+      "contracts/expansion/src/account/SentinelAccountFactoryV2.sol": "0x49ae63fb4ba1cf6dd7a68b2a78ea977fee50d265b7b88f0f9f6f72c1a74c95cc",
+      "contracts/expansion/src/account/SentinelAccountV2.sol": "0x02cd258422c33856fc7720de51c9bd428a94ec654da755ab8c8b83fd259bee01",
+      "contracts/expansion/src/policy/ExecutionPolicy.sol": "0xf1b01e7227d9d12950b0d6a5d4d56abdf67103ea62bac803e029b47f0dcbfdf7",
+      "contracts/expansion/src/swap/SinglePoolSwapAdapter.sol": "0x14037b9944d07499821f915a4ba03df517934314404a98552a543a6c5db18933",
+      "contracts/expansion/src/swap/TestnetInventoryVenue.sol": "0xe893b615627d4cfc03ec30c5cb4f09878501abe6a45ac12533ed660c9b99cbad",
+      "contracts/lib/openzeppelin/interfaces/draft-IERC6093.sol": "0x880da465c203cec76b10d72dbd87c80f387df4102274f23eea1f9c9b0918792b",
+      "contracts/lib/openzeppelin/token/ERC20/ERC20.sol": "0xbf61ab2ae1d575a17ea58fbb99ca232baddcc4e0eeea180e84cbc74b0c348b31",
+      "contracts/lib/openzeppelin/token/ERC20/IERC20.sol": "0xe06a3f08a987af6ad2e1c1e774405d4fe08f1694b67517438b467cecf0da0ef7",
+      "contracts/lib/openzeppelin/token/ERC20/extensions/IERC20Metadata.sol": "0x70f2f713b13b7ce4610bcd0ac9fec0f3cc43693b043abcb8dc40a42a726eb330",
+      "contracts/lib/openzeppelin/utils/Context.sol": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
+      "contracts/lib/openzeppelin/utils/Panic.sol": "0xf7fe324703a64fc51702311dc51562d5cb1497734f074e4f483bfb6717572d7a",
+      "contracts/lib/openzeppelin/utils/math/Math.sol": "0xa00be322d7db5786750ce0ac7e2f5b633ac30a5ed5fa1ced1e74acfc19acecea",
+      "contracts/lib/openzeppelin/utils/math/SafeCast.sol": "0x195533c86d0ef72bcc06456a4f66a9b941f38eb403739b00f21fd7c1abd1ae54",
+      "contracts/src/markets/TestProfile.sol": "0xd887f473d665b2efd27cb0a735de78aecced72b4d5e50b13ce5c0d29896d667b",
+      "contracts/src/mocks/TestnetOracle.sol": "0xd0548c1deaf860f42d86b0456ed3571774a5347c3e4a8dd5cea8d19d7dfe5569",
+      "contracts/src/mocks/TestnetToken.sol": "0x8b017e8aec8a51dc9b5399e77450cda9d5b3804e94675f862a1b7b78a6633aac",
+      "contracts/src/policies/DevelopmentReferenceProcessor.sol": "0x809823bdb79793701fddf95aa8a2f1e5e8e4c135c30c45548668b061ace51fcf",
+      "contracts/src/policies/PolicyRegistry.sol": "0x9c0573c6e652c5f239d31b9c5f1d43d6507a5b23990a502850bb053650e40bc3",
+      "packages/chain-config/deployments/1952.json": "0x8a9bc6a5a511526cc1af701a93fc08506a0913cdce0b8ff46b9ca8387c509970"
+    },
+    "creationHashes": {
+      "mockWokb": "0xde40408df177d9afbf76463760d6d18c51396fb12948bbb6f58b2d2705d26c71",
+      "mockUsdc": "0xde40408df177d9afbf76463760d6d18c51396fb12948bbb6f58b2d2705d26c71",
+      "mockOracle": "0x8fcecf250157bdb6a6ae1a2f0d19c0372bf1e36f79ff9c2c204298f6dda8c24d",
+      "cpu": "0xdfd1f4085672516da89a992ea6cef6d358706c4980face4aa2debbbf94f55562",
+      "source": "0xee3a20c810bc1e76904e3a4b64ad0a6de072993eb003136fd69bac7e71fd5569",
+      "venue": "0x15964aeef104e043a9bcc73815a42783d65005063a689fbcaa4b4f77bed037d3",
+      "swap": "0x81f662d6e3562985be86af447c4338bd5497b4e2a3eba3de8b349ddeb0c177ff",
+      "lending": "0x9561dd3d25086339590504c1b74971efc60bc818c7f9aa6b07a9082706a9aa01",
+      "execution": "0xb7758a68c1b740eb958270b71647657da2acd6eb2a295ec38d719a41200041e5",
+      "factory": "0x46c7887c8666a6860c47c7be3c979f45817daa48f1fc86a0c0bf79f01ee9a289",
+      "account": "0x5792559cc6d5dcfb0ed9dcd072bf93e5710dd0b2d2890486e2ea4814771b147d"
+    }
+  },
+  "contracts": {
+    "mockWokb": "0xfc90fdb8a6c4c7e2465f462cd9a74bf16a1ad89e",
+    "mockUsdc": "0x2897bbda67e3f423d33b6bcc2472e312e4552005",
+    "mockOracle": "0xc4c5cf18c166795a6d84dd2fe53b8eecc80beb91",
+    "cpu": "0x5606bd152c9d32dccf49507d866a485e962a1c0b",
+    "execution": "0xf46ed2d5c15052bb94b83b2ea9cb9e577400d7b7",
+    "source": "0xfb3257e5e7155367736fb0a4a5c334645c0e2f34",
+    "venue": "0xf058595393d7ba317d2c3d11394c980218b6799b",
+    "swap": "0xb985f14a97f415c10d4283162e29632f79a53924",
+    "lending": "0x5c28516838134481ea988364323c924a9f2ce6ce",
+    "factory": "0x81bae67960cbd86e22cc40d69c98485dcc9d8ae1",
+    "account": "0x9d3c73F6981d29F6575195402C19a2fc4EAd815D"
+  },
+  "runtimeCodeHashes": {
+    "mockWokb": "0x607ad62d751e0292f17a3e6877b289b73e8b7498273df14dac1b9540dee7881b",
+    "mockUsdc": "0x708bccc84cad71b9869bbe839a229a6715abef2a0e5054b04c43e73905b11f0f",
+    "mockOracle": "0x3b74798e67f295bbf8294b89d820baa5aa1e7ee676f388a37819b9578b368b57",
+    "cpu": "0x517d307fe4b14e4ff7b5b6a471683050078abadab2a5a74c985303a2516f54de",
+    "execution": "0x3490650a2c90050c7d310a4a07a8c29a9ac713688fe13e27b48b402409fa9c5b",
+    "source": "0x0d6212af25307b63fe6672555d179450a1a4be0e32b5e85ca86a89fe877c1d80",
+    "venue": "0xcf7af43e59f42b1cd64787d059dab2bc4a1b7a7db7f9a2ef3ece62b76c43422a",
+    "swap": "0x997d176daeec36fd898b304b9ba1e87db3e5ed3e2972d7abba6ae219cbe1cb7d",
+    "lending": "0x685aaa8e9fae20b6d8975f78def0000e07971debf3551aa3089f1d61dab7d805",
+    "factory": "0x338f35ce3699c8430e82408587cf2fd8d8c660964756d55e2ee2852cb98d2a67",
+    "account": "0x6fc73d67bc31c5606617c1fb0e73963edde3ad8e618dd98494a20336c5cc2ed6"
+  },
+  "m4": {
+    "controller": "0xEB9FCDe8C3502BcBb9dfF2A031AC9402baE7a951",
+    "accountPolicy": "0x0cd3ed21613f573d3c5232f9f521f84db52523b2f0fc4715233446129fc025f3"
+  },
+  "execution": {
+    "mode": "development-reference",
+    "circuitId": "1",
+    "netlistHash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b"
+  },
+  "swap": {
+    "feePpm": 500,
+    "hardMaxLossBps": 500,
+    "policyMaxLossBps": 100,
+    "mockWokbDecimals": 18,
+    "mockUsdcDecimals": 6,
+    "receipt": "0x2cc6cbd257d895dd3d340c20b33501bc5e2e20aa5274664f82412db45f20fefb",
+    "block": "47241890",
+    "amountIn": "1000000000000000000",
+    "amountOut": "79960000",
+    "denial": {
+      "method": "eth_call",
+      "block": "47241889",
+      "blockHash": "0x44f01950f5e3cf0d11ce125fa236d2a1fb786b163b11126268aeacaeddb0896d",
+      "lossBps": 101,
+      "revertSelector": "0x84a6f8c3"
+    }
+  },
+  "journal": "deployments/expansion/local-fork-of-1952/journal.json"
+}

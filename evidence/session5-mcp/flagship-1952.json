@@ -1,0 +1,416 @@
+{
+  "schema": "sentinel-connect/demo-v1",
+  "transport": "External official MCP Client over stdio",
+  "chainId": 1952,
+  "server": {
+    "name": "sentinel-connect",
+    "version": "1.1.0"
+  },
+  "steps": {
+    "1": {
+      "account": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47246594",
+          "hash": "0xa496b5e31eff1913cd26b9b5be572656174a6c693c1c11bae0dcbc58c7436883",
+          "timestamp": "1795705431",
+          "confirmations": "2"
+        },
+        "data": {
+          "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+          "netUsdWad": "159994679000000000000",
+          "amounts": [
+            {
+              "asset": "0xe1dA369f92596c3c10c353E200c05343C9F19c92",
+              "priceUsdWad": "1600000000000000000",
+              "idleUsdWad": "0",
+              "suppliedUsdWad": "160000000000000000000",
+              "debtUsdWad": "0"
+            },
+            {
+              "asset": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+              "priceUsdWad": "1000000000000000000",
+              "idleUsdWad": "80000000000000000000",
+              "suppliedUsdWad": "0",
+              "debtUsdWad": "80005321000000000000"
+            }
+          ],
+          "accounting": "Stored book balances at the pinned block; idle underlying shown separately."
+        }
+      },
+      "positions": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47246606",
+          "hash": "0xc97afc8b54edd28cbee8d0ac08fec7b5480ec2d291024630cc14d2f4ce076c30",
+          "timestamp": "1795705443",
+          "confirmations": "2"
+        },
+        "data": [
+          {
+            "kind": "collateral",
+            "asset": "0xe1dA369f92596c3c10c353E200c05343C9F19c92",
+            "book": "0x1176cdef595A4e3bEBC3CfA9721a4C2a50cfa351",
+            "symbol": "mCOL",
+            "decimals": 18,
+            "idleRaw": "0",
+            "bookSharesRaw": "100000000000000000000",
+            "suppliedRaw": "100000000000000000000",
+            "borrowedStoredRaw": "0",
+            "exchangeRateStoredWad": "1000000000000000000"
+          },
+          {
+            "kind": "debt",
+            "asset": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+            "book": "0xB736dAA8784092C88ACABf6344DC360DcC5E411d",
+            "symbol": "mUSD",
+            "decimals": 6,
+            "idleRaw": "80000000",
+            "bookSharesRaw": "0",
+            "suppliedRaw": "0",
+            "borrowedStoredRaw": "80005321",
+            "exchangeRateStoredWad": "1000023950000000000"
+          }
+        ]
+      }
+    },
+    "2": {
+      "policies": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47246617",
+          "hash": "0xee5e433a003f40b1f10f2cafeed2856f7224341acb4fdff8668802822a8477e3",
+          "timestamp": "1795705454",
+          "confirmations": "2"
+        },
+        "data": [
+          {
+            "layer": "market",
+            "id": "0x9ef84d1131340546fad30750710d0f402f8cb7b2cbe74a6d8b008da66c286dd5",
+            "registry": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+            "entry": {
+              "chainId": "1952",
+              "processor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+              "circuitId": "1",
+              "processorCodeHash": "0x517d307fe4b14e4ff7b5b6a471683050078abadab2a5a74c985303a2516f54de",
+              "kind": 0,
+              "schemaVersion": 1,
+              "templateVersion": 0,
+              "gateCount": 63,
+              "netlistHash": "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+              "configHash": "0xf3203f5920dcf756a23524407169c93d0acb9a0a63397f6d893f6206af2149f6",
+              "metadataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "publisher": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"
+            }
+          },
+          {
+            "layer": "account",
+            "id": "0x0cd3ed21613f573d3c5232f9f521f84db52523b2f0fc4715233446129fc025f3",
+            "registry": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+            "entry": {
+              "chainId": "1952",
+              "processor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+              "circuitId": "2",
+              "processorCodeHash": "0x517d307fe4b14e4ff7b5b6a471683050078abadab2a5a74c985303a2516f54de",
+              "kind": 1,
+              "schemaVersion": 1,
+              "templateVersion": 0,
+              "gateCount": 87,
+              "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+              "configHash": "0xf86d0e324da289ecf444622df590d5ee4c55af1a17c38dbd00dc9482b2570871",
+              "metadataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "publisher": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"
+            }
+          }
+        ]
+      },
+      "authorization": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47246626",
+          "hash": "0x79deb1908d45c742b1e75d4a2c7c9d912a25f7a2eeb0daf9bab5ddfcf2db9dca",
+          "timestamp": "1795705463",
+          "confirmations": "2"
+        },
+        "data": {
+          "name": "v1-auto-repay",
+          "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "triggerBps": 4500,
+          "opMask": 8,
+          "remainingDebtRaw": "2000000",
+          "expiry": "1796305268",
+          "repayOnly": true,
+          "grantLive": true
+        }
+      }
+    },
+    "3": {
+      "provider": "OKX OnchainOS",
+      "kind": "informational external spot-swap quote",
+      "chainId": 196,
+      "from": "USDC",
+      "amountRaw": "1000000",
+      "status": "blocked",
+      "code": "OKX_CREDENTIALS_UNAVAILABLE",
+      "quote": null
+    },
+    "4": {
+      "simulation": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47246635",
+          "hash": "0xc0b47c98e5a162581696846d24d6e9aa30c83b6e9845aeb98aa319862d40cd41",
+          "timestamp": "1795705472",
+          "confirmations": "2"
+        },
+        "data": {
+          "eligible": true,
+          "amountRaw": "2000000",
+          "asset": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+          "grant": {
+            "name": "v1-auto-repay",
+            "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+            "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+            "triggerBps": 4500,
+            "opMask": 8,
+            "remainingDebtRaw": "2000000",
+            "expiry": "1796305268",
+            "repayOnly": true,
+            "grantLive": true
+          }
+        }
+      },
+      "proposed": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47246644",
+          "hash": "0x84ee0952918dec473dc72f1d9a9c40d4f62890d4a330fd17d57a92324e28f9b2",
+          "timestamp": "1795705481",
+          "confirmations": "2"
+        },
+        "data": {
+          "eligible": true,
+          "amountRaw": "2000000",
+          "asset": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+          "grant": {
+            "name": "v1-auto-repay",
+            "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+            "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+            "triggerBps": 4500,
+            "opMask": 8,
+            "remainingDebtRaw": "2000000",
+            "expiry": "1796305268",
+            "repayOnly": true,
+            "grantLive": true
+          }
+        },
+        "proposal": {
+          "id": "0xa620a277235eec0880b7e0a13ccd398da279fb1b1e052f8dfa0bbc9197c5f043",
+          "chainId": 1952,
+          "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "commit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+          "selector": "0x59b632ce",
+          "valueWei": 0,
+          "amountRaw": "2000000",
+          "grant": {
+            "name": "v1-auto-repay",
+            "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+            "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+            "triggerBps": 4500,
+            "opMask": 8,
+            "remainingDebtRaw": "2000000",
+            "expiry": "1796305268",
+            "repayOnly": true,
+            "grantLive": true
+          },
+          "block": {
+            "number": "47246644",
+            "hash": "0x84ee0952918dec473dc72f1d9a9c40d4f62890d4a330fd17d57a92324e28f9b2",
+            "timestamp": "1795705481",
+            "confirmations": "2"
+          },
+          "validUntil": "1795705781",
+          "settlement": "Final amount follows the on-chain grant, debt and account funds at inclusion."
+        }
+      }
+    },
+    "5": {
+      "state": "confirmed",
+      "proposalId": "0xa620a277235eec0880b7e0a13ccd398da279fb1b1e052f8dfa0bbc9197c5f043",
+      "receipt": {
+        "hash": "0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f",
+        "blockNumber": "47246674",
+        "blockHash": "0xb362ae95d632c0fe93501a82e11391f02b4559a077174a222420caedde1ab88d",
+        "gasUsed": "227493",
+        "status": "success",
+        "from": "0x2c7e78e47debc84efac28d336f98d54b4c1fce88",
+        "to": "0xad7c0077cbdde5cbbcdd207f612b124f0c3776a0",
+        "nonce": 1,
+        "selector": "0x59b632ce",
+        "valueWei": "0",
+        "explorer": "https://www.okx.com/web3/explorer/xlayer-test/tx/0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f"
+      },
+      "actual": {
+        "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+        "amount": "2000000",
+        "ltvBeforeBps": "5001",
+        "ltvAfterBps": "4876"
+      },
+      "repayBookEvent": {
+        "payer": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+        "borrower": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+        "repayAmount": "2000000",
+        "accountBorrows": "78005832",
+        "totalBorrows": "78005832"
+      },
+      "beforeBlock": {
+        "number": "47246673",
+        "hash": "0xf5291873369d18f446124bf5f8557d9f999927f90d207082f7d52ed9324c0b5b",
+        "timestamp": "1795705510",
+        "confirmations": "6"
+      },
+      "before": {
+        "debtStoredRaw": "80005321",
+        "walletDebtAssetRaw": "80000000",
+        "remainingGrantRaw": "2000000"
+      },
+      "afterBlock": {
+        "number": "47246674",
+        "hash": "0xb362ae95d632c0fe93501a82e11391f02b4559a077174a222420caedde1ab88d"
+      },
+      "after": {
+        "debtStoredRaw": "78005832",
+        "walletDebtAssetRaw": "78000000",
+        "remainingGrantRaw": "0"
+      },
+      "stateScope": "Before/after are block-end snapshots. Emitted events identify the exact transaction amount.",
+      "confirmations": "3",
+      "chainId": 1952
+    },
+    "6": {
+      "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+      "chainId": 1952,
+      "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+      "block": {
+        "number": "47246682",
+        "hash": "0x0f5b3ac8074db43cac54d78c924795ee5ac1d4e6d54f8ff299dd9258644ed96b",
+        "timestamp": "1795705519",
+        "confirmations": "2"
+      },
+      "data": {
+        "method": "eth_call",
+        "operation": "borrow",
+        "amountRaw": "1000000",
+        "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+        "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+        "rejected": true,
+        "error": "OperatorNotAuthorized",
+        "args": [
+          "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          2
+        ],
+        "revertData": "0x749338670000000000000000000000002c7e78e47debc84efac28d336f98d54b4c1fce880000000000000000000000000000000000000000000000000000000000000002"
+      }
+    },
+    "7": {
+      "transaction": {
+        "source": "canonical transaction receipt",
+        "state": "confirmed",
+        "proposalId": "0xa620a277235eec0880b7e0a13ccd398da279fb1b1e052f8dfa0bbc9197c5f043",
+        "receipt": {
+          "hash": "0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f",
+          "blockNumber": "47246674",
+          "blockHash": "0xb362ae95d632c0fe93501a82e11391f02b4559a077174a222420caedde1ab88d",
+          "gasUsed": "227493",
+          "status": "success",
+          "from": "0x2c7e78e47debc84efac28d336f98d54b4c1fce88",
+          "to": "0xad7c0077cbdde5cbbcdd207f612b124f0c3776a0",
+          "nonce": 1,
+          "selector": "0x59b632ce",
+          "valueWei": "0",
+          "explorer": "https://www.okx.com/web3/explorer/xlayer-test/tx/0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f"
+        },
+        "actual": {
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "amount": "2000000",
+          "ltvBeforeBps": "5001",
+          "ltvAfterBps": "4876"
+        },
+        "repayBookEvent": {
+          "payer": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "borrower": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "repayAmount": "2000000",
+          "accountBorrows": "78005832",
+          "totalBorrows": "78005832"
+        },
+        "beforeBlock": {
+          "number": "47246673",
+          "hash": "0xf5291873369d18f446124bf5f8557d9f999927f90d207082f7d52ed9324c0b5b",
+          "timestamp": "1795705510",
+          "confirmations": "24"
+        },
+        "before": {
+          "debtStoredRaw": "80005321",
+          "walletDebtAssetRaw": "80000000",
+          "remainingGrantRaw": "2000000"
+        },
+        "afterBlock": {
+          "number": "47246674",
+          "hash": "0xb362ae95d632c0fe93501a82e11391f02b4559a077174a222420caedde1ab88d"
+        },
+        "after": {
+          "debtStoredRaw": "78005832",
+          "walletDebtAssetRaw": "78000000",
+          "remainingGrantRaw": "0"
+        },
+        "stateScope": "Before/after are block-end snapshots. Emitted events identify the exact transaction amount.",
+        "confirmations": "19",
+        "chainId": 1952
+      },
+      "updatedAuthorization": {
+        "scope": "X Layer testnet / v1 isolated market / mock tokens and owner-set prices / development reference processor",
+        "chainId": 1952,
+        "deploymentCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+        "block": {
+          "number": "47246699",
+          "hash": "0x1083d41375d71fc4b3ec83e800e34c68e6350d8de537089eb8d8aabe480d8918",
+          "timestamp": "1795705536",
+          "confirmations": "2"
+        },
+        "data": {
+          "name": "v1-auto-repay",
+          "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "triggerBps": 4500,
+          "opMask": 8,
+          "remainingDebtRaw": "0",
+          "expiry": "1796305268",
+          "repayOnly": true,
+          "grantLive": false
+        }
+      }
+    }
+  },
+  "outcome": {
+    "execution": "confirmed",
+    "borrow": "rejected in read-only eth_call",
+    "quote": "blocked",
+    "hash": "0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f",
+    "remainingGrantRaw": "0"
+  }
+}

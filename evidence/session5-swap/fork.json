@@ -1,0 +1,415 @@
+{
+  "label": "Anvil 31337; simulation on a fork of X Layer 196",
+  "upstream": {
+    "rpc": "https://rpc.xlayer.tech",
+    "block": "76931173",
+    "hash": "0x10908ada4cb486c8d506ba492aca1927e47a5a51e56f19e444f06f46c3acb574",
+    "timestamp": "1795700209"
+  },
+  "owner": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  "operator": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+  "ledger": {
+    "pool": "0x9f73888Fb725A3409548BC8d2e42365AC063E148",
+    "router": "0x4f0C28f5926AFDA16bf2506D5D9e57Ea190f9bcA",
+    "factory": "0x4B2ab38DBF28D31D467aA8993f6c2585981D6804",
+    "usdc": "0xB6CEceAB302E2E4948951eE7843FC24E92933061",
+    "wokb": "0xe538905cf8410324e03A5A23C1c177a474D59b2b",
+    "cpu": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+    "pass": "0x3896076be165d6a7ec2a70ccf6876673fe245007"
+  },
+  "deployed": {
+    "TestnetOracle": {
+      "address": "0x6e989c01a3e3a94c973a62280a72ec335598490e",
+      "runtimeHash": "0x3e6419ae57acc5d5c5a340809d68d1bb72a20092ed931a922195e0430841d9ef"
+    },
+    "DemoRateModel": {
+      "address": "0xf6168876932289d073567f347121a267095f3dd6",
+      "runtimeHash": "0xea750e811ab6cdaaa1c2c2d04c8e5f72761209020b3ba6da81a4832e075db6d9"
+    },
+    "MarketPToken": {
+      "address": "0x94b75aa39bec4cb15e7b9593c315af203b7b847f",
+      "runtimeHash": "0xb236917cb1793422ee10e2ee6207021d4c2a6c170bd7d00eca6c5921ddbead54"
+    },
+    "PolicyRegistry": {
+      "address": "0x13d69cf7d6ce4218f646b759dcf334d82c023d8e",
+      "runtimeHash": "0xafc1fe0972622812119fa572eba1abe839e36ef7065953e7d8536b7af31e5d61"
+    },
+    "TapeOutPolicyAdapter": {
+      "address": "0x8cdbd76bb6cf0293e07deeeed460cf579873af44",
+      "runtimeHash": "0xd806c2c42408f97b850ce0b3141853e6ebfa787538e8a9358ec84591ac60502c"
+    },
+    "MarketFactory": {
+      "address": "0x4f41b941940005ae25d5ecb0f01badbc7065e2dd",
+      "runtimeHash": "0x565c061df226e171c737677b2ff144ab6b8e84b2f727dfbaafe1bf441ed6b44c"
+    },
+    "PeridotLendingAdapter": {
+      "address": "0x558785b76e29e5b9f8bf428936480b49d71f3d76",
+      "runtimeHash": "0x3df54ee4d1f33178ed510bcee85038424d81884bbe67148c2476ce49f3685623"
+    },
+    "ChainlinkSwapQuoteSource": {
+      "address": "0x71550ac84ba7599220eaef5c756b847cb4486606",
+      "runtimeHash": "0x8b2b7b945a7ba85f2203a7489555250402ddd8789aa6020d158bc504c65b0503"
+    },
+    "SinglePoolSwapAdapter": {
+      "address": "0x36b22905a1211a55e0d62ef46720172e2b0f24bd",
+      "runtimeHash": "0x661cbcc5ec01a731807b97071cfa46a0c6d0c9343333614effcdb9f928b3e4ed"
+    },
+    "ExecutionPolicy": {
+      "address": "0xe8bbb5f22e6b3d6cd9157b8fd2b59c076e57a9fc",
+      "runtimeHash": "0x12ccefe6756dd1efc306a6cb36087fcad808f315e9c036e61a5fe171d0dc813d"
+    },
+    "SentinelAccountFactoryV2": {
+      "address": "0x050499ebdbbbc1216011de07a48b5182c983ae74",
+      "runtimeHash": "0x1b8bda2b5db9d065ee4c0a1181ab0947df2197642ac777f98f0118df452afdd2"
+    }
+  },
+  "market": "0x7b06b26f55B118c0a5035Db71685352a39F8cBCe",
+  "account": "0x476BE03038Fd6ad005B8C1C2Da3285841E2615f9",
+  "circuits": [
+    {
+      "kind": "MARKET",
+      "id": "2",
+      "netlistHash": "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+      "gateCount": 63,
+      "policyId": "0x70f1c1097ca68297881b253d999569d5eff4ca428c576be4fbabfc5759c740df"
+    },
+    {
+      "kind": "ACCOUNT",
+      "id": "3",
+      "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+      "gateCount": 87,
+      "policyId": "0x970ad2d7b4a942cd6fdb8231e31f322d70e16c6029a2d07c46757182beb94325"
+    },
+    {
+      "kind": "EXECUTION",
+      "id": "4",
+      "netlistHash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b",
+      "gateCount": 59
+    }
+  ],
+  "amount": "1000000000000000000",
+  "expected": "82232046",
+  "floor": "78120444",
+  "timestamp": "1795623517",
+  "allowedMin": "81450842",
+  "deniedMin": "81401503",
+  "deadline": "1795700809",
+  "denialSelector": "0x84a6f8c3",
+  "deniedStateMatchedBefore": true,
+  "before": {
+    "accountWOKB": "2000000000000000000",
+    "accountUSDC": "0",
+    "operatorUSDC": "0",
+    "poolWOKB": "8174184186005683174146",
+    "poolUSDC": "395386224612",
+    "accountToAdapter": "0",
+    "adapterToRouter": "0",
+    "adapterWOKB": "0",
+    "remaining": "2000000000000000000"
+  },
+  "after": {
+    "accountWOKB": "1000000000000000000",
+    "accountUSDC": "82164632",
+    "operatorUSDC": "0",
+    "poolWOKB": "8175184186005683174146",
+    "poolUSDC": "395304059980",
+    "accountToAdapter": "0",
+    "adapterToRouter": "0",
+    "adapterWOKB": "0",
+    "remaining": "1000000000000000000"
+  },
+  "poolEvent": {
+    "sender": "0x4f0C28f5926AFDA16bf2506D5D9e57Ea190f9bcA",
+    "recipient": "0x476BE03038Fd6ad005B8C1C2Da3285841E2615f9",
+    "amount0": "-82164632",
+    "amount1": "1000000000000000000",
+    "sqrtPriceX96": "8738518679297004081107256609573288",
+    "liquidity": "211740884568132709",
+    "tick": 232229
+  },
+  "settledEvent": {
+    "operator": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    "tokenIn": "0xe538905cf8410324e03A5A23C1c177a474D59b2b",
+    "tokenOut": "0xB6CEceAB302E2E4948951eE7843FC24E92933061",
+    "amountIn": "1000000000000000000",
+    "amountOut": "82164632",
+    "slippageBps": 95
+  },
+  "receipts": [
+    {
+      "label": "Mint NAND components on fork",
+      "hash": "0x976904f0c44e66cd3d4ad7c13a0025fb851acabc50ce4f3367040b8c978b775e",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x3896076be165d6a7ec2a70ccf6876673fe245007",
+      "created": null,
+      "block": "76931174",
+      "blockHash": "0x38595a08e973dc3b0798befa75bc41497394eb76dfdae13add56e2ac0e2f3767",
+      "gas": "83599"
+    },
+    {
+      "label": "Fabricate MARKET on fork",
+      "hash": "0x57842734b266ef3617e112b74b8c68cc5e37e78237b736f3283a44589ce86a2b",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+      "created": null,
+      "block": "76931175",
+      "blockHash": "0xc3a4f1c1a96fd237645380f58d8e43e2d64479616fd06135c9d1f49c07c9a5c8",
+      "gas": "402065"
+    },
+    {
+      "label": "Fabricate ACCOUNT on fork",
+      "hash": "0x169a5b36ccf8e037155b4fca6e68f408888ad79d8d0643681ccb41181ebc3393",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+      "created": null,
+      "block": "76931176",
+      "blockHash": "0x0e4c4ceb8ca5ad2ef1af91e8fa4abb5b348226d80490e206c77b8ef6aae03bfa",
+      "gas": "453116"
+    },
+    {
+      "label": "Fabricate EXECUTION on fork",
+      "hash": "0x4ab8988dc93e4c1d4aa7527d124bbcabc9846238d99cfdc5dbac5bd786c3c419",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+      "created": null,
+      "block": "76931177",
+      "blockHash": "0x015dc527074b83bfef6aa973d8a029edb551d252c8561ab3a0760d85486b107e",
+      "gas": "368806"
+    },
+    {
+      "label": "Deploy TestnetOracle",
+      "hash": "0x990c2ad1c300f7c28580340c7e003fa3d009c5df1d002803f23deb7e90430b09",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0x6e989c01a3e3a94c973a62280a72ec335598490e",
+      "block": "76931178",
+      "blockHash": "0x34877a33713e4d3cf4ef058b321ccaf280e1b58947c1904cb1189cb69b5b481f",
+      "gas": "231342"
+    },
+    {
+      "label": "Deploy DemoRateModel",
+      "hash": "0x6b61ad8cdd0bc8787e0f31b84cbf358b5799a076c5fd7e3cc183ee2b00a20e1d",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0xf6168876932289d073567f347121a267095f3dd6",
+      "block": "76931179",
+      "blockHash": "0xe02f9369961a74c41dfc0e5e039aa9e1ec29d76a9346d37b4146528d1487e490",
+      "gas": "312417"
+    },
+    {
+      "label": "Deploy MarketPToken",
+      "hash": "0x285f2b673a4e2839a441779b26a563e52d7a2aea72052deb6cb9b993256462a1",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0x94b75aa39bec4cb15e7b9593c315af203b7b847f",
+      "block": "76931180",
+      "blockHash": "0x62e1febc14f10bd93840da45c3680e54f94559d06fd6b2e7bdfca4c4e6e3ed00",
+      "gas": "4968511"
+    },
+    {
+      "label": "Deploy PolicyRegistry",
+      "hash": "0xce4f0d6b90841eac7bd31d60173f48a5fe1fcf27a4baa0615a8b87f76d8de201",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0x13d69cf7d6ce4218f646b759dcf334d82c023d8e",
+      "block": "76931181",
+      "blockHash": "0x3b19301481bccd3d3c6d18c35e5afa200777891e3209ea95141db4794210bad3",
+      "gas": "1223230"
+    },
+    {
+      "label": "Deploy TapeOutPolicyAdapter",
+      "hash": "0x03da4ded7ffef4f05886f084b2b303c4d6a1a32b1377839dbf2dbce078578be3",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0x8cdbd76bb6cf0293e07deeeed460cf579873af44",
+      "block": "76931182",
+      "blockHash": "0x69724ef89b5a69e30e8fb875c7350c6cb15cf6560578daf157d4743706785998",
+      "gas": "299141"
+    },
+    {
+      "label": "Trust pinned fork CPU",
+      "hash": "0x7e851c95aea1861005ec1c3398bb6ea3bd238ae2c68c8210191435ccbfb52fc4",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x13d69cf7d6ce4218f646b759dcf334d82c023d8e",
+      "created": null,
+      "block": "76931183",
+      "blockHash": "0x67471bcab10db03a9b5d285ef848001ce87d6f9cc77b0bb678032480221234ba",
+      "gas": "48374"
+    },
+    {
+      "label": "Register MARKET policy",
+      "hash": "0x578ba05a2bffa545fe977e756d73478f9b113d75e57e011b2d1a01447503801e",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x13d69cf7d6ce4218f646b759dcf334d82c023d8e",
+      "created": null,
+      "block": "76931184",
+      "blockHash": "0x9bcf4a57f28386d6fbda40a0ce33cf625142b8dd0f5ce28c4d6ac4cc3e4ef165",
+      "gas": "267081"
+    },
+    {
+      "label": "Register ACCOUNT policy",
+      "hash": "0xdbbcf9cfd970101a66d4f75e1c0d7d9c354707dacdd7520623ac1ff577cc7c51",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x13d69cf7d6ce4218f646b759dcf334d82c023d8e",
+      "created": null,
+      "block": "76931185",
+      "blockHash": "0xfc98dc24c2800933c5f2cdc2a4451106f51c81e6da69d38bcbf6d87db138ae7f",
+      "gas": "280282"
+    },
+    {
+      "label": "Deploy MarketFactory",
+      "hash": "0x47a233c2d73781945a4d67844d8e4d770fcf9268d3a12aeb7eea3fc87b41da37",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0x4f41b941940005ae25d5ecb0f01badbc7065e2dd",
+      "block": "76931186",
+      "blockHash": "0xca97c201541ecf0d134a538f5c8971bb6fa5824cd94c66d7ff93fddbe67eeb33",
+      "gas": "3226873"
+    },
+    {
+      "label": "Create isolated market on fork",
+      "hash": "0xf58de2b57f7cbcdf7b06d1f7399d286949f7b323d8b85d2d71294360f4abc566",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x4f41b941940005ae25d5ecb0f01badbc7065e2dd",
+      "created": null,
+      "block": "76931187",
+      "blockHash": "0xa69e87eaaa1c89f0e85af31235830abb60977e1a14f45e7cae8158b7823e2dfe",
+      "gas": "3143081"
+    },
+    {
+      "label": "Deploy PeridotLendingAdapter",
+      "hash": "0xe99110203390e4988f83729f893f03d90d03c3da7ba665b6e4568ee7b3e13138",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0x558785b76e29e5b9f8bf428936480b49d71f3d76",
+      "block": "76931188",
+      "blockHash": "0x1bce08ffbd3d43232f04adbdb60ff3af78506a808f60646648c2d485a26be951",
+      "gas": "433675"
+    },
+    {
+      "label": "Deploy ChainlinkSwapQuoteSource",
+      "hash": "0x5d52d80663cbd96d9f4664813e25f95cc71180471ecadb7ead60901a10804049",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0x71550ac84ba7599220eaef5c756b847cb4486606",
+      "block": "76931189",
+      "blockHash": "0x7dffe16cf267fcf99daf6cdc39206200686b59321eaeb0ff43ff6bf776a47116",
+      "gas": "386918"
+    },
+    {
+      "label": "Deploy SinglePoolSwapAdapter",
+      "hash": "0x43db43f8ce2fc76b8ac0ccb56be68daa3e2bded2ee5144519b252fe85d8a4533",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0x36b22905a1211a55e0d62ef46720172e2b0f24bd",
+      "block": "76931190",
+      "blockHash": "0xe8b92180d80a6987823e554b07359b9bed1d053cd754a028e05c8a4ff6b87d37",
+      "gas": "1021761"
+    },
+    {
+      "label": "Deploy ExecutionPolicy",
+      "hash": "0x4a1bb140ebdbf91b58e1e0ce2fba07ef9a67efc3a4934ec1ea2a29853dcbb87a",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0xe8bbb5f22e6b3d6cd9157b8fd2b59c076e57a9fc",
+      "block": "76931191",
+      "blockHash": "0x73e38ea1d14e7357177c20c369522bf8acc2399021aec6d227de1a83220e8362",
+      "gas": "328346"
+    },
+    {
+      "label": "Deploy SentinelAccountFactoryV2",
+      "hash": "0xc52ed3526361563d2c886e956f801b133c3f7683234f3342e00a92ae7d1bc7bb",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0x050499ebdbbbc1216011de07a48b5182c983ae74",
+      "block": "76931192",
+      "blockHash": "0xbc757322e40489e96793cfd6949a9fe3e235e791b6040222ee70486111825d21",
+      "gas": "3685629"
+    },
+    {
+      "label": "Create v2 account",
+      "hash": "0x9b614972d1bcd47dc6b3e02acf4e36c784e9efd1aac6fb61fb84bf6b769a3b57",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x050499ebdbbbc1216011de07a48b5182c983ae74",
+      "created": null,
+      "block": "76931193",
+      "blockHash": "0x72ec15e64d2112a24e8142c32a606799923de617d4daf85c70b08b95284c1101",
+      "gas": "2856170"
+    },
+    {
+      "label": "Wrap fork OKB into real WOKB",
+      "hash": "0x772f255e0ec7c825a3b307bf38e7c5ac5dc007462a5666a1e6e7fb79e84c8422",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+      "created": null,
+      "block": "76931194",
+      "blockHash": "0xe99cca1a9f1c49f7732a932b6c0a34ac43d99c3bdd228822826edb41e10db8d8",
+      "gas": "49054"
+    },
+    {
+      "label": "Fund account with fork WOKB",
+      "hash": "0x5623101a9296bd6d4810697b91bfa8e4418404fcbd7cf1b42475a272f48e57ec",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+      "created": null,
+      "block": "76931195",
+      "blockHash": "0x3dcfd23c4015b827855bb7d6097990070c8197aa007e8395b7d6e5f0a8f29e63",
+      "gas": "46827"
+    },
+    {
+      "label": "Grant bounded swap authority",
+      "hash": "0x117eee3fafd1f2e08746e49fe68962c0647280560ece9243e752f2bd3f47221a",
+      "status": "success",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x476be03038fd6ad005b8c1c2da3285841e2615f9",
+      "created": null,
+      "block": "76931196",
+      "blockHash": "0xe58ba8a297cb930d6091dafc2e70c046467c9421ad53fea3ef3a34be4317faae",
+      "gas": "93950"
+    },
+    {
+      "label": "101 bps loss denied by EXECUTION circuit",
+      "hash": "0xba7c6b9addcea8db722929ecba7e03b358ed8673c859e66dcb55d211a8ab511d",
+      "status": "reverted",
+      "actor": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "to": "0x476be03038fd6ad005b8c1c2da3285841e2615f9",
+      "created": null,
+      "block": "76931197",
+      "blockHash": "0x561aeb41f945184400cfd4b5715be3243582d71e26504d4071e9aaca260b22f2",
+      "gas": "299221"
+    },
+    {
+      "label": "95 bps limit allows V2 exact-input swap",
+      "hash": "0xc1291f9b485cea8d85ebc46d909c80ddb4494efbaf707a498f779f0fa545ced0",
+      "status": "success",
+      "actor": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "to": "0x476be03038fd6ad005b8c1c2da3285841e2615f9",
+      "created": null,
+      "block": "76931198",
+      "blockHash": "0x731c6ed5d04580c7f6c018b60f101234e021903f921cc990ef5f4bc29cbc1b3e",
+      "gas": "455462"
+    }
+  ]
+}
