@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "judge": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["services/judge-connect/bridge.mjs"],
+      "env": { "JUDGE_MCP_SOCKET": "${JUDGE_MCP_SOCKET}" }
+    }
+  }
+}

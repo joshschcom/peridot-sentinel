@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "chainId": 1952,
+  "campaign": "studio-join",
+  "profile": "private-testnet-fork",
+  "actors": {
+    "deployer": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+    "owner": "0xcde7e5989D66405234Cc0FAEFe5A2740795Ce824",
+    "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88"
+  },
+  "steps": {
+    "fund-judge": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0xcde7e5989D66405234Cc0FAEFe5A2740795Ce824",
+        "dataHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+        "value": "6000000000000000",
+        "expected": "success"
+      },
+      "nonce": 102,
+      "gasLimit": "58000",
+      "gasPrice": "20581",
+      "hash": "0xc1052bdf926c1a4be69d3ad6ab0cb008522ceba29e46414c4eea627d12633d8d",
+      "blockNumber": "47252263",
+      "blockHash": "0x5ef83e687c013fa66a9c427d0bee98843deae1bc32df868ed81ed85ba2cb61d1",
+      "gasUsed": "21000",
+      "status": "success"
+    },
+    "fund-operator": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+        "dataHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+        "value": "100000000000000",
+        "expected": "success"
+      },
+      "nonce": 103,
+      "gasLimit": "58000",
+      "gasPrice": "18011",
+      "hash": "0x719d8087e6a2efdcfa569b380fdf1220a2373417e92dcc49cd099d2e5fe54cea",
+      "blockNumber": "47252264",
+      "blockHash": "0xd5e1587f87210dc1d043c6b760fc87e9e21897ecf5305947716106b4b6a9adde",
+      "gasUsed": "21000",
+      "status": "success"
+    }
+  },
+  "plan": {
+    "funding": {
+      "blockNumber": "47252262",
+      "blockHash": "0x4dbf53c56fe2d3d721f7b6c9d5931e8005d213b1a1f9b809a1a790453a8f03a4",
+      "balances": {
+        "deployer": "192780366268145197",
+        "owner": "0",
+        "operator": "200079621075051505"
+      },
+      "judgeValue": "6000000000000000",
+      "operatorValue": "100000000000000"
+    },
+    "caps": {
+      "A": 6400,
+      "B": 4900
+    }
+  }
+}

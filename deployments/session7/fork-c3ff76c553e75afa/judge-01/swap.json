@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "campaign": "judge-01",
+  "chainId": 1952,
+  "profile": "private-testnet-fork",
+  "actor": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+  "account": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+  "target": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+  "dataHash": "0xc80677d354b44879c35c593ad0b13ab14c28d9a9d0f6922a7150aad8e7b1bf7f",
+  "hash": "0xfea540d5c431abc9de49325a17da6616863e0004615e7da56e8e487c5bb968cb",
+  "blockNumber": "47252257",
+  "blockHash": "0xaeedd4eaedfe05b907e24a38be055bcd586f7be041c7cde18d7d9e420e2f3d92",
+  "status": "success",
+  "gasUsed": "262198",
+  "gasLimit": "469911",
+  "before": {
+    "swapGrant": [
+      "1000000000000000000",
+      "2000000000000000000",
+      "1796316181"
+    ],
+    "borrowGrant": [
+      "0",
+      "0",
+      "0"
+    ],
+    "repayGrant": [
+      8,
+      "2000000",
+      "1796316181"
+    ],
+    "idleIn": "3000000000000000000",
+    "idleOut": "0",
+    "operatorOut": "0",
+    "books": [
+      "0",
+      "0"
+    ],
+    "allowance": "0",
+    "venueAllowance": "0",
+    "v1Debt": "64000000",
+    "v1Funds": "64000000",
+    "v1Allowance": "0"
+  },
+  "after": {
+    "swapGrant": [
+      "1000000000000000000",
+      "1750000000000000000",
+      "1796316181"
+    ],
+    "borrowGrant": [
+      "0",
+      "0",
+      "0"
+    ],
+    "repayGrant": [
+      8,
+      "2000000",
+      "1796316181"
+    ],
+    "idleIn": "2750000000000000000",
+    "idleOut": "19990000",
+    "operatorOut": "0",
+    "books": [
+      "0",
+      "0"
+    ],
+    "allowance": "0",
+    "venueAllowance": "0",
+    "v1Debt": "64000000",
+    "v1Funds": "64000000",
+    "v1Allowance": "0"
+  },
+  "settlement": {
+    "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+    "tokenIn": "0x8EcDe41881EFa0730FCDCEb7cb0474F017422d0B",
+    "tokenOut": "0x9667a471EE368Bf1d953fb9a6C762244C86cDA96",
+    "amountIn": "250000000000000000",
+    "amountOut": "19990000",
+    "slippageBps": 100
+  },
+  "recipient": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269"
+}

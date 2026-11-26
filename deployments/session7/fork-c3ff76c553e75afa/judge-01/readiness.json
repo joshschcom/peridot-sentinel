@@ -1,0 +1,40 @@
+{
+  "campaign": "judge-01",
+  "profile": "private-testnet-fork",
+  "blockNumber": "47252262",
+  "blockHash": "0x4dbf53c56fe2d3d721f7b6c9d5931e8005d213b1a1f9b809a1a790453a8f03a4",
+  "repayReady": false,
+  "swapReady": false,
+  "current": {
+    "swapGrant": [
+      "0",
+      "0",
+      "0"
+    ],
+    "borrowGrant": [
+      "0",
+      "0",
+      "0"
+    ],
+    "repayGrant": [
+      0,
+      "0",
+      "0"
+    ],
+    "idleIn": "2750000000000000000",
+    "idleOut": "19990000",
+    "operatorOut": "0",
+    "books": [
+      "0",
+      "0"
+    ],
+    "allowance": "0",
+    "venueAllowance": "0",
+    "v1Debt": "62000001",
+    "v1Funds": "62000000",
+    "v1Allowance": "0"
+  },
+  "ownerWei": "5907664620281973",
+  "operatorWei": "200079621075051505",
+  "deployerWei": "192780366268145197"
+}

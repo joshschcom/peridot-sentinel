@@ -1,0 +1,60 @@
+{
+  "A": {
+    "schemaVersion": 1,
+    "campaign": "judge-01",
+    "chainId": 1952,
+    "profile": "private-testnet-fork",
+    "actor": "0xbdC5A51D94de8D6A6E032DDEDe5F70d27c03B5FE",
+    "account": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+    "target": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+    "dataHash": "0x18abc5a49f0361dbdb2a03a171991aa9e9c0635efe780d23e8f225a948ec4844",
+    "hash": "0x70b35de469415f3a84f652cb88a5fc4cb35d2c239e0c4bed9822052bcfce6e0c",
+    "blockNumber": "47252255",
+    "blockHash": "0x6fca46b139b63f39126ec6d59ebb47bbb4b51c11ccba58a568c2dbf92550896e",
+    "status": "reverted",
+    "gasUsed": "264296",
+    "gasLimit": "2000000",
+    "error": "AccountPolicyRejected",
+    "replay": "0xbbe80a23b2af346486a445dcbae00922a47badbd6248d54745377c46d5db8c58c73899cd0000000000000000000000000000000000000000000000000000000000000001",
+    "market": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+    "policyId": "0xb2af346486a445dcbae00922a47badbd6248d54745377c46d5db8c58c73899cd",
+    "outputs": {
+      "MARKET": "0x01",
+      "ACCOUNT": "0x00"
+    },
+    "ltv": "5800",
+    "context": "0x12d50a",
+    "amountRaw": "28800000",
+    "beforeDebt": "64000000",
+    "afterDebt": "64000000"
+  },
+  "B": {
+    "schemaVersion": 1,
+    "campaign": "judge-01",
+    "chainId": 1952,
+    "profile": "private-testnet-fork",
+    "actor": "0xbdC5A51D94de8D6A6E032DDEDe5F70d27c03B5FE",
+    "account": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+    "target": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+    "dataHash": "0x481574d083a0e0a40d90531fd1eee03b3f220093c7a114b7f265c85a95e30ed5",
+    "hash": "0xd21b0d6cd21775553b1f094113ff9f2d6eaf49fa2eb34bcb428fe850e85592a2",
+    "blockNumber": "47252256",
+    "blockHash": "0x12a752461f5284de56cc95dbfaab4db4977af8672e3e8dedf192b70f59e5bae1",
+    "status": "reverted",
+    "gasUsed": "383890",
+    "gasLimit": "2000000",
+    "error": "MarketPolicyRejected",
+    "replay": "0x3aad535853a422789af77c0799bd4f25dd4bc38a9e28825481d51d6bf60c03d09cb5c9fd0000000000000000000000000000000000000000000000000000000000000001",
+    "market": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+    "policyId": "0x53a422789af77c0799bd4f25dd4bc38a9e28825481d51d6bf60c03d09cb5c9fd",
+    "outputs": {
+      "MARKET": "0x00",
+      "ACCOUNT": "0x01"
+    },
+    "ltv": "5200",
+    "context": "0x128a0a",
+    "amountRaw": "83200000",
+    "beforeDebt": "0",
+    "afterDebt": "0"
+  }
+}

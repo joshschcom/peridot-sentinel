@@ -1,0 +1,91 @@
+{
+  "chainId": 1952,
+  "campaign": "judge-01",
+  "profile": "private-testnet-fork",
+  "results": [
+    {
+      "url": "http://127.0.0.1:19750",
+      "verifiedReceipts": 49
+    }
+  ],
+  "prepared": {
+    "campaign": "judge-01",
+    "profile": "private-testnet-fork",
+    "blockNumber": "47252254",
+    "blockHash": "0xa53959ccc977416e5d3460c2ad2479a2e53774d034b5fa8297c9bfdd5f51357a",
+    "repayReady": true,
+    "swapReady": true,
+    "current": {
+      "swapGrant": [
+        "1000000000000000000",
+        "2000000000000000000",
+        "1796316181"
+      ],
+      "borrowGrant": [
+        "0",
+        "0",
+        "0"
+      ],
+      "repayGrant": [
+        8,
+        "2000000",
+        "1796316181"
+      ],
+      "idleIn": "3000000000000000000",
+      "idleOut": "0",
+      "operatorOut": "0",
+      "books": [
+        "0",
+        "0"
+      ],
+      "allowance": "0",
+      "venueAllowance": "0",
+      "v1Debt": "64000000",
+      "v1Funds": "64000000",
+      "v1Allowance": "0"
+    },
+    "ownerWei": "5907703042318625",
+    "operatorWei": "200079643798982190",
+    "deployerWei": "192780366268145197"
+  },
+  "current": {
+    "campaign": "judge-01",
+    "profile": "private-testnet-fork",
+    "blockNumber": "47252264",
+    "blockHash": "0xd5e1587f87210dc1d043c6b760fc87e9e21897ecf5305947716106b4b6a9adde",
+    "repayReady": false,
+    "swapReady": false,
+    "current": {
+      "swapGrant": [
+        "0",
+        "0",
+        "0"
+      ],
+      "borrowGrant": [
+        "0",
+        "0",
+        "0"
+      ],
+      "repayGrant": [
+        0,
+        "0",
+        "0"
+      ],
+      "idleIn": "2750000000000000000",
+      "idleOut": "19990000",
+      "operatorOut": "0",
+      "books": [
+        "0",
+        "0"
+      ],
+      "allowance": "0",
+      "venueAllowance": "0",
+      "v1Debt": "62000001",
+      "v1Funds": "62000000",
+      "v1Allowance": "0"
+    },
+    "ownerWei": "5907664620281973",
+    "operatorWei": "200179621075051505",
+    "deployerWei": "186680365457713197"
+  }
+}

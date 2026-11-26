@@ -1,0 +1,11 @@
+{
+  "profile": "private-testnet-fork",
+  "campaign": "judge-01",
+  "chainId": 1952,
+  "owner": "0xbdC5A51D94de8D6A6E032DDEDe5F70d27c03B5FE",
+  "repayRevoked": "0x289f68a544faa5bb027ce3676c42f8360a43c06dd2d6b5ba66be3af254d6ecb7",
+  "triggerCleared": "0xde8ec94dbb3c0de04fb82eaf496fc4a3ecfcba0384614db58597161b37452261",
+  "allV2Revoked": "0x9c2f8c836344b45d11158d837268fb85d9610a24f190533454a1cdc9a97576fd",
+  "block": "47252262",
+  "operators": 0
+}

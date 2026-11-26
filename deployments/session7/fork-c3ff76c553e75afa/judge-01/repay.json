@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "campaign": "judge-01",
+  "chainId": 1952,
+  "profile": "private-testnet-fork",
+  "actor": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+  "account": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+  "target": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+  "dataHash": "0xb332dd5f99cf432a19b38f8fcb42116f031bc70e5c3f052b518be828bc80edca",
+  "hash": "0xfd8146045fe90154e16ab38d7d440d80320c4e8d1de4475a5c05bf8b29899a46",
+  "blockNumber": "47252258",
+  "blockHash": "0x633d81b81760453889b0ab30eb36de416c21d34d2b91ace63955589f5f1b7fd4",
+  "status": "success",
+  "gasUsed": "224693",
+  "gasLimit": "366258",
+  "before": {
+    "swapGrant": [
+      "1000000000000000000",
+      "1750000000000000000",
+      "1796316181"
+    ],
+    "borrowGrant": [
+      "0",
+      "0",
+      "0"
+    ],
+    "repayGrant": [
+      8,
+      "2000000",
+      "1796316181"
+    ],
+    "idleIn": "2750000000000000000",
+    "idleOut": "19990000",
+    "operatorOut": "0",
+    "books": [
+      "0",
+      "0"
+    ],
+    "allowance": "0",
+    "venueAllowance": "0",
+    "v1Debt": "64000000",
+    "v1Funds": "64000000",
+    "v1Allowance": "0"
+  },
+  "after": {
+    "swapGrant": [
+      "1000000000000000000",
+      "1750000000000000000",
+      "1796316181"
+    ],
+    "borrowGrant": [
+      "0",
+      "0",
+      "0"
+    ],
+    "repayGrant": [
+      8,
+      "0",
+      "1796316181"
+    ],
+    "idleIn": "2750000000000000000",
+    "idleOut": "19990000",
+    "operatorOut": "0",
+    "books": [
+      "0",
+      "0"
+    ],
+    "allowance": "0",
+    "venueAllowance": "0",
+    "v1Debt": "62000001",
+    "v1Funds": "62000000",
+    "v1Allowance": "0"
+  },
+  "settlement": {
+    "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+    "amount": "2000000",
+    "ltvBeforeBps": "4001",
+    "ltvAfterBps": "3876"
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "scope": "Local synthetic fixtures and unit tests. Solidity 0.8.26, EVM paris. No public writes.",
+  "cases": [
+    {
+      "name": "originalAllowanceRedControl",
+      "command": [
+        "forge",
+        "test",
+        "--root",
+        "contracts/expansion",
+        "--offline",
+        "--match-contract",
+        "RouterApprovalTest",
+        "--match-test",
+        "testRouterReadsBackExactApprovalBeforeUse",
+        "-v"
+      ],
+      "environment": {
+        "REVIEW7_LEGACY_ADAPTER": "true"
+      },
+      "expectedExit": 1,
+      "observedExit": 1,
+      "output": [
+        "Ran 1 test for test/review7/RouterApproval.t.sol:RouterApprovalTest",
+        "[FAIL: next call did not revert as expected] testRouterReadsBackExactApprovalBeforeUse() (gas: 188569)",
+        "Suite result: FAILED. 0 passed; 1 failed; 0 skipped; finished in 15.64ms (3.85ms CPU time)",
+        "Ran 1 test suite in 31.61ms (15.64ms CPU time): 0 tests passed, 1 failed, 0 skipped (1 total tests)",
+        "[FAIL: next call did not revert as expected] testRouterReadsBackExactApprovalBeforeUse() (gas: 188569)"
+      ]
+    },
+    {
+      "name": "expansionReview",
+      "command": [
+        "forge",
+        "test",
+        "--root",
+        "contracts/expansion",
+        "--offline",
+        "--match-path",
+        "test/review7/*.t.sol",
+        "--match-test",
+        "^(invariant_authorization|testFuzz_Vault|testNonconforming|testCheckedRouter|testRouterReads)",
+        "--fuzz-runs",
+        "64",
+        "--fuzz-seed",
+        "0x77",
+        "-v"
+      ],
+      "environment": {
+        "FOUNDRY_INVARIANT_RUNS": "32",
+        "FOUNDRY_INVARIANT_DEPTH": "24",
+        "FOUNDRY_INVARIANT_FAIL_ON_REVERT": "true",
+        "REVIEW7_LEGACY_ADAPTER": "false"
+      },
+      "expectedExit": 0,
+      "observedExit": 0,
+      "output": [
+        "Ran 2 tests for test/review7/RouterApproval.t.sol:RouterApprovalTest",
+        "[PASS] testCheckedRouterSettlesAndResetsForSupportedAssets() (gas: 1051953)",
+        "[PASS] testRouterReadsBackExactApprovalBeforeUse() (gas: 1053851)",
+        "Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 17.25ms (6.11ms CPU time)",
+        "Ran 2 tests for test/review7/SettlementConformance.t.sol:SettlementConformanceTest",
+        "[PASS] testFuzz_VaultPermitTracksExactDebitAndRecipient(uint64) (runs: 64, \u03bc: 349206, ~: 349206)",
+        "[PASS] testNonconformingApprovalsAndFailedCleanupRollback() (gas: 438542)",
+        "Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 50.24ms (41.52ms CPU time)",
+        "Ran 1 test for test/review7/VaultGrantInvariant.t.sol:VaultGrantInvariantTest",
+        "[PASS] invariant_authorizationMatchesIndependentModel() (runs: 32, calls: 768, reverts: 0)",
+        "| VaultGrantHandler | advance   | 159   | 0       | 0        |",
+        "| VaultGrantHandler | emergency | 154   | 0       | 0        |",
+        "| VaultGrantHandler | replace   | 148   | 0       | 0        |",
+        "| VaultGrantHandler | revoke    | 144   | 0       | 0        |",
+        "| VaultGrantHandler | spend     | 163   | 0       | 0        |",
+        "Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 202.54ms (187.11ms CPU time)",
+        "Ran 3 test suites in 215.68ms (270.03ms CPU time): 5 tests passed, 0 failed, 0 skipped (5 total tests)"
+      ]
+    },
+    {
+      "name": "coreReview",
+      "command": [
+        "forge",
+        "test",
+        "--root",
+        "contracts",
+        "--offline",
+        "--match-contract",
+        "MarketIsolationFuzzTest",
+        "--match-test",
+        "test(FreshTestnet|Fuzz_SecondBook)",
+        "--fuzz-runs",
+        "64",
+        "--fuzz-seed",
+        "0x77",
+        "-v"
+      ],
+      "environment": {},
+      "expectedExit": 0,
+      "observedExit": 0,
+      "output": [
+        "Ran 2 tests for test/review7/MarketIsolationFuzz.t.sol:MarketIsolationFuzzTest",
+        "[PASS] testFreshTestnetPriceRemainsAnOwnerAssertion() (gas: 358677)",
+        "[PASS] testFuzz_SecondBookRequiresSeparateCollateral(uint64) (runs: 64, \u03bc: 3508158, ~: 3508158)",
+        "Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 69.25ms (67.21ms CPU time)",
+        "Ran 1 test suite in 70.22ms (69.25ms CPU time): 2 tests passed, 0 failed, 0 skipped (2 total tests)"
+      ]
+    },
+    {
+      "name": "existingExpansionControls",
+      "command": [
+        "forge",
+        "test",
+        "--root",
+        "contracts/expansion",
+        "--offline",
+        "--match-contract",
+        "^(SentinelAccountV2Test|SingleVaultTest|SinglePoolSwapTest|ChainlinkSwapQuoteTest|ExecutionPolicyTest)$",
+        "--match-test",
+        "test(Emergency|RepaymentAndOwnerExit|SwapBalances|DirectCaller|RoundAnd|BoundaryAndFlags|RejectsWrongNetlist|MaximaMinima|BothDirections)",
+        "-v"
+      ],
+      "environment": {},
+      "expectedExit": 0,
+      "observedExit": 0,
+      "output": [
+        "Ran 2 tests for test/swap/SinglePoolSwap.t.sol:SinglePoolSwapTest",
+        "[PASS] testBothDirectionsPaySameAccountAndClearApprovals() (gas: 257845)",
+        "[PASS] testDirectCallerCannotBypassOracleLossFloor() (gas: 55745)",
+        "Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 872.62\u00b5s (488.67\u00b5s CPU time)",
+        "Ran 1 test for test/swap/ChainlinkSwapQuote.t.sol:ChainlinkSwapQuoteTest",
+        "[PASS] testRoundAndSequencerRecoveryValidation() (gas: 861486)",
+        "Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 299.08\u00b5s (195.21\u00b5s CPU time)",
+        "Ran 2 tests for test/policy/ExecutionPolicy.t.sol:ExecutionPolicyTest",
+        "[PASS] testBoundaryAndFlags() (gas: 285037)",
+        "[PASS] testRejectsWrongNetlistAndMalformedDecision() (gas: 168090)",
+        "Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 3.05ms (934.33\u00b5s CPU time)",
+        "Ran 2 tests for test/vault/SingleVault.t.sol:SingleVaultTest",
+        "[PASS] testEmergencyEpochRevokesEveryVaultEntryAndLeavesOwnerExit() (gas: 610330)",
+        "[PASS] testMaximaMinimaExpiryAndInKindExit() (gas: 366937)",
+        "Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 2.97ms (1.14ms CPU time)",
+        "Ran 4 tests for test/account/SentinelAccountV2.t.sol:SentinelAccountV2Test",
+        "[PASS] testEmergencyRevocationIsOwnerOnlyAndRegrantNeverResurrectsOtherRoutes() (gas: 1049268)",
+        "[PASS] testEmergencyStopClosesRedeemAndRepayGrantsWithLiveDebt() (gas: 795784)",
+        "[PASS] testRepaymentAndOwnerExitDuringOutage() (gas: 857968)",
+        "[PASS] testSwapBalancesAllowCircuitAt100DenyAt101AndRollbackGrant() (gas: 565517)",
+        "Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 8.72ms (4.09ms CPU time)",
+        "Ran 5 test suites in 10.77ms (15.90ms CPU time): 11 tests passed, 0 failed, 0 skipped (11 total tests)"
+      ]
+    },
+    {
+      "name": "existingCoreControls",
+      "command": [
+        "forge",
+        "test",
+        "--root",
+        "contracts",
+        "--offline",
+        "--match-contract",
+        "^(MarketTest|SentinelTest|StudioTest|PolicyTest)$",
+        "--match-test",
+        "test(RepayAndSafeExit|RejectedMarketBorrow|BoundedKeeper|MalformedAndFailed|RegistrationConstraints|CanonicalReuse|LiquidationWhilePolicyOffline|DirectPolicyAtEveryRiskEntry)",
+        "-v"
+      ],
+      "environment": {},
+      "expectedExit": 0,
+      "observedExit": 0,
+      "output": [
+        "Ran 2 tests for test/policies/Policy.t.sol:PolicyTest",
+        "[PASS] testMalformedAndFailedResponses() (gas: 138550)",
+        "[PASS] testRegistrationConstraints() (gas: 58823)",
+        "Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 735.67\u00b5s (226.63\u00b5s CPU time)",
+        "Ran 1 test for test/studio/Studio.t.sol:StudioTest",
+        "[PASS] testCanonicalReuseAcrossUsersAndIsolationAcrossRegistriesAndProcessors() (gas: 3355070)",
+        "Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 2.02ms (1.48ms CPU time)",
+        "Ran 3 tests for test/markets/Market.t.sol:MarketTest",
+        "[PASS] testDirectPolicyAtEveryRiskEntry() (gas: 528150)",
+        "[PASS] testLiquidationWhilePolicyOffline() (gas: 467391)",
+        "[PASS] testRepayAndSafeExitWithFailedPolicyAndStaleOracle() (gas: 394769)",
+        "Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 3.36ms (1.98ms CPU time)",
+        "Ran 2 tests for test/sentinel/Sentinel.t.sol:SentinelTest",
+        "[PASS] testBoundedKeeperRepayAndRevocation() (gas: 657449)",
+        "[PASS] testRejectedMarketBorrowPreservesOperatorGrant() (gas: 1459513)",
+        "Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 6.76ms (2.24ms CPU time)",
+        "Ran 4 test suites in 8.40ms (12.88ms CPU time): 8 tests passed, 0 failed, 0 skipped (8 total tests)"
+      ]
+    },
+    {
+      "name": "connect",
+      "command": [
+        "node",
+        "--test",
+        "services/mcp/test/connect.test.mjs",
+        "services/mcp-v2/test/campaign.test.mjs",
+        "services/mcp-v2/test/host.test.mjs"
+      ],
+      "environment": {},
+      "expectedExit": 0,
+      "observedExit": 0,
+      "output": [
+        "\u2714 seven typed tools; unknown actions, targets, keys and calldata rejected (1.347125ms)",
+        "\u2714 per-call, cumulative, expiry, idle balance and independent campaign limits (0.299083ms)",
+        "\u2714 proposal binds type, target, parameters, deadline and immutable deployment (8.92675ms)",
+        "\u2714 two persistent campaign slots share the same D9 keeper nonce lane; restart cannot spend again (12.4245ms)",
+        "\u2714 Claude and its real stdio bridge receive only a socket; separate MCP gets only required signing and quote values (374.78275ms)",
+        "\u2714 receipt state conflicts require review; all relevant state must be preserved for a mined rejection (0.561542ms)",
+        "\u2714 transcript parser requires complete model/tool-result links and excludes non-campaign tool calls (1.856083ms)",
+        "\u2714 catalog has twelve tools and one restricted write (1.814625ms)",
+        "\u2714 read retries a changed hash then returns a single confirmed snapshot (251.85375ms)",
+        "\u2714 wrong chain aborts and persistent stale state exhausts exactly three reads (752.949916ms)",
+        "\u2714 durable proposal is reserved once, shares keeper nonce slot, and survives process restart (10.156792ms)",
+        "\u2714 quote credentials are server-only and an unavailable external quote contains no fabricated price (0.3345ms)",
+        "\u2714 a replacement needs a definitive invalidation of the exact still-unsigned proposal (5.587833ms)",
+        "\u2714 pending-state profile rejects expanded operator privileges even when repay amount is unchanged (0.252709ms)",
+        "\u2139 tests 14",
+        "\u2139 pass 14",
+        "\u2139 fail 0",
+        "\u2139 skipped 0"
+      ]
+    }
+  ]
+}
