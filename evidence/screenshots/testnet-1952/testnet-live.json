@@ -21,18 +21,120 @@
     },
     {
       "wallet": "empty-wallet",
+      "rail": [
+        {
+          "key": "overview",
+          "status": "live",
+          "link": true,
+          "text": "Overview"
+        },
+        {
+          "key": "earn",
+          "status": "live",
+          "link": true,
+          "text": "Earn"
+        },
+        {
+          "key": "borrow",
+          "status": "live",
+          "link": true,
+          "text": "Borrow"
+        },
+        {
+          "key": "trade",
+          "status": "planned",
+          "link": false,
+          "text": "Trade Planned"
+        },
+        {
+          "key": "automate",
+          "status": "live",
+          "link": true,
+          "text": "Automate"
+        },
+        {
+          "key": "studio",
+          "status": "live",
+          "link": true,
+          "text": "Studio"
+        },
+        {
+          "key": "circuits",
+          "status": "live",
+          "link": true,
+          "text": "Circuits"
+        },
+        {
+          "key": "connect",
+          "status": "development",
+          "link": true,
+          "text": "Connect In development"
+        },
+        {
+          "key": "about",
+          "status": "live",
+          "link": true,
+          "text": "About and status"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
       "width": 1440,
-      "ms": 8929,
+      "portfolio": [
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #0 No position"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "modes": {
+        "rule-based": "live",
+        "connect": "development",
+        "hosted": "planned"
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "ms": 8091,
       "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
       "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
       "onChainEntries": 0,
       "autoRepayInScan": false,
-      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,238,804 to the latest block 47,242,803. The 76,296 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,241,169 to the latest block 47,245,168. The 78,661 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
       "ranges": 2,
-      "unreadBlocks": "76296",
+      "unreadBlocks": "78661",
       "keeperPanel": "scope-mismatch",
       "keeperRows": 0,
       "keeperText": "Keeper reports withheld A keeper service answered, but it does not belong to this deployment, so none of its rows are shown. The keeper works on chain 31337; this app targets chain 1952. The keeper's Sentinel factory is not the one in this "
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "liveMainnetEval": {
+        "state": "ok",
+        "block": "76,934,999",
+        "first": {
+          "input": "0x03",
+          "output": "0x01"
+        },
+        "second": {
+          "input": "0x02",
+          "output": "0x00"
+        },
+        "table": [
+          "0x00->0x00",
+          "0x01->0x00",
+          "0x02->0x00",
+          "0x03->0x01"
+        ],
+        "processorHref": "https://www.okx.com/web3/explorer/xlayer/address/0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+        "netlistMatches": "true"
+      }
     },
     {
       "wallet": "empty-wallet",
@@ -49,17 +151,60 @@
     {
       "wallet": "empty-wallet",
       "width": 390,
-      "ms": 8383,
+      "portfolio": [
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #0 No position"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "modes": {
+        "rule-based": "live",
+        "connect": "development",
+        "hosted": "planned"
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "ms": 9235,
       "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
       "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
       "onChainEntries": 0,
       "autoRepayInScan": false,
-      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,238,906 to the latest block 47,242,905. The 76,398 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,241,301 to the latest block 47,245,300. The 78,793 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
       "ranges": 2,
-      "unreadBlocks": "76398",
+      "unreadBlocks": "78793",
       "keeperPanel": "scope-mismatch",
       "keeperRows": 0,
       "keeperText": "Keeper reports withheld A keeper service answered, but it does not belong to this deployment, so none of its rows are shown. The keeper works on chain 31337; this app targets chain 1952. The keeper's Sentinel factory is not the one in this "
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "liveMainnetEval": {
+        "state": "ok",
+        "block": "76,935,130",
+        "first": {
+          "input": "0x03",
+          "output": "0x01"
+        },
+        "second": {
+          "input": "0x02",
+          "output": "0x00"
+        },
+        "table": [
+          "0x00->0x00",
+          "0x01->0x00",
+          "0x02->0x00",
+          "0x03->0x01"
+        ],
+        "processorHref": "https://www.okx.com/web3/explorer/xlayer/address/0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+        "netlistMatches": "true"
+      }
     },
     {
       "wallet": "demo-owner-watch-only",
@@ -91,28 +236,184 @@
     },
     {
       "wallet": "demo-owner-watch-only",
-      "width": 1440,
-      "operators": [
+      "rail": [
         {
-          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
-          "text": "0x2c7E…CE88 Repay Budget left 2 mUSD of 2 mUSD · expires 03 Dec 2026 Check what it can do Revoke"
+          "key": "overview",
+          "status": "live",
+          "link": true,
+          "text": "Overview"
+        },
+        {
+          "key": "earn",
+          "status": "live",
+          "link": true,
+          "text": "Earn"
+        },
+        {
+          "key": "borrow",
+          "status": "live",
+          "link": true,
+          "text": "Borrow"
+        },
+        {
+          "key": "trade",
+          "status": "planned",
+          "link": false,
+          "text": "Trade Planned"
+        },
+        {
+          "key": "automate",
+          "status": "live",
+          "link": true,
+          "text": "Automate"
+        },
+        {
+          "key": "studio",
+          "status": "live",
+          "link": true,
+          "text": "Studio"
+        },
+        {
+          "key": "circuits",
+          "status": "live",
+          "link": true,
+          "text": "Circuits"
+        },
+        {
+          "key": "connect",
+          "status": "development",
+          "link": true,
+          "text": "Connect In development"
+        },
+        {
+          "key": "about",
+          "status": "live",
+          "link": true,
+          "text": "About and status"
         }
       ]
     },
     {
       "wallet": "demo-owner-watch-only",
       "width": 1440,
-      "ms": 8287,
+      "portfolio": [
+        {
+          "kind": "sentinel",
+          "text": "mCOL / mUSD #0 Sentinel account 100 mCOL 0 80.0053 mUSD 50.01%"
+        },
+        {
+          "kind": "wallet",
+          "text": "Wallet 0 200.0047 mUSD 0 No debt"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "modes": {
+        "rule-based": "live",
+        "connect": "development",
+        "hosted": "planned"
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "operators": [
+        {
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "mask": "8",
+          "text": "0x2c7E…CE88 Repay Budget left 2 mUSD of 2 mUSD · expires 03 Dec 2026 Check what it can do Revoke"
+        }
+      ],
+      "emergencyStop": {
+        "operators": "1",
+        "trigger": "4500",
+        "scope": "Now active: 0x2c7E…CE88, trigger at 45%. This sends 2 transactions, one at a time."
+      },
+      "outline": [
+        {
+          "field": "Objective",
+          "status": "live",
+          "text": "Objective Live Repay debt from idle funds when loan-to-value reaches 45% autoRepayTriggerBps on the account. autoRepay() reverts with TriggerNotMet below it. Pl"
+        },
+        {
+          "field": "Capital budget",
+          "status": "live",
+          "text": "Capital budget Live 2 mUSD left Cumulative budget of the operator authorisation. It only goes down, and a new authorisation replaces it."
+        },
+        {
+          "field": "Permitted operations",
+          "status": "live",
+          "text": "Permitted operations Live repay Permission mask of the authorisation (repay = 8, borrow = 4). There is no mask bit for withdrawing."
+        },
+        {
+          "field": "Approved protocols",
+          "status": "planned",
+          "text": "Approved protocols Planned Fixed: this account's Peridot lending market (mCOL / mUSD) A v1 account is bound to one market controller, so there is nothing to cho"
+        },
+        {
+          "field": "Risk limits",
+          "status": "live",
+          "text": "Risk limits Live Trigger 45%, your policy cap 55% The trigger, plus your account policy circuit and the market policy circuit on every risk-increasing action. P"
+        },
+        {
+          "field": "Expiry",
+          "status": "live",
+          "text": "Expiry Live 03 Dec 2026 Expiry timestamp of the authorisation, compared with the block time."
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "accountRepays": [
+        {
+          "hash": "0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+          "link": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77"
+        }
+      ],
+      "discovery": "partial",
+      "partialNote": "The operator list comes from events in the blocks this app has read, which is not the account's whole history. An operator authorised in unread blocks would not be listed above. Read so far: blocks 47,161,508–47,162,507 and 47,241,434–47,245,433. Also revoke t"
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "ms": 9227,
       "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
       "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
       "onChainEntries": 8,
       "autoRepayInScan": true,
-      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,239,025 to the latest block 47,243,024. The 76,517 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,241,456 to the latest block 47,245,455. The 78,948 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
       "ranges": 2,
-      "unreadBlocks": "76517",
+      "unreadBlocks": "78948",
       "keeperPanel": "scope-mismatch",
       "keeperRows": 0,
       "keeperText": "Keeper reports withheld A keeper service answered, but it does not belong to this deployment, so none of its rows are shown. The keeper works on chain 31337; this app targets chain 1952. The keeper's Sentinel factory is not the one in this "
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "liveMainnetEval": {
+        "state": "ok",
+        "block": "76,935,286",
+        "first": {
+          "input": "0x03",
+          "output": "0x01"
+        },
+        "second": {
+          "input": "0x02",
+          "output": "0x00"
+        },
+        "table": [
+          "0x00->0x00",
+          "0x01->0x00",
+          "0x02->0x00",
+          "0x03->0x01"
+        ],
+        "processorHref": "https://www.okx.com/web3/explorer/xlayer/address/0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+        "netlistMatches": "true"
+      }
     },
     {
       "wallet": "demo-owner-watch-only",
@@ -131,36 +432,133 @@
     {
       "wallet": "demo-owner-watch-only",
       "width": 390,
-      "operators": [
+      "portfolio": [
         {
-          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
-          "text": "0x2c7E…CE88 Repay Budget left 2 mUSD of 2 mUSD · expires 03 Dec 2026 Check what it can do Revoke"
+          "kind": "sentinel",
+          "text": "mCOL / mUSD #0 Sentinel account 100 mCOL 0 80.0053 mUSD 50.01%"
+        },
+        {
+          "kind": "wallet",
+          "text": "Wallet 0 200.0047 mUSD 0 No debt"
         }
       ]
     },
     {
       "wallet": "demo-owner-watch-only",
       "width": 390,
-      "ms": 8884,
+      "modes": {
+        "rule-based": "live",
+        "connect": "development",
+        "hosted": "planned"
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "operators": [
+        {
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "mask": "8",
+          "text": "0x2c7E…CE88 Repay Budget left 2 mUSD of 2 mUSD · expires 03 Dec 2026 Check what it can do Revoke"
+        }
+      ],
+      "emergencyStop": {
+        "operators": "1",
+        "trigger": "4500",
+        "scope": "Now active: 0x2c7E…CE88, trigger at 45%. This sends 2 transactions, one at a time."
+      },
+      "outline": [
+        {
+          "field": "Objective",
+          "status": "live",
+          "text": "Objective Live Repay debt from idle funds when loan-to-value reaches 45% autoRepayTriggerBps on the account. autoRepay() reverts with TriggerNotMet below it. Pl"
+        },
+        {
+          "field": "Capital budget",
+          "status": "live",
+          "text": "Capital budget Live 2 mUSD left Cumulative budget of the operator authorisation. It only goes down, and a new authorisation replaces it."
+        },
+        {
+          "field": "Permitted operations",
+          "status": "live",
+          "text": "Permitted operations Live repay Permission mask of the authorisation (repay = 8, borrow = 4). There is no mask bit for withdrawing."
+        },
+        {
+          "field": "Approved protocols",
+          "status": "planned",
+          "text": "Approved protocols Planned Fixed: this account's Peridot lending market (mCOL / mUSD) A v1 account is bound to one market controller, so there is nothing to cho"
+        },
+        {
+          "field": "Risk limits",
+          "status": "live",
+          "text": "Risk limits Live Trigger 45%, your policy cap 55% The trigger, plus your account policy circuit and the market policy circuit on every risk-increasing action. P"
+        },
+        {
+          "field": "Expiry",
+          "status": "live",
+          "text": "Expiry Live 03 Dec 2026 Expiry timestamp of the authorisation, compared with the block time."
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "accountRepays": [
+        {
+          "hash": "0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+          "link": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77"
+        }
+      ],
+      "discovery": "partial",
+      "partialNote": "The operator list comes from events in the blocks this app has read, which is not the account's whole history. An operator authorised in unread blocks would not be listed above. Read so far: blocks 47,161,508–47,162,507 and 47,241,587–47,245,586. Also revoke t"
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "ms": 8163,
       "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
       "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
       "onChainEntries": 8,
       "autoRepayInScan": true,
-      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,239,146 to the latest block 47,243,145. The 76,638 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,241,609 to the latest block 47,245,608. The 79,101 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
       "ranges": 2,
-      "unreadBlocks": "76638",
+      "unreadBlocks": "79101",
       "keeperPanel": "scope-mismatch",
       "keeperRows": 0,
       "keeperText": "Keeper reports withheld A keeper service answered, but it does not belong to this deployment, so none of its rows are shown. The keeper works on chain 31337; this app targets chain 1952. The keeper's Sentinel factory is not the one in this "
     },
     {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "liveMainnetEval": {
+        "state": "ok",
+        "block": "76,935,438",
+        "first": {
+          "input": "0x03",
+          "output": "0x01"
+        },
+        "second": {
+          "input": "0x02",
+          "output": "0x00"
+        },
+        "table": [
+          "0x00->0x00",
+          "0x01->0x00",
+          "0x02->0x00",
+          "0x03->0x01"
+        ],
+        "processorHref": "https://www.okx.com/web3/explorer/xlayer/address/0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+        "netlistMatches": "true"
+      }
+    },
+    {
       "loads": {
-        "total": 36,
+        "total": 44,
         "deploymentBanner": 0,
         "pageErrors": 0,
         "slowest": {
-          "ms": 13965,
-          "tag": "demo-owner-watch-only /sentinel @390"
+          "ms": 14270,
+          "tag": "demo-owner-watch-only /sentinel @1440"
         }
       }
     }
