@@ -21,6 +21,7 @@ import { all2, mapMaybe, ok } from "@/lib/maybe";
 import { Op } from "@/lib/policy";
 import type { Market, SentinelAccount } from "@/services/types";
 import { positionLtv } from "./market-detail";
+import { Portfolio } from "./portfolio";
 import { SentinelHeader } from "./sentinel-common";
 
 export function SentinelOverview() {
@@ -30,7 +31,7 @@ export function SentinelOverview() {
 
   return (
     <div className="space-y-6">
-      <SentinelHeader description="A smart account that holds your position and only acts within the policy you set. You stay the owner; automation can repay, never withdraw." />
+      <SentinelHeader title="Overview" description="A smart account that holds your position and only acts within the policy you set. You stay the owner; automation can repay, never withdraw." />
       {accounts.isPending ? (
         <div className="space-y-4" data-loading>
           <Skeleton className="h-40" />
@@ -40,6 +41,7 @@ export function SentinelOverview() {
         <EmptyState title="Account data unavailable">{accounts.data?.status === "unavailable" ? accounts.data.reason : "Your accounts could not be loaded."}</EmptyState>
       ) : services.account.source === "chain" ? (
         <>
+          <Portfolio accounts={list} />
           {list.map((account) => (
             <AccountView key={account.marketId} account={account} />
           ))}
@@ -57,7 +59,12 @@ export function SentinelOverview() {
           One account per market. You attach a personal policy when you create it, fund it with a plain token transfer, and withdraw to your own wallet at any time. {!gate.allowed ? gate.message : ""}
         </EmptyState>
       ) : (
-        list.map((account) => <AccountView key={account.marketId} account={account} />)
+        <>
+          <Portfolio accounts={list} />
+          {list.map((account) => (
+            <AccountView key={account.marketId} account={account} />
+          ))}
+        </>
       )}
       <HowItWorks />
     </div>
@@ -81,6 +88,7 @@ function AccountView({ account }: { account: SentinelAccount }) {
   const operator = account.operators.find((grant) => !grant.revoked) ?? null;
   const marketHref = `/markets/${m.id}`;
   const policyHref = `/sentinel/policy?market=${m.id}`;
+  const automateHref = `/automate?market=${m.id}`;
   const chain = services.account.source === "chain";
 
   return (
@@ -187,7 +195,7 @@ function AccountView({ account }: { account: SentinelAccount }) {
             <Notice icon={<IconBot size={18} />} title="An operator can never withdraw">
               Withdrawals always pay the owner, and only the owner can change the policy or permissions. Automation is not a guarantee: prices, liquidity and network conditions can prevent a repayment in time.
             </Notice>
-            <Link href={`${policyHref}#automation`} className="mt-4 inline-block text-sm font-medium underline underline-offset-4">
+            <Link href={automateHref} className="mt-4 inline-block text-sm font-medium underline underline-offset-4">
               Manage, check or revoke
             </Link>
           </div>

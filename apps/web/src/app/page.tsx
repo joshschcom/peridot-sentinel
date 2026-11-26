@@ -4,14 +4,18 @@ import { Brand } from "@/components/shell/brand";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { ButtonLink, Mono } from "@/components/ui/core";
 import { IconArrowRight, IconArrowUpRight, IconCheck } from "@/components/ui/icons";
-import { TARGET_KIND, xLayerMainnet, xLayerTestnet } from "@/lib/chains";
+import { TARGET_KIND, explorerTxUrl, xLayerMainnet, xLayerTestnet } from "@/lib/chains";
+import { BRAND } from "@/lib/brand";
 import { EVIDENCE } from "@/lib/evidence";
-import { shortAddress } from "@/lib/format";
+import { shortAddress, shortHash } from "@/lib/format";
 import { RUNTIME } from "@/services/runtime";
 
+// Only areas with something real behind them in this build. Trade is planned and is not linked.
 const NAV = [
-  { href: "/sentinel", label: "Sentinel" },
-  { href: "/markets", label: "Markets" },
+  { href: "/sentinel", label: "Overview" },
+  { href: "/markets?view=earn", label: "Earn" },
+  { href: "/markets?view=borrow", label: "Borrow" },
+  { href: "/automate", label: "Automate" },
   { href: "/studio", label: "Studio" },
   { href: "/circuits", label: "Circuits" },
 ];
@@ -48,12 +52,19 @@ export default function LandingPage() {
               <span className="size-1.5 rounded-full bg-warning" aria-hidden="true" />
               Experimental build targeting X Layer testnet
             </p>
-            <h1 className="display mt-6">
+            <h1 className="display mt-6" data-testid="tagline">
               Your money.
               <br />
               Your rules.
+              <br />
+              Your intelligence.
             </h1>
-            <p className="mt-6 max-w-xl text-lg text-muted sm:text-xl">Programmable markets and intelligent financial accounts, powered by verifiable policies.</p>
+            <p className="mt-6 max-w-xl text-lg font-medium sm:text-xl" data-testid="positioning">
+              {BRAND.positioning}
+            </p>
+            <p className="mt-3 max-w-xl text-base text-muted sm:text-lg">
+              A smart account that holds your position and lets software act for you only inside the policy, budget and expiry you set. Today that is rule-based automation on isolated lending markets, on X Layer testnet.
+            </p>
             <div className="mt-9 flex flex-col gap-3 xs:flex-row">
               <ButtonLink href="/sentinel" size="lg">
                 Launch Sentinel <IconArrowRight size={18} />
@@ -72,7 +83,7 @@ export default function LandingPage() {
         {/* Two products */}
         <section className="border-t border-line bg-subtle">
           <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
-            <p className="eyebrow">Two products, one policy engine</p>
+            <p className="eyebrow">Sentinel and Sentinel Studio, one policy engine</p>
             <h2 className="headline mt-3 max-w-3xl">A market has rules. So do you. Both are enforced on the same transaction.</h2>
             <div className="mt-10 grid gap-4 lg:grid-cols-2">
               <ProductPanel
@@ -81,7 +92,7 @@ export default function LandingPage() {
                 pitch="Lend, borrow and manage positions from an account that follows your own policy."
                 points={[
                   "Set a personal limit that is stricter than the market's.",
-                  "Authorise automation that can repay debt and can never withdraw.",
+                  "Authorise an operator with a permission mask, a budget and an expiry. It can repay debt and can never withdraw.",
                   "See exactly which rule allowed or stopped a transaction.",
                 ]}
                 href="/sentinel"
@@ -89,7 +100,7 @@ export default function LandingPage() {
               />
               <ProductPanel
                 eyebrow="For builders"
-                name="Studio"
+                name="Sentinel Studio"
                 pitch="Launch an isolated lending market with its own risk limits and policy circuit."
                 points={[
                   "Isolated books: one market's losses never touch another.",
@@ -125,9 +136,9 @@ export default function LandingPage() {
               <p className="eyebrow">X Layer and TapeOut</p>
               <h2 className="headline mt-3">What is real today, and what is not.</h2>
               <p className="mt-5 max-w-md text-muted">
-                Peridot Markets is an entry in the X Layer TapeOut Accelerate hackathon. Policies are evaluated as TapeOut-style circuits rather than trusted off-chain. Here is the exact status of each piece.
+                Peridot Sentinel is an entry in the X Layer TapeOut Accelerate hackathon. Policies are evaluated as TapeOut-style circuits rather than trusted off-chain. Here is the exact status of each piece.
               </p>
-              <p className="mt-4 max-w-md text-sm text-faint">Participation only. Peridot is not sponsored, endorsed or audited by OKX, X Layer or TapeOut.</p>
+              <p className="mt-4 max-w-md text-sm text-faint">Participation only. Peridot Sentinel is not sponsored, endorsed or audited by OKX, X Layer or TapeOut.</p>
               <ButtonLink href="/circuits" variant="secondary" className="mt-7">
                 See the evidence <IconArrowRight size={16} />
               </ButtonLink>
@@ -157,7 +168,7 @@ export default function LandingPage() {
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <Brand />
-            <p className="mt-4 max-w-sm text-sm text-muted">Build your market. Define your rules. Automate your finances.</p>
+            <p className="mt-4 max-w-sm text-sm text-muted">{BRAND.tagline}</p>
             <p className="mt-4 max-w-sm text-xs text-faint">Experimental software on a test network. Test tokens have no value. No audit has been performed. Not available as a financial product.</p>
           </div>
           <FooterColumn title="Product" links={NAV.map((item) => ({ ...item, external: false }))} />
@@ -218,6 +229,8 @@ function StatusList() {
   const sample = EVIDENCE.publicSample;
   const fork = EVIDENCE.forkSettlement;
   const deployed = RUNTIME.manifest.state === "deployed" && TARGET_KIND === "testnet";
+  const testnetRepay = EVIDENCE.testnetAutoRepay;
+  const testnetRepayUrl = testnetRepay.status === "ok" ? explorerTxUrl(testnetRepay.value.chainId, testnetRepay.value.hash) : null;
   const rows: Array<{ tone: StatusTone; label: string; title: string; body: React.ReactNode }> = [
     sample.status === "ok"
       ? {
@@ -240,7 +253,26 @@ function StatusList() {
         }
       : { tone: "pending", label: "Not recorded", title: "Peridot policies on the real processor code", body: "No fork evidence is bundled with this build." },
     deployed
-      ? { tone: "done", label: "Testnet", title: "Contracts deployed on X Layer testnet", body: "Chain 1952, test profile with mock tokens and a mock price feed." }
+      ? {
+          tone: "done",
+          label: "Testnet",
+          title: "Contracts deployed on X Layer testnet",
+          body: (
+            <>
+              Chain 1952, test profile with mock tokens and a mock price feed. Policies are evaluated by a development reference processor, not by TapeOut.
+              {testnetRepay.status === "ok" && testnetRepayUrl ? (
+                <>
+                  {" "}
+                  A separate repay-only operator has executed one automated repayment there:{" "}
+                  <a href={testnetRepayUrl} target="_blank" rel="noreferrer" className="font-medium text-fg underline underline-offset-4">
+                    transaction {shortHash(testnetRepay.value.hash)}
+                  </a>
+                  .
+                </>
+              ) : null}
+            </>
+          ),
+        }
       : { tone: "pending", label: "Not deployed", title: "X Layer testnet deployment", body: "No Peridot contract is deployed on chain 1952 yet. The app shows clearly labelled example data and keeps writes disabled." },
     { tone: "none", label: "None", title: "Mainnet funds", body: "No Peridot contract holds funds on X Layer mainnet. Nothing here has been audited." },
   ];

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------
-   Peridot Markets design tokens.
+   Peridot Sentinel design tokens.
    This file is the ONLY place colours are defined. Components use the
    semantic Tailwind names below (bg-surface, text-muted, border-line...).
    The default Tailwind palette is removed so bg-white / text-gray-500

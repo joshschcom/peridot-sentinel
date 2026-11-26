@@ -104,6 +104,31 @@ export const IconBot = (p: IconProps) => (
     <path d="M12 4v4M9 13v1.5M15 13v1.5" />
   </Svg>
 );
+export const IconEarn = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3 17l5-5 4 4 8-9M15 7h5v5" />
+  </Svg>
+);
+export const IconBorrow = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 4v12M7 11l5 5 5-5M4 20h16" />
+  </Svg>
+);
+export const IconTrade = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4" />
+  </Svg>
+);
+export const IconConnect = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M9 7H7a5 5 0 0 0 0 10h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8" />
+  </Svg>
+);
+export const IconMore = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M5 12h.01M12 12h.01M19 12h.01" strokeWidth={2.4} />
+  </Svg>
+);
 export const IconLock = (p: IconProps) => (
   <Svg {...p}>
     <rect x="5" y="11" width="14" height="9" rx="2" />

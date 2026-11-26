@@ -1,4 +1,5 @@
 "use client";
+import { LiveMainnetEval } from "./live-eval";
 import { PolicyIdentity, PolicyRules, SourceTag, capText } from "@/components/domain/policy-card";
 import { Badge, Card, CardHeader, DefinitionRow, ExampleTag, Mono, PageHeader, Skeleton } from "@/components/ui/core";
 import { IconArrowUpRight, IconCheck, IconX } from "@/components/ui/icons";
@@ -85,8 +86,9 @@ export function Circuits() {
           <p className="mt-1 max-w-2xl text-sm text-muted">Three separate environments. Only the first is publicly verifiable. None of this is example data.</p>
         </div>
 
+        <LiveMainnetEval />
         <Card as="article">
-          <CardHeader eyebrow="1 · Public X Layer mainnet" title={PUBLIC_READ_LABEL} description="A circuit that already existed on the official TapeOut deployment. Read with eth_call only: no transaction was sent." action={<Badge tone="success">Public</Badge>} />
+          <CardHeader eyebrow="1 · Public X Layer mainnet · recorded" title={PUBLIC_READ_LABEL} description="A circuit that already existed on the official TapeOut deployment. Read with eth_call only: no transaction was sent." action={<Badge tone="success">Public</Badge>} />
           {EVIDENCE.publicSample.status === "ok" ? (
             <PublicSample />
           ) : (

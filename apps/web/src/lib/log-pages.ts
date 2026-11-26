@@ -46,3 +46,32 @@ export function scanWindow(deploymentBlock: bigint, latest: bigint, pageBlocks: 
   const from = earliest > deploymentBlock ? earliest : deploymentBlock;
   return { from, to: latest, complete: from <= deploymentBlock };
 }
+
+export interface BlockRange {
+  from: bigint;
+  to: bigint;
+}
+
+/**
+ * What a first scan reads when the whole history is too long to page through (X Layer testnet: 100 blocks per
+ * query, about one block per second, so a day of history is roughly 860 requests per event filter).
+ * Two ends are read and the gap between them is reported, never hidden:
+ *   - the first `earlyPages` pages from the deployment block (the deployment's own events and first demo activity);
+ *   - the last `headPages` pages up to the head (what the viewer just did).
+ * `complete` is true only when the two ends meet, so every block from the deployment block to the head was read.
+ */
+export function scanPlan(deploymentBlock: bigint, latest: bigint, pageBlocks: bigint, headPages: number, earlyPages: number): { ranges: BlockRange[]; complete: boolean } {
+  const head = scanWindow(deploymentBlock, latest, pageBlocks, headPages);
+  if (head.complete) return { ranges: [{ from: head.from, to: head.to }], complete: true };
+  if (earlyPages <= 0) return { ranges: [{ from: head.from, to: head.to }], complete: false };
+  const earlyTo = deploymentBlock + pageBlocks * BigInt(earlyPages) - 1n;
+  if (earlyTo + 1n >= head.from) return { ranges: [{ from: deploymentBlock, to: head.to }], complete: true };
+  return { ranges: [{ from: deploymentBlock, to: earlyTo }, { from: head.from, to: head.to }], complete: false };
+}
+
+/** Blocks between the scanned ranges, i.e. what a reader must be told was NOT read. */
+export function unscannedBlocks(ranges: BlockRange[]): bigint {
+  let gap = 0n;
+  for (let index = 1; index < ranges.length; index++) gap += ranges[index]!.from - ranges[index - 1]!.to - 1n;
+  return gap;
+}

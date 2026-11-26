@@ -2,11 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { Providers } from "@/components/providers";
+import { BRAND } from "@/lib/brand";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Peridot Markets — Your money. Your rules.", template: "%s · Peridot Markets" },
-  description: "Programmable markets and intelligent financial accounts on X Layer, powered by verifiable policies.",
+  title: { default: `${BRAND.name} — ${BRAND.tagline}`, template: `%s · ${BRAND.name}` },
+  description: `${BRAND.positioning} Smart accounts that hold your position and only act within the policy you set, with isolated lending markets on X Layer. Experimental testnet build with test tokens.`,
+  applicationName: BRAND.name,
 };
 
 export const viewport: Viewport = {

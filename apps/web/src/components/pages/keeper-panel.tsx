@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { coverageRanges } from "@/components/domain/log-coverage";
 import { marketTitle, tokenAmount } from "@/components/domain/market-bits";
 import { Advanced, Badge, Card, CardHeader, DefinitionRow, ExampleTag, Mono, Notice, Skeleton, type Tone } from "@/components/ui/core";
 import { IconAlert, IconBot } from "@/components/ui/icons";
@@ -13,7 +14,7 @@ import { formatTime, shortAddress, shortHash } from "@/lib/format";
 import { type KeeperFeed, type KeeperGroup, type KeeperItem, type KeeperTone, groupKeeperItems, keeperRowView } from "@/lib/keeper";
 import { services } from "@/services";
 import type { AutoRepayFact, ReceiptFact } from "@/services/chain/reads";
-import type { TokenInfo } from "@/services/types";
+import type { LogCoverage, TokenInfo } from "@/services/types";
 
 const TONE: Record<KeeperTone, Tone> = { neutral: "neutral", success: "success", warning: "warning", danger: "danger" };
 const sameAddress = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
@@ -119,7 +120,7 @@ export function KeeperPanel() {
             <Rows groups={groupKeeperItems(feed.items)} token={token} receipts={facts.data?.receipts} />
           )}
           {feed.truncated ? <p className="px-5 pb-4 text-xs text-faint sm:px-6">Older reports exist in the keeper's journal and are not shown.</p> : null}
-          <ChainRepays events={facts.data?.repays.events ?? null} complete={facts.data?.repays.complete ?? true} fromBlock={facts.data?.repays.fromBlock} token={token} reported={new Set(feed.items.flatMap((item) => (item.hash ? [item.hash.toLowerCase()] : [])))} />
+          <ChainRepays events={facts.data?.repays.events ?? null} coverage={facts.data?.repays.coverage ?? null} token={token} reported={new Set(feed.items.flatMap((item) => (item.hash ? [item.hash.toLowerCase()] : [])))} />
         </>
       ) : (
         <div className="p-5 sm:p-6" data-testid="keeper-message">
@@ -216,17 +217,18 @@ function ReceiptLine({ receipt, token }: { receipt: ReceiptFact | undefined; tok
 }
 
 /** AutoRepayExecuted events emitted by the watched account, read from the chain independently of the keeper's journal. */
-function ChainRepays({ events, complete, fromBlock, token, reported }: { events: AutoRepayFact[] | null; complete: boolean; fromBlock?: bigint; token: TokenInfo | null; reported: Set<string> }) {
+function ChainRepays({ events, coverage, token, reported }: { events: AutoRepayFact[] | null; coverage: LogCoverage | null; token: TokenInfo | null; reported: Set<string> }) {
   if (events === null) return null;
+  const complete = coverage?.complete ?? true;
   const url = (hash: string) => explorerTxUrl(WRITE_CHAIN_ID, hash);
   return (
     <div className="border-t border-line p-5 sm:p-6" data-testid="keeper-chain-repays" data-count={events.length}>
       <h3 className="text-sm font-medium">On chain for this account</h3>
       <p className="mt-0.5 text-xs text-faint">
-        AutoRepayExecuted events emitted by the account itself{complete ? "" : `, scanned from block ${fromBlock?.toString() ?? "?"} only`}.
+        AutoRepayExecuted events emitted by the account itself{complete || !coverage ? "" : `, read from ${coverageRanges(coverage)} only`}.
       </p>
       {events.length === 0 ? (
-        <p className="mt-3 text-sm text-muted">No auto-repay has been executed for this account{complete ? "" : " in the scanned range"}.</p>
+        <p className="mt-3 text-sm text-muted">No auto-repay has been executed for this account{complete ? "" : " in the blocks that were read"}.</p>
       ) : (
         <ul className="mt-3 space-y-3">
           {events.map((event) => (

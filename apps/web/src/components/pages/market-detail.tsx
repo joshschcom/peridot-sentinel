@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ActionPanel, type ActionTab } from "@/components/domain/action-panel";
 import { LtvMeter } from "@/components/domain/ltv-meter";
@@ -31,6 +32,8 @@ export function MarketDetail({ id }: { id: string }) {
   const direct = useDirectPosition(id);
   const [sheet, setSheet] = useState<ActionTab | null>(null);
   const [view, setView] = useState<ActingPath | null>(null);
+  // Arriving from Borrow opens the panel on Borrow; from Earn (or directly) on Supply.
+  const marketsView = useSearchParams().get("view") === "borrow" ? "borrow" : "earn";
 
   if (market.isPending) {
     return (
@@ -65,8 +68,8 @@ export function MarketDetail({ id }: { id: string }) {
   return (
     <div className="space-y-6">
       <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted">
-        <Link href="/markets" className="rounded hover:text-fg">
-          Markets
+        <Link href={`/markets?view=${marketsView}`} className="rounded hover:text-fg">
+          {marketsView === "borrow" ? "Borrow" : "Earn"}
         </Link>
         <IconChevronRight size={14} />
         <span className="text-fg">{marketTitle(m)}</span>
@@ -198,7 +201,7 @@ export function MarketDetail({ id }: { id: string }) {
 
         {/* Desktop action panel */}
         <aside className="hidden lg:block">
-          <Card className="sticky top-28 p-5">{panel("supply")}</Card>
+          <Card className="sticky top-28 p-5">{panel(marketsView === "borrow" ? "borrow" : "supply")}</Card>
         </aside>
       </div>
 

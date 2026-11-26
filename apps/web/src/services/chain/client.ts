@@ -18,8 +18,8 @@ import {
 } from "@peridot/chain-config";
 import type { Abi, PublicClient } from "viem";
 import { getPublicClient } from "wagmi/actions";
-import { LOG_MAX_PAGES, LOG_PAGE_BLOCKS, WRITE_CHAIN } from "../../lib/chains.ts";
-import { fetchLogPages, scanWindow } from "../../lib/log-pages.ts";
+import { LOG_EARLY_PAGES, LOG_MAX_PAGES, LOG_PAGE_BLOCKS, WRITE_CHAIN } from "../../lib/chains.ts";
+import { type BlockRange, fetchLogPages, scanPlan } from "../../lib/log-pages.ts";
 import { retryRead } from "../../lib/retry.ts";
 import type { DeploymentManifest } from "../../lib/manifest.ts";
 import { STUDIO_MARKET_ROOT } from "../../lib/policy.ts";
@@ -91,45 +91,66 @@ export const feedIsMock = (): boolean => RUNTIME.manifest.state === "deployed" &
 
 export interface LogScan<L> {
   logs: L[];
+  /** Start of the most recent scanned range. */
   fromBlock: bigint;
   toBlock: bigint;
-  /** False when blocks between the deployment block and `fromBlock` were not scanned. */
+  /** Every block range that was read, oldest first. More than one range means blocks in between were NOT read. */
+  ranges: BlockRange[];
+  /** True only when every block from the deployment block to `toBlock` was read. */
   complete: boolean;
 }
 
 type CachedScan = { from: bigint; to: bigint; logs: Array<{ blockNumber: bigint }> };
 const logCache = new Map<string, CachedScan>();
+/** The pages right after the deployment block. History that old does not change, so it is fetched once per key. */
+const earlyCache = new Map<string, CachedScan>();
 let logDepth = 1;
 const REORG_OVERLAP = 12n;
 
-/** Doubles how far back log scans reach ("Scan further back"). Cached scans are dropped and redone. */
+/** Doubles how far log scans reach from both ends ("Scan more blocks"). Cached scans are dropped and redone. */
 export function extendLogWindow(): number {
   logDepth *= 2;
   logCache.clear();
+  earlyCache.clear();
   return logDepth;
 }
 
 /**
- * Logs for one query from the deployment block (or as far back as the page budget reaches) to the head, in pages
- * the RPC accepts. Results are cached per key; a later call only fetches the new blocks plus a short overlap.
+ * Logs for one query, in pages the RPC accepts. Read from the deployment block to the head when the page budget
+ * allows; otherwise from both ends (see scanPlan), with the unread gap reported in `ranges`. Results are cached
+ * per key; a later call only fetches the new blocks plus a short overlap.
  */
 export async function scanLogs<L extends { blockNumber: bigint }>(key: string, fetchPage: (fromBlock: bigint, toBlock: bigint) => Promise<L[]>): Promise<LogScan<L>> {
   // Never a cached head: a scan right after a confirmed transaction must include that transaction's block.
-  const latest = await client().getBlockNumber({ cacheTime: 0 });
+  const latest = await retryRead(() => client().getBlockNumber({ cacheTime: 0 }));
   const deployment = DEPLOYMENT_BLOCK();
-  const window = scanWindow(deployment, latest, LOG_PAGE_BLOCKS, LOG_MAX_PAGES * logDepth);
+  const plan = scanPlan(deployment, latest, LOG_PAGE_BLOCKS, LOG_MAX_PAGES * logDepth, LOG_EARLY_PAGES * logDepth);
   const options = { pageBlocks: LOG_PAGE_BLOCKS, concurrency: 4 };
+  const pages = (from: bigint, to: bigint) => fetchLogPages((start, end) => retryRead(() => fetchPage(start, end), { attempts: 3 }), from, to, options);
+  const headPlan = plan.ranges.at(-1)!;
+  const earlyPlan = plan.ranges.length > 1 ? plan.ranges[0]! : null;
+
   const cached = logCache.get(key);
-  if (cached && cached.to <= latest && cached.to + 1n >= window.from) {
+  let head: CachedScan;
+  if (cached && cached.to <= latest && cached.to + 1n >= headPlan.from) {
     const resume = cached.to - cached.from >= REORG_OVERLAP ? cached.to - REORG_OVERLAP + 1n : cached.from;
-    const fresh = await fetchLogPages((from, to) => retryRead(() => fetchPage(from, to), { attempts: 3 }), resume, latest, options);
-    const next: CachedScan = { from: cached.from, to: latest, logs: [...cached.logs.filter((log) => log.blockNumber < resume), ...fresh] };
-    logCache.set(key, next);
-    return { logs: next.logs as L[], fromBlock: next.from, toBlock: latest, complete: next.from <= deployment };
+    head = { from: cached.from, to: latest, logs: [...cached.logs.filter((log) => log.blockNumber < resume), ...(await pages(resume, latest))] };
+  } else {
+    head = { from: headPlan.from, to: latest, logs: await pages(headPlan.from, latest) };
   }
-  const logs = await fetchLogPages((from, to) => retryRead(() => fetchPage(from, to), { attempts: 3 }), window.from, window.to, options);
-  logCache.set(key, { from: window.from, to: latest, logs });
-  return { logs, fromBlock: window.from, toBlock: latest, complete: window.complete };
+  logCache.set(key, head);
+  if (head.from <= deployment) return { logs: head.logs as L[], fromBlock: head.from, toBlock: latest, ranges: [{ from: head.from, to: latest }], complete: true };
+  if (!earlyPlan) return { logs: head.logs as L[], fromBlock: head.from, toBlock: latest, ranges: [{ from: head.from, to: latest }], complete: false };
+
+  let early = earlyCache.get(key);
+  if (!early || early.from !== earlyPlan.from || early.to < earlyPlan.to) {
+    early = { from: earlyPlan.from, to: earlyPlan.to, logs: await pages(earlyPlan.from, earlyPlan.to) };
+    earlyCache.set(key, early);
+  }
+  // A cached head can have grown back to meet the early pages; then nothing is missing.
+  const meets = early.to + 1n >= head.from;
+  const logs = [...early.logs.filter((log) => log.blockNumber < head.from), ...head.logs] as L[];
+  return { logs, fromBlock: meets ? early.from : head.from, toBlock: latest, ranges: meets ? [{ from: early.from, to: latest }] : [{ from: early.from, to: early.to }, { from: head.from, to: latest }], complete: meets };
 }
 
 export type DeploymentCheck = { ok: true; chainId: number; contracts: number; root: string } | { ok: false; reason: string };

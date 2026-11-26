@@ -1,0 +1,168 @@
+{
+  "mode": "testnet-live",
+  "case": null,
+  "base": "http://127.0.0.1:3220",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": true,
+  "failures": [],
+  "notes": [
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "gasBanner": true,
+      "faucet": "https://web3.okx.com/xlayer/faucet/xlayerfaucet",
+      "gasText": "Your wallet has no test OKB. Transactions need a little OKB for the network fee, so they cannot be sent yet. You can still look around. Get test OKB from the faucet"
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "sentinelAccounts": []
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "ms": 8929,
+      "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+      "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
+      "onChainEntries": 0,
+      "autoRepayInScan": false,
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,238,804 to the latest block 47,242,803. The 76,296 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "ranges": 2,
+      "unreadBlocks": "76296",
+      "keeperPanel": "scope-mismatch",
+      "keeperRows": 0,
+      "keeperText": "Keeper reports withheld A keeper service answered, but it does not belong to this deployment, so none of its rows are shown. The keeper works on chain 31337; this app targets chain 1952. The keeper's Sentinel factory is not the one in this "
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "gasBanner": true,
+      "faucet": "https://web3.okx.com/xlayer/faucet/xlayerfaucet",
+      "gasText": "Your wallet has no test OKB. Transactions need a little OKB for the network fee, so they cannot be sent yet. You can still look around. Get test OKB from the faucet"
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "sentinelAccounts": []
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "ms": 8383,
+      "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+      "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
+      "onChainEntries": 0,
+      "autoRepayInScan": false,
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,238,906 to the latest block 47,242,905. The 76,398 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "ranges": 2,
+      "unreadBlocks": "76398",
+      "keeperPanel": "scope-mismatch",
+      "keeperRows": 0,
+      "keeperText": "Keeper reports withheld A keeper service answered, but it does not belong to this deployment, so none of its rows are shown. The keeper works on chain 31337; this app targets chain 1952. The keeper's Sentinel factory is not the one in this "
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "gasBanner": false,
+      "faucet": null,
+      "gasText": ""
+    },
+    {
+      "testnetRejectionSimulation": {
+        "borrow": "12 mUSD through the Sentinel account",
+        "category": "account-policy",
+        "rejectionText": "YOUR SENTINEL POLICY Simulation · nothing sent Stopped by your Sentinel policy Your own policy circuit denied the operation. The market would not have been asked: your personal limit is stricter here. Lower the amount, or review your policy if this limit is no longer what you want. Review your polic",
+        "otherLayer": {
+          "layer": "market-policy",
+          "verdict": "allow",
+          "basis": "local-preview",
+          "text": "The market's policy circuit would allow this operation. Only your own Sentinel rule stops it. Local preview of the same circuit on the same inputs. It was not reached on chain."
+        },
+        "sent": 0
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "sentinelAccounts": [
+        "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0"
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "operators": [
+        {
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "text": "0x2c7E…CE88 Repay Budget left 2 mUSD of 2 mUSD · expires 03 Dec 2026 Check what it can do Revoke"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "ms": 8287,
+      "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+      "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
+      "onChainEntries": 8,
+      "autoRepayInScan": true,
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,239,025 to the latest block 47,243,024. The 76,517 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "ranges": 2,
+      "unreadBlocks": "76517",
+      "keeperPanel": "scope-mismatch",
+      "keeperRows": 0,
+      "keeperText": "Keeper reports withheld A keeper service answered, but it does not belong to this deployment, so none of its rows are shown. The keeper works on chain 31337; this app targets chain 1952. The keeper's Sentinel factory is not the one in this "
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "gasBanner": false,
+      "faucet": null,
+      "gasText": ""
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "sentinelAccounts": [
+        "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0"
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "operators": [
+        {
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "text": "0x2c7E…CE88 Repay Budget left 2 mUSD of 2 mUSD · expires 03 Dec 2026 Check what it can do Revoke"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "ms": 8884,
+      "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+      "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
+      "onChainEntries": 8,
+      "autoRepayInScan": true,
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,239,146 to the latest block 47,243,145. The 76,638 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "ranges": 2,
+      "unreadBlocks": "76638",
+      "keeperPanel": "scope-mismatch",
+      "keeperRows": 0,
+      "keeperText": "Keeper reports withheld A keeper service answered, but it does not belong to this deployment, so none of its rows are shown. The keeper works on chain 31337; this app targets chain 1952. The keeper's Sentinel factory is not the one in this "
+    },
+    {
+      "loads": {
+        "total": 36,
+        "deploymentBanner": 0,
+        "pageErrors": 0,
+        "slowest": {
+          "ms": 13965,
+          "tag": "demo-owner-watch-only /sentinel @390"
+        }
+      }
+    }
+  ]
+}

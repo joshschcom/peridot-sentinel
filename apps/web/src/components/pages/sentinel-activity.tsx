@@ -7,7 +7,8 @@ import { Advanced, Badge, Button, Card, CardHeader, EmptyState, ExampleTag, Mono
 import { IconArrowUpRight, IconBot, IconUser } from "@/components/ui/icons";
 import { useActivity } from "@/hooks/use-data";
 import { formatAmount, formatBps } from "@/lib/amount";
-import { LOG_PAGE_BLOCKS, WRITE_CHAIN_ID, explorerTxUrl } from "@/lib/chains";
+import { LogCoverageText } from "@/components/domain/log-coverage";
+import { WRITE_CHAIN_ID, explorerTxUrl } from "@/lib/chains";
 import { type ErrorCategory, mapContractError, rawErrorText } from "@/lib/errors";
 import { EVIDENCE, FORK_LABEL, LOCAL_LABEL, TESTNET_LABEL } from "@/lib/evidence";
 import { formatTime, shortHash } from "@/lib/format";
@@ -49,7 +50,7 @@ export function SentinelActivity() {
 
   return (
     <div className="space-y-6">
-      <SentinelHeader description="Everything your account and its operator attempted: what was allowed, what was stopped, by which rule, and how we know." />
+      <SentinelHeader title="Activity" description="Everything your account and its operator attempted: what was allowed, what was stopped, by which rule, and how we know." />
 
       <div role="group" aria-label="Filter activity" className="flex gap-2">
         {(["all", "allowed", "rejected"] as const).map((option) => (
@@ -64,7 +65,7 @@ export function SentinelActivity() {
       ) : entries === null ? (
         <EmptyState title="Activity unavailable">{activity.data?.status === "unavailable" ? activity.data.reason : "Activity could not be loaded."}</EmptyState>
       ) : shown.length === 0 ? (
-        <EmptyState title="Nothing here yet">Actions by you or your operator will appear here with their outcome{coverage && !coverage.complete ? " (in the scanned block range, see below)" : ""}.</EmptyState>
+        <EmptyState title="Nothing here yet">Actions by you or your operator will appear here with their outcome{coverage && !coverage.complete ? " (in the block ranges that were read, see below)" : ""}.</EmptyState>
       ) : (
         <Card as="section" data-testid="chain-activity">
           {fixture ? null : <CardHeader eyebrow="On chain" title="Your wallet and Sentinel accounts" description="Events emitted by the contracts in mined transactions: PolicyAllowed and AutoRepayExecuted." />}
@@ -78,10 +79,10 @@ export function SentinelActivity() {
       {coverage && !coverage.complete ? (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-control border border-line px-4 py-3 text-[0.8125rem]" data-testid="activity-coverage">
           <p className="min-w-0 flex-1 text-muted">
-            On-chain events are read from block <span className="num text-fg">{coverage.fromBlock.toString()}</span> to <span className="num text-fg">{coverage.toBlock.toString()}</span>. Earlier history has not been scanned: the network's public RPC only answers log queries {LOG_PAGE_BLOCKS.toString()} blocks at a time.
+            <LogCoverageText coverage={coverage} />
           </p>
           <Button size="sm" variant="secondary" onClick={scanFurther} disabled={activity.isFetching}>
-            Scan further back
+            Scan more blocks
           </Button>
         </div>
       ) : null}

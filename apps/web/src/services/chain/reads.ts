@@ -8,7 +8,7 @@ import { formatBps } from "../../lib/amount.ts";
 import { type RawError, extractRaw } from "../../lib/errors.ts";
 import { type Maybe, ok, unavailable } from "../../lib/maybe.ts";
 import { type AccountPolicySpec, LOCAL_PREVIEW_LABEL, type MarketPolicySpec, Op, OP_LABEL, type OpId, type PolicySpec, accountPolicySpec, compileSpec, evaluateLocally, marketPolicySpec, studioTemplateByConfigHash } from "../../lib/policy.ts";
-import type { Address, CheckResult, Market, OperationPreview, OperationRequest, OperatorGrant, PolicyRecord, Position, RejectionSource, SentinelAccount, TokenInfo } from "../types.ts";
+import type { Address, CheckResult, LogCoverage, Market, OperationPreview, OperationRequest, OperatorGrant, PolicyRecord, Position, RejectionSource, SentinelAccount, TokenInfo } from "../types.ts";
 import { WRITE_CHAIN_ID } from "../../lib/chains.ts";
 import { rememberedOperators } from "../../lib/local-memory.ts";
 import { ABI, client, contract, feedLabel, isMockToken, manifest, scanLogs, withErrors } from "./client.ts";
@@ -319,10 +319,10 @@ export async function verifyKeeperReceipts(account: Address, hashes: readonly He
 }
 
 /** AutoRepayExecuted events of one account in the scanned block range, newest first. */
-export async function readAutoRepays(account: Address): Promise<{ events: AutoRepayFact[]; fromBlock: bigint; complete: boolean }> {
+export async function readAutoRepays(account: Address): Promise<{ events: AutoRepayFact[]; coverage: LogCoverage }> {
   const rpc = client();
   const scan = await scanLogs(`auto-repays:${account}`, (fromBlock, toBlock) => rpc.getContractEvents({ address: account, abi: ABI.sentinel, eventName: "AutoRepayExecuted", fromBlock, toBlock, strict: true }));
-  return { events: scan.logs.map((log) => ({ hash: log.transactionHash, blockNumber: log.blockNumber, ...log.args })).reverse(), fromBlock: scan.fromBlock, complete: scan.complete };
+  return { events: scan.logs.map((log) => ({ hash: log.transactionHash, blockNumber: log.blockNumber, ...log.args })).reverse(), coverage: { ranges: scan.ranges, complete: scan.complete } };
 }
 
 /* ---------- operation preview ---------- */

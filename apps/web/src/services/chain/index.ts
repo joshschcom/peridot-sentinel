@@ -153,7 +153,7 @@ export const chainActivityService: ActivityService = {
         })),
       ];
       entries.sort((a, b) => ((position.get(b.id) ?? 0n) > (position.get(a.id) ?? 0n) ? 1 : -1));
-      return { entries, coverage: { fromBlock: allowedScan.fromBlock, toBlock: allowedScan.toBlock, complete: allowedScan.complete } };
+      return { entries, coverage: { ranges: allowedScan.ranges, complete: allowedScan.complete } };
     });
   },
 };

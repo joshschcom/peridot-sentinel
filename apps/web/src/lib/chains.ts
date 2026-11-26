@@ -56,6 +56,11 @@ const positiveInt = (value: string | undefined, fallback: number): number => (va
 export const LOG_PAGE_BLOCKS = BigInt(positiveInt(process.env.NEXT_PUBLIC_LOG_PAGE_BLOCKS, TARGET_KIND === "local" ? 5000 : 100));
 /** Pages a first scan may fetch back from the head. History before that is reported as not scanned. */
 export const LOG_MAX_PAGES = positiveInt(process.env.NEXT_PUBLIC_LOG_MAX_PAGES, 40);
+/**
+ * Pages a first scan fetches forward from the deployment block when the head pages do not reach it (the deployment's
+ * own events and the first recorded demo activity live there). The blocks in between are reported as not scanned.
+ */
+export const LOG_EARLY_PAGES = positiveInt(process.env.NEXT_PUBLIC_LOG_EARLY_PAGES, 10);
 
 export function chainName(chainId: number | undefined): string {
   if (chainId === xLayerTestnet.id) return xLayerTestnet.name;

@@ -239,10 +239,18 @@ export interface PolicyService extends ServiceMeta {
   listRegistered(): Promise<Maybe<PolicyRecord[]>>;
 }
 
+export interface LogCoverage {
+  ranges: Array<{ from: bigint; to: bigint }>;
+  complete: boolean;
+}
+
 export interface ActivityFeed {
   entries: ActivityEntry[];
-  /** Chain mode: the block range the events were read from. `complete` is false when older history was not scanned. */
-  coverage?: { fromBlock: bigint; toBlock: bigint; complete: boolean };
+  /**
+   * Chain mode: the block ranges the events were read from, oldest first. `complete` is false when blocks between
+   * the deployment block and the head were not read (see `scanPlan`); the UI must say which.
+   */
+  coverage?: LogCoverage;
 }
 
 export interface ActivityService extends ServiceMeta {
