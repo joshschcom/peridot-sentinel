@@ -166,3 +166,26 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   - Astra session 5: design freeze, then adapters and MCP.
   - Fable run 3: 1952 correctness, rebrand, Automate.
 - Docs added: PRIOR_WORK_AND_DIFF, SUBMISSION_EVIDENCE, DEMO_RUNBOOK. The relay report is in `reports/M4-testnet-and-scope.md`.
+
+## Update 2026-11-26 (later): Connect flagship live on testnet; remote created; Astra s6 and Fable r4 running
+- **`8ce2329`, Astra session 5 (additive v2):**
+  - SentinelAccount v2 and typed adapters;
+  - the Uniswap v3 swap, fork-verified against the real router;
+  - the EXECUTION circuit;
+  - Sentinel Connect MCP (12 tools, one restricted execute);
+  - D8b-v2 (three circuits, unsigned, ceiling 0.004647 OKB).
+  - Claude re-ran the suites: expansion 15/15, core 24/24, MCP 7/7.
+- **Connect flagship on PUBLIC 1952:** tx `0xc5daaf34…0b0f`.
+- **Fable run 3** (`3d56dde`…`32648c6`):
+  - 1952 browser-verified (44 loads, 0 deployment banners);
+  - rebrand, Automate, portfolio, and native mainnet eval for CPU 275.
+- **Remote:** `joshschcom/peridot-sentinel`, private, pushed. A fresh-clone `npm ci` plus web build passes (Vercel simulation).
+- **Running:**
+  - Astra session 6: account-v2 operator enumeration, gas headroom, v2 testnet deploy, mined independent rejections on 1952, activity snapshot indexer, ERC-4626.
+  - Fable run 4: Connect UI to "Available on testnet", native eval for the three circuits, v2 UI, Vercel readiness, negative checks.
+- **Founder actions:**
+  - Vercel import;
+  - OKX API credentials;
+  - D8b-v2 signing (Nov 28);
+  - organizer answers;
+  - eventual repo transfer and 2FA.
