@@ -153,3 +153,16 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   - DEMO_MATRIX 1952 cells still need filling.
   - A fresh testnet keeper demo position is needed before recording.
   - The D8(b) decision and the organizer answers are still pending.
+
+## Update 2026-11-26: rebrand to Peridot Sentinel; scope expansion; M4 report
+- **D11 rebrand:** the project is now Peridot Sentinel.
+- **D12 scope expansion:** recorded.
+- **D13 narrowed plan:** sent for review.
+- **D14 D8(b) hold:** in effect.
+- Tags: `m4-fallback` (6657771) and `m4-testnet-deployed-src` (39c0a54).
+- Fable run 2 stopped on a transient API billing error. Its work was checkpointed in `6657771`, and the model is available again.
+- Claude re-verified the independent rejections in `d334494`.
+- Running now:
+  - Astra session 5: design freeze, then adapters and MCP.
+  - Fable run 3: 1952 correctness, rebrand, Automate.
+- Docs added: PRIOR_WORK_AND_DIFF, SUBMISSION_EVIDENCE, DEMO_RUNBOOK. The relay report is in `reports/M4-testnet-and-scope.md`.
