@@ -244,18 +244,6 @@ try {
       return `${check({ shownQuote, shownBound, sharesBefore: before[0], sharesAfter: after[0], idleBefore, idleAfter, input: call.args[0] })}; bound in calldata = bound shown (${shownBound}); allowance to the vault 0`;
     });
   };
-  await vaultAction("deposit", "10", "depositToVault", ({ shownQuote, shownBound, sharesBefore, sharesAfter, idleBefore, idleAfter, input }) => {
-    assert(input === 10n * E6 && idleBefore - idleAfter === 10n * E6 && sharesAfter - sharesBefore >= shownBound && shownBound <= shownQuote, "the deposit did not respect its minimum shares");
-    return `assets 10000000 in, shares +${sharesAfter - sharesBefore} (minimum ${shownBound}, quote ${shownQuote})`;
-  });
-  await vaultAction("withdraw", "2", "withdrawFromVault", ({ shownQuote, shownBound, sharesBefore, sharesAfter, idleBefore, idleAfter, input }) => {
-    assert(input === 2n * E6 && idleAfter - idleBefore === 2n * E6 && sharesBefore - sharesAfter <= shownBound && shownBound >= shownQuote, "the withdrawal burned more than its maximum shares");
-    return `assets 2000000 out, shares -${sharesBefore - sharesAfter} (maximum ${shownBound}, quote ${shownQuote})`;
-  });
-  await vaultAction("redeem", "4", "redeemFromVault", ({ shownQuote, shownBound, sharesBefore, sharesAfter, idleBefore, idleAfter, input }) => {
-    assert(input === 4n * E6 && sharesBefore - sharesAfter === 4n * E6 && idleAfter - idleBefore >= shownBound && shownBound <= shownQuote, "the redemption paid less than its minimum assets");
-    return `shares 4000000 in, assets +${idleAfter - idleBefore} (minimum ${shownBound}, quote ${shownQuote})`;
-  });
   // Amounts fit what the public account holds on the fork (8 mUSDC idle, 4 shares at the fork point).
   assert(idle0 >= 5n * E6, `the vault account holds only ${idle0} raw mUSDC idle on this fork; 5 are needed`);
   await vaultAction("deposit", "5", "depositToVault", ({ shownQuote, shownBound, sharesBefore, sharesAfter, idleBefore, idleAfter, input }) => {

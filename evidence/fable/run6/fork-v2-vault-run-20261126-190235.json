@@ -1,0 +1,145 @@
+{
+  "label": "PRIVATE FORK of X Layer testnet 1952 (loopback Anvil, chain id 1952, auto-impersonation). Mock tokens, inventory-backed mock venue, mock ERC-4626 vault, development reference processor. These transactions exist only on the fork: they are NOT public transactions and must never be linked to an explorer.",
+  "driver": "Playwright Chromium + injected test EIP-1193 provider reporting the public demo owner and forwarding to the fork, which signs by impersonation; no private key",
+  "build": "production build (next build + next start) for chain 1952 with the private-fork label, RPC pointed at the fork; expansion manifests from a copy in which only vault-1952.json uiEnabled is true (the base v2 write switch is treated as on by the fork build)",
+  "rpc": "http://127.0.0.1:19750",
+  "chainId": 1952,
+  "nodeClient": "anvil/v1.7.1",
+  "runId": "run-20261126-190235",
+  "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "operator": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+  "publicAccounts": {
+    "v2Account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+    "vaultAccount": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574"
+  },
+  "ownershipPreflight": {
+    "v2AccountOf": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+    "v2Owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+    "vaultAccountOf": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+    "vaultOwner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"
+  },
+  "startBlock": 47255925,
+  "endBlock": 47255932,
+  "result": "passed",
+  "appTransactions": [
+    {
+      "label": "v2 swap-only grant: 0.5 mWOKB per swap, 1 in total, 1 day",
+      "sender": "app (owner wallet)",
+      "hash": "0x05e766edeed0dc1983c7fd4c8661da8eb635e35c328835e306b7ef4892398d4a",
+      "to": "0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+      "selector": "0x9230fb3e",
+      "block": "47255926",
+      "gasUsed": "165610",
+      "gasLimit": "250814",
+      "asserted": "grants(operator, swap, 5, mWOKB) = (5e17, 1e18, 1795806067); operatorCount 1"
+    },
+    {
+      "label": "v2 revoke all operators",
+      "sender": "app (owner wallet)",
+      "hash": "0x17511f9b79dd09c3854786db96223b4e2091f0d124df83751de6dd13dbe4a328",
+      "to": "0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+      "selector": "0xbad6ac70",
+      "block": "47255928",
+      "gasUsed": "27886",
+      "gasLimit": "67182",
+      "asserted": "operatorCount 0, grant (0,0,0); the same operator swap now simulates OperatorNotAuthorized"
+    },
+    {
+      "label": "vault deposit limits: cap 1000 mUSDC, floor 1 share per asset",
+      "sender": "app (owner wallet)",
+      "hash": "0x401df84a2e94ee2c6a8c6c7ccfdbbcbd0c62d0c64ee362168c5aa9e405c568f0",
+      "to": "0xa167627cd59445dd9792d0f3d8d465c2bc41e574",
+      "selector": "0xfe9ce651",
+      "block": "47255929",
+      "gasUsed": "28497",
+      "gasLimit": "67996",
+      "asserted": "maxVaultPositionAssets 1000000000, minVaultSharesPerAssetWad 1000000000000000000"
+    },
+    {
+      "label": "vault deposit 5",
+      "sender": "app (owner wallet)",
+      "hash": "0xa0563e9b96fbaef322ce0b51d92ae349fba796c9c5e793b78caa0f2807be3c09",
+      "to": "0xa167627cd59445dd9792d0f3d8d465c2bc41e574",
+      "selector": "0xc00ced42",
+      "block": "47255930",
+      "gasUsed": "110768",
+      "gasLimit": "217527",
+      "asserted": "assets 5000000 in, shares +5000000 (minimum 4975000, quote 5000000); bound in calldata = bound shown (4975000); allowance to the vault 0"
+    },
+    {
+      "label": "vault withdraw 2",
+      "sender": "app (owner wallet)",
+      "hash": "0x06fac815e0b8c82580976ba3e65c257978db7c9ea34b75eceb5ae805776badbb",
+      "to": "0xa167627cd59445dd9792d0f3d8d465c2bc41e574",
+      "selector": "0xbcb156aa",
+      "block": "47255931",
+      "gasUsed": "80720",
+      "gasLimit": "167075",
+      "asserted": "assets 2000000 out, shares -2000000 (maximum 2010000, quote 2000000); bound in calldata = bound shown (2010000); allowance to the vault 0"
+    },
+    {
+      "label": "vault redeem 3",
+      "sender": "app (owner wallet)",
+      "hash": "0x41454a57774d3d05a927ef4f9684de2a1f7f50c7437a35e4453e4640d5844cc5",
+      "to": "0xa167627cd59445dd9792d0f3d8d465c2bc41e574",
+      "selector": "0x2d5dad63",
+      "block": "47255932",
+      "gasUsed": "77843",
+      "gasLimit": "162652",
+      "asserted": "shares 3000000 in, assets +3000000 (minimum 2985000, quote 3000000); bound in calldata = bound shown (2985000); allowance to the vault 0"
+    },
+    {
+      "label": "redeem 1 share with a minimum of 10 mUSDC (eth_call as the owner, nothing sent)",
+      "revertsWith": "VaultBounds"
+    },
+    {
+      "label": "Portfolio vault row equals the chain",
+      "shares": "4000000"
+    }
+  ],
+  "scriptTransactions": [
+    {
+      "label": "operator swap 0.25 mWOKB (sent by this script from the impersonated operator address, NOT by the app)",
+      "from": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "block": "47255927",
+      "hash": "0xef1da6b4d61702c8a4d080cd3f2e380490e5701d8da36029ebd3804654b2ff33",
+      "minOut": "19800000",
+      "expectedOut": "20000000",
+      "received": "19990000",
+      "grantRemaining": "750000000000000000"
+    }
+  ],
+  "walletSent": [
+    {
+      "hash": "0x05e766edeed0dc1983c7fd4c8661da8eb635e35c328835e306b7ef4892398d4a",
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "selector": "0x9230fb3e"
+    },
+    {
+      "hash": "0x17511f9b79dd09c3854786db96223b4e2091f0d124df83751de6dd13dbe4a328",
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "selector": "0xbad6ac70"
+    },
+    {
+      "hash": "0x401df84a2e94ee2c6a8c6c7ccfdbbcbd0c62d0c64ee362168c5aa9e405c568f0",
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "selector": "0xfe9ce651"
+    },
+    {
+      "hash": "0xa0563e9b96fbaef322ce0b51d92ae349fba796c9c5e793b78caa0f2807be3c09",
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "selector": "0xc00ced42"
+    },
+    {
+      "hash": "0x06fac815e0b8c82580976ba3e65c257978db7c9ea34b75eceb5ae805776badbb",
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "selector": "0xbcb156aa"
+    },
+    {
+      "hash": "0x41454a57774d3d05a927ef4f9684de2a1f7f50c7437a35e4453e4640d5844cc5",
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "selector": "0x2d5dad63"
+    }
+  ],
+  "pageProblems": []
+}

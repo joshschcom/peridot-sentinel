@@ -1,0 +1,765 @@
+{
+  "mode": "testnet-live",
+  "onlyPaths": "^/(trade|portfolio|discover)$",
+  "case": null,
+  "base": "http://127.0.0.1:3220",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": true,
+  "failures": [],
+  "notes": [
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "sentinelAccounts": []
+    },
+    {
+      "wallet": "empty-wallet",
+      "rail": [
+        {
+          "key": "portfolio",
+          "group": "personal",
+          "status": "live",
+          "link": true,
+          "href": "/portfolio",
+          "current": "page",
+          "text": "Portfolio"
+        },
+        {
+          "key": "strategies",
+          "group": "personal",
+          "status": "live",
+          "link": true,
+          "href": "/strategies",
+          "current": null,
+          "text": "Strategies"
+        },
+        {
+          "key": "discover",
+          "group": "personal",
+          "status": "live",
+          "link": true,
+          "href": "/discover",
+          "current": null,
+          "text": "Discover"
+        },
+        {
+          "key": "activity",
+          "group": "personal",
+          "status": "live",
+          "link": true,
+          "href": "/activity",
+          "current": null,
+          "text": "Activity"
+        },
+        {
+          "key": "earn",
+          "group": "finance",
+          "status": "live",
+          "link": true,
+          "href": "/markets?view=earn",
+          "current": null,
+          "text": "Earn"
+        },
+        {
+          "key": "borrow",
+          "group": "finance",
+          "status": "live",
+          "link": true,
+          "href": "/markets?view=borrow",
+          "current": null,
+          "text": "Borrow"
+        },
+        {
+          "key": "trade",
+          "group": "finance",
+          "status": "development",
+          "link": true,
+          "href": "/trade",
+          "current": null,
+          "text": "Trade In development"
+        },
+        {
+          "key": "studio",
+          "group": "builders",
+          "status": "live",
+          "link": true,
+          "href": "/studio",
+          "current": null,
+          "text": "Studio"
+        },
+        {
+          "key": "circuits",
+          "group": "builders",
+          "status": "live",
+          "link": true,
+          "href": "/circuits",
+          "current": null,
+          "text": "Circuits"
+        },
+        {
+          "key": "connect",
+          "group": "builders",
+          "status": "live",
+          "link": true,
+          "href": "/connect",
+          "current": null,
+          "text": "Connect"
+        },
+        {
+          "key": "about",
+          "group": null,
+          "status": "live",
+          "link": true,
+          "href": "/",
+          "current": null,
+          "text": "About and evidence"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "portfolio": [
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #0 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #1 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #2 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #3 No position"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "portfolioV2": {
+        "state": "none",
+        "account": "",
+        "rows": []
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "portfolioHome": {
+        "summary": 1,
+        "onboarding": "1",
+        "strategies": "0",
+        "stop": 1,
+        "stopButtons": 0
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "discover": [
+        {
+          "profile": "debt-protection-v1",
+          "availability": "available",
+          "canSign": "true",
+          "adopt": "/strategies?template=debt-protection-v1#create",
+          "adoptText": "Adopt",
+          "text": "Available on testnet Rule-based Account v1 Debt protection Repay testnet debt from idle mUSD when the account reaches its trigger. Operation Repay debt from the account's own idle funds (autoRepay) Bu"
+        },
+        {
+          "profile": "restricted-swap-v2",
+          "availability": "demonstration",
+          "canSign": "false",
+          "adopt": "/strategies?template=restricted-swap-v2#create",
+          "adoptText": "Review the transaction",
+          "text": "Demonstration Bring your own agent Account v2 Restricted agent swap Allow bounded mWOKB to mUSDC swaps through the inventory funded testnet venue. Operation Swap an exact input on one fixed route (swa"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "switches": {
+        "base": false,
+        "vault": true
+      },
+      "ownerFlows": {
+        "verify": "ok",
+        "baseCard": 0,
+        "vaultCard": 1,
+        "vaultAccount": "",
+        "vaultCreate": 1,
+        "stop": 0
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "v2": {
+        "state": "ok",
+        "block": "47260995",
+        "usdc": "199900000",
+        "wokb": "1500000000000000000",
+        "operators": "0",
+        "grants": [],
+        "quoteExpected": "80000000",
+        "receipts": [
+          "operator-swap:0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d",
+          "mined-denial:0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12",
+          "simulated-denial:",
+          "emergency-revoke:0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+          "owner-grant:0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342",
+          "owner-supply:0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b",
+          "owner-setup-swap:0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c"
+        ]
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "sentinelAccounts": []
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "portfolio": [
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #0 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #1 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #2 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #3 No position"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "portfolioV2": {
+        "state": "none",
+        "account": "",
+        "rows": []
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "portfolioHome": {
+        "summary": 1,
+        "onboarding": "1",
+        "strategies": "0",
+        "stop": 1,
+        "stopButtons": 0
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "discover": [
+        {
+          "profile": "debt-protection-v1",
+          "availability": "available",
+          "canSign": "true",
+          "adopt": "/strategies?template=debt-protection-v1#create",
+          "adoptText": "Adopt",
+          "text": "Available on testnet Rule-based Account v1 Debt protection Repay testnet debt from idle mUSD when the account reaches its trigger. Operation Repay debt from the account's own idle funds (autoRepay) Bu"
+        },
+        {
+          "profile": "restricted-swap-v2",
+          "availability": "demonstration",
+          "canSign": "false",
+          "adopt": "/strategies?template=restricted-swap-v2#create",
+          "adoptText": "Review the transaction",
+          "text": "Demonstration Bring your own agent Account v2 Restricted agent swap Allow bounded mWOKB to mUSDC swaps through the inventory funded testnet venue. Operation Swap an exact input on one fixed route (swa"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "switches": {
+        "base": false,
+        "vault": true
+      },
+      "ownerFlows": {
+        "verify": "ok",
+        "baseCard": 0,
+        "vaultCard": 1,
+        "vaultAccount": "",
+        "vaultCreate": 1,
+        "stop": 0
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "v2": {
+        "state": "ok",
+        "block": "47261031",
+        "usdc": "199900000",
+        "wokb": "1500000000000000000",
+        "operators": "0",
+        "grants": [],
+        "quoteExpected": "80000000",
+        "receipts": [
+          "operator-swap:0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d",
+          "mined-denial:0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12",
+          "simulated-denial:",
+          "emergency-revoke:0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+          "owner-grant:0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342",
+          "owner-supply:0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b",
+          "owner-setup-swap:0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c"
+        ]
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "sentinelAccounts": [
+        "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+        "0xab27B9C504Ea9E2aF7391D0e60AAE85BC27cBd3C"
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "rail": [
+        {
+          "key": "portfolio",
+          "group": "personal",
+          "status": "live",
+          "link": true,
+          "href": "/portfolio",
+          "current": "page",
+          "text": "Portfolio"
+        },
+        {
+          "key": "strategies",
+          "group": "personal",
+          "status": "live",
+          "link": true,
+          "href": "/strategies",
+          "current": null,
+          "text": "Strategies"
+        },
+        {
+          "key": "discover",
+          "group": "personal",
+          "status": "live",
+          "link": true,
+          "href": "/discover",
+          "current": null,
+          "text": "Discover"
+        },
+        {
+          "key": "activity",
+          "group": "personal",
+          "status": "live",
+          "link": true,
+          "href": "/activity",
+          "current": null,
+          "text": "Activity"
+        },
+        {
+          "key": "earn",
+          "group": "finance",
+          "status": "live",
+          "link": true,
+          "href": "/markets?view=earn",
+          "current": null,
+          "text": "Earn"
+        },
+        {
+          "key": "borrow",
+          "group": "finance",
+          "status": "live",
+          "link": true,
+          "href": "/markets?view=borrow",
+          "current": null,
+          "text": "Borrow"
+        },
+        {
+          "key": "trade",
+          "group": "finance",
+          "status": "development",
+          "link": true,
+          "href": "/trade",
+          "current": null,
+          "text": "Trade In development"
+        },
+        {
+          "key": "studio",
+          "group": "builders",
+          "status": "live",
+          "link": true,
+          "href": "/studio",
+          "current": null,
+          "text": "Studio"
+        },
+        {
+          "key": "circuits",
+          "group": "builders",
+          "status": "live",
+          "link": true,
+          "href": "/circuits",
+          "current": null,
+          "text": "Circuits"
+        },
+        {
+          "key": "connect",
+          "group": "builders",
+          "status": "live",
+          "link": true,
+          "href": "/connect",
+          "current": null,
+          "text": "Connect"
+        },
+        {
+          "key": "about",
+          "group": null,
+          "status": "live",
+          "link": true,
+          "href": "/",
+          "current": null,
+          "text": "About and evidence"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "portfolio": [
+        {
+          "kind": "sentinel",
+          "text": "mCOL / mUSD #0 Sentinel account 100 mCOL 0 78.006 mUSD 48.76%"
+        },
+        {
+          "kind": "wallet",
+          "text": "Wallet 0 200.0054 mUSD 0 No debt"
+        },
+        {
+          "kind": "sentinel",
+          "text": "mCOL / mUSD #1 Sentinel account 100 mCOL 0 0 No debt"
+        },
+        {
+          "kind": "wallet",
+          "text": "Wallet 0 200 mUSD 0 No debt"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #2 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #3 No position"
+        },
+        {
+          "kind": "v2-idle",
+          "text": "Idle tokens in the account 1.5 mWOKB · 199.9 mUSDC"
+        },
+        {
+          "kind": "v2-lending",
+          "text": "Peridot lending, through the v2 lending adapter collateral shares 1000000000000000000 · debt 0 (raw units)"
+        },
+        {
+          "kind": "v2-operators",
+          "text": "Operators listed by the account None"
+        },
+        {
+          "kind": "v2-vault",
+          "text": "Vault account (mock ERC-4626 vault, no yield) 4 shares, a claim on 4 mUSDC · idle 8 mUSDC"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "portfolioV2": {
+        "state": "account",
+        "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+        "rows": [
+          "v2-idle: Idle tokens in the account 1.5 mWOKB · 199.9 mUSDC",
+          "v2-lending: Peridot lending, through the v2 lending adapter collateral shares 1000000000000000000 · debt 0 (raw units)",
+          "v2-operators: Operators listed by the account None"
+        ]
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "portfolioHome": {
+        "summary": 1,
+        "onboarding": null,
+        "strategies": "1",
+        "stop": 1,
+        "stopButtons": 1
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "discover": [
+        {
+          "profile": "debt-protection-v1",
+          "availability": "available",
+          "canSign": "true",
+          "adopt": "/strategies?template=debt-protection-v1#create",
+          "adoptText": "Adopt",
+          "text": "Available on testnet Rule-based Account v1 Debt protection Repay testnet debt from idle mUSD when the account reaches its trigger. Operation Repay debt from the account's own idle funds (autoRepay) Bu"
+        },
+        {
+          "profile": "restricted-swap-v2",
+          "availability": "demonstration",
+          "canSign": "false",
+          "adopt": "/strategies?template=restricted-swap-v2#create",
+          "adoptText": "Review the transaction",
+          "text": "Demonstration Bring your own agent Account v2 Restricted agent swap Allow bounded mWOKB to mUSDC swaps through the inventory funded testnet venue. Operation Swap an exact input on one fixed route (swa"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "switches": {
+        "base": false,
+        "vault": true
+      },
+      "ownerFlows": {
+        "verify": "ok",
+        "baseCard": 0,
+        "vaultCard": 1,
+        "vaultAccount": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+        "vaultCreate": 0,
+        "stop": 0
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "v2": {
+        "state": "ok",
+        "block": "47261075",
+        "usdc": "199900000",
+        "wokb": "1500000000000000000",
+        "operators": "0",
+        "grants": [],
+        "quoteExpected": "80000000",
+        "receipts": [
+          "operator-swap:0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d",
+          "mined-denial:0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12",
+          "simulated-denial:",
+          "emergency-revoke:0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+          "owner-grant:0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342",
+          "owner-supply:0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b",
+          "owner-setup-swap:0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c"
+        ]
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "sentinelAccounts": [
+        "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+        "0xab27B9C504Ea9E2aF7391D0e60AAE85BC27cBd3C"
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "portfolio": [
+        {
+          "kind": "sentinel",
+          "text": "mCOL / mUSD #0 Sentinel account 100 mCOL 0 78.006 mUSD 48.76%"
+        },
+        {
+          "kind": "wallet",
+          "text": "Wallet 0 200.0054 mUSD 0 No debt"
+        },
+        {
+          "kind": "sentinel",
+          "text": "mCOL / mUSD #1 Sentinel account 100 mCOL 0 0 No debt"
+        },
+        {
+          "kind": "wallet",
+          "text": "Wallet 0 200 mUSD 0 No debt"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #2 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #3 No position"
+        },
+        {
+          "kind": "v2-idle",
+          "text": "Idle tokens in the account 1.5 mWOKB · 199.9 mUSDC"
+        },
+        {
+          "kind": "v2-lending",
+          "text": "Peridot lending, through the v2 lending adapter collateral shares 1000000000000000000 · debt 0 (raw units)"
+        },
+        {
+          "kind": "v2-operators",
+          "text": "Operators listed by the account None"
+        },
+        {
+          "kind": "v2-vault",
+          "text": "Vault account (mock ERC-4626 vault, no yield) 4 shares, a claim on 4 mUSDC · idle 8 mUSDC"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "portfolioV2": {
+        "state": "account",
+        "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+        "rows": [
+          "v2-idle: Idle tokens in the account 1.5 mWOKB · 199.9 mUSDC",
+          "v2-lending: Peridot lending, through the v2 lending adapter collateral shares 1000000000000000000 · debt 0 (raw units)",
+          "v2-operators: Operators listed by the account None"
+        ]
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "portfolioHome": {
+        "summary": 1,
+        "onboarding": null,
+        "strategies": "1",
+        "stop": 1,
+        "stopButtons": 1
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "discover": [
+        {
+          "profile": "debt-protection-v1",
+          "availability": "available",
+          "canSign": "true",
+          "adopt": "/strategies?template=debt-protection-v1#create",
+          "adoptText": "Adopt",
+          "text": "Available on testnet Rule-based Account v1 Debt protection Repay testnet debt from idle mUSD when the account reaches its trigger. Operation Repay debt from the account's own idle funds (autoRepay) Bu"
+        },
+        {
+          "profile": "restricted-swap-v2",
+          "availability": "demonstration",
+          "canSign": "false",
+          "adopt": "/strategies?template=restricted-swap-v2#create",
+          "adoptText": "Review the transaction",
+          "text": "Demonstration Bring your own agent Account v2 Restricted agent swap Allow bounded mWOKB to mUSDC swaps through the inventory funded testnet venue. Operation Swap an exact input on one fixed route (swa"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "switches": {
+        "base": false,
+        "vault": true
+      },
+      "ownerFlows": {
+        "verify": "ok",
+        "baseCard": 0,
+        "vaultCard": 1,
+        "vaultAccount": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+        "vaultCreate": 0,
+        "stop": 0
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "v2": {
+        "state": "ok",
+        "block": "47261123",
+        "usdc": "199900000",
+        "wokb": "1500000000000000000",
+        "operators": "0",
+        "grants": [],
+        "quoteExpected": "80000000",
+        "receipts": [
+          "operator-swap:0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d",
+          "mined-denial:0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12",
+          "simulated-denial:",
+          "emergency-revoke:0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+          "owner-grant:0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342",
+          "owner-supply:0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b",
+          "owner-setup-swap:0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c"
+        ]
+      }
+    },
+    {
+      "loads": {
+        "total": 12,
+        "deploymentBanner": 0,
+        "pageErrors": 0,
+        "slowest": {
+          "ms": 18318,
+          "tag": "demo-owner-watch-only /portfolio @390"
+        }
+      }
+    },
+    {
+      "redirects": [
+        {
+          "from": "/app",
+          "status": 307,
+          "location": "/portfolio"
+        },
+        {
+          "from": "/app?market=0x0000000000000000000000000000000000000001",
+          "status": 307,
+          "location": "/portfolio?market=0x0000000000000000000000000000000000000001"
+        },
+        {
+          "from": "/sentinel",
+          "status": 307,
+          "location": "/portfolio"
+        },
+        {
+          "from": "/sentinel?market=0x0000000000000000000000000000000000000001",
+          "status": 307,
+          "location": "/portfolio?market=0x0000000000000000000000000000000000000001"
+        },
+        {
+          "from": "/sentinel/activity",
+          "status": 307,
+          "location": "/activity"
+        },
+        {
+          "from": "/sentinel/activity?market=0x0000000000000000000000000000000000000001",
+          "status": 307,
+          "location": "/activity?market=0x0000000000000000000000000000000000000001"
+        },
+        {
+          "from": "/automate",
+          "status": 307,
+          "location": "/strategies"
+        },
+        {
+          "from": "/automate?market=0x0000000000000000000000000000000000000001",
+          "status": 307,
+          "location": "/strategies?market=0x0000000000000000000000000000000000000001"
+        }
+      ]
+    }
+  ]
+}

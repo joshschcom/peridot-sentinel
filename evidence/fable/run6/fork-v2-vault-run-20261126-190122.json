@@ -1,0 +1,89 @@
+{
+  "label": "PRIVATE FORK of X Layer testnet 1952 (loopback Anvil, chain id 1952, auto-impersonation). Mock tokens, inventory-backed mock venue, mock ERC-4626 vault, development reference processor. These transactions exist only on the fork: they are NOT public transactions and must never be linked to an explorer.",
+  "driver": "Playwright Chromium + injected test EIP-1193 provider reporting the public demo owner and forwarding to the fork, which signs by impersonation; no private key",
+  "build": "production build (next build + next start) for chain 1952 with the private-fork label, RPC pointed at the fork; expansion manifests from a copy in which only vault-1952.json uiEnabled is true (the base v2 write switch is treated as on by the fork build)",
+  "rpc": "http://127.0.0.1:19750",
+  "chainId": 1952,
+  "nodeClient": "anvil/v1.7.1",
+  "runId": "run-20261126-190122",
+  "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "operator": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+  "publicAccounts": {
+    "v2Account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+    "vaultAccount": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574"
+  },
+  "ownershipPreflight": {
+    "v2AccountOf": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+    "v2Owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+    "vaultAccountOf": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+    "vaultOwner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"
+  },
+  "startBlock": 47255921,
+  "endBlock": 47255925,
+  "result": "FAILED: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"vault-submit\"]')\u001b[22m\n\u001b[2m    - locator resolved to <button disabled type=\"button\" data-testid=\"vault-submit\" class=\"inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap transition-colors select-none disabled:opacity-45 disabled:pointer-events-none bg-inverse text-on-inverse hover:opacity-90 h-11 px-5 text-[0.9375rem]\"> Deposit</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    58 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+  "appTransactions": [
+    {
+      "label": "v2 swap-only grant: 0.5 mWOKB per swap, 1 in total, 1 day",
+      "sender": "app (owner wallet)",
+      "hash": "0x53060dae7c7d5f6f8d87191e5b517ce3beefd5d660eba1830d0606be90bb1d67",
+      "to": "0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+      "selector": "0x9230fb3e",
+      "block": "47255922",
+      "gasUsed": "165610",
+      "gasLimit": "250814",
+      "asserted": "grants(operator, swap, 5, mWOKB) = (5e17, 1e18, 1795802244); operatorCount 1"
+    },
+    {
+      "label": "v2 revoke all operators",
+      "sender": "app (owner wallet)",
+      "hash": "0xd70b616b81747604b7fe0356f8e7713780fae97ed0b82c7b7acc8fa2757bfb12",
+      "to": "0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+      "selector": "0xbad6ac70",
+      "block": "47255924",
+      "gasUsed": "27886",
+      "gasLimit": "67182",
+      "asserted": "operatorCount 0, grant (0,0,0); the same operator swap now simulates OperatorNotAuthorized"
+    },
+    {
+      "label": "vault deposit limits: cap 1000 mUSDC, floor 1 share per asset",
+      "sender": "app (owner wallet)",
+      "hash": "0x4c564796249d22439c3878bb54a00c6f5ce1ef7e3dc8512a6abb8864584303c4",
+      "to": "0xa167627cd59445dd9792d0f3d8d465c2bc41e574",
+      "selector": "0xfe9ce651",
+      "block": "47255925",
+      "gasUsed": "31297",
+      "gasLimit": "71730",
+      "asserted": "maxVaultPositionAssets 1000000000, minVaultSharesPerAssetWad 1000000000000000000"
+    }
+  ],
+  "scriptTransactions": [
+    {
+      "label": "operator swap 0.25 mWOKB (sent by this script from the impersonated operator address, NOT by the app)",
+      "from": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "block": "47255923",
+      "hash": "0x4f831a5cd6d9bd0e71c8e1c06f490457ea4ca0203f0e5319255927070808b89f",
+      "minOut": "19800000",
+      "expectedOut": "20000000",
+      "received": "19990000",
+      "grantRemaining": "750000000000000000"
+    }
+  ],
+  "walletSent": [
+    {
+      "hash": "0x53060dae7c7d5f6f8d87191e5b517ce3beefd5d660eba1830d0606be90bb1d67",
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "selector": "0x9230fb3e"
+    },
+    {
+      "hash": "0xd70b616b81747604b7fe0356f8e7713780fae97ed0b82c7b7acc8fa2757bfb12",
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "selector": "0xbad6ac70"
+    },
+    {
+      "hash": "0x4c564796249d22439c3878bb54a00c6f5ce1ef7e3dc8512a6abb8864584303c4",
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "selector": "0xfe9ce651"
+    }
+  ],
+  "pageProblems": []
+}
