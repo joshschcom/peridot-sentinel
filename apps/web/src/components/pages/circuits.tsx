@@ -201,7 +201,7 @@ export function Circuits() {
             </ul>
           </Card>
         ) : (
-          <p className="text-sm text-faint">Unavailable: {registered.data?.status === "unavailable" ? registered.data.reason : "could not be loaded"}</p>
+          <p className="text-sm break-words text-faint">Unavailable: {registered.data?.status === "unavailable" ? registered.data.reason : "could not be loaded"}</p>
         )}
         <p className="text-xs text-faint">Publishing, importing and paid circuit listings are not implemented. Owning a processor NFT gives no control over any Peridot market or account.</p>
       </section>
