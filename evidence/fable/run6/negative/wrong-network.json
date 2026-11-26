@@ -1,0 +1,28 @@
+{
+  "mode": "wrong-network",
+  "onlyPaths": null,
+  "case": "",
+  "base": "http://127.0.0.1:3212",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": true,
+  "failures": [],
+  "notes": [
+    {
+      "walletChainId": "0xc4",
+      "banner": "X Layer (read-only)",
+      "switchRequested": [
+        "0x7a69"
+      ],
+      "transactions": 0
+    },
+    {
+      "walletChainId": "0x1",
+      "banner": "Unsupported network (1)",
+      "switchRequested": [
+        "0x7a69"
+      ],
+      "transactions": 0
+    }
+  ]
+}

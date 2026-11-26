@@ -1,0 +1,109 @@
+{
+  "label": "PRIVATE FORK of X Layer testnet 1952 (loopback Anvil, chain id 1952, auto-impersonation). Mock tokens, inventory-backed mock venue, mock ERC-4626 vault, development reference processor. These transactions exist only on the fork: they are NOT public transactions and must never be linked to an explorer.",
+  "driver": "Playwright Chromium + injected test EIP-1193 provider reporting the public demo owner and forwarding to the fork, which signs by impersonation; no private key",
+  "build": "production build for chain 1952 WITHOUT the fork flag (the exact post-flip public configuration: base v2 switch off and not forced, vault switch on from a manifest copy), RPC pointed at the private fork. The page labels itself Testnet and links hashes to the public explorer where they do not exist, so no screenshot was taken in this mode.",
+  "rpc": "http://127.0.0.1:19750",
+  "chainId": 1952,
+  "nodeClient": "anvil/v1.7.1",
+  "runId": "run-20261126-201238",
+  "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "operator": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+  "scenario": "the public demo owner on the public v2 and vault accounts",
+  "commit": "a5276f5",
+  "publicAccounts": {
+    "v2Account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+    "vaultAccount": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574"
+  },
+  "vaultAccountUsed": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+  "ownershipPreflight": {
+    "v2AccountOf": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+    "v2Owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+    "vaultAccountOf": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+    "vaultOwner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"
+  },
+  "startBlock": 47255945,
+  "endBlock": 47255949,
+  "result": "passed",
+  "appTransactions": [
+    {
+      "label": "post-flip configuration: base switch off (no base card, no base write), vault switch on (vault writable)",
+      "asserted": true
+    },
+    {
+      "label": "vault deposit limits: cap 1000 mUSDC, floor 1 share per asset",
+      "sender": "app (owner wallet)",
+      "hash": "0xd9d90a3b665d830a34b740e78f18d5c81397f6b8044d70bc8148912f7802da46",
+      "to": "0xa167627cd59445dd9792d0f3d8d465c2bc41e574",
+      "selector": "0xfe9ce651",
+      "block": "47255946",
+      "gasUsed": "28497",
+      "gasLimit": "67996",
+      "asserted": "maxVaultPositionAssets 1000000000, minVaultSharesPerAssetWad 1000000000000000000"
+    },
+    {
+      "label": "vault deposit 5",
+      "sender": "app (owner wallet)",
+      "hash": "0xbce5a2409e4a2bc176abfa525ede5227c0bdf948c79fdec51d04a85f88121cce",
+      "to": "0xa167627cd59445dd9792d0f3d8d465c2bc41e574",
+      "selector": "0xc00ced42",
+      "block": "47255947",
+      "gasUsed": "110768",
+      "gasLimit": "217527",
+      "asserted": "assets 5000000 in, shares +5000000 (minimum 4975000, quote 5000000); bound in calldata = bound shown (4975000); allowance to the vault 0"
+    },
+    {
+      "label": "vault withdraw 2",
+      "sender": "app (owner wallet)",
+      "hash": "0xbbf603a943e93034b868434ad541818ed16751e27497e6a11fa8890c37d07181",
+      "to": "0xa167627cd59445dd9792d0f3d8d465c2bc41e574",
+      "selector": "0xbcb156aa",
+      "block": "47255948",
+      "gasUsed": "80720",
+      "gasLimit": "167075",
+      "asserted": "assets 2000000 out, shares -2000000 (maximum 2010000, quote 2000000); bound in calldata = bound shown (2010000); allowance to the vault 0"
+    },
+    {
+      "label": "vault redeem 3",
+      "sender": "app (owner wallet)",
+      "hash": "0xe8f3987a38911afa020b373f2825737bb1295f8c078f6994bff8e2e373570639",
+      "to": "0xa167627cd59445dd9792d0f3d8d465c2bc41e574",
+      "selector": "0x2d5dad63",
+      "block": "47255949",
+      "gasUsed": "77843",
+      "gasLimit": "162652",
+      "asserted": "shares 3000000 in, assets +3000000 (minimum 2985000, quote 3000000); bound in calldata = bound shown (2985000); allowance to the vault 0"
+    },
+    {
+      "label": "redeem 1 share with a minimum of 10 mUSDC (eth_call as the owner, nothing sent)",
+      "revertsWith": "VaultBounds"
+    },
+    {
+      "label": "Portfolio vault row equals the chain",
+      "shares": "4000000"
+    }
+  ],
+  "scriptTransactions": [],
+  "walletSent": [
+    {
+      "hash": "0xd9d90a3b665d830a34b740e78f18d5c81397f6b8044d70bc8148912f7802da46",
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "selector": "0xfe9ce651"
+    },
+    {
+      "hash": "0xbce5a2409e4a2bc176abfa525ede5227c0bdf948c79fdec51d04a85f88121cce",
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "selector": "0xc00ced42"
+    },
+    {
+      "hash": "0xbbf603a943e93034b868434ad541818ed16751e27497e6a11fa8890c37d07181",
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "selector": "0xbcb156aa"
+    },
+    {
+      "hash": "0xe8f3987a38911afa020b373f2825737bb1295f8c078f6994bff8e2e373570639",
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "selector": "0x2d5dad63"
+    }
+  ],
+  "pageProblems": []
+}

@@ -1,0 +1,272 @@
+{
+  "base": "http://127.0.0.1:3220",
+  "at": "2026-11-26T20:09:44.423Z",
+  "wallet": "watch-only test wallet reporting the public demo owner address on chain 1952; it cannot sign or send",
+  "passed": true,
+  "shots": [
+    {
+      "file": "landing-390-light.png",
+      "pageHeightPx": 12570,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "landing-390-dark.png",
+      "pageHeightPx": 12570,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "landing-1440-light.png",
+      "pageHeightPx": 7620,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "landing-1440-dark.png",
+      "pageHeightPx": 7620,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "portfolio-390-light.png",
+      "pageHeightPx": 8858,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "portfolio-390-dark.png",
+      "pageHeightPx": 8858,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "portfolio-1440-light.png",
+      "pageHeightPx": 5265,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "portfolio-1440-dark.png",
+      "pageHeightPx": 5265,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "strategies-390-light.png",
+      "pageHeightPx": 10325,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "strategies-390-dark.png",
+      "pageHeightPx": 10325,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "strategies-1440-light.png",
+      "pageHeightPx": 6442,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "strategies-1440-dark.png",
+      "pageHeightPx": 6442,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "discover-390-light.png",
+      "pageHeightPx": 2883,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "discover-390-dark.png",
+      "pageHeightPx": 2883,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "discover-1440-light.png",
+      "pageHeightPx": 1367,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "discover-1440-dark.png",
+      "pageHeightPx": 1367,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "studio-390-light.png",
+      "pageHeightPx": 2672,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "studio-390-dark.png",
+      "pageHeightPx": 2672,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "studio-1440-light.png",
+      "pageHeightPx": 1298,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "studio-1440-dark.png",
+      "pageHeightPx": 1298,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "connect-390-light.png",
+      "pageHeightPx": 19474,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "connect-390-dark.png",
+      "pageHeightPx": 19474,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "connect-1440-light.png",
+      "pageHeightPx": 10877,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "connect-1440-dark.png",
+      "pageHeightPx": 10877,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    }
+  ]
+}

@@ -32,6 +32,12 @@ const RPC = process.env.FORK_RPC ?? "http://127.0.0.1:19750";
 // account at the public vault factory, mints test mUSDC to it, sets its limits and uses the vault. Default: the
 // public demo owner and the public accounts.
 const FRESH = process.env.FRESH === "1";
+// POSTFLIP=1: the EXACT configuration public 1952 will have once only the vault switch is flipped: a build WITHOUT the
+// fork flag (so the base v2 switch is really off and nothing forces it), vault switch on, RPC pointed at the fork:
+//   NEXT_PUBLIC_TESTNET_RPC_URL=http://127.0.0.1:19750 PERIDOT_EXPANSION_DIR=$DIR npm run build   (no NEXT_PUBLIC_PERIDOT_FORK)
+// Such a build labels itself "Testnet" and would explorer-link what it sends, although these transactions exist only
+// on the fork. So this mode takes NO screenshots, and its evidence file says what it is. Vault flows only.
+const POSTFLIP = process.env.POSTFLIP === "1";
 const owner = process.env.FORK_OWNER ?? (FRESH ? "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f" : "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"); // an impersonated address either way; no key
 const operator = process.env.FORK_OPERATOR ?? "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc"; // an address only for the app; the fork impersonates it for the one script-sent swap
 // The addresses asserted against are the PUBLIC manifests', never the override copy's.
@@ -99,6 +105,7 @@ page.on("console", (message) => message.type() === "error" && !/Failed to load r
 const steps = [];
 const scriptSent = [];
 const shot = async (name) => {
+  if (POSTFLIP) return; // see POSTFLIP above: a public-labelled page with fork-only hashes is never captured
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: `${SHOTS}/${name}.png`, fullPage: true });
 };
@@ -147,12 +154,21 @@ try {
   const root = page.locator('[data-testid="v2-owner"]');
   assert((await root.getAttribute("data-chain")) === "1952", "the owner flows are not on chain 1952");
   const pill = await page.locator('[data-testid="network-pill"]:visible').first().innerText();
-  assert(/fork/i.test(pill), `the network is not labelled as a fork (got "${pill}")`);
-  assert((await page.locator('a[href*="okx.com/web3/explorer"]').count()) === 0, "a fork build shows an explorer link");
+  if (POSTFLIP) {
+    // Base switch off, vault switch on, nothing forced: no base card, no base write, and the vault is writable.
+    assert(!/fork/i.test(pill) && /Testnet/.test(pill), `a POSTFLIP run needs the build without the fork flag (pill "${pill}")`);
+    await page.locator('[data-testid="vault-card"]').waitFor({ timeout: 30000 });
+    assert((await root.getAttribute("data-writes")) === "false" && (await root.getAttribute("data-vault-writes")) === "true", `switch state is base ${await root.getAttribute("data-writes")}, vault ${await root.getAttribute("data-vault-writes")}`);
+    assert((await page.locator('[data-testid="v2-base"], [data-testid="v2-grant-submit"], [data-testid="v2-create-base"], [data-testid="v2-mint-wokb"], [data-testid="v2-stop-submit"]:not([disabled])').count()) === 0, "a base v2 write is offered although the base switch is off");
+    steps.push({ label: "post-flip configuration: base switch off (no base card, no base write), vault switch on (vault writable)", asserted: true });
+  } else {
+    assert(/fork/i.test(pill), `the network is not labelled as a fork (got "${pill}")`);
+    assert((await page.locator('a[href*="okx.com/web3/explorer"]').count()) === 0, "a fork build shows an explorer link");
+  }
   const base = page.locator('[data-testid="v2-base"]');
-  if (!FRESH) await page.locator(`[data-testid="v2-base"][data-account="${account}"]`).waitFor({ timeout: 30000 });
+  if (!FRESH && !POSTFLIP) await page.locator(`[data-testid="v2-base"][data-account="${account}"]`).waitFor({ timeout: 30000 });
   await shot("01-trade-owner-flows-on-the-fork");
-  if (!FRESH) {
+  if (!FRESH && !POSTFLIP) {
   /* ---------- v2 account: new swap-only grant, operator swap (script-sent), revoke-all ---------- */
   const before = { operators: await read(account, ACCOUNT, "operatorCount"), wokb: await balance(WOKB, account), usdc: await balance(USDC, account) };
   assert(before.operators === 0n, `the public v2 account already lists ${before.operators} operator(s) on this fork: run on a state where the emergency stop is the last owner action, or revoke first`);
@@ -311,14 +327,16 @@ try {
 }
 
 const endBlock = Number(await jsonRpc(RPC, "eth_blockNumber"));
-const file = `${OUT}/fork-${FRESH ? "fresh-wallet-vault" : "v2-vault"}-${RUN_ID}.json`;
+const file = `${OUT}/fork-${POSTFLIP ? "postflip-vault-only" : FRESH ? "fresh-wallet-vault" : "v2-vault"}-${RUN_ID}.json`;
 writeFileSync(
   file,
   `${JSON.stringify(
     {
       label: "PRIVATE FORK of X Layer testnet 1952 (loopback Anvil, chain id 1952, auto-impersonation). Mock tokens, inventory-backed mock venue, mock ERC-4626 vault, development reference processor. These transactions exist only on the fork: they are NOT public transactions and must never be linked to an explorer.",
       driver: "Playwright Chromium + injected test EIP-1193 provider reporting the public demo owner and forwarding to the fork, which signs by impersonation; no private key",
-      build: "production build (next build + next start) for chain 1952 with the private-fork label, RPC pointed at the fork; expansion manifests from a copy in which only vault-1952.json uiEnabled is true (the base v2 write switch is treated as on by the fork build)",
+      build: POSTFLIP
+        ? "production build for chain 1952 WITHOUT the fork flag (the exact post-flip public configuration: base v2 switch off and not forced, vault switch on from a manifest copy), RPC pointed at the private fork. The page labels itself Testnet and links hashes to the public explorer where they do not exist, so no screenshot was taken in this mode."
+        : "production build (next build + next start) for chain 1952 with the private-fork label, RPC pointed at the fork; expansion manifests from a copy in which only vault-1952.json uiEnabled is true (the base v2 write switch is treated as on by the fork build)",
       rpc: RPC,
       chainId: 1952,
       nodeClient: version,

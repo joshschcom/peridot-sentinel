@@ -1,0 +1,134 @@
+{
+  "label": "PRIVATE FORK of X Layer testnet 1952 (loopback Anvil, chain id 1952, auto-impersonation). Mock tokens, inventory-backed mock venue, mock ERC-4626 vault, development reference processor. These transactions exist only on the fork: they are NOT public transactions and must never be linked to an explorer.",
+  "driver": "Playwright Chromium + injected test EIP-1193 provider reporting the public demo owner and forwarding to the fork, which signs by impersonation; no private key",
+  "build": "production build (next build + next start) for chain 1952 with the private-fork label, RPC pointed at the fork; expansion manifests from a copy in which only vault-1952.json uiEnabled is true (the base v2 write switch is treated as on by the fork build)",
+  "rpc": "http://127.0.0.1:19750",
+  "chainId": 1952,
+  "nodeClient": "anvil/v1.7.1",
+  "runId": "run-20261126-201142",
+  "owner": "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+  "operator": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+  "scenario": "a wallet that owns nothing on 1952: creates its own vault account, funds it by mint, sets limits, deposits, withdraws, redeems",
+  "commit": "a5276f5",
+  "publicAccounts": null,
+  "vaultAccountUsed": "0x54D6f435C8830Cf579A5e65D0792AB71CE671E63",
+  "ownershipPreflight": {
+    "fresh": true,
+    "vaultAccountOf": "0x0000000000000000000000000000000000000000",
+    "v2AccountOf": "0x0000000000000000000000000000000000000000",
+    "gasWei": "10000000000000000000000"
+  },
+  "startBlock": 47255939,
+  "endBlock": 47255945,
+  "result": "passed",
+  "appTransactions": [
+    {
+      "label": "fresh wallet: create its own vault account at the public vault factory",
+      "sender": "app (owner wallet)",
+      "hash": "0x0ea14c917999564a9e88f6d8b5b16ee911142eca24c77249c4c445a6260bcd15",
+      "to": "0x8e8279b8532124bd727aff4622e8d3711f01e874",
+      "selector": "0xfe8ca4af",
+      "block": "47255940",
+      "gasUsed": "4284425",
+      "gasLimit": "5801691",
+      "asserted": "accountOf(fresh wallet) = 0x54D6f435C8830Cf579A5e65D0792AB71CE671E63, owner() = the wallet, adapter and vault as in the public manifest"
+    },
+    {
+      "label": "fresh wallet: mint 12 test mUSDC to its vault account (the token's mint is open to anyone)",
+      "sender": "app (owner wallet)",
+      "hash": "0x7bbb83b920c87e425957fad788b5e176952dfba048f6124c7abd09aebc47282f",
+      "to": "0x3a6cb8bedc251c37dc8258a27575127990a67e95",
+      "selector": "0x40c10f19",
+      "block": "47255941",
+      "gasUsed": "50963",
+      "gasLimit": "97951",
+      "asserted": "idle mUSDC 0 -> 12000000"
+    },
+    {
+      "label": "vault deposit limits: cap 1000 mUSDC, floor 1 share per asset",
+      "sender": "app (owner wallet)",
+      "hash": "0xf17232067430f6ef4332776609f7925fd29d376a76c3b40ac082cb92881ec39c",
+      "to": "0x54d6f435c8830cf579a5e65d0792ab71ce671e63",
+      "selector": "0xfe9ce651",
+      "block": "47255942",
+      "gasUsed": "68297",
+      "gasLimit": "121063",
+      "asserted": "maxVaultPositionAssets 1000000000, minVaultSharesPerAssetWad 1000000000000000000"
+    },
+    {
+      "label": "vault deposit 5",
+      "sender": "app (owner wallet)",
+      "hash": "0xc9ca87a44a60d7efb7c972af6e888ab9f0308a3114a87510b091dc9374180330",
+      "to": "0x54d6f435c8830cf579a5e65d0792ab71ce671e63",
+      "selector": "0xc00ced42",
+      "block": "47255943",
+      "gasUsed": "124448",
+      "gasLimit": "240327",
+      "asserted": "assets 5000000 in, shares +5000000 (minimum 4975000, quote 5000000); bound in calldata = bound shown (4975000); allowance to the vault 0"
+    },
+    {
+      "label": "vault withdraw 2",
+      "sender": "app (owner wallet)",
+      "hash": "0x329c77c32cf6b7caa5563e5b24409866f3997b6d40f95b2eb9d0ad1025ddadf1",
+      "to": "0x54d6f435c8830cf579a5e65d0792ab71ce671e63",
+      "selector": "0xbcb156aa",
+      "block": "47255944",
+      "gasUsed": "80720",
+      "gasLimit": "167075",
+      "asserted": "assets 2000000 out, shares -2000000 (maximum 2010000, quote 2000000); bound in calldata = bound shown (2010000); allowance to the vault 0"
+    },
+    {
+      "label": "vault redeem 3",
+      "sender": "app (owner wallet)",
+      "hash": "0xb9e85f2757981d06a9ab835b38e1c2310fd90c2d795cc1b57b7de4a9783a776b",
+      "to": "0x54d6f435c8830cf579a5e65d0792ab71ce671e63",
+      "selector": "0x2d5dad63",
+      "block": "47255945",
+      "gasUsed": "77843",
+      "gasLimit": "162652",
+      "asserted": "shares 3000000 in, assets +3000000 (minimum 2985000, quote 3000000); bound in calldata = bound shown (2985000); allowance to the vault 0"
+    },
+    {
+      "label": "redeem 1 share with a minimum of 10 mUSDC (eth_call as the owner, nothing sent)",
+      "revertsWith": "unknown(0x6ce4d89f)"
+    },
+    {
+      "label": "Portfolio vault row equals the chain",
+      "shares": "0"
+    }
+  ],
+  "scriptTransactions": [],
+  "walletSent": [
+    {
+      "hash": "0x0ea14c917999564a9e88f6d8b5b16ee911142eca24c77249c4c445a6260bcd15",
+      "to": "0x8e8279b8532124bd727AfF4622e8d3711f01E874",
+      "selector": "0xfe8ca4af"
+    },
+    {
+      "hash": "0x7bbb83b920c87e425957fad788b5e176952dfba048f6124c7abd09aebc47282f",
+      "to": "0x3a6cb8bedc251c37dc8258a27575127990a67e95",
+      "selector": "0x40c10f19"
+    },
+    {
+      "hash": "0xf17232067430f6ef4332776609f7925fd29d376a76c3b40ac082cb92881ec39c",
+      "to": "0x54D6f435C8830Cf579A5e65D0792AB71CE671E63",
+      "selector": "0xfe9ce651"
+    },
+    {
+      "hash": "0xc9ca87a44a60d7efb7c972af6e888ab9f0308a3114a87510b091dc9374180330",
+      "to": "0x54D6f435C8830Cf579A5e65D0792AB71CE671E63",
+      "selector": "0xc00ced42"
+    },
+    {
+      "hash": "0x329c77c32cf6b7caa5563e5b24409866f3997b6d40f95b2eb9d0ad1025ddadf1",
+      "to": "0x54D6f435C8830Cf579A5e65D0792AB71CE671E63",
+      "selector": "0xbcb156aa"
+    },
+    {
+      "hash": "0xb9e85f2757981d06a9ab835b38e1c2310fd90c2d795cc1b57b7de4a9783a776b",
+      "to": "0x54D6f435C8830Cf579A5e65D0792AB71CE671E63",
+      "selector": "0x2d5dad63"
+    }
+  ],
+  "pageProblems": []
+}

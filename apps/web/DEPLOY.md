@@ -8,14 +8,14 @@ The app is a Next.js App Router project in `apps/web` of an npm-workspaces monor
 |---|---|
 | Framework preset | Next.js |
 | Root Directory | `apps/web` |
-| Include files outside the Root Directory | **On** (the build reads `packages/` and `evidence/`) |
+| Include files outside the Root Directory | **On** (the build reads `packages/`, `evidence/`, `deployments/session7/1952/judge-01/`, `services/mcp*/tools.json`, the v2 onboarding files in `services/mcp-v2/` and `docs/JUDGE_DEMO.md`) |
 | Install Command | `cd ../.. && npm ci` |
 | Build Command | `cd ../.. && npm run build -w @peridot/web` |
 | Output Directory | default (`.next`) |
 | Node.js version | 22.x or later (the repo requires `>=22`) |
 | Deployment Protection | Off for the public demo (DECISIONS D17) |
 
-The install and build commands are also in `apps/web/vercel.json`, so the dashboard fields can be left empty. `npm ci` at the repository root builds the two workspace packages the app imports (`@peridot/chain-config`, `@peridot/circuit-sdk`) through their `prepare` scripts. The build's `prebuild` step (`scripts/sync-manifests.mjs`) copies the manifests and evidence files into `src/generated/`.
+The install and build commands are also in `apps/web/vercel.json`, so the dashboard fields can be left empty. `npm ci` at the repository root builds the two workspace packages the app imports (`@peridot/chain-config`, `@peridot/circuit-sdk`) through their `prepare` scripts. The build's `prebuild` step (`scripts/sync-manifests.mjs`) copies the manifests and evidence files into `src/generated/`. The strategy SDK is imported by source path from `packages/strategy-sdk/`. A clone built with exactly these two commands in a scrubbed environment (`env -i` with only `PATH` and `HOME`) is part of each run's verification (last: commit 42ee197, 2026-11-26).
 
 ## Environment variables
 

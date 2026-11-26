@@ -1549,3 +1549,36 @@ verification:
   - "Private fork for SDK adoption-signing acceptance: http://127.0.0.1:19750, chain ID 1952, forked from public 1952 block ~47255916, with --auto-impersonate (eth_sendTransaction from any address works, no key). The public demo owner 0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67 owns v1 account 0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0 and v2 account 0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f on the fork. Its fork balance is set to 100 test OKB (fork-only). Point the injected test provider at 19750 with that owner address."
 labels: "Everything on 19750 is a PRIVATE FORK, never public. Never explorer-link hashes from it. Label all evidence 'Private fork of 1952'."
 ```
+
+```yaml
+milestone: M9-frontend-run6-closeout
+from: fable
+status: implemented
+date: 2026-11-26
+summary: "Check scripts repaired for the strategy-first routes and run on production builds; vault and v2 owner flows accepted in a browser on the private fork of 1952 for the public accounts; run-4 leftovers closed (tool catalogues, judge-01, onboarding, activity merge). Feature freeze: nothing new after this, polish and verification only."
+behaviour_change_to_know: "Before this run a uiEnabled:true in vault-1952.json alone would have shown nothing: the app rendered the owner flows only when the BASE v2 switch was on. The two switches are now independent. vault-1952.json uiEnabled -> the vault card on /trade (create, mint, limits, deposit, withdraw, redeem) and a vault row on Portfolio. expansion/deployments/1952.json uiEnabled -> the base v2 card (mint, swap-only grant, revoke-all) and signing of the restricted-swap template. A private-fork build treats the BASE switch as on; the vault switch is never forced anywhere."
+to_astra:
+  - "Vault UI on the public 1952 configuration is accepted on the fork: flipping uiEnabled in vault-1952.json is enough for the vault, and safe from the frontend side. Signed in the exact post-flip configuration too (base off, vault on, no fork flag): evidence/fable/run6/fork-postflip-vault-only-run-20261126-201238.json."
+  - "Base v2 owner flows (new swap-only grant, revoke-all) passed on the fork with the base switch forced on by the fork build. They need uiEnabled in expansion/deployments/1952.json to appear on public testnet."
+  - "After either flip: rebuild, then `node scripts/chain-checks.mjs testnet-live`. It reads both switches from the manifests and expects exactly the matching cards."
+  - "The app now reads services/mcp/tools.json and services/mcp-v2/tools.json (name, description, inputSchema, annotations, writes, journalEffect, guarantees) and deployments/session7/1952/judge-01/{manifest,activity}.json. A catalogue entry whose `writes` contradicts its journalEffect or its MCP annotations makes the whole catalogue unavailable on the page, by design."
+  - "testnet-live expects the activity snapshot to be MERGED into the live list. For that the public RPC must answer eth_getCode at the snapshot's last block (47250330) for contracts the snapshot does not index (today: the two judge controllers, created later). If that state is pruned the page falls back to 'events-only' and says so; a snapshot refresh fixes it."
+verification:
+  - "Source built for every check: 42ee197 (later commits changed scripts, notes and evidence only; git diff 42ee197..HEAD over apps/web/src, next.config.ts and packages is empty)."
+  - "npm test 99/99, tsc clean, check:tokens clean."
+  - "testnet-live on a production build, KEEPER_API_URL unset, unfiltered: all passed, 56 loads. evidence/screenshots/testnet-1952-run6/"
+  - "hosted-checks with the bundle scan on the same build: all passed. evidence/screenshots/hosted-local-run6/. Not run against a hosted URL (none exists)."
+  - "Fixture mode on a production build, 360 and 390 px with every disclosure open: all passed. evidence/screenshots/fixture-run6/"
+  - "Negative checks, one production build each: wrong-network, broken-deployment, rejected-manifest (root, missing), testnet-unverified: all passed. evidence/fable/run6/negative/"
+  - "Fresh clone outside the repo, `npm ci` at the root then `npm run build -w @peridot/web` under env -i (PATH, HOME): both exit 0 at 42ee197."
+  - "Local wallet E2E on 18545 (dev server): v1 7 tx / 0 reverted (evidence/fable/local-e2e-run-20261126-194927.json); v2 + vault 10 app tx (evidence/fable/run6/local-v2-vault-run-20261126-194830.json)."
+  - "Private fork of 1952 (fork-only transactions, never explorer-linked), production builds at a5276f5: public owner on the public v2 and vault accounts, 6 app tx + 1 script-sent operator swap (fork-v2-vault-run-20261126-201113.json); a wallet that owns nothing creating and using its own vault account, 6 app tx (fork-fresh-wallet-vault-run-20261126-201142.json); post-flip configuration, 4 app tx (fork-postflip-vault-only-run-20261126-201238.json). In every vault action the bound shown on screen is the bound in the mined calldata."
+bugs_found_by_the_checks_and_fixed:
+  - "The hosted bundle carried a loopback RPC URL (anvil.rpcUrl inside the bundled local v2 manifests, since run 5). Dropped at sync time."
+  - "Page overflow at 360/390 px: the export button on /strategies; any failure reason quoting a full address on an unverified deployment."
+  - "On an unverified deployment the strategy review form was still offered (signing was locked). Now no review is offered at all."
+  - "Skeletons did not carry data-loading, so the scripts' wait for loading to end was a no-op."
+failed_runs_kept: ["evidence/fable/run6/fork-v2-vault-run-20261126-190122.json (my script asked for more than the account held; the app refused correctly)", "evidence/fable/local-e2e-run-20261126-194820.json (my script's expiry assertion did not allow for an idle node; corrected to bound the expiry by the block the app read and the block it was mined in)"]
+not_done: ["hosted-checks against a real hosted URL", "a write from the app on public 1952 and a real wallet extension", "positive native evaluation of Peridot's own circuits (nothing published)", "OKX quote (no credentials)", "e2e-fork-strategy.mjs was not re-run on the final code"]
+next_dependency: "Claude: relay the two flip notes to Astra; deploy and give Fable the hosted URL for hosted-checks. Judge grants expire 2026-12-03 16:50:32 UTC; the Connect card will then show them as expired from its live read."
+```
