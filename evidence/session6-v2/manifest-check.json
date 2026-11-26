@@ -1,0 +1,143 @@
+{
+  "chainId": 1952,
+  "endpoint": "https://xlayertestrpc.okx.com",
+  "sourceCommit": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",
+  "block": "47249036",
+  "blockHash": "0x251e7979544286004d480bc02de59283bb69d94dce8835f08db0e27927a45f64",
+  "contracts": {
+    "mockWokb": "0x3a5f909912c4adbee8776264e6b9fad130321b26",
+    "mockUsdc": "0x3a6cb8bedc251c37dc8258a27575127990a67e95",
+    "mockOracle": "0x0386ea8906a1cb9fa34c7a4a2433f5ceab5210c8",
+    "cpu": "0x6d75932b8bb080a3e04b6c9c6218bdf3b321f9b1",
+    "execution": "0xc72a18670c185f6a5e39dfbf10c27f025aa96d9c",
+    "source": "0xc1b064193a2d25af6530951eaf87b958d7d2e2a9",
+    "venue": "0x626cab8793e3ab76c2e62fa082b5469d94498554",
+    "swap": "0xf2e6d955158fe77252713d982f9d376f467e7cd3",
+    "lending": "0xdad2bbf5ce7bc43a932c78b5bcd5e0d284348101",
+    "factory": "0xbdd270a685596452557c8342ca3d39b1133ba7a0",
+    "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f"
+  },
+  "runtimeCodeHashes": {
+    "mockWokb": "0x607ad62d751e0292f17a3e6877b289b73e8b7498273df14dac1b9540dee7881b",
+    "mockUsdc": "0x708bccc84cad71b9869bbe839a229a6715abef2a0e5054b04c43e73905b11f0f",
+    "mockOracle": "0xb28f5a30669ed934c5f8d2541fb8c5dcd7f1e5a897cfc0c17e870264313d19fc",
+    "cpu": "0x517d307fe4b14e4ff7b5b6a471683050078abadab2a5a74c985303a2516f54de",
+    "execution": "0xf45941a4c35ae939ded36f1074d8e57f4f65b7218c0cc3f5f4460d9a4d8f6ff5",
+    "source": "0xcc2783ecf34c5751d3b54babc788879b8b85504206ee49ff24ef7e013d258449",
+    "venue": "0xe519bf77937f45caeaafa31b3083cf97794ce0a39c061189fe9a757212273647",
+    "swap": "0xbced548ef3d460d149a3916a0999c9b87220f0856dccd10652565cb6b5ed6d2e",
+    "lending": "0x685aaa8e9fae20b6d8975f78def0000e07971debf3551aa3089f1d61dab7d805",
+    "factory": "0xd9344580014d46f7e9ad0821131116bccf1e5bb841cbecaeb420d4dfb74e74c1",
+    "account": "0xe0bee7e9dbe18b504c1bb877a24a09daa7e90fec76f192f35ceb6d1e5749b907"
+  },
+  "receipts": [
+    {
+      "name": "deploy-mockWokb",
+      "hash": "0x40bd4792bc996e31d226626ad1f1c630ebddcc3fbd5bedfc32f1bb9031fbdfb6",
+      "block": "47248903",
+      "nonce": 32
+    },
+    {
+      "name": "deploy-mockUsdc",
+      "hash": "0x007d31092574460698ce6e4740f097baf9e43ac38088e8ea0bca6b8dfff23bb2",
+      "block": "47248909",
+      "nonce": 33
+    },
+    {
+      "name": "deploy-mockOracle",
+      "hash": "0xd71c5264526e76f838f9853ba1f4817948ea64c8ba417f2f54ea8b19437a543b",
+      "block": "47248917",
+      "nonce": 34
+    },
+    {
+      "name": "price-mWOKB",
+      "hash": "0x1a1fe26039115a53918b6e72fa4ceefde94f97aa9d9ea7a6b5c8322b07b5544b",
+      "block": "47248924",
+      "nonce": 35
+    },
+    {
+      "name": "price-mUSDC",
+      "hash": "0x60f5aa87c0ca163c61b6ba5325d799858d6d6dbdd3fa5477df6e1f3e88f09dde",
+      "block": "47248932",
+      "nonce": 36
+    },
+    {
+      "name": "deploy-cpu",
+      "hash": "0x407a94da33ed334051764e6d33e89b417b97dfd91eee0ec13f234996aaee8ebc",
+      "block": "47248939",
+      "nonce": 37
+    },
+    {
+      "name": "reference-program",
+      "hash": "0x746ae18a818928aa400630f07ab57c8a4bd1c094061969ca648938edde6c3e2a",
+      "block": "47248947",
+      "nonce": 38
+    },
+    {
+      "name": "deploy-execution",
+      "hash": "0x69821dda51e94fafb8bbcd5f88d0bde2b52478d9829145db6327ac3ec9d5a011",
+      "block": "47248955",
+      "nonce": 39
+    },
+    {
+      "name": "deploy-source",
+      "hash": "0x0468ebd135914ae26cf140579d669b63df7302fa0591973e8017c762eaeb8cbf",
+      "block": "47248965",
+      "nonce": 40
+    },
+    {
+      "name": "deploy-venue",
+      "hash": "0xe2edaf0f5279a70a73d30bf9747e7fbcf198dfedd3e7a2a339d50daca0384ab4",
+      "block": "47248973",
+      "nonce": 41
+    },
+    {
+      "name": "inventory-mWOKB",
+      "hash": "0xa5aa8ea1c2e138057dc147ab563aedcf11466d171e9f9791a2590a5fa1cd2c2c",
+      "block": "47248980",
+      "nonce": 42
+    },
+    {
+      "name": "inventory-mUSDC",
+      "hash": "0xbf9842a911735a3f3432c78ce3f8c0054b297cc61c52613136175c850c76ea8b",
+      "block": "47248987",
+      "nonce": 43
+    },
+    {
+      "name": "deploy-swap",
+      "hash": "0xa91969009818c0531c8342b1251fa428af29b3ef55f6f6eefd82d4bd2ab9e1bc",
+      "block": "47248994",
+      "nonce": 44
+    },
+    {
+      "name": "deploy-lending",
+      "hash": "0xadedbc9950c696da45c2e0fa0aa6d6b9b506802b93cdc04c6824c1b0f1b2cc5b",
+      "block": "47249004",
+      "nonce": 45
+    },
+    {
+      "name": "deploy-factory",
+      "hash": "0xeffba29d298065b34020a222dac2c0aced7b27dcc15121ec0ca82c25e635ec22",
+      "block": "47249013",
+      "nonce": 46
+    },
+    {
+      "name": "create-account",
+      "hash": "0x5542b94fec6b9161b8d9a56e51a0a16a5574c9c33ab24d2b7d63f971db8543d2",
+      "block": "47249020",
+      "nonce": 47
+    },
+    {
+      "name": "fund-account",
+      "hash": "0x270f3a4b7d5b34377930cf6b0270e70373420ffb2fdf02fa73ec0087308cea57",
+      "block": "47249027",
+      "nonce": 48
+    },
+    {
+      "name": "swap-exact-input",
+      "hash": "0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c",
+      "block": "47249036",
+      "nonce": 49
+    }
+  ]
+}

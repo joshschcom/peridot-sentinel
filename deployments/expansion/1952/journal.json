@@ -1,0 +1,189 @@
+{
+  "chainId": 1952,
+  "sender": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "artifacts": {
+    "mockWokb": "0xde40408df177d9afbf76463760d6d18c51396fb12948bbb6f58b2d2705d26c71",
+    "mockUsdc": "0xde40408df177d9afbf76463760d6d18c51396fb12948bbb6f58b2d2705d26c71",
+    "mockOracle": "0x8fcecf250157bdb6a6ae1a2f0d19c0372bf1e36f79ff9c2c204298f6dda8c24d",
+    "cpu": "0xdfd1f4085672516da89a992ea6cef6d358706c4980face4aa2debbbf94f55562",
+    "source": "0xee3a20c810bc1e76904e3a4b64ad0a6de072993eb003136fd69bac7e71fd5569",
+    "venue": "0x15964aeef104e043a9bcc73815a42783d65005063a689fbcaa4b4f77bed037d3",
+    "swap": "0x81f662d6e3562985be86af447c4338bd5497b4e2a3eba3de8b349ddeb0c177ff",
+    "lending": "0x9561dd3d25086339590504c1b74971efc60bc818c7f9aa6b07a9082706a9aa01",
+    "execution": "0xb7758a68c1b740eb958270b71647657da2acd6eb2a295ec38d719a41200041e5",
+    "factory": "0x58431b3f9462870043e8cef658c1c1b6e9aa6fbd8f3c0e9f9418e211663eee88",
+    "account": "0x28235c26ff2a1424c6353ae03202794557a0afcb487d117cab8e3a5cb7c91aa1"
+  },
+  "steps": {
+    "deploy-mockWokb": {
+      "hash": "0x40bd4792bc996e31d226626ad1f1c630ebddcc3fbd5bedfc32f1bb9031fbdfb6",
+      "nonce": 32,
+      "to": null,
+      "dataHash": "0x6014215ce770ada99b4ea30472326c76ab61f6cd129519c5c10284008dff382c",
+      "block": "47248903",
+      "blockHash": "0xc727a6241118f0072d9f1f4ec374fa5737f02287c4c45d0f73134da6473c84c5",
+      "gas": "507928"
+    },
+    "deploy-mockUsdc": {
+      "hash": "0x007d31092574460698ce6e4740f097baf9e43ac38088e8ea0bca6b8dfff23bb2",
+      "nonce": 33,
+      "to": null,
+      "dataHash": "0xdfc7b9c9f9636b9a09c608cbd76f93334cecc72627d34d43f9b1ff056e6d4667",
+      "block": "47248909",
+      "blockHash": "0x34d0642802ec36a42f512615a5fcdb2e6c53911e01981c86eee3b28ad1e2599a",
+      "gas": "507928"
+    },
+    "deploy-mockOracle": {
+      "hash": "0xd71c5264526e76f838f9853ba1f4817948ea64c8ba417f2f54ea8b19437a543b",
+      "nonce": 34,
+      "to": null,
+      "dataHash": "0x8fcecf250157bdb6a6ae1a2f0d19c0372bf1e36f79ff9c2c204298f6dda8c24d",
+      "block": "47248917",
+      "blockHash": "0x61fc64a52bb1cf879e492f7a57cf2043658b17bb3f5f84c60b33a9b7877ef28a",
+      "gas": "231317"
+    },
+    "price-mWOKB": {
+      "hash": "0x1a1fe26039115a53918b6e72fa4ceefde94f97aa9d9ea7a6b5c8322b07b5544b",
+      "nonce": 35,
+      "to": "0x0386ea8906a1cb9fa34c7a4a2433f5ceab5210c8",
+      "dataHash": "0x6f06c34de42f988dbbc522ed3dfd9502b79ba0c33c45d1e13cbdbc997156ff39",
+      "block": "47248924",
+      "blockHash": "0x54cd43c34199d876ae9faa1d2a4f461bd0eed4764776b6f090af9dfe65ed8ad7",
+      "gas": "46114"
+    },
+    "price-mUSDC": {
+      "hash": "0x60f5aa87c0ca163c61b6ba5325d799858d6d6dbdd3fa5477df6e1f3e88f09dde",
+      "nonce": 36,
+      "to": "0x0386ea8906a1cb9fa34c7a4a2433f5ceab5210c8",
+      "dataHash": "0x556f759c2ba0e15f1ec4fa37954794f5407f47f69619fc994ac95545447522d0",
+      "block": "47248932",
+      "blockHash": "0x58363291627e73aaa4924b89f581b52916d88b0ce4dc68b75ddd7d9de0c27386",
+      "gas": "46102"
+    },
+    "deploy-cpu": {
+      "hash": "0x407a94da33ed334051764e6d33e89b417b97dfd91eee0ec13f234996aaee8ebc",
+      "nonce": 37,
+      "to": null,
+      "dataHash": "0xdfd1f4085672516da89a992ea6cef6d358706c4980face4aa2debbbf94f55562",
+      "block": "47248939",
+      "blockHash": "0x6ee959f0fd9c46cecacfdbfbc726fa3d77739e914cd4ecd993124194e97da127",
+      "gas": "615873"
+    },
+    "reference-program": {
+      "hash": "0x746ae18a818928aa400630f07ab57c8a4bd1c094061969ca648938edde6c3e2a",
+      "nonce": 38,
+      "to": "0x6d75932b8bb080a3e04b6c9c6218bdf3b321f9b1",
+      "dataHash": "0xce2b3aa6767f54a102bca6c96dd7f37d01b06c2f68c82649cfd13e27238c2df3",
+      "block": "47248947",
+      "blockHash": "0x016f7122c1d212680f4f987e8e27986fd68330ab24c57428fb37b4c4b19e70f3",
+      "gas": "390950"
+    },
+    "deploy-execution": {
+      "hash": "0x69821dda51e94fafb8bbcd5f88d0bde2b52478d9829145db6327ac3ec9d5a011",
+      "nonce": 39,
+      "to": null,
+      "dataHash": "0x94236eae50d22825980eb2a568f16ba76dddd7f0c70b712c48c154be622dcda5",
+      "block": "47248955",
+      "blockHash": "0x75df15feaf49e02dcab1b4268d0254259da5df8fe15f1f11c9f84d8e55814305",
+      "gas": "339691"
+    },
+    "deploy-source": {
+      "hash": "0x0468ebd135914ae26cf140579d669b63df7302fa0591973e8017c762eaeb8cbf",
+      "nonce": 40,
+      "to": null,
+      "dataHash": "0x95e0024e0dd3caaf1033766b991c670dd5dd7f9cf01589d8a9de9196a70b5485",
+      "block": "47248965",
+      "blockHash": "0x37bfdd784e086ecbdfefca472001d77e025a067f0f126690a7f6cac88adcc4f4",
+      "gas": "166628"
+    },
+    "deploy-venue": {
+      "hash": "0xe2edaf0f5279a70a73d30bf9747e7fbcf198dfedd3e7a2a339d50daca0384ab4",
+      "nonce": 41,
+      "to": null,
+      "dataHash": "0x7a693c83ddf19e848aee783eabcf6392397dd3ea119f42992bb5b96a0d2823f0",
+      "block": "47248973",
+      "blockHash": "0x299c1b29af6172d99cc1ffcad18ca072df0031d55f33a3d8b3e7038bcffcab67",
+      "gas": "626758"
+    },
+    "inventory-mWOKB": {
+      "hash": "0xa5aa8ea1c2e138057dc147ab563aedcf11466d171e9f9791a2590a5fa1cd2c2c",
+      "nonce": 42,
+      "to": "0x3a5f909912c4adbee8776264e6b9fad130321b26",
+      "dataHash": "0x0d0dddfcdf1aaa94b5ff22347898a13fee5aec13b1ae103b6f7880536d615fe7",
+      "block": "47248980",
+      "blockHash": "0xa6876232c10a42bd052a6b8fef150ebb1d66ab2465de0a1eecf21bfebb910c9e",
+      "gas": "68123"
+    },
+    "inventory-mUSDC": {
+      "hash": "0xbf9842a911735a3f3432c78ce3f8c0054b297cc61c52613136175c850c76ea8b",
+      "nonce": 43,
+      "to": "0x3a6cb8bedc251c37dc8258a27575127990a67e95",
+      "dataHash": "0x4dac314d598ffce0c8b3590bbcbe4f3b167a3ba60bab8887ddb7c9afeb84a2ea",
+      "block": "47248987",
+      "blockHash": "0x964cbce71b0fff6f54513ef0b83d2c6953764c66a536f1d172f0ca6852289af4",
+      "gas": "68087"
+    },
+    "deploy-swap": {
+      "hash": "0xa91969009818c0531c8342b1251fa428af29b3ef55f6f6eefd82d4bd2ab9e1bc",
+      "nonce": 44,
+      "to": null,
+      "dataHash": "0x518a7630578af13961f0f09774e4883770e0da07a4b8822bb310b4ae292c980d",
+      "block": "47248994",
+      "blockHash": "0xd8338c1937fdf6d8914218084826acaa6a1320166901786be4813052cf695fe2",
+      "gas": "1003053"
+    },
+    "deploy-lending": {
+      "hash": "0xadedbc9950c696da45c2e0fa0aa6d6b9b506802b93cdc04c6824c1b0f1b2cc5b",
+      "nonce": 45,
+      "to": null,
+      "dataHash": "0x13b53258f1c64e81deb3428d620f3d48ac608654a37867df12fee8b6743561d7",
+      "block": "47249004",
+      "blockHash": "0x6ca87940f5f3791165d948d54542c60e52334b31fd97923844571c768fc59dd7",
+      "gas": "433662"
+    },
+    "deploy-factory": {
+      "hash": "0xeffba29d298065b34020a222dac2c0aced7b27dcc15121ec0ca82c25e635ec22",
+      "nonce": 46,
+      "to": null,
+      "dataHash": "0x235a8184846c7f699e1705967fb7bb0f57c6e8620c95d90d8df7be74d4f9280f",
+      "block": "47249013",
+      "blockHash": "0x96c12b5c2bca5076cdbfe22d24e25c7a3f7f8f19e409a01e8eef6101c50fc99f",
+      "gas": "3897483"
+    },
+    "create-account": {
+      "hash": "0x5542b94fec6b9161b8d9a56e51a0a16a5574c9c33ab24d2b7d63f971db8543d2",
+      "nonce": 47,
+      "to": "0xbdd270a685596452557c8342ca3d39b1133ba7a0",
+      "dataHash": "0xefd7d7d1e36ac1c9eea29043423cbb53064648cb13d98d194fd3a579dbfb9962",
+      "block": "47249020",
+      "blockHash": "0x93790b19314821d6f3e759d44bdabf688f2eff706bcd7dfa00a609fee66c5bdd",
+      "gas": "3051713"
+    },
+    "fund-account": {
+      "hash": "0x270f3a4b7d5b34377930cf6b0270e70373420ffb2fdf02fa73ec0087308cea57",
+      "nonce": 48,
+      "to": "0x3a5f909912c4adbee8776264e6b9fad130321b26",
+      "dataHash": "0xe88cae65f0946d81763a60ae328d7aefbe2a7f90d7f6427ad4d426783e6ea7d1",
+      "block": "47249027",
+      "blockHash": "0xd72711cdc10437c4a28a88159f7c3f3918c08c536f79d811168138520511b434",
+      "gas": "51011"
+    },
+    "swap-exact-input": {
+      "hash": "0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c",
+      "nonce": 49,
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "dataHash": "0xcd694572a0cd9c4cc7f0f0c3b87f410f7e32cb2563cc663ccc0e13455fef6275",
+      "block": "47249036",
+      "blockHash": "0x251e7979544286004d480bc02de59283bb69d94dce8835f08db0e27927a45f64",
+      "gas": "252596"
+    }
+  },
+  "deadline": "1795711466",
+  "denial": {
+    "method": "eth_call",
+    "block": "47249031",
+    "blockHash": "0x5f0914fd599e7dcdce935eb828d243a435978aa4c34465ffbfcb3e71a198b4d5",
+    "lossBps": 101,
+    "revertSelector": "0x84a6f8c3"
+  }
+}

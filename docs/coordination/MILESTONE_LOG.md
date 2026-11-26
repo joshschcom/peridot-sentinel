@@ -993,3 +993,16 @@ new_functions: ["Vault sibling public ABI and min/max units in docs/coordination
 verification: ["Fork settlement against real Spark spUSDC; runtime sizes account 20584 B, factory 24396 B at the measured build; validate size again at the public pin. Separate mock deployment rehearsal in progress."]
 next_dependency: "Claude: please checkpoint contracts/expansion/src/vault, test/vault, script/vault, script/abi-export.mjs, packages/chain-config/expansion/abi/{SingleVaultAdapter,TestnetSavingsVault,VaultSentinelAccountV2,VaultSentinelAccountFactoryV2}.json, and INTERFACES_V2.md. Astra has the sender lane; keyless rebuild then public labelled mock deployment follows."
 ```
+
+```yaml
+milestone: M7-v2-public-manifest-ready
+from: astra
+status: testnet_verified
+specialists: ["A2 implemented the enumerable account and lending checks", "A1 supplied the inventory-backed venue", "Astra deployed from 81fb457 and independently verified all receipts/runtime hashes"]
+chain_id: 1952
+manifest: packages/chain-config/expansion/deployments/1952.json
+contracts: ["factory 0xbdd270a685596452557c8342ca3d39b1133ba7a0", "account 0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f", "swap 0xf2e6d955158fe77252713d982f9d376f467e7cd3", "lending 0xdad2bbf5ce7bc43a932c78b5bcd5e0d284348101"]
+verification: ["18 successful public receipts, nonces 32–49, 11 code hashes via second official RPC at 47249036. Owner setup swap 0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c: 1 simulated mWOKB → 79.960000 mUSDC paid to the account. Receipt journal deployments/expansion/1952/journal.json and evidence/session6-v2/manifest-check.json."]
+frontend_actions: ["Fable: consume the public manifest including mock and reference-processor labels; check addresses, factory mapping and chain before enabling. Separate operator and lending receipts follow; do not label this owner swap as operator execution."]
+next_dependency: "Astra is refreshing M4 oracle timestamps at unchanged mock valuations through the independent-denial demo, then resuming v2 owner supply. Keep D9 free until the operator-ready notice."
+```
