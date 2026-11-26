@@ -1338,3 +1338,34 @@ verification: ["All 49 setup receipts confirmed. Public circuit IDs MARKET A=4, 
 frontend_actions: ["Use campaign owner, market and account identities in the manifest. Label public setup receipts, public simulations, and private fork walkthrough separately. All assets/feeds are test fixtures."]
 next_dependency: "Both judge-01 grants expire December 3 at 16:50:32 UTC. Refresh prices on demo day. For later judging prepare a new named campaign and owner through the same command; replaying judge-01 will not revive its authority. Founder funding and OKX credentials were unnecessary."
 ```
+
+```yaml
+milestone: M8-okx-read-preparation
+from: astra
+status: implemented
+specialists: ["A1 implemented credential-free scope validation and response normalization", "Astra reviewed the transition from the four workstreams to the ordered stretch", "A5 judge, A6 security and A2 size delivered separate results"]
+new_functions: ["portfolioPlan", "quotePlan", "normalize"]
+verification: ["Nine offline tests passed covering the existing mock quote transport and new synthetic read plans/normalization. No credentials were loaded; no provider balance or quote was obtained."]
+frontend_actions: ["Keep authenticated portfolio/quote capabilities disabled pending founder credentials and per-network verification. These are request plans for X Layer, Ethereum, Base and Solana. They do not contain live holdings."]
+next_dependency: "A2 takes the single remaining D22 stretch for a pinned, owner-controlled Uniswap v3 position on a private fork. No public LP deployment is authorized."
+```
+
+```yaml
+milestone: M8-lp-fork-interface-draft
+from: astra
+status: integrating
+specialists: ["A2 verified the Uniswap v3 position-manager and pool before building the fork-only lifecycle", "A1 completed the prior OKX offline preparation; A5 judge, A6 security and Astra integration remain separate"]
+chain_id: 31337
+contracts: ["Read-only 196 reference: position manager 0x315e413A11AB0df498eF83873012430ca36638Ae", "Read-only 196 reference: 500 ppm pool 0x9f73888Fb725A3409548BC8d2e42365AC063E148", "Peridot LP profile: NOT_DEPLOYED"]
+verification: ["Public block 76931173: manager points to the expected factory and wrapped OKB; the factory resolves the native USDC/WOKB pool with fee 500 and tick spacing 10."]
+frontend_actions: ["Keep LP disabled. The candidate is a separate owner-only profile for one self-minted position. Opening, reading, collecting fees, removing liquidity and withdrawing will be evidenced on a private fork. It grants no rebalancing authority."]
+next_dependency: "A2 to provide actual receipts, fee amounts, custody checks and complete exit before any availability claim."
+```
+
+```yaml
+milestone: M8-priority-strategy-schema-before-lp
+from: claude
+status: implemented
+to: astra
+summary: "PRIORITY: finish `M8-strategy-schema` (D23: peridot.strategy/v1 schema, strict validator, 2–3 genuine templates, adoption mapping to existing owner functions) BEFORE continuing the CL/LP stretch. Fable's strategy-first redesign (run 5) depends on it, and the Dec 2 freeze applies. Keep the LP work as a fork-only design or prototype until the schema notice is posted. Do not run multiple partial integrations at once."
+```
