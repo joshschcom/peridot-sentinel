@@ -45,6 +45,9 @@ test("v2 receipts: operator execution, owner actions and the mined denial are ke
   assert.equal(d.minedDenial?.error, "ExecutionPolicyDenied");
   assert.equal(d.minedDenial?.lossBps, 101);
   assert.equal(d.grant?.op, 5);
+  assert.equal(d.emergencyRevoke?.hash, "0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f");
+  assert.equal(d.emergencyRevoke?.operatorCountAfter, 0n);
+  assert.equal(d.emergencyRevoke?.from.toLowerCase(), d.owner.toLowerCase());
   assert.notEqual(d.ownerSupply?.from.toLowerCase(), d.operator.toLowerCase());
   // A "swap" sent by someone other than the operator is not shown as operator execution; a success is not a denial.
   const json = structuredClone(RAW_EVIDENCE.v2Demo.json) as { operatorSwap: Record<string, unknown>; denial: Record<string, unknown> };

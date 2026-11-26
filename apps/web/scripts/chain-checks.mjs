@@ -26,7 +26,7 @@
 //
 // The wallet is the read-only test provider: it refuses eth_sendTransaction. Tampered manifests live in a temp
 // directory; packages/chain-config is never touched. Loopback RPC, chain 31337, accounts #3-#9 only.
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { chromium } from "playwright";
 import { connectWallet, installTestWallet, jsonRpc } from "./lib/test-wallet.mjs";
@@ -439,6 +439,7 @@ if (mode === "wrong-network") {
           expect(byKind["operator-swap"]?.hash === v2Demo.operatorSwap.hash && byKind["operator-swap"].href === explorerTxUrl(1952, v2Demo.operatorSwap.hash) && /Operator execution · mock venue/.test(byKind["operator-swap"].text), `${tag}: operator swap row is ${JSON.stringify(byKind["operator-swap"])}`);
           expect(byKind["mined-denial"]?.hash === v2Demo.denial.hash && byKind["mined-denial"].href === explorerTxUrl(1952, v2Demo.denial.hash) && /Mined revert/.test(byKind["mined-denial"].text) && /ExecutionPolicyDenied/.test(byKind["mined-denial"].text), `${tag}: mined denial row is ${JSON.stringify(byKind["mined-denial"])}`);
           expect(byKind["simulated-denial"] && byKind["simulated-denial"].href === null && /Simulated rejection · nothing sent/.test(byKind["simulated-denial"].text), `${tag}: the simulated denial must have no link: ${JSON.stringify(byKind["simulated-denial"])}`);
+          expect(byKind["emergency-revoke"]?.hash === v2Demo.emergencyRevoke.hash && byKind["emergency-revoke"].href === explorerTxUrl(1952, v2Demo.emergencyRevoke.hash) && /Owner action · emergency stop/.test(byKind["emergency-revoke"].text), `${tag}: the v2 emergency revocation receipt is ${JSON.stringify(byKind["emergency-revoke"])}`);
           expect(byKind["owner-setup-swap"]?.hash === v2Manifest.swap.receipt && /Owner action · not operator execution/.test(byKind["owner-setup-swap"].text), `${tag}: the owner setup swap is not labelled as an owner action`);
           notes.push({ wallet: who.name, width, v2: { ...shown, quoteExpected: await quote.getAttribute("data-expected"), receipts: receipts.map((row) => `${row.kind}:${row.hash}`) } });
           await shot(page, `testnet-${who.name}-trade-${width}`);
@@ -465,15 +466,29 @@ if (mode === "wrong-network") {
           const txLinks = await root.locator('a[href*="/tx/"]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href")));
           // Linked transactions: the scripted run's execute, and the LLM session's swap and mined revert. Nothing else.
           const llmFile = JSON.parse(readFileSync(new URL("../../../evidence/session6-mcp-v2/verified.json", import.meta.url), "utf8"));
-          const allowedTx = new Set([runHash, llmFile.swap.canonical.receipt.hash, llmFile.rejection.canonical.receipt.hash].map((hash) => explorerTxUrl(1952, hash)));
-          expect(txLinks.length >= 3 && txLinks.every((href) => allowedTx.has(href)) && [...allowedTx].every((href) => txLinks.includes(href)), `${tag}: explorer transaction links on Connect are ${JSON.stringify(txLinks)}`);
+          const allowedTx = new Set([runHash, llmFile.swap.canonical.receipt.hash, llmFile.rejection.canonical.receipt.hash, v2Demo.emergencyRevoke.hash].map((hash) => explorerTxUrl(1952, hash)));
+          expect(txLinks.length >= 4 && txLinks.every((href) => allowedTx.has(href)) && [...allowedTx].every((href) => txLinks.includes(href)), `${tag}: explorer transaction links on Connect are ${JSON.stringify(txLinks)}`);
           const llmCard = page.locator('[data-testid="connect-llm"]');
           const llmText = (await llmCard.innerText()).replace(/\s+/g, " ");
           expect((await llmCard.getAttribute("data-swap")) === llmFile.swap.canonical.receipt.hash && (await llmCard.getAttribute("data-revert")) === llmFile.rejection.canonical.receipt.hash && (await llmCard.getAttribute("data-deltas")) === "true", `${tag}: the LLM session card does not show the verified receipts`);
           expect(/LLM-directed single session \(Claude via MCP\), not continuous autonomous monitoring/.test(llmText) && /mock venue \/ mock tokens \/ mock feed \/ development reference processor/.test(llmText) && /simulated denial/i.test(llmText) && /mined revert/i.test(llmText), `${tag}: the LLM session is not labelled as required`);
           expect((await llmCard.locator('[data-testid="llm-simulated"] a').count()) === 0 && (await llmCard.locator('[data-testid="llm-mined"] a').getAttribute("href")) === explorerTxUrl(1952, llmFile.rejection.canonical.receipt.hash), `${tag}: simulated denial and mined revert are not kept apart`);
           expect((await llmCard.locator('[data-testid="llm-quote"]').getAttribute("data-available")) === String(llmFile.market.onchainOS.quote !== null) && (llmFile.market.onchainOS.quote !== null || /Quote unavailable/.test(await llmCard.locator('[data-testid="llm-quote"]').innerText())), `${tag}: the session's OKX quote state is misreported`);
-          expect((await llmCard.locator('[data-testid="llm-reasoning"] blockquote').innerText({ timeout: 2000 }).catch(async () => (await llmCard.locator('[data-testid="llm-reasoning"] blockquote').textContent()) ?? "")).length > 200, `${tag}: the model's final message is not quoted`);
+          // The model's own final message sits in a closed disclosure: open it, then compare with the transcript's result.
+          await llmCard.locator('[data-testid="llm-reasoning"] summary').click();
+          const quoted = await llmCard.locator('[data-testid="llm-reasoning"] blockquote').innerText();
+          const transcriptName = readdirSync(new URL("../../../evidence/session6-mcp-v2/", import.meta.url)).filter((file) => /^claude-transcript-[0-9a-f]+\.ndjson$/.test(file)).sort().at(-1);
+          const finalResult = readFileSync(new URL(`../../../evidence/session6-mcp-v2/${transcriptName}`, import.meta.url), "utf8").split("\n").flatMap((line) => { try { const record = JSON.parse(line); return record.type === "result" ? [record.result] : []; } catch { return []; } }).at(-1) ?? "";
+          const squash = (value) => value.replace(/\s+/g, " ").trim();
+          expect(finalResult.length > 200 && squash(quoted) === squash(finalResult), `${tag}: the model's final message is not quoted verbatim (${quoted.length} characters shown, ${finalResult.length} in the transcript)`);
+          // Onboarding: what a reader copies is what is in the repository, and nothing asks for a key.
+          const repoText = (path) => readFileSync(new URL(`../../../${path}`, import.meta.url), "utf8").trim();
+          const v1Config = JSON.parse(await page.locator('[data-testid="connect-config"]').innerText());
+          expect(v1Config.mcpServers["sentinel-connect"].command === "node" && /services\/mcp\/server\.mjs$/.test(v1Config.mcpServers["sentinel-connect"].args[0]) && !("env" in v1Config.mcpServers["sentinel-connect"]), `${tag}: the keyless MCP configuration is ${JSON.stringify(v1Config)}`);
+          expect((await page.locator('[data-testid="connect-config-v2"]').innerText()).trim() === repoText("services/mcp-v2/claude.mcp.json") && (await page.locator('[data-testid="connect-objective"]').innerText()).trim() === repoText("services/mcp-v2/objective.txt"), `${tag}: the v2 configuration or the objective differs from the repository files`);
+          expect((await page.locator('[data-testid="connect-tools-v2"] [data-tool-v2]').count()) === 7 && (await page.locator("[data-onboard-step]").count()) === 7, `${tag}: the onboarding does not list seven steps and the seven v2 tools`);
+          expect((await page.locator('[data-testid="connect-stop-link"]').getAttribute("href")) === "/automate" && (await page.locator('[data-testid="connect-session-link"]').getAttribute("href")) === "#llm-session" && /There is no hosted AI/.test(main), `${tag}: the onboarding lacks the revocation link, the session link or the no-hosted-AI statement`);
+          expect(!/0x[0-9a-fA-F]{64}/.test(await page.locator('[data-testid="connect-how"] pre').allInnerTexts().then((texts) => texts.join(" "))), `${tag}: a 32-byte hex value appears in a copyable block`);
           expect((await page.locator('[data-testid="connect-run"] [data-step]').count()) === 7, `${tag}: the recorded run does not show seven steps`);
           expect((await page.locator('[data-step="6"] a').count()) === 0 && /Simulated rejection · not a mined revert/.test(await page.locator('[data-step="6"]').innerText()) && (await page.locator('[data-testid="connect-rejection"]').getAttribute("data-error")) === "OperatorNotAuthorized", `${tag}: step 6 is not shown as a simulated rejection`);
           const quote = page.locator('[data-testid="connect-quote"]');

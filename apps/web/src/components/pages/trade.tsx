@@ -295,6 +295,11 @@ function Receipts({ manifest, demo }: { manifest: ExpansionManifest; demo: V2Dem
             The same {manifest.simulatedDenial.lossBps} bps denial as a read-only eth_call at block {num(manifest.simulatedDenial.block)} (revert selector <Mono>{manifest.simulatedDenial.selector}</Mono>). A simulation: no transaction exists for it.
           </Row>
         ) : null}
+        {demo.emergencyRevoke ? (
+          <Row kind="emergency-revoke" label="Owner action · emergency stop" tone="warning" hash={demo.emergencyRevoke.hash}>
+            The owner revoked every operator at once (<Mono>revokeAllOperators</Mono>), block {num(demo.emergencyRevoke.block)}. Afterwards the account listed {demo.emergencyRevoke.operatorCountAfter.toString()} operators. The live card above reads the current list from the chain: an operator appears there again only if the owner grants a new one.
+          </Row>
+        ) : null}
         {demo.grant ? (
           <Row kind="owner-grant" label="Owner action" tone="outline" hash={demo.grant.hash}>
             The owner granted the operator {V2_OP_LABEL[demo.grant.op] ?? `operation ${demo.grant.op}`}: {w(demo.grant.maxPerCall)} per call, {w(demo.grant.cumulative)} in total, until {utc(demo.grant.expiry)}.

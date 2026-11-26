@@ -116,6 +116,8 @@ export interface V2Demo {
   /** A MINED revert: the transaction is on chain with status "reverted". */
   minedDenial: (Receipt & { error: string; lossBps: number; policyMaxBps: number }) | null;
   /** OPERATOR execution under the swap-only grant, through the mock venue, output paid to the account. */
+  /** The owner's emergency stop: revokeAllOperators(). An OWNER action; afterwards the account lists no operator. */
+  emergencyRevoke: (Receipt & { operatorCountAfter: bigint; newEpoch: bigint }) | null;
   operatorSwap: (Receipt & { amountIn: bigint; amountOut: bigint; tokenIn: `0x${string}`; tokenOut: `0x${string}`; remaining: bigint; recipient: `0x${string}` }) | null;
 }
 
@@ -139,6 +141,9 @@ export function parseV2Demo(json: unknown, file: string | null): Maybe<V2Demo> {
   const grant = receipt(root.grant, "success", account);
   const denial = receipt(root.denial, "reverted", account);
   const swap = receipt(root.operatorSwap, "success", account);
+  const revoke = receipt(root.emergencyRevoke, "success", account);
+  const countAfter = uint(revoke?.raw.operatorCount);
+  const epoch = uint(revoke?.raw.newEpoch);
   const owner = supply?.from ?? grant?.from ?? null;
   if (!owner) return unavailable("The recorded Sentinel v2 receipts do not identify the account owner");
   const event = rec(swap?.raw.event);
@@ -161,6 +166,8 @@ export function parseV2Demo(json: unknown, file: string | null): Maybe<V2Demo> {
     ownerSupply: pick(supply && supplyInput !== null && supplyShares !== null && supply.from.toLowerCase() !== operator.toLowerCase() ? { ...base(supply)!, rawInput: supplyInput, sharesAfter: supplyShares } : null),
     grant: pick(grant && typeof grant.raw.op === "number" && perCall !== null && cumulative !== null && expiry !== null ? { ...base(grant)!, op: grant.raw.op, maxPerCall: perCall, cumulative, expiry } : null),
     minedDenial: pick(denial && typeof replay?.error === "string" && typeof denial.raw.lossBps === "number" && typeof denial.raw.policyMaxBps === "number" ? { ...base(denial)!, error: replay.error, lossBps: denial.raw.lossBps, policyMaxBps: denial.raw.policyMaxBps } : null),
+    // Only the owner can stop everything: a "revoke" sent by the operator is not shown as the owner's emergency stop.
+    emergencyRevoke: pick(revoke && revoke.from.toLowerCase() === owner.toLowerCase() && countAfter !== null && epoch !== null ? { ...base(revoke)!, operatorCountAfter: countAfter, newEpoch: epoch } : null),
     // Operator execution only if the OPERATOR sent it and the output went to the ACCOUNT.
     operatorSwap: pick(swap && swap.from.toLowerCase() === operator.toLowerCase() && amountIn !== null && amountOut !== null && remaining !== null && address(event?.tokenIn) && address(event?.tokenOut) && address(swap.raw.recipient)?.toLowerCase() === account.toLowerCase() ? { ...base(swap)!, amountIn, amountOut, tokenIn: address(event?.tokenIn)!, tokenOut: address(event?.tokenOut)!, remaining, recipient: account } : null),
   });

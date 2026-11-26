@@ -9,12 +9,15 @@
  * Wording: "agent-directed execution". The server acts when its host calls a tool; it does not monitor anything.
  */
 import { useQuery } from "@tanstack/react-query";
-import { type ReactNode } from "react";
+import Link from "next/link";
+import { type ReactNode, useState } from "react";
 import { Badge, Button, ButtonLink, Card, CardHeader, DefinitionRow, Mono, Notice, PageHeader, Skeleton } from "@/components/ui/core";
 import { IconAlert, IconArrowUpRight, IconCheck, IconX } from "@/components/ui/icons";
 import { formatAmount, formatBps } from "@/lib/amount";
 import { TARGET_KIND, explorerAddressUrl, explorerTxUrl, xLayerTestnet } from "@/lib/chains";
 import { CONNECT, CONNECT_EXECUTE_ENV, CONNECT_SCOPE_LABEL, CONNECT_SETUP_COMMANDS, CONNECT_STATUS_LABEL, CONNECT_STDIO_COMMAND, type ConnectToolKind, type ConnectTranscript, LLM_SESSION_LABEL, LLM_SESSION_SCOPE, type LlmSession, connectVerified, grantReadiness } from "@/lib/connect";
+import { RAW_CONFIG } from "@/generated/config";
+import { EXPANSION } from "@/lib/expansion";
 import { shortAddress, shortHash } from "@/lib/format";
 import { Op } from "@/lib/policy";
 import { readConnectGrant } from "@/services/chain/connect";
@@ -57,6 +60,19 @@ export function Connect() {
         {CONNECT_SCOPE_LABEL}. The recorded runs used an external MCP client in a separate process: a scripted client, and one session directed by a language model. Neither is a model hosted by Peridot: no hosted AI exists in this app, and nothing monitors an account between sessions.
       </Notice>
 
+      <p className="text-sm">
+        <a href="#onboarding" className="font-medium underline underline-offset-4" data-testid="connect-onboarding-link">
+          How to connect your own LLM
+        </a>
+        <span className="text-muted"> · </span>
+        <a href="#llm-session" className="font-medium underline underline-offset-4">
+          The verified LLM-directed session
+        </a>
+        <span className="text-muted"> · </span>
+        <a href="#run" className="font-medium underline underline-offset-4">
+          The scripted seven-step run
+        </a>
+      </p>
       <Card as="section" data-testid="connect-limits">
         <CardHeader title="What an agent can and cannot do" description="The limits are in the account contract and in the tool list, not in a promise from the agent." />
         <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-2">
@@ -69,7 +85,7 @@ export function Connect() {
       {llm ? <LlmSessionCard session={llm} /> : null}
       {run ? <LiveGrant run={run} /> : null}
       <Tools />
-      <HowToConnect />
+      <HowToConnect llm={llm} />
       {run ? (
         <Transcript run={run} />
       ) : (
@@ -434,48 +450,151 @@ function Tools() {
 /* ---------- how to connect ---------- */
 
 function Code({ children, testid }: { children: string; testid?: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    // Copying is a convenience. If the browser refuses the clipboard, the text is still there to select.
+    try {
+      await navigator.clipboard.writeText(children);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+  };
   return (
-    <pre className="overflow-x-auto rounded-control border border-line bg-subtle p-3.5 font-mono text-[0.8125rem] leading-relaxed" data-testid={testid}>
-      {children}
-    </pre>
+    <div className="relative">
+      <pre className="overflow-x-auto rounded-control border border-line bg-subtle p-3.5 pr-20 font-mono text-[0.8125rem] leading-relaxed" data-testid={testid}>
+        {children}
+      </pre>
+      <button type="button" onClick={() => void copy()} className="absolute top-2 right-2 h-8 rounded-control border border-line-strong bg-bg px-2.5 text-xs font-medium text-muted hover:text-fg" data-copy aria-label="Copy to clipboard">
+        {copied ? "Copied" : "Copy"}
+      </button>
+    </div>
   );
 }
 
-function HowToConnect() {
-  const hostConfig = JSON.stringify({ mcpServers: { "sentinel-connect": { command: "node", args: [CONNECT_STDIO_COMMAND.replace(/^node /, "")] } } }, null, 2);
+function OnboardStep({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
-    <Card as="section" id="how" className="scroll-mt-28" data-testid="connect-how">
-      <CardHeader title="Connect an MCP client" description="The server runs on your machine and talks to its host over stdio. It opens no port, and this website is not part of the connection." />
-      <div className="space-y-5 p-5 text-sm sm:p-6">
-        <div>
-          <h3 className="font-medium">1. Prepare a checkout (Node 22.13 or later)</h3>
-          <div className="mt-2">
-            <Code>{CONNECT_SETUP_COMMANDS.join("\n")}</Code>
-          </div>
-          <p className="mt-2 text-xs text-faint">The last line starts the server in a separate process and lists its tools. It needs no key.</p>
-        </div>
-        <div>
-          <h3 className="font-medium">2. Give your MCP host this stdio command</h3>
-          <div className="mt-2">
-            <Code testid="connect-command">{CONNECT_STDIO_COMMAND}</Code>
-          </div>
-          <p className="mt-2 text-muted">For hosts that take a JSON configuration:</p>
-          <div className="mt-2">
-            <Code>{hostConfig}</Code>
-          </div>
-          <p className="mt-2 text-xs text-faint">Started like this, the server has no key. Every read, quote and simulate tool works, and the execute tool answers EXECUTION_DISABLED.</p>
-        </div>
-        <div>
-          <h3 className="font-medium">3. Execution is off until the host enables it</h3>
-          <p className="mt-1 text-muted">The single signing tool works only when the host process itself carries both variables below, and only for a grant the account's owner has made to that operator.</p>
-          <div className="mt-2">
-            <Code>{CONNECT_EXECUTE_ENV.join("\n")}</Code>
-          </div>
-          <p className="mt-2 text-xs text-faint" data-testid="connect-key-note">
-            The operator key stays in the MCP host's environment. It is never entered on this page: there is no field for it here, and the app never sees it. Give it only to a host you trust to use this one grant.
-          </p>
-        </div>
+    <li className="grid grid-cols-1 gap-x-5 gap-y-2 py-5 md:grid-cols-[2.5rem_minmax(0,1fr)]" data-onboard-step={n}>
+      <span className="num grid size-8 place-items-center rounded-full bg-inverse text-sm font-medium text-on-inverse">{n}</span>
+      <div className="min-w-0 space-y-2.5">
+        <h3 className="text-sm font-semibold">{title}</h3>
+        <div className="space-y-2.5 text-sm text-muted">{children}</div>
       </div>
+    </li>
+  );
+}
+
+const V1_READ_ONLY_PROMPT = "Read the Sentinel account's positions, both policies and the operator authorisation. Simulate the auto-repay and tell me whether it is eligible and for how much. Then simulate the operator's borrow and tell me what the contract answers. Do not execute anything.";
+
+/**
+ * Onboarding: how to connect your own LLM. Every command, configuration and prompt shown is a file in the repository
+ * or derived from one (src/generated/config.ts), so a reader who follows it runs exactly what was recorded.
+ * No key is ever typed into this page: it has no input, and the operator key belongs to the MCP server's environment.
+ */
+function HowToConnect({ llm }: { llm: LlmSession | null }) {
+  const hostConfig = JSON.stringify({ mcpServers: { "sentinel-connect": { command: "node", args: [CONNECT_STDIO_COMMAND.replace(/^node /, "")] } } }, null, 2);
+  const onboarding = RAW_CONFIG.onboarding;
+  const v2Tools = onboarding.v2Tools.tools ?? [];
+  const demo = EXPANSION.demo.status === "ok" ? EXPANSION.demo.value : null;
+  return (
+    <Card as="section" id="onboarding" className="scroll-mt-28" data-testid="connect-how">
+      <CardHeader
+        eyebrow="Onboarding"
+        title="Connect your own LLM"
+        description="Sentinel Connect is an MCP server you run next to an LLM runtime you also run, such as Claude Code or any other MCP client. They talk over stdio on your machine. There is no hosted AI: Peridot runs no model, and this website is not part of the connection."
+      />
+      <ol className="divide-y divide-line px-5 sm:px-6">
+        <OnboardStep n={1} title="Prepare a checkout (Node 22.13 or later)">
+          <Code>{CONNECT_SETUP_COMMANDS.join("\n")}</Code>
+          <p className="text-xs text-faint">The last line starts the server in a separate process and lists its tools. It needs no key.</p>
+        </OnboardStep>
+        <OnboardStep n={2} title="Add the server to your MCP client, without a key">
+          <p>Give your MCP client this stdio command, or the JSON below if it takes a configuration file. Replace the path with your checkout.</p>
+          <Code testid="connect-command">{CONNECT_STDIO_COMMAND}</Code>
+          <Code testid="connect-config">{hostConfig}</Code>
+          <p className="text-xs text-faint">Started like this the server holds no key. Every read, quote and simulate tool works against X Layer testnet, and the execute tool answers EXECUTION_DISABLED.</p>
+        </OnboardStep>
+        <OnboardStep n={3} title="Ask it something that only reads">
+          <Code testid="connect-prompt-read">{V1_READ_ONLY_PROMPT}</Code>
+          <p className="text-xs text-faint">An example prompt for the keyless setup. The account is the public demonstration account; the tools take no address, so the model cannot be pointed at another one.</p>
+        </OnboardStep>
+        <OnboardStep n={4} title="To let it execute: a bounded, expiring operator, granted by the owner">
+          <p>
+            Execution needs two things from two different people. The account's <span className="text-fg">owner</span> grants an operator address on chain: which operation, how much in total, until when. For a v1 account that is done in this app, on{" "}
+            <Link href="/automate#rules" className="text-fg underline underline-offset-4">
+              Automate
+            </Link>
+            , with the owner's wallet. The <span className="text-fg">person running the MCP server</span> starts it with that operator's key in the server's environment:
+          </p>
+          <Code>{CONNECT_EXECUTE_ENV.join("\n")}</Code>
+          <p className="text-xs text-faint" data-testid="connect-key-note">
+            The operator key stays in the environment of the MCP server process. It is never entered on this page: there is no field for it here, the app never sees it, and the model never sees it either. Give it only to a server you run yourself. The operator can do the one granted operation and nothing else; it can never withdraw.
+          </p>
+        </OnboardStep>
+        <OnboardStep n={5} title="The v2 server: a swap campaign with seven tools">
+          <p>
+            The session in which a language model chose and executed a swap used the v2 server{onboarding.v2Tools.server && typeof onboarding.v2Tools.server === "object" && "name" in onboarding.v2Tools.server ? <> (<Mono>{String((onboarding.v2Tools.server as { name: unknown }).name)}</Mono>)</> : null}. Its launcher starts the signer and the model as separate processes joined by a private socket, so the key is in neither the model's process nor its configuration:
+          </p>
+          <Code>bash services/mcp-v2/run-claude.sh</Code>
+          {onboarding.v2Config.text ? (
+            <>
+              <p>
+                The MCP configuration it gives the model, verbatim from <Mono>{onboarding.v2Config.file}</Mono>:
+              </p>
+              <Code testid="connect-config-v2">{onboarding.v2Config.text.trim()}</Code>
+            </>
+          ) : null}
+          {v2Tools.length > 0 ? (
+            <ul className="divide-y divide-line rounded-control border border-line" data-testid="connect-tools-v2" data-count={v2Tools.length}>
+              {v2Tools.map((tool) => (
+                <li key={tool.name} className="px-3.5 py-2.5" data-tool-v2={tool.name}>
+                  <Mono className="font-medium text-fg">{tool.name}</Mono>
+                  {tool.input ? <span className="text-faint"> · input: {tool.input.replace(/`/g, "")}</span> : null}
+                  {tool.effect ? <span className="block">{tool.effect.replace(/`/g, "")}</span> : null}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <p className="text-xs text-faint">It needs a live swap grant from the account's owner and the operator key in the launcher's environment. Without them, use the keyless setup in steps 1 to 3. The model is given these tools only: it has no shell, no file access and no tool that takes calldata, a recipient or another account.</p>
+        </OnboardStep>
+        {onboarding.v2Objective.text ? (
+          <OnboardStep n={6} title="An objective that was really used">
+            <p>
+              The owner's objective of the recorded session, verbatim from <Mono>{onboarding.v2Objective.file}</Mono>. The model decided the amounts itself.
+            </p>
+            <Code testid="connect-objective">{onboarding.v2Objective.text.trim()}</Code>
+            {llm ? (
+              <p>
+                <a href="#llm-session" className="font-medium text-fg underline underline-offset-4" data-testid="connect-session-link">
+                  See what the model did with it: the verified session
+                </a>
+                .
+              </p>
+            ) : null}
+          </OnboardStep>
+        ) : null}
+        <OnboardStep n={onboarding.v2Objective.text ? 7 : 6} title="Stopping it">
+          <p>
+            The owner can end an agent's authority at any moment, on chain, without the agent's cooperation. For a v1 account: the{" "}
+            <Link href="/automate" className="text-fg underline underline-offset-4" data-testid="connect-stop-link">
+              emergency stop on Automate
+            </Link>{" "}
+            revokes the operators and clears the trigger. A v2 account has one call that revokes every operator at once
+            {demo?.emergencyRevoke ? (
+              <>
+                ; the demonstration account's owner has used it on testnet: <TxAnchor hash={demo.emergencyRevoke.hash} />
+              </>
+            ) : null}
+            . A grant also ends by itself at its expiry or when its budget is spent. Stopping the MCP server process ends the session; nothing keeps running.
+          </p>
+        </OnboardStep>
+      </ol>
+      {onboarding.judgeDemo.present ? (
+        <p className="border-t border-line p-5 text-xs text-faint sm:px-6">
+          A step-by-step reproduction for reviewers is in <Mono>{onboarding.judgeDemo.file}</Mono>.
+        </p>
+      ) : null}
     </Card>
   );
 }
