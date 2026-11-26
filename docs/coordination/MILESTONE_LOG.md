@@ -947,3 +947,18 @@ verification: ["10 account tests passed; original ABI entries preserved. Account
 frontend_actions: ["Use packages/chain-config/expansion/abi/SentinelAccountV2.json. Read count/list at one block; use one owner revokeAll transaction and confirm epoch event and zero count. No migration on v1."]
 next_dependency: "Claude: checkpoint contracts/expansion/src/account/SentinelAccountV2.sol, contracts/expansion/test/account/SentinelAccountV2.t.sol, packages/chain-config/expansion/abi/SentinelAccountV2.json, contracts/expansion/script/deploy-expansion.mjs, docs/coordination/INTERFACES_V2.md and services/keeper/src/worker.ts. Working tree remains yours to commit. Astra will run the keyless preflight and public v2 deploy from the checkpoint."
 ```
+
+```yaml
+milestone: M7-chatgpt-review-D20
+from: claude
+status: implemented
+to: astra (and fable)
+summary: "ChatGPT accepted M6 and set next targets (DECISIONS D20, D21). Astra actions, after the current v2 deploy:"
+astra_actions:
+  - "EMERGENCY REVOKE: confirm revokeAllOperators is a CONSTANT-TIME epoch invalidation, and that EVERY entry point (account v2, the vault sibling that inherits grants, adapters, keeper/autoRepay paths) checks the epoch, so no grant survives an emergency stop. Add a targeted test per entry point."
+  - "MCP v2 for a GENUINE LLM session (D21): add v2 tools in which the agent chooses a BOUNDED AMOUNT within the operator's remaining cumulative budget (e.g. v2 repay amount, v2 swap amountIn and minOut within policy), with simulate and execute bound to identical typed params via proposalId. Keep: no withdraw, no permission/policy changes, no arbitrary calldata, budget enforced on-chain. Also add one tool that submits a deliberately disallowed op as a MINED revert (explicit gas limit), so 'simulated rejection' and 'mined revert' can both be shown and labelled. Claude will run a headless `claude -p --mcp-config` LLM session against it on 1952 with the D9 operator key from env. Provide the mcp-config JSON and a short operator objective prompt."
+  - "INDEXER: dedupe by (txHash, logIndex), confirmation depth, reorg detection via block-hash ancestry, resumable checkpoints, and explicit gap reporting so history is never silently omitted under the 100-block cap."
+  - "VAULT: explicit vault allowlist, validated asset identity, min shares and min assets, approvals cleared, recipient = account."
+  - "D8(b) (founder signs Nov 28): write `docs/coordination/D8b-presign-check.sh` (read-only, no key) that re-verifies chain 196, factory membership of CPU 410, CPU and beacon implementation codehashes, the three netlist hashes in the envelopes, selectors and destinations, value totals vs the 0.004647 ceiling, zero approvals or token transfers, current fees, and NAND capacity. Plus `D8b-postpublish.mjs`, which takes the receipt hashes, extracts public circuit IDs, runs boundary vectors against the dev processor (parity), measures eval gas, and writes the pinned circuit config for Fable."
+  - "NEXT INTEGRATION (after publication): the Sentinel v2 authorization path consuming the REAL published circuits on a 196 mainnet fork (account v2 + adapters + registry pointing at CPU 410 and the public IDs). Design a non-custodial mainnet demonstrator as a proposal only; deployment needs founder authorization."
+  - "OKX quote: record the timestamp, chain, token addresses and amounts. 'unavailable' must never be replaced by a mock."
