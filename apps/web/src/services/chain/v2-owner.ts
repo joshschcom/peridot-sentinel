@@ -12,12 +12,11 @@ import baseAccountAbi from "../../../../../packages/chain-config/expansion/abi/S
 import vaultAdapterAbi from "../../../../../packages/chain-config/expansion/abi/SingleVaultAdapter.json" with { type: "json" };
 import vaultFactoryAbi from "../../../../../packages/chain-config/expansion/abi/VaultSentinelAccountFactoryV2.json" with { type: "json" };
 import vaultAccountAbi from "../../../../../packages/chain-config/expansion/abi/VaultSentinelAccountV2.json" with { type: "json" };
-import { RAW_CONFIG } from "../../generated/config.ts";
-import { IS_PRIVATE_FORK, TARGET_KIND, WRITE_CHAIN } from "../../lib/chains.ts";
+import { WRITE_CHAIN } from "../../lib/chains.ts";
 import { V2_OP } from "../../lib/expansion.ts";
 import { retryRead } from "../../lib/retry.ts";
-import { type V2OwnerTarget, type V2Token, type V2VaultTarget, parseV2OwnerTarget } from "../../lib/v2-target.ts";
-import { FORCE_FIXTURE } from "../runtime.ts";
+import { V2_OWNER_PARSED } from "../../lib/strategy-context.ts";
+import type { V2OwnerTarget, V2Token, V2VaultTarget } from "../../lib/v2-target.ts";
 import type { Address } from "../types.ts";
 import { ABI, withErrors } from "./client.ts";
 import type { TxPlanStep } from "./tx.ts";
@@ -29,10 +28,7 @@ const VAULT_FACTORY = vaultFactoryAbi as Abi;
 const VAULT_ACCOUNT = vaultAccountAbi as Abi;
 const VAULT_ADAPTER = vaultAdapterAbi as Abi;
 
-const chainKey = TARGET_KIND === "local" ? "31337" : "1952";
-const parsed = FORCE_FIXTURE
-  ? null
-  : parseV2OwnerTarget(TARGET_KIND === "local" ? 31337 : 1952, RAW_CONFIG.expansion.byChain[chainKey], RAW_CONFIG.vault.byChain[chainKey], { base: `${RAW_CONFIG.expansion.dir}/${chainKey}.json`, vault: `${RAW_CONFIG.vault.dir}/vault-${chainKey}.json` }, IS_PRIVATE_FORK);
+const parsed = V2_OWNER_PARSED;
 /** Null: this build has no usable v2 manifest for its target chain. */
 export const V2_OWNER_TARGET: V2OwnerTarget | null = parsed?.status === "ok" ? parsed.value : null;
 export const V2_OWNER_TARGET_REASON: string | null = parsed?.status === "unavailable" ? parsed.reason : null;

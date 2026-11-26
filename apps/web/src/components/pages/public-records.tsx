@@ -16,7 +16,10 @@ import { formatAmount, formatBps } from "@/lib/amount";
 import { LOG_MAX_PAGES, LOG_PAGE_BLOCKS, explorerTxUrl, xLayerTestnet } from "@/lib/chains";
 import { EXPANSION } from "@/lib/expansion";
 import { shortAddress, shortHash } from "@/lib/format";
+import { TARGET_KIND, TARGET_LABEL } from "@/lib/chains";
+import { VAULT_UI_ON } from "@/lib/strategy-context";
 import { readV2Account, v2AccountOf, verifySnapshotTerminal } from "@/services/chain/expansion";
+import { V2_OWNER_TARGET, readOwnerV2 } from "@/services/chain/v2-owner";
 import type { Address } from "@/services/types";
 import { V2_READS_ON } from "./trade";
 
@@ -90,7 +93,7 @@ export function ActivitySnapshot() {
       <CardHeader
         eyebrow="Historical snapshot · X Layer testnet (chain 1952)"
         title={`Indexed events, blocks ${num(snapshot.fromBlock)} to ${num(snapshot.toBlock)}`}
-        description="A snapshot of settled on-chain events built by an off-line indexer and shipped with this build. It fills the block range a browser cannot scan. It is history, not a live feed."
+        description="A snapshot of settled on-chain events built by an off-line indexer and shipped with this build. It fills the block range a browser cannot scan. It is history, not a live feed. The entries of your own wallet and accounts are merged into the list above; this card shows the snapshot as a whole."
         action={<Badge tone={state === "canonical" ? "success" : state === "not-canonical" ? "danger" : "outline"}>{state === "canonical" ? "Range end verified" : state === "not-canonical" ? "Not canonical" : state === "checking" ? "Checking…" : "Not checked"}</Badge>}
       />
       <div className="space-y-4 p-5 text-sm sm:p-6">
@@ -133,8 +136,108 @@ export function ActivitySnapshot() {
   );
 }
 
+/**
+ * The connected wallet's own v2 accounts through the build's owner target (`accountOf(wallet)` at each factory):
+ * the base account on the local chain, and the vault account wherever the vault is offered. Same read as Trade.
+ */
+function OwnerV2Portfolio({ base }: { base: boolean }) {
+  const wallet = useWallet();
+  const target = V2_OWNER_TARGET;
+  const owner = target && wallet.status === "connected" && wallet.chainId === target.chainId ? (wallet.address as Address) : null;
+  const state = useQuery({ queryKey: ["v2-owner", target?.chainId, owner], queryFn: () => readOwnerV2(target!, owner!), enabled: target !== null && owner !== null, staleTime: 15_000, retry: 1 });
+  if (!target || !owner) return null;
+  const data = state.data;
+  const account = base ? (data?.base ?? null) : null;
+  const vault = target.vault ? (data?.vault ?? null) : null;
+  const { wokb, usdc } = target.tokens;
+  const shown = (base ? 1 : 0) + (target.vault ? 1 : 0);
+  if (shown === 0) return null;
+  return (
+    <div className="border-t border-line px-5 py-4 text-sm sm:px-6" data-testid="portfolio-v2-owner" data-state={state.isPending ? "loading" : state.isError ? "error" : account || vault ? "account" : "none"} data-account={account?.account ?? ""} data-vault-account={vault?.account ?? ""}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="font-medium">{base ? "Sentinel v2 accounts" : "Sentinel v2 vault account"}</h3>
+        <Badge tone="outline" wrap>
+          {TARGET_LABEL} · mock tokens{base ? ", venue" : ""}
+          {target.vault ? " and vault" : ""}
+        </Badge>
+      </div>
+      {state.isPending ? (
+        <p className="mt-2 text-muted">Reading…</p>
+      ) : state.isError ? (
+        <p className="mt-2 text-danger">Your v2 accounts could not be read. Nothing is shown in their place.</p>
+      ) : !account && !vault ? (
+        <p className="mt-2 text-muted">{base ? "This wallet has no Sentinel v2 account on this chain." : "This wallet has no vault account."} One can be created on <a href="/trade" className="underline underline-offset-4">Trade</a>.</p>
+      ) : (
+        <table className="num mt-3 w-full text-left">
+          <tbody className="divide-y divide-line">
+            {account ? (
+              <>
+                <tr data-portfolio-row="v2-idle">
+                  <th scope="row" className="py-2 pr-3 font-normal text-muted">Idle tokens in the v2 account</th>
+                  <td className="py-2 text-right">
+                    {formatAmount(account.idleWokb, wokb.decimals)} {wokb.symbol} · {formatAmount(account.idleUsdc, usdc.decimals)} {usdc.symbol}
+                    {data?.collateral && account.idleCollateral !== null ? ` · ${formatAmount(account.idleCollateral, data.collateral.decimals)} ${data.collateral.symbol}` : ""}
+                  </td>
+                </tr>
+                <tr data-portfolio-row="v2-lending">
+                  <th scope="row" className="py-2 pr-3 font-normal text-muted">Peridot lending, through the v2 lending adapter</th>
+                  <td className="py-2 text-right">
+                    collateral shares {account.collateralShares.toString()} · debt {account.debtRaw.toString()} (raw units)
+                  </td>
+                </tr>
+                <tr data-portfolio-row="v2-operators">
+                  <th scope="row" className="py-2 pr-3 font-normal text-muted">Operators listed by the account</th>
+                  <td className="py-2 text-right">{account.operators.length === 0 ? "None" : account.operators.map((operator) => shortAddress(operator)).join(", ")}</td>
+                </tr>
+              </>
+            ) : base ? (
+              <tr data-portfolio-row="v2-none">
+                <th scope="row" className="py-2 pr-3 font-normal text-muted">Sentinel v2 account</th>
+                <td className="py-2 text-right text-muted">None on this chain</td>
+              </tr>
+            ) : null}
+            {target.vault ? (
+              vault ? (
+                <tr data-portfolio-row="v2-vault" data-shares={vault.shares.toString()} data-idle={vault.idleAsset.toString()}>
+                  <th scope="row" className="py-2 pr-3 font-normal text-muted">Vault account (mock ERC-4626 vault, no yield)</th>
+                  <td className="py-2 text-right">
+                    {formatAmount(vault.shares, target.vault.shareDecimals)} shares, a claim on {formatAmount(vault.claimAssets, target.vault.asset.decimals)} {target.vault.asset.symbol} · idle {formatAmount(vault.idleAsset, target.vault.asset.decimals)} {target.vault.asset.symbol}
+                  </td>
+                </tr>
+              ) : (
+                <tr data-portfolio-row="v2-vault-none">
+                  <th scope="row" className="py-2 pr-3 font-normal text-muted">Vault account</th>
+                  <td className="py-2 text-right text-muted">None</td>
+                </tr>
+              )
+            ) : null}
+          </tbody>
+        </table>
+      )}
+      {account || vault ? (
+        <p className="mt-2 text-xs text-faint">
+          {account ? <>Account <Mono>{shortAddress(account.account)}</Mono>, read at block {num(account.block.number)}. </> : null}
+          {vault ? <>Vault account <Mono>{shortAddress(vault.account)}</Mono>. </> : null}
+          v2 accounts are separate from a v1 Sentinel account and from each other: none holds another's tokens, shares, debt or grants, and there is no combined health figure. Manage them on <a href="/trade" className="underline underline-offset-4">Trade</a>.
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 /** The connected wallet's Sentinel v2 account, when the build has a v2 manifest and the wallet owns one. */
 export function V2Portfolio() {
+  // The local chain has its own v2 deployment: both accounts come from the owner target.
+  if (TARGET_KIND === "local") return <OwnerV2Portfolio base />;
+  return (
+    <>
+      <TestnetV2Portfolio />
+      {VAULT_UI_ON ? <OwnerV2Portfolio base={false} /> : null}
+    </>
+  );
+}
+
+function TestnetV2Portfolio() {
   const wallet = useWallet();
   const manifest = EXPANSION.manifest.status === "ok" ? EXPANSION.manifest.value : null;
   const owner = wallet.status === "connected" ? (wallet.address as Address) : null;

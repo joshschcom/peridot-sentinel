@@ -40,11 +40,15 @@ export function V2OwnerFlows({ target }: { target: V2OwnerTarget }) {
   const check = useQuery({ queryKey: ["v2-owner-verify", target.chainId], queryFn: () => verifyOwnerTarget(target), staleTime: 60_000, retry: 1 });
   const state = useQuery({ queryKey: ["v2-owner", target.chainId, owner], queryFn: () => readOwnerV2(target, owner!), enabled: owner !== null, staleTime: 10_000, retry: 1 });
   const verified = check.data?.ok === true;
+  // Two switches, one per manifest. `target.writes` is the base deployment's; the vault is in the target at all only
+  // when the vault manifest's own switch is on. Both additionally need the verified deployment and the wallet gate.
   const allowed = target.writes && verified && gate.allowed;
-  const lock = !target.writes ? target.writesReason : check.isPending ? "Verifying the v2 deployment on this chain…" : !verified ? "Writes are blocked: the v2 deployment could not be verified on this chain." : !gate.allowed ? gate.message : null;
+  const vaultAllowed = target.vault !== null && verified && gate.allowed;
+  const commonLock = check.isPending ? "Verifying the v2 deployment on this chain…" : !verified ? "Writes are blocked: the v2 deployment could not be verified on this chain." : !gate.allowed ? gate.message : null;
+  const lock = !target.writes ? target.writesReason : commonLock;
 
   return (
-    <div className="space-y-6" data-testid="v2-owner" data-chain={target.chainId} data-writes={String(allowed)}>
+    <div className="space-y-6" data-testid="v2-owner" data-chain={target.chainId} data-writes={String(allowed)} data-vault-writes={String(vaultAllowed)}>
       <Card as="section" data-testid="v2-verify" data-state={check.isPending ? "loading" : check.isError ? "error" : verified ? "ok" : "failed"} data-block={check.data?.block.number.toString() ?? ""}>
         <CardHeader eyebrow={TARGET_LABEL} title="Sentinel v2 on this chain" description={target.label} action={<Badge tone={verified ? "success" : check.isPending ? "neutral" : "danger"}>{check.isPending ? "Verifying" : verified ? "Deployment verified" : "Not verified"}</Badge>} />
         <div className="p-5 text-sm sm:p-6">
@@ -78,9 +82,10 @@ export function V2OwnerFlows({ target }: { target: V2OwnerTarget }) {
         </Notice>
       ) : (
         <>
-          <BaseAccount target={target} account={state.data.base} collateral={state.data.collateral} allowed={allowed} lock={lock} />
-          {state.data.base ? <V2EmergencyStop /> : null}
-          {target.vault ? <VaultAccount vault={target.vault} account={state.data.vault} allowed={allowed} lock={lock} /> : null}
+          {/* With the base switch off, the base account stays the read-only view above; only the vault is offered. */}
+          {target.writes ? <BaseAccount target={target} account={state.data.base} collateral={state.data.collateral} allowed={allowed} lock={lock} /> : null}
+          {target.writes && state.data.base ? <V2EmergencyStop /> : null}
+          {target.vault ? <VaultAccount vault={target.vault} account={state.data.vault} allowed={vaultAllowed} lock={commonLock} /> : null}
         </>
       )}
     </div>

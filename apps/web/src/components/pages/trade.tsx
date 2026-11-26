@@ -50,7 +50,9 @@ export function Trade() {
 
 function TestnetTrade() {
   const manifest = EXPANSION.manifest.status === "ok" ? EXPANSION.manifest.value : null;
+  // Two independent switches set by the contracts team: the base v2 deployment's and the vault's.
   const ownerWrites = V2_OWNER_TARGET !== null && V2_OWNER_TARGET.writes && V2_READS_ON;
+  const vaultOn = V2_OWNER_TARGET !== null && V2_OWNER_TARGET.vault !== null && V2_READS_ON;
   const demo = EXPANSION.demo.status === "ok" ? EXPANSION.demo.value : null;
   return (
     <div className="space-y-6" data-testid="trade" data-v2={manifest ? "deployed" : "absent"}>
@@ -58,7 +60,7 @@ function TestnetTrade() {
         eyebrow="Sentinel v2"
         title="Trade"
         description="A v2 Sentinel account can swap between two tokens through one pinned venue, with the route, the recipient and the approvals fixed by the contract. An operator can do it only inside a per-call limit, a total budget and an expiry, and only if the execution policy circuit allows the loss."
-        actions={<Badge tone="warning" wrap>Testnet · mock venue · read-only here</Badge>}
+        actions={<Badge tone="warning" wrap>{ownerWrites ? "Testnet · mock venue" : vaultOn ? "Testnet · mock venue and vault · swaps read-only here" : "Testnet · mock venue · read-only here"}</Badge>}
       />
       <Notice tone="warning" icon={<IconAlert size={18} />} title={V2_SWAP_LABEL} data-testid="trade-label">
         {V2_SCOPE_LABEL}. The venue pays out of an inventory at a price set by its owner: it is not a market, and nothing here is a real price. The same swap path against the real Uniswap v3 pool was run on a private fork of X Layer mainnet only; no mainnet transaction exists.
@@ -73,12 +75,12 @@ function TestnetTrade() {
       ) : (
         <Live manifest={manifest} demo={demo} />
       )}
-      {ownerWrites && V2_OWNER_TARGET ? <V2OwnerFlows target={V2_OWNER_TARGET} /> : null}
-      <Card as="section" data-testid="trade-not-yet" data-owner-writes={String(ownerWrites)}>
+      {(ownerWrites || vaultOn) && V2_OWNER_TARGET ? <V2OwnerFlows target={V2_OWNER_TARGET} /> : null}
+      <Card as="section" data-testid="trade-not-yet" data-owner-writes={String(ownerWrites)} data-vault={String(vaultOn)}>
         <CardHeader title="Not in this app yet" />
         <ul className="list-disc space-y-1.5 p-5 pl-10 text-sm text-muted sm:p-6 sm:pl-11">
           {ownerWrites ? <li>Swapping from your own wallet here. An operator swaps inside a grant; the owner flows above create the account and the grant.</li> : <li>Creating a v2 account, granting an operator or swapping from your own wallet here. The contracts are deployed, and the deployment's own switch for this app is off on testnet, so it offers none. The exact grant transaction of the swap strategy can be reviewed on Strategies.</li>}
-          {ownerWrites && V2_OWNER_TARGET?.vault ? null : <li>The ERC-4626 vault account. It is deployed on testnet with a mock vault, and is switched off for this app there.</li>}
+          {vaultOn ? null : <li>The ERC-4626 vault account. It is deployed on testnet with a mock vault, and is switched off for this app there.</li>}
           <li>Quotes from OKX Onchain OS. None is shown anywhere in this app until the provider answers; the figures on this page come from the testnet venue's mock price source.</li>
         </ul>
       </Card>

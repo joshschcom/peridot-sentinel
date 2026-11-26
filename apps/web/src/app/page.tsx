@@ -4,7 +4,7 @@ import { Brand } from "@/components/shell/brand";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { ButtonLink, Mono } from "@/components/ui/core";
 import { StrategyBadge } from "@/components/domain/strategy-bits";
-import { STRATEGY_CONTEXT } from "@/lib/strategy-context";
+import { STRATEGY_CONTEXT, VAULT_UI_ON } from "@/lib/strategy-context";
 import { IconArrowRight, IconArrowUpRight, IconCheck, IconMinus } from "@/components/ui/icons";
 import { CURATED, modeLabel, templateAvailability, templateFacts } from "@/lib/strategy";
 import { TARGET_KIND, explorerTxUrl, xLayerMainnet, xLayerTestnet } from "@/lib/chains";
@@ -262,7 +262,7 @@ export default function LandingPage() {
                 "Test tokens with no value, a mock price feed and a mock swap venue. No real exchange is connected on testnet.",
                 "On testnet, policy circuits run on a development reference processor, not on TapeOut.",
                 "Adopting a strategy authorises an operator you choose. Peridot runs no service on testnet that acts for you, so nothing happens until your operator acts.",
-                `${swap?.canSign ? "Sentinel v2 swaps go through a mock venue only." : "Sentinel v2 (swaps) can be read in this app but not signed from it."} Vaults, liquidity positions and a hosted AI are not available.`,
+                `${swap?.canSign ? "Sentinel v2 swaps go through a mock venue only." : "Sentinel v2 (swaps) can be read in this app but not signed from it."} ${VAULT_UI_ON ? "A vault account deposits into a mock vault that pays no yield." : "Vaults are not available."} Liquidity positions and a hosted AI are not available.`,
                 "Not audited. No mainnet deployment holds funds. Automation is not a guarantee: prices, liquidity and the network can prevent an action in time.",
               ]}
             />

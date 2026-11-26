@@ -7,7 +7,7 @@
  */
 import { useState } from "react";
 import { StrategyBadge, TemplateFacts, TemplateIdentity, TemplateText } from "@/components/domain/strategy-bits";
-import { STRATEGY_CONTEXT } from "@/lib/strategy-context";
+import { STRATEGY_CONTEXT, VAULT_UI_ON } from "@/lib/strategy-context";
 import { Advanced, Badge, Button, ButtonLink, Card, PageHeader } from "@/components/ui/core";
 import { IconArrowRight, IconArrowUpRight } from "@/components/ui/icons";
 import { explorerTxUrl } from "@/lib/chains";
@@ -18,7 +18,12 @@ import { CURATED, type CheckedStrategy, STRATEGY_AVAILABILITY_LABEL, modeLabel, 
 
 /** Roadmap entries. They have no template, no parameters and no action: nothing here can be adopted. */
 const PLANNED = [
-  { name: "Vault deposits", body: "An ERC-4626 vault adapter is deployed on testnet with a mock vault and has been exercised by the contracts team. It has no strategy template and this app does not offer it." },
+  {
+    name: "Vault strategies",
+    body: VAULT_UI_ON
+      ? "An ERC-4626 vault adapter is deployed on testnet with a mock vault. An owner can deposit, withdraw and redeem from their own vault account on Trade. It has no strategy template: this app cannot give an operator a vault job."
+      : "An ERC-4626 vault adapter is deployed on testnet with a mock vault and has been exercised by the contracts team. It has no strategy template and this app does not offer it.",
+  },
   { name: "Liquidity position lifecycle", body: "Opening, collecting and closing a concentrated-liquidity position exists as a prototype on a mainnet fork only. Nothing is deployed for it." },
   { name: "Peridot-hosted AI", body: "A strategy run by a model that Peridot operates. No hosted model exists; the two modes that work are rules and your own agent." },
 ] as const;
