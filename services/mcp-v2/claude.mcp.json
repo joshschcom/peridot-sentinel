@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "sentinel": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["services/mcp-v2/bridge.mjs"],
+      "env": {"SENTINEL_MCP_SOCKET": "${SENTINEL_MCP_SOCKET}"}
+    }
+  }
+}

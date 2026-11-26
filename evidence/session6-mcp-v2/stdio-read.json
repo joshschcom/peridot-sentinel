@@ -1,0 +1,168 @@
+{
+  "label": "Unsigned scripted MCP read and simulation, public chain 1952",
+  "server": {
+    "name": "sentinel-connect-v2",
+    "version": "2.0.0"
+  },
+  "tools": [
+    "read_account",
+    "read_market",
+    "simulate_and_propose_swap",
+    "execute_swap",
+    "simulate_denied_borrow",
+    "mine_denied_borrow",
+    "get_receipt"
+  ],
+  "account": {
+    "chainId": 1952,
+    "profile": "Public testnet, inventory-funded mock WOKB/USDC, mock feed and development reference processor",
+    "source": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",
+    "block": {
+      "number": "47249510",
+      "hash": "0x0ed61d4992777a16e293e077d7feb9a209977068802dfea56498a33a8c8d39f3",
+      "timestamp": "1795708347",
+      "confirmations": "2"
+    },
+    "data": {
+      "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+      "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+      "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "swapAdapter": "0xf2e6D955158FE77252713d982F9d376F467E7cD3",
+      "lendingAdapter": "0xdAd2bbF5ce7Bc43A932C78B5bCd5e0d284348101",
+      "enteredLendingPolicy": "0x0cd3ed21613f573d3c5232f9f521f84db52523b2f0fc4715233446129fc025f3",
+      "execution": {
+        "binding": "0xc72a18670C185f6a5e39dfbf10C27f025aa96D9c",
+        "processor": "0x6d75932B8bb080a3E04b6C9C6218bdf3b321F9b1",
+        "circuitId": "1",
+        "netlistHash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b",
+        "policyMaxLossBps": 100,
+        "solidityMaxLossBps": 500
+      },
+      "marketPair": {
+        "input": "0x3a5F909912c4adbEE8776264E6b9faD130321b26",
+        "inputDecimals": 18,
+        "output": "0x3A6cb8BEdc251C37dc8258a27575127990A67E95",
+        "outputDecimals": 6
+      },
+      "idle": {
+        "inputRaw": "2000000000000000000",
+        "outputRaw": "159920000"
+      },
+      "book": {
+        "collateralBook": "0x1176cdef595A4e3bEBC3CfA9721a4C2a50cfa351",
+        "sharesRaw": "1000000000000000000",
+        "debtBook": "0xB736dAA8784092C88ACABf6344DC360DcC5E411d",
+        "debtRaw": "0"
+      },
+      "configuredOperators": "1",
+      "swapGrant": {
+        "maxPerCallRaw": "1000000000000000000",
+        "remainingRaw": "1000000000000000000",
+        "expiry": "1795794344"
+      },
+      "borrowGrant": {
+        "maxPerCallRaw": "0",
+        "remainingRaw": "0",
+        "expiry": "0"
+      },
+      "allowance": "0",
+      "venueAllowance": "0",
+      "campaign": {
+        "id": "peridot/d20/v1/1952/0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+        "swap": null,
+        "negative": null
+      }
+    }
+  },
+  "market": {
+    "chainId": 1952,
+    "profile": "Public testnet, inventory-funded mock WOKB/USDC, mock feed and development reference processor",
+    "source": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",
+    "block": {
+      "number": "47249524",
+      "hash": "0x359f6d9ce1357e4a70dfb12270091ffe6a426dca5054c8098ab87039061a1735",
+      "timestamp": "1795708361",
+      "confirmations": "2"
+    },
+    "data": {
+      "amountInRaw": "250000000000000000",
+      "expectedOutRaw": "20000000",
+      "hardMinimumOutRaw": "19000000",
+      "policyMinimumOutRaw": "19800000",
+      "feedTimestamp": "1795707761"
+    },
+    "onchainOS": {
+      "source": "OKX OnchainOS",
+      "chainId": 196,
+      "requestedAt": "2026-11-26T15:52:56.591Z",
+      "kind": "Informational real WOKB/USDC quote; settlement uses independent mock testnet prices.",
+      "status": "unavailable",
+      "reason": "OKX_CREDENTIALS_UNAVAILABLE",
+      "quote": null
+    }
+  },
+  "swap": {
+    "status": "proposed",
+    "proposalId": "0x649a9f6b2ad48cdfc4e12d7b90a332c5be66bfcf2e2048d636d9e073a42a7540",
+    "campaign": "peridot/d20/v1/1952/0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+    "operation": "swap",
+    "commit": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",
+    "chainId": 1952,
+    "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+    "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+    "valueWei": "0",
+    "args": {
+      "amountInRaw": "250000000000000000",
+      "minOutRaw": "19800000"
+    },
+    "deadline": "1795708682",
+    "calldata": "0xe3f2275c0000000000000000000000003a5f909912c4adbee8776264e6b9fad130321b2600000000000000000000000000000000000000000000000003782dace9d9000000000000000000000000000000000000000000000000000000000000012e1fc0000000000000000000000000000000000000000000000000000000006b08570a",
+    "swapGrant": {
+      "maxPerCallRaw": "1000000000000000000",
+      "remainingRaw": "1000000000000000000",
+      "expiry": "1795794344"
+    },
+    "simulation": {
+      "status": "simulated-success",
+      "method": "eth_call",
+      "amountOutRaw": "19990000"
+    },
+    "block": {
+      "number": "47249545",
+      "hash": "0x7fa09990965b7f68f1c77cd5d2fc319e3d3450662a454f2b947954f7f0600b4f",
+      "timestamp": "1795708382",
+      "confirmations": "2"
+    }
+  },
+  "rejection": {
+    "status": "proposed",
+    "proposalId": "0x0e6eb9628a500763bee37db17e2eb862859e14b18190f3b1fc81ed3ab8bacef3",
+    "campaign": "peridot/d20/v1/1952/0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+    "operation": "deniedBorrow",
+    "commit": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",
+    "chainId": 1952,
+    "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+    "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+    "valueWei": "0",
+    "args": {},
+    "deadline": "1795708700",
+    "calldata": "0xc5ebeaec0000000000000000000000000000000000000000000000000000000000000001",
+    "swapGrant": {
+      "maxPerCallRaw": "1000000000000000000",
+      "remainingRaw": "1000000000000000000",
+      "expiry": "1795794344"
+    },
+    "simulation": {
+      "status": "simulated-rejection",
+      "method": "eth_call",
+      "revertData": "0x2e430953",
+      "error": "OperatorNotAuthorized"
+    },
+    "block": {
+      "number": "47249563",
+      "hash": "0x8c5786cced607f4297286b808572bd2d7107b13dacd050117abe754a35181b97",
+      "timestamp": "1795708400",
+      "confirmations": "2"
+    }
+  }
+}

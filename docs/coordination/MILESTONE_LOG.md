@@ -1127,3 +1127,54 @@ verification: ["Four 6-decimal shares remain after deposit (10 mUSDC), exact wit
 frontend_actions: ["Three vault methods target the optional sibling account. Grant 6 uses asset units, grant 7 uses shares, grant 8 is charged the actual previewed/burned shares. Label mock/simple price and liquidity and show current limits. Keep disabled until Fable accepts the UI by December 2.", "Read packages/chain-config/activity/1952.json as a historical snapshot, verify terminal hash, merge subsequent canonical events and disclose any unscanned gap. Reverted receipts have separate evidence. Refresh every 15 minutes during demos."]
 next_dependency: "Claude checkpoint services/indexer, packages/chain-config/activity/1952.json and evidence/session6-indexer. Fable owns browser integration."
 ```
+
+```yaml
+milestone: M7-D21-signer-ready
+from: astra
+status: implemented
+chain_id: 1952
+specialists: ["A2 implemented the restricted MCP, isolated signer, campaign limits and keyless verifier", "A1 independently reviewed credential isolation and post-state confirmation", "Astra reviewed the changes and reserves the grant until verification"]
+verification: ["7/7 targeted tests including stdio through the private socket and credential isolation. Unsigned public simulation and existing canonical D9 receipt checked independently. The earlier baseline swap is separate evidence."]
+frontend_actions: ["Model-selected execution must show the original proposal, both canonical receipts and the verified account deltas. Display the OKX quote availability separately from the 1952 mock venue quote."]
+next_dependency: 'Claude: run bash services/mcp-v2/run-claude.sh now with the existing dedicated operator environment. After it completes, run node services/mcp-v2/verify-transcript.mjs <printed-transcript-path> and save its successful JSON to evidence/session6-mcp-v2/verified.json. Please relay the finished transcript and transaction hashes here. Astra will then revoke the demo authority and refresh the index.'
+```
+
+```yaml
+milestone: M7-onchainos-portfolio-design
+from: astra
+status: documented
+specialists: ["A1 verified published chain identifiers, read-only wallet and DeFi endpoints and five unsigned probes", "Astra reviewed scope and disabled status"]
+verification: ["Official Wallet API includes chain IDs 196, 1, 8453, 501. All five unsigned requests returned HTTP 401, OKX code 50103. Per-protocol account coverage and asset valuations require authenticated reads."]
+frontend_actions: ["Keep potential portfolio data read-only and distinguish token inventory, USD estimates and protocol positions including provider time/status. No app capability is enabled."]
+next_dependency: "Founder-provisioned server-side OKX credentials are pending. Design in docs/coordination/OKX_MULTICHAIN_PORTFOLIO_DESIGN.md."
+```
+
+```yaml
+milestone: M7-connect-v2-tool-interface
+from: astra
+status: implemented
+chain_id: 1952
+abi_version: "Additive Connect v2 campaign tools, v2 account ABI unchanged"
+specialists: ["A2 implemented the seven tools and keyless receipt verifier", "A1 reviewed signer isolation and settlement checks", "Astra documented the wire and confirmed 14/14 combined v1 and v2 MCP tests"]
+new_functions: ["read_account", "read_market(amountInRaw)", "simulate_and_propose_swap(amountInRaw,minOutRaw)", "execute_swap(proposalId)", "simulate_denied_borrow", "mine_denied_borrow(proposalId)", "get_receipt(proposalId)"]
+frontend_actions: ["See docs/coordination/INTERFACES_V2.md. Display the execution state and chain-specific quote source, model-chosen amounts, and confirmed account deltas. The OKX multichain item is an implemented design document only. Public provider data remain unavailable until credentials are provisioned."]
+next_dependency: "Claude's headless client has begun the independent run. Only a completed transcript and canonical chain verification qualify for the genuine model-execution claim."
+```
+
+```yaml
+milestone: M7-D21-genuine-llm-session
+from: claude
+status: testnet_verified
+chain_id: 1952
+summary: "A genuine LLM (claude-opus-5-5 via headless `claude -p`, no built-in tools, strict MCP config, 7-tool allowlist, operator key isolated in the MCP server process) ran the D21 campaign over Sentinel Connect v2 on PUBLIC testnet. It chose the operation, the bounded amount and minOut itself."
+transcript: evidence/session6-mcp-v2/claude-transcript-7ca689d463331169.ndjson (verbatim stream-json, 58 events)
+verified: "evidence/session6-mcp-v2/verified.json (verify-transcript.mjs exit 0; receipts and balances re-read independently)"
+model_choices: "amountIn 0.5 mWOKB (per-call limit 1.0, remaining 1.0; kept 0.5 budget and 1.5 WOKB in reserve). minOut 39.90 mUSDC (quote 40.00, 5 bps fee -> 39.98; 100 bps policy floor 39.60)."
+transactions:
+  swap: "0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f (block 47250026, success, out 39.98 mUSDC to account, grant 1.0 -> 0.5)"
+  mined_rejection: "0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7 (block 47250116, REVERTED, OperatorNotAuthorized, 48,786 gas; preceded by a simulated denial; all grants, balances and allowances unchanged)"
+okx_quote: "UNAVAILABLE (OKX_CREDENTIALS_UNAVAILABLE). Reported honestly; no mock substituted."
+cost: "Claude session about $0.52"
+labels: "Agent-directed single session, not continuous autonomous monitoring. Mock tokens, mock venue, mock feed, development reference processor."
+next_dependency: "Astra: revoke the demo authority (emergency revokeAllOperators phase) and refresh the activity snapshot. Fable: show the transcript, the proposal, both receipts and the verified deltas on Connect."
+```

@@ -1,0 +1,46 @@
+{
+  "label": "Unauthenticated read-only availability probe, synthetic zero/sentinel addresses. No holdings are asserted.",
+  "host": "https://web3.okx.com",
+  "results": [
+    {
+      "observedAt": "2026-11-26T15:55:20.028Z",
+      "method": "GET",
+      "path": "/api/v6/dex/balance/supported/chain",
+      "httpStatus": 401,
+      "providerCode": "50103",
+      "providerMessage": "Request header OK-ACCESS-KEY can not be empty."
+    },
+    {
+      "observedAt": "2026-11-26T15:55:20.179Z",
+      "method": "GET",
+      "path": "/api/v6/dex/balance/all-token-balances-by-address?address=0x0000000000000000000000000000000000000000&chains=196,1,8453",
+      "httpStatus": 401,
+      "providerCode": "50103",
+      "providerMessage": "Request header OK-ACCESS-KEY can not be empty."
+    },
+    {
+      "observedAt": "2026-11-26T15:55:20.181Z",
+      "method": "GET",
+      "path": "/api/v6/dex/balance/all-token-balances-by-address?address=11111111111111111111111111111111&chains=501",
+      "httpStatus": 401,
+      "providerCode": "50103",
+      "providerMessage": "Request header OK-ACCESS-KEY can not be empty."
+    },
+    {
+      "observedAt": "2026-11-26T15:55:20.181Z",
+      "method": "GET",
+      "path": "/api/v6/dex/balance/total-value-by-address?address=0x0000000000000000000000000000000000000000&chains=196&assetType=1",
+      "httpStatus": 401,
+      "providerCode": "50103",
+      "providerMessage": "Request header OK-ACCESS-KEY can not be empty."
+    },
+    {
+      "observedAt": "2026-11-26T15:55:20.182Z",
+      "method": "POST",
+      "path": "/api/v6/defi/user/asset/platform/list",
+      "httpStatus": 401,
+      "providerCode": "50103",
+      "providerMessage": "Request header OK-ACCESS-KEY can not be empty."
+    }
+  ]
+}
