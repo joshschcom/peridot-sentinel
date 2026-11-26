@@ -74,7 +74,44 @@ const evidence = {
   v2Demo: { file: "evidence/session6-v2/1952.json", json: readEvidence("evidence/session6-v2/1952.json") },
   // Two MINED reverts on public testnet 1952: one stopped by the account policy only, one by the market policy only.
   publicRejections: { file: "evidence/session6-rejections/public-1952.json", json: slimRejections(readEvidence("evidence/session6-rejections/public-1952.json")) },
+  // The LLM-directed Sentinel Connect session on public testnet 1952: independent verification plus the model's own
+  // final message, quoted verbatim from the recorded transcript.
+  llmSession: { file: "evidence/session6-mcp-v2/verified.json", json: slimLlmSession(readEvidence("evidence/session6-mcp-v2/verified.json")) },
 };
+function slimLlmSession(json) {
+  if (!json || !json.swap || !json.rejection) return null;
+  const dir = join(repoRoot, "evidence/session6-mcp-v2");
+  const transcriptFile = existsSync(dir) ? readdirSync(dir).filter((file) => /^claude-transcript-[0-9a-f]+\.ndjson$/.test(file)).sort().at(-1) : undefined;
+  let transcript = null;
+  if (transcriptFile) {
+    // The last "result" record of the session is the model's final message. Nothing else of the transcript is bundled.
+    for (const line of readFileSync(join(dir, transcriptFile), "utf8").split("\n")) {
+      try {
+        const record = JSON.parse(line);
+        if (record?.type === "result" && typeof record.result === "string") transcript = { file: `evidence/session6-mcp-v2/${transcriptFile}`, result: record.result, turns: record.num_turns ?? null, isError: record.is_error ?? null };
+      } catch {
+        // not a JSON line
+      }
+    }
+  }
+  const receipt = (r) => (r ? { hash: r.hash, from: r.from, to: r.to, blockNumber: r.blockNumber, status: r.status, gasUsed: r.gasUsed } : null);
+  const state = (v) => (v ? { idle: v.idle, swapGrant: v.swapGrant, borrowGrant: v.borrowGrant } : null);
+  const swap = json.swap.canonical ?? {};
+  const rejection = json.rejection.canonical ?? {};
+  return {
+    label: json.label ?? null,
+    account: json.account,
+    operator: json.operator,
+    chainId: json.market?.chainId ?? null,
+    profile: json.market?.profile ?? null,
+    quote: json.market?.onchainOS ?? null,
+    venue: json.market?.data ?? null,
+    pair: swap.before?.marketPair ?? null,
+    swap: { proposalId: json.swap.proposalId, model: json.swap.model, chosenArgs: json.swap.chosenArgs, simulation: json.swap.simulation, status: swap.status, receipt: receipt(swap.receipt), grantChargedRaw: swap.grantChargedRaw, inputBalanceSpentRaw: swap.inputBalanceSpentRaw, outputBalanceGainedRaw: swap.outputBalanceGainedRaw, budgetAndBalancesMatch: swap.budgetAndBalancesMatch, before: state(swap.before), after: state(swap.after) },
+    rejection: { proposalId: json.rejection.proposalId, model: json.rejection.model, simulation: json.rejection.simulation, status: rejection.status, receipt: receipt(rejection.receipt), preservedState: rejection.preservedState, replay: rejection.replay, borrowAmountRaw: rejection.borrowAmountRaw },
+    transcript,
+  };
+}
 function slimRejections(json) {
   if (!json || !Array.isArray(json.rejections)) return null;
   const keep = ["market", "controller", "account", "amountRaw", "postLtvBps", "block", "blockHash", "hash", "status", "logs", "gasUsed", "from", "to", "reasonSource", "minedRevert", "decisions", "storedDebtBefore", "storedDebtAfter"];

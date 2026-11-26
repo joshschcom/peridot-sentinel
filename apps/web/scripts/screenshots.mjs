@@ -59,9 +59,13 @@ const SHOTS = [
   { path: "/sentinel", name: "sentinel" },
   { path: `/markets/${chainMarket}`, name: "market-detail" },
   { path: "/studio/create", name: "studio-create" },
+  { path: "/automate", name: "automate" },
+  { path: "/connect", name: "connect" },
+  { path: "/trade", name: "trade" },
+  { path: "/circuits", name: "circuits" },
   ...(CHAIN ? [{ path: `/sentinel/policy?market=${chainMarket}`, name: "sentinel-policy" }, { path: "/sentinel/activity", name: "sentinel-activity" }] : []),
 ];
-const ALL_ROUTES = ["/", "/sentinel", CHAIN ? `/sentinel/policy?market=${chainMarket}` : "/sentinel/policy", "/sentinel/activity", "/automate", "/markets", "/markets?view=borrow", `/markets/${chainMarket}`, "/studio", "/studio/create", `/studio/${chainStudioMarket}`, "/circuits"];
+const ALL_ROUTES = ["/", "/sentinel", CHAIN ? `/sentinel/policy?market=${chainMarket}` : "/sentinel/policy", "/sentinel/activity", "/automate", "/connect", "/trade", "/markets", "/markets?view=borrow", `/markets/${chainMarket}`, "/studio", "/studio/create", `/studio/${chainStudioMarket}`, "/circuits"];
 const WIDTHS = [390, 768, 1440];
 const SCHEMES = ["light", "dark"];
 

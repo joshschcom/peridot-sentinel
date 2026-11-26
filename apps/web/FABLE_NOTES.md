@@ -98,14 +98,34 @@ Always kill only the dev server PID you started. Astra shares the machine: never
 
 **E2E re-runs** add 10 mCOL of collateral when the allowed 5 mUSD borrow would pass 50% (it did after three runs). Four green runs today: `-141607` (8 tx), `-141635` (6 tx), `-143650` (7 tx), `-143718` (6 tx).
 
-## Not done after run 3
+## Run 4 (2026-11-26): state
 
-1. Market-only rejection on PUBLIC testnet (needs a second market with a lower cap, so a funded test wallet). The account-only rejection is shown on testnet as a read-only simulation.
-2. No write has ever been sent from the app on 1952, and no real wallet extension (OKX Wallet, MetaMask) has been used.
-3. Activity between the two scanned block ranges on 1952 is not visible (needs an indexer or a testnet keeper read API).
-4. OKX Onchain OS quote display, v2 adapter UI, Trade: waiting for Astra's public manifests and notices.
-5. `DEMO_MATRIX.md` UI cells were not updated in run 3 (the file has Astra's uncommitted edits).
-6. Chain-mode negative checks (`wrong-network`, `broken-deployment`, `rejected-manifest`, `testnet-unverified`) were not re-run after the rebrand. They use test ids and routes that did not change, but that is an inference, not a run.
+New build-time inputs, all optional, all read by `scripts/sync-manifests.mjs` into `src/generated/` (`evidence.ts`, `config.ts`). An absent or malformed file hides its feature; nothing is retyped in the app.
+
+| Feature | Source file(s) | Parser | Where it shows |
+|---|---|---|---|
+| Sentinel Connect (scripted run, tools) | `evidence/session5-mcp/flagship-1952.json`, `tools.json` | `src/lib/connect.ts` | `/connect`, `/automate#connect`, landing |
+| LLM-directed session | `evidence/session6-mcp-v2/verified.json` + final `result` of `claude-transcript-*.ndjson` | `parseLlmSession` in `src/lib/connect.ts` | `/connect#llm-session` |
+| Peridot circuits on mainnet | `packages/chain-config/expansion/tapeout-196.json` (**the one place for public IDs**: `publishedId` + `publicReceipt`) | `src/lib/tapeout.ts` | `/circuits` (`native-eval.tsx`) |
+| Sentinel v2 | `packages/chain-config/expansion/deployments/1952.json`, `evidence/session6-v2/1952.json` | `src/lib/expansion.ts` | `/trade`, portfolio v2 rows |
+| Mined rejections | `evidence/session6-rejections/public-1952.json` | `parseMinedRejections` | `/sentinel/activity` |
+| Activity snapshot | `packages/chain-config/activity/1952.json` | `parseActivitySnapshot` | `/sentinel/activity` |
+
+- **Connect** is "live" (`Available on testnet (agent-directed)`) only while `connectVerified()` holds: recorded 1952 execute + a catalogue with exactly one executing tool. The grant card reads `operators(operator)` on the fixed account at one pinned block (`src/services/chain/connect.ts`), no wallet. Wording rule: agent-directed execution; a session is single and started by a person; never "autonomous" or "monitoring" except in a negation. Four kinds of evidence stay apart: scripted client, LLM-directed session, simulated rejection, mined revert. A quote is shown only when `parseConnectQuote` accepts a complete OKX quote for WOKB/USDC on 196; otherwise "Quote unavailable" and no number.
+- **Native evaluation** (`evaluatePublished` in `src/services/chain/mainnet-eval.ts`): gate = receipt (success, to the processor, canonical, not newer than the pin) → `TapedOut(id)` event with **(gateCount, nState)** in its data (Astra's correction: NOT nIn/nOut) → `circuitInfo` 20/1/0/gates → `keccak256(netlist)`. One fresh pinned block per result; changing an input re-pins. Only `0x00`/`0x01` are decisions. A contract revert on `circuitInfo`/`netlist` is "no such circuit"; a transport failure stays an error. Worded "Native evaluation (read-only)", "Evidence, not enforcement". Test the published path with `PERIDOT_TAPEOUT_MANIFEST=<file>` (see `chain-checks.mjs circuits-fail-closed`, `PREPARE=<file>` writes the test config).
+- **v2 is read-only in the app.** The manifest carries `uiEnabled: false`, and no v2 write has been verified from a browser wallet. `/trade` first verifies the manifest on chain (runtime code hash of all 11 addresses, factory mapping, account pins), then shows the demo account at one block, a read-only `executionQuote` from the mock price source, and receipts by kind. The venue is always called a mock; the label constant is `V2_SWAP_LABEL`. The view ABIs are hand-written signatures checked against Astra's JSON ABIs by `src/lib/expansion.test.ts`.
+- **Keeper panel**: not rendered and not polled when `/api/keeper` answers `not-configured` (no `KEEPER_API_URL`), which is the hosted case.
+- **Hosting**: `DEPLOY.md`, `vercel.json`. A testnet build has no loopback string (`LOCAL_RPC_URL` in `src/lib/chains.ts` exists only when `NEXT_PUBLIC_PERIDOT_TARGET=local`). `scripts/hosted-checks.mjs` is the clean-browser validation for a deployed URL (`BASE_URL=...`), with `NEXT_DIR=.next` for the bundle scan.
+- **Checker traps**: pipes buffer the checker's output until it ends. `ONLY_PATHS=<regex>` narrows `testnet-live` for development (recorded in the result file; never use it for evidence). Chain state moves under the checks (grants are spent, operators are revoked, markets are added): assert against a direct RPC read at the block the page names, not against yesterday's numbers.
+
+## Not done after run 4
+
+1. **Positive native evaluation of a published Peridot circuit** has never run: nothing is published. After the founder publishes, put the IDs and receipt hashes into `tapeout-196.json`, rebuild, and run `chain-checks.mjs testnet-live` (it reads the expected count from that file) plus a manual look at the three results against the 23 vectors.
+2. **No write has been sent from the app on 1952**, v1 or v2, and no real wallet extension (OKX Wallet, MetaMask) has been used. v2 writes (create account, grant, swap) are not built.
+3. **ERC-4626 vault** (`packages/chain-config/expansion/deployments/vault-1952.json`): deployed by Astra, not integrated. Mentioned on `/trade` as not integrated.
+4. **Activity snapshot is shown next to the live scan, not merged into it.** The gap between the snapshot's last block and the live scan's first block is computed and disclosed. A true merge into `ActivityService` is open.
+5. **OKX Onchain OS quote**: still unavailable (no credentials). The UI path for an available quote exists and is unit-tested with a placeholder shape only.
+6. Market-only rejection from a browser wallet on public testnet: not done (Astra's mined receipts are shown instead).
 
 ## Answers from Astra (M4-testnet-preflight-and-frontend-reads, f88817a)
 

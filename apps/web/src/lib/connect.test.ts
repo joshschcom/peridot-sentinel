@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { RAW_EVIDENCE } from "../generated/evidence.ts";
-import { CONNECT, connectVerified, grantReadiness, parseConnectQuote, parseConnectTools, parseConnectTranscript } from "./connect.ts";
+import { CONNECT, connectVerified, grantReadiness, parseConnectQuote, parseConnectTools, parseConnectTranscript, parseLlmSession } from "./connect.ts";
 
 // These run against the evidence files in the repo (synced by scripts/sync-manifests.mjs), not against copies.
 test("tool catalogue: twelve tools, exactly one can send a transaction", () => {
@@ -100,4 +100,35 @@ test("a quote is shown only when it is a complete OKX quote for the served pair 
   json.steps["3"]!.quote = shape;
   const blocked = parseConnectTranscript(json, RAW_EVIDENCE.connectTranscript.file);
   assert.equal(blocked.status === "ok" ? blocked.value.step3.quote : "x", null);
+});
+
+test("LLM-directed session: the model's swap, the simulated denial, the mined revert, and deltas that add up", () => {
+  assert.equal(CONNECT.llm.status, "ok");
+  if (CONNECT.llm.status !== "ok") return;
+  const session = CONNECT.llm.value;
+  assert.equal(session.model, "claude-opus-5-5");
+  assert.equal(session.swap.hash, "0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f");
+  assert.equal(session.swap.block, "47250026");
+  assert.equal(session.chosen.amountInRaw, 500_000_000_000_000_000n);
+  assert.equal(session.chosen.minOutRaw, 39_900_000n);
+  assert.equal(session.swap.gainedRaw, 39_980_000n);
+  assert.equal(session.swap.grantBeforeRaw - session.swap.grantAfterRaw, 500_000_000_000_000_000n);
+  assert.equal(session.swap.deltasMatch, true);
+  assert.equal(session.rejection.mined.hash, "0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7");
+  assert.equal(session.rejection.simulatedError, "OperatorNotAuthorized");
+  assert.equal(session.rejection.minedError, "OperatorNotAuthorized");
+  assert.equal(session.rejection.statePreserved, true);
+  assert.equal(session.quote, null);
+  assert.equal(session.quoteReason, "OKX_CREDENTIALS_UNAVAILABLE");
+  assert.ok(session.transcript && session.transcript.result.length > 200);
+  // Not the operator's transaction, not a revert, or another chain: no session is shown.
+  const json = structuredClone(RAW_EVIDENCE.llmSession.json) as { chainId: number; swap: { receipt: Record<string, unknown> }; rejection: { receipt: Record<string, unknown> } };
+  const file = RAW_EVIDENCE.llmSession.file;
+  assert.equal(parseLlmSession({ ...json, chainId: 196 }, file).status, "unavailable");
+  const other = structuredClone(json);
+  other.swap.receipt.from = "0x8c1741a53d5fb97d74c1d105b0fbfbb4740d5d67";
+  assert.equal(parseLlmSession(other, file).status, "unavailable");
+  const notReverted = structuredClone(json);
+  notReverted.rejection.receipt.status = "success";
+  assert.equal(parseLlmSession(notReverted, file).status, "unavailable");
 });

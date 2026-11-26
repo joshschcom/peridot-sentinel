@@ -14,7 +14,7 @@ import { Badge, Button, ButtonLink, Card, CardHeader, DefinitionRow, Mono, Notic
 import { IconAlert, IconArrowUpRight, IconCheck, IconX } from "@/components/ui/icons";
 import { formatAmount, formatBps } from "@/lib/amount";
 import { TARGET_KIND, explorerAddressUrl, explorerTxUrl, xLayerTestnet } from "@/lib/chains";
-import { CONNECT, CONNECT_EXECUTE_ENV, CONNECT_SCOPE_LABEL, CONNECT_SETUP_COMMANDS, CONNECT_STATUS_LABEL, CONNECT_STDIO_COMMAND, type ConnectToolKind, type ConnectTranscript, connectVerified, grantReadiness } from "@/lib/connect";
+import { CONNECT, CONNECT_EXECUTE_ENV, CONNECT_SCOPE_LABEL, CONNECT_SETUP_COMMANDS, CONNECT_STATUS_LABEL, CONNECT_STDIO_COMMAND, type ConnectToolKind, type ConnectTranscript, LLM_SESSION_LABEL, LLM_SESSION_SCOPE, type LlmSession, connectVerified, grantReadiness } from "@/lib/connect";
 import { shortAddress, shortHash } from "@/lib/format";
 import { Op } from "@/lib/policy";
 import { readConnectGrant } from "@/services/chain/connect";
@@ -35,7 +35,7 @@ const CANNOT = [
   "Hold or use the owner's key. The server is given an operator key by its host, nothing else.",
   "Withdraw. Withdrawals are owner-only in the account contract.",
   "Change permissions, the policy or the trigger. There is no tool for it, and the contract refuses an operator.",
-  "Borrow, or do anything outside the grant. The recorded run tried: the contract answered OperatorNotAuthorized.",
+  "Borrow, or do anything outside the grant. The recorded runs tried: the contract answered OperatorNotAuthorized, in a simulation and in a mined transaction.",
   "Send arbitrary calldata, or choose the recipient, the amount, the chain or the account. The execute tool takes a proposal ID and nothing else.",
   "Act after the owner revokes the operator, after the expiry, or once the budget is spent.",
 ];
@@ -44,6 +44,7 @@ const KIND_LABEL: Record<ConnectToolKind, string> = { read: "Read-only", proposa
 export function Connect() {
   const verified = connectVerified();
   const run = CONNECT.transcript.status === "ok" ? CONNECT.transcript.value : null;
+  const llm = CONNECT.llm.status === "ok" ? CONNECT.llm.value : null;
   return (
     <div className="space-y-6" data-testid="connect" data-connect={verified ? "available" : "unavailable"}>
       <PageHeader
@@ -53,7 +54,7 @@ export function Connect() {
         actions={<Badge tone={verified ? "success" : "warning"}>{verified ? CONNECT_STATUS_LABEL : "In development"}</Badge>}
       />
       <Notice title="Testnet only" data-testid="connect-scope">
-        {CONNECT_SCOPE_LABEL}. The agent in the recorded run was an external MCP client in a separate process, not a model hosted by Peridot: no hosted AI exists in this app.
+        {CONNECT_SCOPE_LABEL}. The recorded runs used an external MCP client in a separate process: a scripted client, and one session directed by a language model. Neither is a model hosted by Peridot: no hosted AI exists in this app, and nothing monitors an account between sessions.
       </Notice>
 
       <Card as="section" data-testid="connect-limits">
@@ -64,7 +65,8 @@ export function Connect() {
         </div>
       </Card>
 
-      <EvidenceKinds run={run} />
+      <EvidenceKinds run={run} llm={llm} />
+      {llm ? <LlmSessionCard session={llm} /> : null}
       {run ? <LiveGrant run={run} /> : null}
       <Tools />
       <HowToConnect />
@@ -103,7 +105,7 @@ function Limits({ title, items, icon, testid }: { title: string; items: string[]
  *   "Pending" until its transcript is in the repository), a simulated rejection (eth_call, nothing mined) and a
  *   mined revert (a transaction that reverted on chain; none exists for Sentinel Connect).
  */
-function EvidenceKinds({ run }: { run: ConnectTranscript | null }) {
+function EvidenceKinds({ run, llm }: { run: ConnectTranscript | null; llm: LlmSession | null }) {
   const txUrl = run ? explorerTxUrl(run.chainId, run.step5.hash) : null;
   return (
     <Card as="section" id="evidence" className="scroll-mt-28" data-testid="connect-evidence">
@@ -126,9 +128,20 @@ function EvidenceKinds({ run }: { run: ConnectTranscript | null }) {
             "The recorded run is not available in this build."
           )}
         </EvidenceRow>
-        <EvidenceRow kind="llm" name="LLM-directed session" badge="Pending" tone="warning">
-          No session directed by a language model has been recorded yet. This row stays pending until a transcript of a real session against the same server is in the repository. Nothing on this page comes from one.
-        </EvidenceRow>
+        {llm ? (
+          <EvidenceRow kind="llm" name="LLM-directed session" badge="Verified" tone="success">
+            {LLM_SESSION_LABEL}. The model ({llm.model}) chose the operation and the amounts itself, within the grant, and sent one swap:{" "}
+            <TxAnchor hash={llm.swap.hash} />. Details in{" "}
+            <a href="#llm-session" className="text-fg underline underline-offset-4">
+              the session below
+            </a>
+            .
+          </EvidenceRow>
+        ) : (
+          <EvidenceRow kind="llm" name="LLM-directed session" badge="Pending" tone="warning">
+            No session directed by a language model is recorded in this build. This row stays pending until a verified transcript of a real session is in the repository. Nothing on this page comes from one.
+          </EvidenceRow>
+        )}
         <EvidenceRow kind="simulated-rejection" name="Simulated rejection" badge={run ? "Recorded · nothing sent" : "Not in this build"} tone="outline">
           {run ? (
             <>
@@ -138,19 +151,110 @@ function EvidenceKinds({ run }: { run: ConnectTranscript | null }) {
             "The recorded run is not available in this build."
           )}
         </EvidenceRow>
-        <EvidenceRow kind="mined-revert" name="Mined revert" badge="None recorded" tone="outline">
-          No reverted transaction has been mined for Sentinel Connect. The rejection above is not presented as one.
-        </EvidenceRow>
+        {llm ? (
+          <EvidenceRow kind="mined-revert" name="Mined revert" badge="Recorded · reverted on chain" tone="danger">
+            In the LLM-directed session the operator's borrow was first refused in a simulation and then actually sent: it reverted on chain with <Mono>{llm.rejection.minedError}</Mono>, <TxAnchor hash={llm.rejection.mined.hash} />. A mined revert has a hash and a failed receipt. The step-6 rejection of the scripted run above remains a simulation.
+          </EvidenceRow>
+        ) : (
+          <EvidenceRow kind="mined-revert" name="Mined revert" badge="None recorded" tone="outline">
+            No reverted transaction has been mined for Sentinel Connect in this build. The rejection above is not presented as one.
+          </EvidenceRow>
+        )}
       </ul>
     </Card>
   );
 }
 
-function EvidenceRow({ kind, name, badge, tone, children }: { kind: string; name: string; badge: string; tone: "success" | "warning" | "outline"; children: ReactNode }) {
+function TxAnchor({ hash }: { hash: string }) {
+  const url = explorerTxUrl(1952, hash);
+  return url ? (
+    <a href={url} target="_blank" rel="noreferrer" className="font-mono text-[0.8125rem] break-all text-fg underline underline-offset-4" data-tx={hash}>
+      {shortHash(hash)} <IconArrowUpRight size={13} />
+    </a>
+  ) : (
+    <Mono>{shortHash(hash)}</Mono>
+  );
+}
+
+/**
+ * The LLM-directed session: one headless session of a language model over MCP, recorded and independently re-read
+ * from the public testnet. A single session, started by a person. Not continuous, not autonomous monitoring.
+ */
+function LlmSessionCard({ session }: { session: LlmSession }) {
+  const tin = (raw: bigint) => `${formatAmount(raw, session.tokenIn.decimals)} mWOKB`;
+  const tout = (raw: bigint) => `${formatAmount(raw, session.tokenOut.decimals, { maxFractionDigits: 6 })} mUSDC`;
   return (
-    <li className="grid gap-x-4 gap-y-1.5 py-3.5 md:grid-cols-[13rem_1fr_auto] md:items-baseline" data-evidence={kind} data-status={badge}>
+    <Card as="section" id="llm-session" className="scroll-mt-28" data-testid="connect-llm" data-swap={session.swap.hash} data-revert={session.rejection.mined.hash} data-deltas={String(session.swap.deltasMatch)}>
+      <CardHeader
+        eyebrow="Recorded · X Layer testnet (chain 1952) · Sentinel v2"
+        title="A language model directed one session"
+        description={
+          <>
+            {LLM_SESSION_LABEL}. Scope: {LLM_SESSION_SCOPE}. The model was {session.model}, run headless with only the Sentinel tools; the operator key lived in the MCP server process and was never shown to the model. Verified record: <Mono>{session.file}</Mono>.
+          </>
+        }
+        action={<Badge tone="success" wrap>LLM-directed · verified</Badge>}
+      />
+      <div className="space-y-5 p-5 text-sm sm:p-6">
+        <dl className="divide-y divide-line">
+          <DefinitionRow stack label="What the model proposed">
+            <span data-testid="llm-proposal">
+              Swap {tin(session.chosen.amountInRaw)} for at least {tout(session.chosen.minOutRaw)} · proposal <Mono>{shortHash(session.chosen.proposalId)}</Mono>
+            </span>
+          </DefinitionRow>
+          {session.venue ? (
+            <DefinitionRow stack label="What the mock venue expected">
+              {tout(session.venue.expectedOutRaw)} · policy minimum {tout(session.venue.policyMinimumOutRaw)} · hard minimum {tout(session.venue.hardMinimumOutRaw)}
+            </DefinitionRow>
+          ) : null}
+          <DefinitionRow stack label="OKX quote asked for by the session">
+            <span data-testid="llm-quote" data-available={String(session.quote !== null)}>
+              {session.quote ? `${session.quote.source}, chain ${session.quote.chainId}, observed ${session.quote.observedAt.slice(0, 19).replace("T", " ")} UTC: ${formatAmount(session.quote.amountInRaw, session.quote.tokenIn.decimals, { maxFractionDigits: 6 })} ${session.quote.tokenIn.symbol} for ${formatAmount(session.quote.amountOutRaw, session.quote.tokenOut.decimals, { maxFractionDigits: 6 })} ${session.quote.tokenOut.symbol} (informational)` : `Quote unavailable${session.quoteReason ? ` (${session.quoteReason})` : ""}. No number is shown.`}
+            </span>
+          </DefinitionRow>
+          <DefinitionRow stack label="Swap · operator execution · mock venue">
+            <TxAnchor hash={session.swap.hash} /> · block {num(session.swap.block)}
+          </DefinitionRow>
+          <DefinitionRow stack label="Verified before → after">
+            <span data-testid="llm-deltas">
+              idle {tin(session.swap.idleInBeforeRaw)} → {tin(session.swap.idleInAfterRaw)} · idle {tout(session.swap.idleOutBeforeRaw)} → {tout(session.swap.idleOutAfterRaw)} · swap grant {tin(session.swap.grantBeforeRaw)} → {tin(session.swap.grantAfterRaw)}
+            </span>
+            <span className={`mt-1 block text-xs ${session.swap.deltasMatch ? "text-success" : "text-danger"}`}>{session.swap.deltasMatch ? "Spent, received and charged amounts add up, and the output went to the account." : "The recorded amounts do not add up."}</span>
+          </DefinitionRow>
+          <DefinitionRow stack label="Borrow attempt · simulated denial">
+            <span data-testid="llm-simulated">
+              <Mono>{session.rejection.simulatedError}</Mono> in an eth_call · nothing sent · no hash
+            </span>
+          </DefinitionRow>
+          <DefinitionRow stack label="Borrow attempt · mined revert">
+            <span data-testid="llm-mined">
+              <TxAnchor hash={session.rejection.mined.hash} /> · block {num(session.rejection.mined.block)} · <Mono>{session.rejection.minedError}</Mono>
+              {session.rejection.statePreserved ? " · grants, balances and allowances unchanged" : ""}
+            </span>
+          </DefinitionRow>
+        </dl>
+        {session.transcript ? (
+          <details className="rounded-control border border-line" data-testid="llm-reasoning">
+            <summary className="flex min-h-11 cursor-pointer items-center px-3.5 text-sm font-medium text-muted hover:text-fg">The model's own final message, quoted verbatim</summary>
+            <div className="border-t border-line p-3.5">
+              <p className="text-xs text-faint">
+                Unedited text written by the model at the end of the session{session.transcript.turns ? ` (${session.transcript.turns} turns)` : ""}, from <Mono>{session.transcript.file}</Mono>. It is the model's account of what it did. The rows above come from the independent re-read of the chain, not from this text.
+              </p>
+              <blockquote className="mt-3 max-h-[32rem] overflow-auto border-l-2 border-line-strong pl-3.5 font-mono text-[0.8125rem] leading-relaxed whitespace-pre-wrap">{session.transcript.result}</blockquote>
+            </div>
+          </details>
+        ) : null}
+        <p className="text-xs text-faint">One session, started by a person, on a demonstration account. Nothing runs between sessions: no model watches this account, and the owner can revoke the operator at any time.</p>
+      </div>
+    </Card>
+  );
+}
+
+function EvidenceRow({ kind, name, badge, tone, children }: { kind: string; name: string; badge: string; tone: "success" | "warning" | "outline" | "danger"; children: ReactNode }) {
+  return (
+    <li className="grid gap-x-4 gap-y-1.5 py-3.5 grid-cols-1 md:grid-cols-[13rem_minmax(0,1fr)_auto] md:items-baseline" data-evidence={kind} data-status={badge}>
       <span className="font-medium">{name}</span>
-      <span className="text-muted">{children}</span>
+      <span className="min-w-0 text-muted">{children}</span>
       <span>
         <Badge tone={tone} wrap>
           {badge}
@@ -210,7 +314,7 @@ function LiveGrant({ run }: { run: ConnectTranscript }) {
             {READINESS_BODY[readiness]}
           </Notice>
           <dl className="divide-y divide-line">
-            <DefinitionRow label="Sentinel account" mono>
+            <DefinitionRow stack label="Sentinel account" mono>
               {accountUrl ? (
                 <a href={accountUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 break-all underline underline-offset-4">
                   {data.account} <IconArrowUpRight size={13} />
@@ -219,23 +323,23 @@ function LiveGrant({ run }: { run: ConnectTranscript }) {
                 data.account
               )}
             </DefinitionRow>
-            <DefinitionRow label="Owner" mono>
+            <DefinitionRow stack label="Owner" mono>
               {shortAddress(data.owner)}
             </DefinitionRow>
-            <DefinitionRow label="Operator (the agent's key)" mono>
+            <DefinitionRow stack label="Operator (the agent's key)" mono>
               {shortAddress(data.operator)}
             </DefinitionRow>
-            <DefinitionRow label="May do">
+            <DefinitionRow stack label="May do">
               <span data-testid="connect-grant-ops">{opsText(data.opsMask)}</span>
             </DefinitionRow>
-            <DefinitionRow label="Budget left">
+            <DefinitionRow stack label="Budget left">
               <span data-testid="connect-grant-remaining">{amount(data.remaining)}</span>
             </DefinitionRow>
-            <DefinitionRow label="Expires">
+            <DefinitionRow stack label="Expires">
               <span data-testid="connect-grant-expiry">{data.expiry === 0n ? "No expiry set" : `${utc(data.expiry)}${data.expiry <= data.blockTime && data.opsMask !== 0 ? " · expired" : ""}`}</span>
             </DefinitionRow>
-            <DefinitionRow label="Repay trigger">{data.triggerBps === 0 ? "Off" : `Loan-to-value at or above ${formatBps(data.triggerBps)}`}</DefinitionRow>
-            <DefinitionRow label="Read at block">
+            <DefinitionRow stack label="Repay trigger">{data.triggerBps === 0 ? "Off" : `Loan-to-value at or above ${formatBps(data.triggerBps)}`}</DefinitionRow>
+            <DefinitionRow stack label="Read at block">
               <span className="num" data-testid="connect-grant-block">
                 {num(data.block)}
               </span>{" "}
@@ -304,7 +408,7 @@ function Tools() {
       />
       <ul className="divide-y divide-line px-5 pb-2 sm:px-6">
         {tools.map((tool) => (
-          <li key={tool.name} className="grid gap-x-4 gap-y-1 py-3 text-sm md:grid-cols-[17rem_1fr_auto] md:items-baseline" data-tool={tool.name} data-kind={tool.kind}>
+          <li key={tool.name} className="grid gap-x-4 gap-y-1 py-3 text-sm grid-cols-1 md:grid-cols-[17rem_minmax(0,1fr)_auto] md:items-baseline" data-tool={tool.name} data-kind={tool.kind}>
             <Mono className="font-medium">{tool.name}</Mono>
             <span className="text-muted">
               {tool.description}
@@ -380,7 +484,7 @@ function HowToConnect() {
 
 function StepRow({ n, title, tool, label, children }: { n: number; title: string; tool: string; label: string; children: ReactNode }) {
   return (
-    <li className="grid gap-x-5 gap-y-2 py-4 md:grid-cols-[2.5rem_1fr]" data-step={n}>
+    <li className="grid gap-x-5 gap-y-2 py-4 grid-cols-1 md:grid-cols-[2.5rem_minmax(0,1fr)]" data-step={n}>
       <span className="num grid size-8 place-items-center rounded-full bg-raised text-sm font-medium">{n}</span>
       <div className="min-w-0 space-y-1.5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">

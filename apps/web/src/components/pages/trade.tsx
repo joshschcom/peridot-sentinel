@@ -136,7 +136,7 @@ function DemoAccount({ manifest }: { manifest: ExpansionManifest }) {
       ) : (
         <div className="space-y-4 p-5 sm:p-6">
           <dl className="divide-y divide-line">
-            <DefinitionRow label="Account" mono>
+            <DefinitionRow stack label="Account" mono>
               {url ? (
                 <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 break-all underline underline-offset-4">
                   {account} <IconArrowUpRight size={13} />
@@ -145,20 +145,20 @@ function DemoAccount({ manifest }: { manifest: ExpansionManifest }) {
                 account
               )}
             </DefinitionRow>
-            <DefinitionRow label="Owner" mono>
+            <DefinitionRow stack label="Owner" mono>
               {shortAddress(data.owner)}
             </DefinitionRow>
-            <DefinitionRow label="Idle tokens (mock)">
+            <DefinitionRow stack label="Idle tokens (mock)">
               <span data-testid="v2-idle">
                 {formatAmount(data.idleWokb, wokb.decimals)} {wokb.symbol} · {formatAmount(data.idleUsdc, usdc.decimals)} {usdc.symbol}
               </span>
             </DefinitionRow>
-            <DefinitionRow label="Peridot lending (through the lending adapter)">
+            <DefinitionRow stack label="Peridot lending (through the lending adapter)">
               <span data-testid="v2-exposure">
                 collateral shares {data.collateralShares.toString()} · debt {data.debtRaw.toString()} (raw units, as the account reports them)
               </span>
             </DefinitionRow>
-            <DefinitionRow label="Read at block">
+            <DefinitionRow stack label="Read at block">
               <span className="num">{num(data.block.number)}</span> · {utc(data.block.timestamp)}
             </DefinitionRow>
           </dl>
@@ -222,19 +222,19 @@ function VenueQuote({ manifest }: { manifest: ExpansionManifest }) {
           </Notice>
         ) : (
           <dl className="divide-y divide-line">
-            <DefinitionRow label="Expected output at the mock price">
+            <DefinitionRow stack label="Expected output at the mock price">
               <span data-testid="v2-quote-expected">
                 {formatAmount(data.expectedOut, usdc.decimals, { maxFractionDigits: 6 })} {usdc.symbol}
               </span>
             </DefinitionRow>
-            <DefinitionRow label={`Lowest output the execution policy allows (${manifest.swap.policyMaxLossBps} bps loss)`}>
+            <DefinitionRow stack label={`Lowest output the execution policy allows (${manifest.swap.policyMaxLossBps} bps loss)`}>
               {formatAmount(minOutAt(manifest.swap.policyMaxLossBps), usdc.decimals, { maxFractionDigits: 6 })} {usdc.symbol}
             </DefinitionRow>
-            <DefinitionRow label={`Hard floor in the adapter (${manifest.swap.hardMaxLossBps} bps loss)`}>
+            <DefinitionRow stack label={`Hard floor in the adapter (${manifest.swap.hardMaxLossBps} bps loss)`}>
               {formatAmount(data.floorOut, usdc.decimals, { maxFractionDigits: 6 })} {usdc.symbol}
             </DefinitionRow>
-            <DefinitionRow label="Mock price set at">{utc(data.priceTime)}</DefinitionRow>
-            <DefinitionRow label="Read at block">
+            <DefinitionRow stack label="Mock price set at">{utc(data.priceTime)}</DefinitionRow>
+            <DefinitionRow stack label="Read at block">
               <span className="num">{num(data.block.number)}</span>
             </DefinitionRow>
           </dl>
@@ -248,7 +248,7 @@ function VenueQuote({ manifest }: { manifest: ExpansionManifest }) {
 function Row({ kind, label, tone, hash, children }: { kind: string; label: string; tone: "success" | "warning" | "outline" | "danger"; hash: string | null; children: ReactNode }) {
   const url = hash ? explorerTxUrl(xLayerTestnet.id, hash) : null;
   return (
-    <li className="grid gap-x-4 gap-y-1.5 py-3.5 md:grid-cols-[1fr_auto] md:items-start" data-receipt={kind} data-hash={hash ?? ""}>
+    <li className="grid gap-x-4 gap-y-1.5 py-3.5 grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto] md:items-start" data-receipt={kind} data-hash={hash ?? ""}>
       <div className="min-w-0 text-muted">
         {children}
         {hash ? (

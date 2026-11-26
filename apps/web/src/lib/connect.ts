@@ -257,7 +257,92 @@ export function parseConnectTranscript(json: unknown, file: string | null): Mayb
   });
 }
 
+/* ---------- the LLM-directed session ---------- */
+
+export const LLM_SESSION_LABEL = "LLM-directed single session (Claude via MCP), not continuous autonomous monitoring";
+export const LLM_SESSION_SCOPE = "mock venue / mock tokens / mock feed / development reference processor";
+interface SessionReceipt {
+  hash: string;
+  block: string;
+  gasUsed: string;
+}
+export interface LlmSession {
+  file: string;
+  model: string;
+  account: string;
+  operator: string;
+  tokenIn: { decimals: number };
+  tokenOut: { decimals: number };
+  /** What the model chose, as recorded in its proposal. */
+  chosen: { amountInRaw: bigint; minOutRaw: bigint; proposalId: string };
+  venue: { expectedOutRaw: bigint; policyMinimumOutRaw: bigint; hardMinimumOutRaw: bigint } | null;
+  /** The OKX quote the session asked for. Null = unavailable; then no number is shown. */
+  quote: ConnectQuote | null;
+  quoteReason: string | null;
+  swap: SessionReceipt & { simulatedOutRaw: bigint | null; spentRaw: bigint; gainedRaw: bigint; grantChargedRaw: bigint; grantBeforeRaw: bigint; grantAfterRaw: bigint; idleInBeforeRaw: bigint; idleInAfterRaw: bigint; idleOutBeforeRaw: bigint; idleOutAfterRaw: bigint; deltasMatch: boolean };
+  /** The refused borrow: first a SIMULATED denial (eth_call), then a MINED revert (a transaction that reverted). */
+  rejection: { proposalId: string; simulatedError: string; mined: SessionReceipt; minedError: string; statePreserved: boolean };
+  transcript: { file: string; result: string; turns: number | null } | null;
+}
+
+export function parseLlmSession(json: unknown, file: string | null): Maybe<LlmSession> {
+  const fail = (what: string) => unavailable<LlmSession>(`No verified LLM-directed session in this build (${what})`);
+  const root = rec(json);
+  const swap = rec(root?.swap);
+  const rejection = rec(root?.rejection);
+  const account = str(root?.account);
+  const operator = str(root?.operator);
+  if (!file || !root || !swap || !rejection || root.chainId !== 1952 || !account || !ADDRESS.test(account) || !operator || !ADDRESS.test(operator)) return fail("file missing or not chain 1952");
+  const receiptOf = (value: unknown, status: string): SessionReceipt | null => {
+    const r = rec(value);
+    const hash = str(r?.hash);
+    const block = str(r?.blockNumber);
+    // Each receipt must have been sent by the operator to the account, with the status its row claims.
+    if (!r || !hash || !HASH.test(hash) || !block || !UINT.test(block) || r.status !== status || str(r.from)?.toLowerCase() !== operator.toLowerCase() || str(r.to)?.toLowerCase() !== account.toLowerCase()) return null;
+    return { hash, block, gasUsed: str(r.gasUsed) ?? "?" };
+  };
+  const swapReceipt = receiptOf(swap.receipt, "success");
+  const chosen = rec(swap.chosenArgs);
+  const amountIn = uint(chosen?.amountInRaw);
+  const minOut = uint(chosen?.minOutRaw);
+  const before = rec(swap.before);
+  const after = rec(swap.after);
+  const values = [uint(swap.inputBalanceSpentRaw), uint(swap.outputBalanceGainedRaw), uint(swap.grantChargedRaw), uint(rec(before?.swapGrant)?.remainingRaw), uint(rec(after?.swapGrant)?.remainingRaw), uint(rec(before?.idle)?.inputRaw), uint(rec(after?.idle)?.inputRaw), uint(rec(before?.idle)?.outputRaw), uint(rec(after?.idle)?.outputRaw)];
+  const pair = rec(root.pair);
+  const proposalId = str(swap.proposalId);
+  const model = str(swap.model);
+  if (swap.status !== "confirmed-swap" || !swapReceipt || amountIn === null || minOut === null || values.some((value) => value === null) || typeof pair?.inputDecimals !== "number" || typeof pair.outputDecimals !== "number" || !proposalId || !model) return fail("swap record incomplete");
+  const [spent, gained, charged, grantBefore, grantAfter, inBefore, inAfter, outBefore, outAfter] = values as bigint[];
+  // The recorded deltas must add up on their own: what left, what arrived and what the grant was charged.
+  const deltasMatch = swap.budgetAndBalancesMatch === true && inBefore! - inAfter! === spent && outAfter! - outBefore! === gained && grantBefore! - grantAfter! === charged && spent === amountIn && gained! >= minOut;
+  const simulated = rec(rejection.simulation);
+  const replay = rec(rejection.replay);
+  const mined = receiptOf(rejection.receipt, "reverted");
+  const rejectionId = str(rejection.proposalId);
+  if (rejection.status !== "mined-revert" || !mined || simulated?.status !== "simulated-rejection" || !str(simulated.error) || !str(replay?.error) || !rejectionId) return fail("rejection record incomplete");
+  const venue = rec(root.venue);
+  const venueValues = [uint(venue?.expectedOutRaw), uint(venue?.policyMinimumOutRaw), uint(venue?.hardMinimumOutRaw)];
+  const quoteRecord = rec(root.quote);
+  const transcript = rec(root.transcript);
+  return ok({
+    file,
+    model,
+    account,
+    operator,
+    tokenIn: { decimals: pair.inputDecimals },
+    tokenOut: { decimals: pair.outputDecimals },
+    chosen: { amountInRaw: amountIn, minOutRaw: minOut, proposalId },
+    venue: venueValues.every((value) => value !== null) ? { expectedOutRaw: venueValues[0]!, policyMinimumOutRaw: venueValues[1]!, hardMinimumOutRaw: venueValues[2]! } : null,
+    quote: quoteRecord && quoteRecord.status !== "unavailable" && quoteRecord.status !== "blocked" ? parseConnectQuote(quoteRecord.quote) : null,
+    quoteReason: str(quoteRecord?.reason),
+    swap: { ...swapReceipt, simulatedOutRaw: uint(rec(swap.simulation)?.amountOutRaw), spentRaw: spent!, gainedRaw: gained!, grantChargedRaw: charged!, grantBeforeRaw: grantBefore!, grantAfterRaw: grantAfter!, idleInBeforeRaw: inBefore!, idleInAfterRaw: inAfter!, idleOutBeforeRaw: outBefore!, idleOutAfterRaw: outAfter!, deltasMatch },
+    rejection: { proposalId: rejectionId, simulatedError: str(simulated.error)!, mined, minedError: str(replay?.error)!, statePreserved: rejection.preservedState === true },
+    transcript: transcript && typeof transcript.result === "string" && transcript.result.length > 0 && transcript.isError !== true && str(transcript.file) ? { file: str(transcript.file)!, result: transcript.result, turns: typeof transcript.turns === "number" ? transcript.turns : null } : null,
+  });
+}
+
 export const CONNECT = {
+  llm: parseLlmSession(RAW_EVIDENCE.llmSession.json, RAW_EVIDENCE.llmSession.file),
   tools: parseConnectTools(RAW_EVIDENCE.connectTools.json),
   toolsFile: RAW_EVIDENCE.connectTools.file,
   transcript: parseConnectTranscript(RAW_EVIDENCE.connectTranscript.json, RAW_EVIDENCE.connectTranscript.file),

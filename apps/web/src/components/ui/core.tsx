@@ -120,11 +120,12 @@ export function PageHeader({ title, description, actions, eyebrow }: { title: Re
   );
 }
 
-export function DefinitionRow({ label, children, mono = false }: { label: ReactNode; children: ReactNode; mono?: boolean }) {
+/** `stack` puts the value under the label on phones: for rows whose label or value is a sentence, not a word. */
+export function DefinitionRow({ label, children, mono = false, stack = false }: { label: ReactNode; children: ReactNode; mono?: boolean; stack?: boolean }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
-      <dt className="shrink-0 text-muted">{label}</dt>
-      <dd className={cx("num min-w-0 text-right break-words", mono && "font-mono text-[0.8125rem]")}>{children}</dd>
+    <div className={cx("py-2.5 text-sm", stack ? "flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4" : "flex items-baseline justify-between gap-4")}>
+      <dt className={cx("text-muted", stack ? "sm:shrink-0" : "shrink-0")}>{label}</dt>
+      <dd className={cx("num min-w-0 break-words", stack ? "sm:text-right" : "text-right", mono && "font-mono text-[0.8125rem]")}>{children}</dd>
     </div>
   );
 }

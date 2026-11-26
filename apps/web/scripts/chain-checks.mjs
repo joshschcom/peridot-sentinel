@@ -425,7 +425,11 @@ if (mode === "wrong-network") {
             const at = { blockNumber: BigInt(shown.block) };
             const [usdc, wokb] = await Promise.all([rpc.readContract({ address: v2Manifest.contracts.mockUsdc, abi: erc20Abi, functionName: "balanceOf", args: [v2Manifest.contracts.account], ...at }), rpc.readContract({ address: v2Manifest.contracts.mockWokb, abi: erc20Abi, functionName: "balanceOf", args: [v2Manifest.contracts.account], ...at })]);
             expect(usdc.toString() === shown.usdc && wokb.toString() === shown.wokb, `${tag}: the page shows ${shown.wokb} / ${shown.usdc} but the RPC says ${wokb} / ${usdc} at block ${shown.block}`);
-            expect(Number(shown.operators) >= 1 && (await accountCard.locator(`[data-v2-operator]`).evaluateAll((nodes) => nodes.map((node) => node.dataset.v2Operator.toLowerCase()))).includes(v2Demo.operator.toLowerCase()), `${tag}: the enumerated operators do not include the recorded operator`);
+            // Operators are enumerated by the account. The count must equal operatorCount() at that block, whatever it is
+            // today (the owner's public emergency stop empties the list).
+            const { parseAbi } = await import("viem");
+            const count = await rpc.readContract({ address: v2Manifest.contracts.account, abi: parseAbi(["function operatorCount() view returns (uint256)"]), functionName: "operatorCount", ...at });
+            expect(String(count) === shown.operators && (await accountCard.locator("[data-v2-operator]").count()) === Number(count), `${tag}: the page lists ${shown.operators} operator(s) but operatorCount() is ${count} at block ${shown.block}`);
           }
           const quote = page.locator('[data-testid="v2-quote"]');
           expect((await quote.getAttribute("data-state")) === "ok" && BigInt((await quote.getAttribute("data-expected")) || "0") > 0n, `${tag}: the venue quote is "${await quote.getAttribute("data-state")}"`);
@@ -444,7 +448,9 @@ if (mode === "wrong-network") {
           const runHash = flagship.steps["5"].receipt.hash;
           const root = page.locator('[data-testid="connect"]');
           expect((await root.getAttribute("data-connect")) === "available" && /Available on testnet \(agent-directed\)/.test(main), `${tag}: Connect is not shown as available on testnet (agent-directed)`);
-          expect(/agent-directed execution/.test(main) && !/autonomous|continuous(ly)? monitor/i.test(main), `${tag}: Connect must be called agent-directed execution and never autonomous monitoring`);
+          // "autonomous" may appear only in a negation ("not continuous autonomous monitoring", "nothing monitors").
+          const claims = main.replace(/not continuous autonomous monitoring/gi, "").replace(/nothing monitors/gi, "");
+          expect(/agent-directed execution/.test(main) && !/autonomous|continuous(ly)? monitor/i.test(claims), `${tag}: Connect must be called agent-directed execution and never autonomous monitoring`);
           expect(/mock tokens/i.test(main) && /development reference processor \(not TapeOut\)/.test(main), `${tag}: the Connect page does not carry the testnet scope label`);
           // Tools: the recorded catalogue, exactly one of which can send.
           const tools = await page.locator('[data-testid="connect-tools"] [data-tool]').evaluateAll((nodes) => nodes.map((node) => ({ name: node.dataset.tool, kind: node.dataset.kind })));
@@ -457,7 +463,17 @@ if (mode === "wrong-network") {
           expect((await root.locator("input, textarea, select").count()) === 0, `${tag}: the Connect page has an input (it must never take a key)`);
           // The recorded run: one explorer link, to the public execute transaction. A simulation never gets one.
           const txLinks = await root.locator('a[href*="/tx/"]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href")));
-          expect(txLinks.length === 2 && txLinks.every((href) => href === explorerTxUrl(1952, runHash)), `${tag}: explorer transaction links on Connect are ${JSON.stringify(txLinks)}`);
+          // Linked transactions: the scripted run's execute, and the LLM session's swap and mined revert. Nothing else.
+          const llmFile = JSON.parse(readFileSync(new URL("../../../evidence/session6-mcp-v2/verified.json", import.meta.url), "utf8"));
+          const allowedTx = new Set([runHash, llmFile.swap.canonical.receipt.hash, llmFile.rejection.canonical.receipt.hash].map((hash) => explorerTxUrl(1952, hash)));
+          expect(txLinks.length >= 3 && txLinks.every((href) => allowedTx.has(href)) && [...allowedTx].every((href) => txLinks.includes(href)), `${tag}: explorer transaction links on Connect are ${JSON.stringify(txLinks)}`);
+          const llmCard = page.locator('[data-testid="connect-llm"]');
+          const llmText = (await llmCard.innerText()).replace(/\s+/g, " ");
+          expect((await llmCard.getAttribute("data-swap")) === llmFile.swap.canonical.receipt.hash && (await llmCard.getAttribute("data-revert")) === llmFile.rejection.canonical.receipt.hash && (await llmCard.getAttribute("data-deltas")) === "true", `${tag}: the LLM session card does not show the verified receipts`);
+          expect(/LLM-directed single session \(Claude via MCP\), not continuous autonomous monitoring/.test(llmText) && /mock venue \/ mock tokens \/ mock feed \/ development reference processor/.test(llmText) && /simulated denial/i.test(llmText) && /mined revert/i.test(llmText), `${tag}: the LLM session is not labelled as required`);
+          expect((await llmCard.locator('[data-testid="llm-simulated"] a').count()) === 0 && (await llmCard.locator('[data-testid="llm-mined"] a').getAttribute("href")) === explorerTxUrl(1952, llmFile.rejection.canonical.receipt.hash), `${tag}: simulated denial and mined revert are not kept apart`);
+          expect((await llmCard.locator('[data-testid="llm-quote"]').getAttribute("data-available")) === String(llmFile.market.onchainOS.quote !== null) && (llmFile.market.onchainOS.quote !== null || /Quote unavailable/.test(await llmCard.locator('[data-testid="llm-quote"]').innerText())), `${tag}: the session's OKX quote state is misreported`);
+          expect((await llmCard.locator('[data-testid="llm-reasoning"] blockquote').innerText({ timeout: 2000 }).catch(async () => (await llmCard.locator('[data-testid="llm-reasoning"] blockquote').textContent()) ?? "")).length > 200, `${tag}: the model's final message is not quoted`);
           expect((await page.locator('[data-testid="connect-run"] [data-step]').count()) === 7, `${tag}: the recorded run does not show seven steps`);
           expect((await page.locator('[data-step="6"] a').count()) === 0 && /Simulated rejection · not a mined revert/.test(await page.locator('[data-step="6"]').innerText()) && (await page.locator('[data-testid="connect-rejection"]').getAttribute("data-error")) === "OperatorNotAuthorized", `${tag}: step 6 is not shown as a simulated rejection`);
           const quote = page.locator('[data-testid="connect-quote"]');
@@ -465,7 +481,7 @@ if (mode === "wrong-network") {
           expect((await quote.getAttribute("data-available")) === "false" && /Quote unavailable/.test(quoteText) && !/\d[\d,.]* (WOKB|USDC)/.test(quoteText), `${tag}: the unavailable quote is shown as "${quoteText.slice(0, 160)}"`);
           // Kinds of evidence stay apart: scripted client verified, LLM session pending, simulated rejection, no mined revert.
           const kinds = Object.fromEntries(await page.locator('[data-testid="connect-evidence"] [data-evidence]').evaluateAll((nodes) => nodes.map((node) => [node.dataset.evidence, node.dataset.status])));
-          expect(kinds.scripted === "Verified" && kinds.llm === "Pending" && /nothing sent/.test(kinds["simulated-rejection"] ?? "") && kinds["mined-revert"] === "None recorded", `${tag}: evidence kinds are ${JSON.stringify(kinds)}`);
+          expect(kinds.scripted === "Verified" && kinds.llm === "Verified" && /nothing sent/.test(kinds["simulated-rejection"] ?? "") && /reverted on chain/.test(kinds["mined-revert"] ?? ""), `${tag}: evidence kinds are ${JSON.stringify(kinds)}`);
           // The live grant must equal a direct RPC read at the block the page names.
           const grant = page.locator('[data-testid="connect-grant"]');
           await page.waitForFunction(() => ["ok", "error"].includes(document.querySelector('[data-testid="connect-grant"]')?.getAttribute("data-state") ?? ""), null, { timeout: 60_000 }).catch(() => {});
@@ -539,7 +555,7 @@ if (mode === "wrong-network") {
           expect((await own.locator('[data-testid="native-eval"]').count()) === configured && (await own.locator('[data-testid="not-published"]').count()) === 3 - configured, `${tag}: evaluation panels do not match the published circuits`);
           expect(/Native evaluation \(read-only\)/.test(ownText) && /Evidence, not enforcement/.test(ownText) && !/enforced on mainnet/i.test(ownText), `${tag}: the native evaluation is not worded as read-only evidence`);
           expect((await own.locator('[data-testid="peridot-processor"]').getAttribute("href")) === `https://www.okx.com/web3/explorer/xlayer/address/${tapeout.processor}`, `${tag}: Peridot's processor link is wrong`);
-          expect(/Third-party circuit/.test(await page.locator('[data-testid="live-mainnet-eval"]').innerText()) && /not a Peridot circuit/i.test(await page.locator('[data-testid="live-mainnet-eval"]').innerText()), `${tag}: the third-party example is not labelled as third-party`);
+          expect(/Third-party circuit/i.test(await page.locator('[data-testid="live-mainnet-eval"]').innerText()) && /not a Peridot circuit/i.test(await page.locator('[data-testid="live-mainnet-eval"]').innerText()), `${tag}: the third-party example is not labelled as third-party`);
           // Native TapeOut evidence: a real circuit on X Layer MAINNET, evaluated read-only from this browser.
           const card = page.locator('[data-testid="live-mainnet-eval"]');
           await card.locator('[data-testid="live-result"]').waitFor({ timeout: 45_000 }).catch(() => {});

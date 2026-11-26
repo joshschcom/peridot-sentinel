@@ -47,7 +47,7 @@ export function PeridotMainnetCircuits() {
           A native evaluation shows that a circuit exists on the processor and what it answers for a given input. It moves no funds and authorises nothing: no account or market on mainnet is bound to these circuits. Policies are enforced only inside the account and market contracts, which run on X Layer testnet today with a development reference processor.
         </Notice>
         <dl className="divide-y divide-line">
-          <DefinitionRow label="Processor (TapeOut CPU 410)" mono>
+          <DefinitionRow stack label="Processor (TapeOut CPU 410)" mono>
             {processorUrl ? (
               <a href={processorUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 break-all underline underline-offset-4" data-testid="peridot-processor">
                 {config.processor} <IconArrowUpRight size={13} />
@@ -76,7 +76,7 @@ export function PeridotMainnetCircuits() {
 function ProcessorPresence({ processor }: { processor: string }) {
   const presence = useQuery({ queryKey: ["tapeout-processor", processor], queryFn: () => readProcessorPresence(processor as Address), staleTime: 60_000, retry: 1 });
   return (
-    <DefinitionRow label="Processor on chain">
+    <DefinitionRow stack label="Processor on chain">
       <span data-testid="peridot-processor-presence" data-state={presence.isPending ? "loading" : presence.isError ? "error" : presence.data.codeBytes > 0 ? "ok" : "no-code"}>
         {presence.isPending ? (
           "Reading…"
@@ -268,14 +268,14 @@ function PublishedCircuit({ circuit, id, receipt, processor }: { circuit: Perido
               The circuit answers {data.decision.kind === "allow" ? "allow" : "deny"} for this scenario
             </p>
             <dl className="mt-3 divide-y divide-line">
-              <DefinitionRow label="Call" mono>
+              <DefinitionRow stack label="Call" mono>
                 eval({data.circuitId.toString()}, {data.input}) → {data.output}
               </DefinitionRow>
-              <DefinitionRow label="Read at block">
+              <DefinitionRow stack label="Read at block">
                 <span className="num">{num(data.block.number)}</span> · chain {xLayerMainnet.id} · <Mono>{data.block.hash}</Mono>
               </DefinitionRow>
-              <DefinitionRow label="Verified before evaluating">Publication receipt in block {num(data.publishedInBlock)}, TapedOut event for circuit #{data.circuitId.toString()}, 20 / 1 / 0 / {circuit.gates} dimensions, netlist hash</DefinitionRow>
-              <DefinitionRow label="Calldata" mono>
+              <DefinitionRow stack label="Verified before evaluating">Publication receipt in block {num(data.publishedInBlock)}, TapedOut event for circuit #{data.circuitId.toString()}, 20 / 1 / 0 / {circuit.gates} dimensions, netlist hash</DefinitionRow>
+              <DefinitionRow stack label="Calldata" mono>
                 <span className="break-all">{data.calldata}</span>
               </DefinitionRow>
             </dl>
