@@ -6,6 +6,23 @@
   "repayRevoked": "0x289f68a544faa5bb027ce3676c42f8360a43c06dd2d6b5ba66be3af254d6ecb7",
   "triggerCleared": "0xde8ec94dbb3c0de04fb82eaf496fc4a3ecfcba0384614db58597161b37452261",
   "allV2Revoked": "0x9c2f8c836344b45d11158d837268fb85d9610a24f190533454a1cdc9a97576fd",
-  "block": "47252262",
+  "block": "47252264",
+  "blockHash": "0xd5e1587f87210dc1d043c6b760fc87e9e21897ecf5305947716106b4b6a9adde",
+  "v1": {
+    "A": {
+      "account": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "discovered": [
+        "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88"
+      ],
+      "configured": [],
+      "trigger": 0
+    },
+    "B": {
+      "account": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+      "discovered": [],
+      "configured": [],
+      "trigger": 0
+    }
+  },
   "operators": 0
 }

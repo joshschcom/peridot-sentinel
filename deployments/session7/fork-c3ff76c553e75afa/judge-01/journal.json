@@ -1060,6 +1060,17 @@
     "initial-price-jWOKB": "80000000000000000000",
     "initial-price-jUSDC": "1000000000000000000",
     "deny-A": "28800000",
-    "deny-B": "83200000"
+    "deny-B": "83200000",
+    "v1Operators": {
+      "block": "47252264",
+      "hash": "0xd5e1587f87210dc1d043c6b760fc87e9e21897ecf5305947716106b4b6a9adde",
+      "operators": {
+        "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2": [
+          "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88"
+        ],
+        "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2": []
+      }
+    },
+    "stopRounds": []
   }
 }

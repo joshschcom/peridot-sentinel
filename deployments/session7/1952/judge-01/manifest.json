@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "chainId": 1952,
+  "profile": "public-testnet",
+  "campaign": "judge-01",
+  "label": "Valueless inventory-backed mock assets and development reference circuits",
+  "deploymentBlock": "47252767",
+  "preparedBlock": "47253173",
+  "preparedBlockHash": "0x1a86453f32d35597ee8b0be414fb5a20569516dab7b90dbcffb86cba7bd2c1df",
+  "deployer": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "owner": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+  "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+  "base": {
+    "MockCollateral": "0xe1dA369f92596c3c10c353E200c05343C9F19c92",
+    "MockDebt": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+    "TestnetOracle": "0x2257293155CF9a52590BA289E599F9Adf297ac57",
+    "DemoRateModel": "0x0796A0772Ef9aF1F610Fd460EFC008Cc53dCE23B",
+    "MarketPToken": "0x984E85BBF47a2f6b43EAfa31744abCcF12D6Fa9E",
+    "PolicyRegistry": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+    "TapeOutPolicyAdapter": "0x68B5b4656cD20ECF2Ff2796Dc6A171dad77FD8b9",
+    "DevelopmentReferenceProcessor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+    "MarketFactory": "0xEB32e6bA03D8B92d6bB0d5283A59263a50674BC0",
+    "SentinelAccountFactory": "0x37157221a5fA97d3f3EC1AA2375032d578Db182f"
+  },
+  "markets": {
+    "A": {
+      "controller": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "debtMarket": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "collateralMarket": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+      "account": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "marketPolicy": "0x7f887eb7a1b1328aed23de12bd982f96a61acfd17ca9f3be0bce083bebcf18a2",
+      "creationTx": "0x6982692aee960e2cf254dbcffff6ec9fd4510a933903bccc680193e4b6d35365",
+      "creationBlock": "47252850",
+      "marketId": "2"
+    },
+    "B": {
+      "controller": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+      "debtMarket": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+      "collateralMarket": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+      "account": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+      "marketPolicy": "0x53a422789af77c0799bd4f25dd4bc38a9e28825481d51d6bf60c03d09cb5c9fd",
+      "creationTx": "0xc343814cfff579480c1512b3b362049fbe34454a4687e7d0a8f6c15372b80d69",
+      "creationBlock": "47252929",
+      "marketId": "3"
+    }
+  },
+  "policies": {
+    "A": {
+      "circuitId": "4",
+      "policyId": "0x7f887eb7a1b1328aed23de12bd982f96a61acfd17ca9f3be0bce083bebcf18a2",
+      "configHash": "0x1edaa64fa6b33ec74bf93118c165f50987692d02ddfb0e030be4e1d52c0f36f4",
+      "netlistHash": "0xf4267aec749de010c9a28182ee19950767467214da06b534c70f24e67c32e573",
+      "capBps": 6350
+    },
+    "B": {
+      "circuitId": "5",
+      "policyId": "0x53a422789af77c0799bd4f25dd4bc38a9e28825481d51d6bf60c03d09cb5c9fd",
+      "configHash": "0xb05ad1b5f824362eafdb33d074ac23b776a32f6f7a813a21b3b5c98551054805",
+      "netlistHash": "0x29caab4c909a144232c79aab2923fb67f19db5a9066f469c3964ada572350dc5",
+      "capBps": 4850
+    },
+    "account": {
+      "circuitId": "6",
+      "policyId": "0xb2af346486a445dcbae00922a47badbd6248d54745377c46d5db8c58c73899cd",
+      "configHash": "0xf86d0e324da289ecf444622df590d5ee4c55af1a17c38dbd00dc9482b2570871",
+      "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+      "capBps": 5500
+    },
+    "execution": {
+      "circuitId": "1",
+      "netlistHash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b",
+      "mode": "development-reference",
+      "processor": "0x434761C2B806D5E19757909e91F61D22F392B527"
+    }
+  },
+  "contracts": {
+    "mockWokb": "0x8EcDe41881EFa0730FCDCEb7cb0474F017422d0B",
+    "mockUsdc": "0x9667a471EE368Bf1d953fb9a6C762244C86cDA96",
+    "mockOracle": "0x693704aeb2588b878bba6059eff26B6f3fdf9B68",
+    "cpu": "0x434761C2B806D5E19757909e91F61D22F392B527",
+    "execution": "0x3fF0Acc7a60aCffB6913088Ae0DBeeec4A48094F",
+    "source": "0x82fAcE8378eeAB7DB98933852FEbcA7F59c17923",
+    "venue": "0xFe79329E730fB0665c53a226381c794d4d1AEF07",
+    "swap": "0x29E2D42f371383A0ee02924EF2b339BE0592cA52",
+    "lending": "0xB23cF0E69579411E8978A710d089068c4921AFeA",
+    "factory": "0xAE4BDFE0eda9cD5257FD4b88489D320cbCF2b29E",
+    "account": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269"
+  },
+  "runtimeCodeHashes": {
+    "mockWokb": "0x607ad62d751e0292f17a3e6877b289b73e8b7498273df14dac1b9540dee7881b",
+    "mockUsdc": "0x708bccc84cad71b9869bbe839a229a6715abef2a0e5054b04c43e73905b11f0f",
+    "mockOracle": "0xb28f5a30669ed934c5f8d2541fb8c5dcd7f1e5a897cfc0c17e870264313d19fc",
+    "cpu": "0x517d307fe4b14e4ff7b5b6a471683050078abadab2a5a74c985303a2516f54de",
+    "execution": "0x865e03a45e516b48ca5e0830e898b0acab22357e2afb2b3a1f05e5748ad92d85",
+    "source": "0x378bb7b383c71fe9f7b640d1c1963d97d31ecf45e106a6fe9510a9b785fb03ec",
+    "venue": "0x45a3e3e37ca15586975e514fe5abbaaad2e6a6d5947f400daf3456ae2b9514a4",
+    "swap": "0xef4e38a817d709cb7723dfdb10167d6f08f5a1b0c8a7ba3ba995f5fcbaa12d45",
+    "lending": "0xe8c87090efbea7078465d940b8a349dbac847df5fd680f6be601c41e3c58a227",
+    "factory": "0xeae3e8a76f09a04d953294501631c75d87b50f5ebab4b4887106d4ddd2984e56",
+    "account": "0xeb640c4b8fc6b1f3b6ec582b43b1a8242ada81108af00946ddf6443dcddf8fcd"
+  },
+  "source": {
+    "baseCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+    "expansionCommit": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4"
+  },
+  "grants": {
+    "repay": {
+      "account": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "budgetRaw": "2000000",
+      "expiry": "1796316632"
+    },
+    "swap": {
+      "account": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+      "perCallRaw": "1000000000000000000",
+      "remainingRaw": "2000000000000000000",
+      "expiry": "1796316632"
+    }
+  },
+  "funding": {
+    "blockNumber": "47252758",
+    "blockHash": "0x351d6b3611cf498da622e7589a37216212114beb9240cc658377a2e6ca9ec06a",
+    "balances": {
+      "deployer": "198897101304855068",
+      "owner": "0",
+      "operator": "199979643798982190"
+    },
+    "judgeValue": "6000000000000000",
+    "operatorValue": "100000000000000",
+    "afterWei": {
+      "deployer": "192597542314877119",
+      "owner": "5657257202862861",
+      "operator": "200079643798982190"
+    },
+    "judgeTransfer": "0x808fb23d88fbca6bc4d98254134668dd7ac5eda867b9d67c5d1c83f1f528da67",
+    "operatorTransfer": "0xb7973328946f7a116792e101d4101e57f58c2112a7e9f3855334b7c1d7e98139"
+  },
+  "setupReceipts": {
+    "fund-judge": "0x808fb23d88fbca6bc4d98254134668dd7ac5eda867b9d67c5d1c83f1f528da67",
+    "fund-operator": "0xb7973328946f7a116792e101d4101e57f58c2112a7e9f3855334b7c1d7e98139",
+    "initial-price-mCOL": "0x70cb9dab79b2ff25be04fbc6328183029049f1a2d3f41aa5bd5869693c1406e2",
+    "initial-price-mUSD": "0x6b4556228caf452957ef3b00b860f4f12536eed34df3c53e91f51bb8c44030e4",
+    "studio-circuit-A": "0x3e277e3653be9199ff1a2ce0292ec99649177e938b2b8f3e2d9cecafa9bfd852",
+    "studio-register-A": "0xf6da70e8c2407a74dfe97641c064d94acaa6890f3eae6ffdb5abe7f6c9fd040d",
+    "studio-circuit-B": "0x955f8a71d21ef48afc952b29c58f131d133c64a1f03c21ce1b51058bc8aa4378",
+    "studio-register-B": "0x8be5275582df8d3407b46131e8fdd1f54e2d37d78ab0ebc780a278a297d1ee7d",
+    "account-circuit": "0x8a83c1ee1aaca0dd4380768964b177ba7d9d9cb00569d0a2fb481472c98f4ae1",
+    "register-account": "0xf647d7050acb09325f8dad335098a4c5cdd3b29a41db2f13787e3eecb672ac24",
+    "studio-create-A": "0x6982692aee960e2cf254dbcffff6ec9fd4510a933903bccc680193e4b6d35365",
+    "liquidity-A": "0xf211569b78e54b677019e6bbf9cbbf76caa379fad7462d4af70534bce5a6930a",
+    "approve-A": "0x3638c1325ce3b7155627ff27ec829749040026dc2d83d9ac3597477512b37690",
+    "seed-A": "0x6f63d3ecef8db70d8ca6d42d32f7da17c230e23b1c6bb9d0bf53e0c5a795071f",
+    "activate-A": "0x4bc0fece887e5b926bff639d44692b53d937841d79d8a1d65626fcceeb9194bc",
+    "create-v1-A": "0xf3cc6c98784fec7c105672f403ffa040c6f48728ce3d04b4406ff8b565cd53c9",
+    "collateral-A": "0x2a654a37a7cdb1f519624746f152d45492409deb6e05d7c65dcf6eb17a0a0ec9",
+    "enter-A": "0x463f00b3caf9cf8042b6a538a2dd1bf4a0b7a8cfa2b9dda1128ed299970bffdb",
+    "supply-A": "0x792a42752945bde9a84c9720abe81c34135fed34a87aed9a4d1d709a3b13cd04",
+    "studio-create-B": "0xc343814cfff579480c1512b3b362049fbe34454a4687e7d0a8f6c15372b80d69",
+    "liquidity-B": "0x8a0c9a8453e55d0de31573e7071efab5bffd27c0e324023802482fd16fee6077",
+    "approve-B": "0xcc0047a572ec435f1fa217f5cc900e684d3867fcdba3cd1f7405ff582f1a74a0",
+    "seed-B": "0xa2079c21b25d376ac31ca29755812c2ce15d1aa0d68d5035022752e07fa793ee",
+    "activate-B": "0x0fbe7ed9f7011cd845cbc4a91618779287cbaa23c027afb373185456a962deac",
+    "create-v1-B": "0xc5c21f218eb4daebbeae7cbbf31382c034f2c5a8d21c766fd7f5b59884545d9a",
+    "collateral-B": "0xc81216d3c4d1f99908580678dadbe64d1638d30f0da2382c75025ce9ae57a80a",
+    "enter-B": "0x14ed853f2e91653014c0d24329fa7c0d15045c35ae395edde7b37ac83454aee2",
+    "supply-B": "0xb54b3ccb87480e75543e739f24de782fd39ecdfc7b03a5b054e677c2ebfa4b80",
+    "borrow-A": "0x85c6b724a169eb21a5067c1c40119f38b64602a94078031ce9532bc7dda15332",
+    "trigger": "0x0f3d82bd370e08974585f592699c038223fb9adfef1392d198985e19998d3fa8",
+    "repay-only": "0x8d2c4a25c03b0e0bc31b5fdf1e748b73ab045181e12b731308487304d4a91e76",
+    "deploy-mockWokb": "0x6595982d59f2f58af42170c96ab67ab4b1675d8b6666a18e0e267bccce70284b",
+    "deploy-mockUsdc": "0x81a9462ff05b3e61df1a753ccf06e63ed9ddd3f954ea56bd701a3e6999aaba5e",
+    "deploy-mockOracle": "0x7c322b72eca2e62574715023d288bcc326081243d53d3912cf8372209a2eba2d",
+    "initial-price-jWOKB": "0xb5d8cffb6cd05b681140384037f74d9f506f6e7b253f5602a2ac93636d19a0c1",
+    "initial-price-jUSDC": "0xd9b117b89296005bceb7055e0de1f02353fd919196bcf791fd8876cd8fe30288",
+    "deploy-cpu": "0xc19786a2262d4d4e924a7b72b4865f8b8d63476f5077c6c7872d70a0c8ba2844",
+    "execution-circuit": "0xc8f17060a63f9bad9e1f3efc88e0d5ae3040fa2cf641dd9163ece0048baaae72",
+    "deploy-execution": "0xac8e47d4e980e05784ee86ec8b47287f91075d03feae522294db12afc12088d2",
+    "deploy-source": "0x6c1106323c07c09bf93db5ecebcdc2ac1a85679b788b8725f5a293cd88602fcc",
+    "deploy-venue": "0xc2111594f358ad66489e70dffecfde21597a5aa8b1b3ec8643b572045e2be0b4",
+    "jWOKB-inventory": "0xd2f4bb180bd0150378a8739ef70cb740f20bb06c409f3f9d583a9070ad776c10",
+    "jUSDC-inventory": "0xd1cc0065fce9ea08fbf5168930b486e62f76186ea6095f8975b34c40bdaa93d2",
+    "deploy-swap": "0x841372653db3a7c1b10974eda07cad313e71a5dcdc61f3552d74eb2a2b63e7ed",
+    "deploy-lending": "0x400c791c2e66dae7d15b78674465617f647dd33f5151aa6c4d2c0172de8fbfc6",
+    "deploy-factory": "0x0057f3aff873b5124edfb222f0a12865bf6ac5fd2f0df203c276c79dccdd99e7",
+    "create-v2": "0x947f4c3231041e312f49095558f88b3f99e5910a0ee5d61bcbb093e2e59f595c",
+    "jWOKB-account": "0xb38d639ce49380b1ccc07b449f06d1115a8841659a9d687618baa74be3b44750",
+    "swap-only": "0x81ecd45e8dce8714d8ab9ee3b0b08d2e4c339030330b06d15356e0071e9ae496"
+  }
+}
