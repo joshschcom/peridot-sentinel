@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { toEventSelector } from "viem";
 import { test } from "node:test";
 import { encodeContext } from "@peridot/circuit-sdk";
 import { RAW_CONFIG } from "../generated/config.ts";
@@ -108,7 +110,7 @@ test("publication gate: order and every refusal (synthetic receipts)", () => {
   const circuit = { id: 9n, netlistHash: `0x${"cd".repeat(32)}`, gates: 63 };
   const pad = (value: bigint) => value.toString(16).padStart(64, "0");
   const good = (): PublicationFacts => ({
-    receipt: { status: "success", to: processor.toLowerCase(), blockNumber: 100n, blockHash: `0x${"11".repeat(32)}`, logs: [{ address: processor, topics: [topic, `0x${pad(9n)}`, `0x${pad(1n)}`], data: `0x${pad(20n)}${pad(1n)}` }] },
+    receipt: { status: "success", to: processor.toLowerCase(), blockNumber: 100n, blockHash: `0x${"11".repeat(32)}`, logs: [{ address: processor, topics: [topic, `0x${pad(9n)}`, `0x${pad(1n)}`], data: `0x${pad(63n)}${pad(0n)}` }] },
     canonicalBlockHash: `0x${"11".repeat(32)}`,
     pinnedBlock: 200n,
     tapedOutTopic: topic,
@@ -130,10 +132,42 @@ test("publication gate: order and every refusal (synthetic receipts)", () => {
   assert.equal(step(run((facts) => (facts.receipt!.logs = []))), "event");
   assert.equal(step(run((facts) => (facts.receipt!.logs[0]!.topics = [topic, `0x${pad(8n)}`, `0x${pad(1n)}`]))), "event");
   assert.equal(step(run((facts) => (facts.receipt!.logs[0]!.address = "0x0000000000000000000000000000000000000001"))), "event");
-  assert.equal(step(run((facts) => (facts.receipt!.logs[0]!.data = `0x${pad(5n)}${pad(42n)}`))), "event");
+  assert.equal(step(run((facts) => (facts.receipt!.logs[0]!.data = `0x${pad(64n)}${pad(0n)}`))), "event");
+  assert.equal(step(run((facts) => (facts.receipt!.logs[0]!.data = `0x${pad(63n)}${pad(1n)}`))), "event");
+  // The mislabelled reading (20 inputs, 1 output in the event) must NOT pass: those words are gates and state bits.
+  assert.equal(step(run((facts) => (facts.receipt!.logs[0]!.data = `0x${pad(20n)}${pad(1n)}`))), "event");
   assert.equal(step(run((facts) => (facts.info = { nIn: 5, nOut: 42, nState: 0, gates: 163 }))), "dimensions");
   assert.equal(step(run((facts) => (facts.info!.gates = 64))), "dimensions");
   assert.equal(step(run((facts) => (facts.info = null))), "dimensions");
   assert.equal(step(run((facts) => (facts.netlistHash = null))), "netlist");
   assert.equal(step(run((facts) => (facts.netlistHash = `0x${"ee".repeat(32)}`))), "netlist");
+});
+
+// AUTHENTIC logs, but from the mainnet-FORK rehearsal (evidence/session5-d8b/proposal-and-fork.json): they pin the
+// event layout the gate decodes. Fork circuit IDs 2, 3 and 4 exist only on that fork and are used nowhere else.
+test("publication gate decodes the real TapedOut logs of the fork rehearsal", () => {
+  const evidence = JSON.parse(readFileSync(new URL("../../../../evidence/session5-d8b/proposal-and-fork.json", import.meta.url), "utf8")) as { bindings: { cpu: string }; forkRehearsal: Array<{ label: string; status: string; block: string; blockHash: string; logs: Array<{ address: string; topics: string[]; data: string }> }>; evaluations: Array<{ label: string; forkCircuitId: string; netlistHash: string; dimensions: number[] }> };
+  const processor = evidence.bindings.cpu;
+  const topic = toEventSelector("TapedOut(uint256,address,uint32,uint32)");
+  let decoded = 0;
+  for (const evaluation of evidence.evaluations) {
+    const receipt = evidence.forkRehearsal.find((entry) => entry.label === evaluation.label);
+    assert.ok(receipt, `no fork receipt for ${evaluation.label}`);
+    const [nIn, nOut, nState, gates] = evaluation.dimensions as [number, number, number, number];
+    const facts: PublicationFacts = {
+      receipt: { status: receipt.status as "success", to: processor, blockNumber: BigInt(receipt.block), blockHash: receipt.blockHash, logs: receipt.logs },
+      canonicalBlockHash: receipt.blockHash,
+      pinnedBlock: BigInt(receipt.block) + 1n,
+      tapedOutTopic: topic,
+      info: { nIn, nOut, nState, gates },
+      netlistHash: evaluation.netlistHash,
+    };
+    const circuit = { id: BigInt(evaluation.forkCircuitId), netlistHash: evaluation.netlistHash, gates };
+    assert.deepEqual(checkPublication(circuit, processor, facts), { ok: true }, evaluation.label);
+    // The same receipt does not vouch for another ID or another gate count.
+    assert.equal(checkPublication({ ...circuit, id: circuit.id + 1n }, processor, facts).ok, false);
+    assert.equal(checkPublication({ ...circuit, gates: gates + 1 }, processor, facts).ok, false);
+    decoded++;
+  }
+  assert.equal(decoded, 3);
 });

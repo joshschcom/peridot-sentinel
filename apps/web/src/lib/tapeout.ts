@@ -137,7 +137,10 @@ export function decodeDecision(output: string): Decision {
 
 /* ---------- publication checks (pure: the chain reads are in services/chain/mainnet-eval.ts) ---------- */
 
-/** keccak256("TapedOut(uint256,address,uint32,uint32)") is computed by the caller with viem and passed in. */
+/**
+ * keccak256("TapedOut(uint256,address,uint32,uint32)") is computed by the caller with viem and passed in.
+ * Event layout: TapedOut(uint256 indexed circuitId, address indexed author, uint32 gateCount, uint32 nState).
+ */
 export interface PublicationFacts {
   /** Receipt of the configured fabrication transaction, or null when the RPC has none. */
   receipt: { status: "success" | "reverted"; to: string | null; blockNumber: bigint; blockHash: string; logs: Array<{ address: string; topics: readonly string[]; data: string }> } | null;
@@ -161,7 +164,8 @@ const word = (data: string, index: number): bigint | null => {
 
 /**
  * The gate before any evaluation, in order: a successful canonical receipt sent to the processor; a TapedOut event
- * from the processor for exactly this ID with 20 inputs and one output; matching dimensions on chain; and the
+ * from the processor for exactly this ID with the configured gate count and no state; matching dimensions on chain
+ * (20 inputs, one output, read with circuitInfo); and the
  * netlist on chain hashing to the configured hash. The first failure stops everything: nothing is evaluated.
  */
 export function checkPublication(circuit: { id: bigint; netlistHash: string; gates: number }, processor: string, facts: PublicationFacts): PublicationCheck {
@@ -174,7 +178,9 @@ export function checkPublication(circuit: { id: bigint; netlistHash: string; gat
   if (receipt.blockNumber > facts.pinnedBlock) return { ok: false, step: "receipt", reason: "The publication is newer than the block this result is read at" };
   const event = receipt.logs.find((log) => same(log.address, processor) && same(log.topics[0] ?? null, facts.tapedOutTopic) && topicId(log.topics[1]) === circuit.id);
   if (!event) return { ok: false, step: "event", reason: `The publication receipt has no TapedOut event for circuit #${circuit.id} from the processor` };
-  if (word(event.data, 0) !== BigInt(POLICY_DIMENSIONS.nIn) || word(event.data, 1) !== BigInt(POLICY_DIMENSIONS.nOut)) return { ok: false, step: "event", reason: "The TapedOut event does not describe a 20-input, 1-output circuit" };
+  // The event's two data words are the gate count and the state-bit count (MILESTONE_LOG M7-D8b-presign-read-ABI-
+  // correction: the earlier brief mislabelled them as nIn/nOut). Inputs and outputs are checked from circuitInfo below.
+  if (word(event.data, 0) !== BigInt(circuit.gates) || word(event.data, 1) !== BigInt(POLICY_DIMENSIONS.nState)) return { ok: false, step: "event", reason: `The TapedOut event does not describe a stateless circuit of ${circuit.gates} gates` };
   const info = facts.info;
   if (!info) return { ok: false, step: "dimensions", reason: `The processor has no circuit #${circuit.id} at the block this result is read at` };
   if (info.nIn !== POLICY_DIMENSIONS.nIn || info.nOut !== POLICY_DIMENSIONS.nOut || info.nState !== POLICY_DIMENSIONS.nState || info.gates !== circuit.gates) return { ok: false, step: "dimensions", reason: `The circuit on chain has ${info.nIn} inputs, ${info.nOut} outputs, ${info.nState} state bits and ${info.gates} gates, not the configured 20 / 1 / 0 / ${circuit.gates}` };
