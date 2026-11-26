@@ -189,3 +189,21 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   - D8b-v2 signing (Nov 28);
   - organizer answers;
   - eventual repo transfer and 2FA.
+
+## Update: ChatGPT accepted M6 (D20); genuine-LLM MCP plan (D21)
+- `81fb457`: account v2 now has operator enumeration and `revokeAllOperators` (epoch). Keeper gas headroom raised to +30k. Account tests 10/10.
+- **Astra, session 6 (running).** In progress:
+  - v2 testnet deploy
+  - mined independent rejections
+  - indexer
+  - ERC-4626
+
+  D20 additions:
+  - check the constant-time epoch across every entry point
+  - MCP v2 tools with a bounded amount, plus a mined-revert tool
+  - indexer hardening
+  - D8(b) pre-sign check and post-publish scripts
+  - v2 running against the real published circuits on a 196 fork
+- **Fable, run 4 (running).** Connect marked as available on testnet; native-eval config for the 3 circuits; v2 UI behind flags; Vercel readiness. D20 adds clean-browser hosted validation, bundle secret scan, and labelling (scripted vs LLM, simulated vs mined, evaluation vs enforcement).
+- **Claude.** Will run the headless `claude -p --mcp-config` LLM session on 1952 once Astra's v2 MCP tools land.
+- **Founder.** Needed for: Vercel import, OKX credentials (server-side), D8(b) signing on Nov 28 after the pre-sign check, organizer answers.
