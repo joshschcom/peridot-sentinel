@@ -7,8 +7,11 @@ import {createPublicClient,createWalletClient,decodeEventLog,encodeDeployData,en
 import {privateKeyToAccount} from 'viem/accounts'
 import {executionCircuit} from '../policy/compile.mjs'
 
-const mode=process.argv[2]
-assert(['fork','testnet'].includes(mode) && process.argv.length===3,'use fork or testnet; run at repo root')
+const [mode,...options]=process.argv.slice(2)
+const preflight=options.includes('--preflight-only')
+const sourceArg=options.find(v=>v.startsWith('--source-commit='))?.slice('--source-commit='.length)
+assert(['fork','testnet'].includes(mode) && options.every(arg=>arg==='--preflight-only'||/^--source-commit=[0-9a-f]{7,40}$/i.test(arg)))
+if(mode==='testnet') assert(sourceArg,'Pass the source checkpoint using --source-commit=<SHA>')
 const live=mode==='testnet'
 const id=1952 // V1 policy IDs include the chain ID; preserve it in the isolated rehearsal.
 const endpoint=live?'https://testrpc.xlayer.tech':'http://127.0.0.1:19626'
@@ -32,7 +35,7 @@ if(!live) {const node=await c.request({method:'anvil_nodeInfo'});assert.equal(no
 const base=load('packages/chain-config/deployments/1952.json')
 const m4=load('evidence/testnet/keeper-auto-repay-1952.json')
 assert.equal((await read(()=>c.getTransactionReceipt({hash:m4.txHash}))).blockNumber,BigInt(m4.block))
-const profile=live?'1952':'local-fork-of-1952'
+const profile=live?'1952':'session6-fork-'+(await c.request({method:'anvil_metadata'})).instanceId.slice(2,18)
 const dir='deployments/expansion/'+profile
 mkdirSync(dir,{recursive:true})
 const path=dir+'/journal.json'
@@ -59,13 +62,23 @@ for (const [name,a] of Object.entries(types)) {
   }
 }
 const sourceHashes=Object.fromEntries([...inputs].sort().map(file=>[file,keccak256(readFileSync(file))]))
-const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()
+const head=execFileSync('git',['rev-parse','--verify',(sourceArg??'HEAD')+'^{commit}'],{encoding:'utf8'}).trim()
 function matchesHead(file) {
   try {return keccak256(execFileSync('git',['show',head+':'+file],{stdio:['ignore','pipe','ignore']}))===sourceHashes[file]}
   catch {return false}
 }
 const matchingCommit=Object.keys(sourceHashes).every(matchesHead)?head:null
 if(live) assert(matchingCommit,'Public deployment needs the expansion deployment inputs in a Claude checkpoint')
+if(preflight) {
+  assert.equal(keccak256(executionCircuit.netlist),load('contracts/expansion/policy/execution.json').netlistHash)
+  const m4Policy=base.tapeout.circuits.find(p=>p.kind==='ACCOUNT')
+  const registry=artifact('PolicyRegistry','PolicyRegistry',true)
+  const [cpu,cid]=await read(()=>c.readContract({address:base.contracts.PolicyRegistry,abi:registry.abi,functionName:'requirePolicy',args:[m4Policy.policyId,1]}))
+  assert.equal(getAddress(cpu),getAddress(base.tapeout.processor))
+  assert.equal(String(cid),m4Policy.circuitId)
+  console.log('Keyless v2 preflight passed on chain',id,'commit',matchingCommit,'source hashes',Object.keys(sourceHashes).length,'creation artifacts',Object.keys(artifacts).length)
+  process.exit(0)
+}
 const testnetKey=live?(process.env.PERIDOT_TESTNET_KEY??'').trim().replace(/^0x/i,''):''
 if(live && !/^[a-f0-9]{64}$/i.test(testnetKey)) throw Error('Dedicated 1952 deployer environment required')
 const account=live?privateKeyToAccount('0x'+testnetKey):
@@ -100,7 +113,7 @@ async function transact(label,to,data) {
       return pending
     },n=>!last || n>last.nonce)
     const gas=await read(()=>c.estimateGas({account:account.address,to,data,value:0n}))
-    const prepared=await read(()=>w.prepareTransactionRequest({account,chain,to,data,value:0n,nonce,gas:gas*12n/10n+5000n}))
+    const prepared=await read(()=>w.prepareTransactionRequest({account,chain,to,data,value:0n,nonce,gas:gas+(gas+2n)/3n+30_000n}))
     const signed=await account.signTransaction(prepared)
     const hash=keccak256(signed)
     state.steps[label]={hash,nonce,to:to??null,dataHash:keccak256(data)}

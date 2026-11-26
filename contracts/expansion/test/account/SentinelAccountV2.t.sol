@@ -25,6 +25,7 @@ interface AccountVm {
     function mockCall(address target, bytes calldata input, bytes calldata result) external;
     function expectRevert(bytes4 reason) external;
     function expectRevert(bytes calldata reason) external;
+    function expectEmit(bool, bool, bool, bool, address emitter) external;
     function etch(address target, bytes calldata code) external;
 }
 
@@ -81,6 +82,7 @@ contract SentinelAccountV2Test {
     IV2MarketBook loans;
     bytes32 marketPolicy;
     bytes32 accountPolicy;
+    event AllOperatorsRevoked(uint256 indexed newEpoch);
 
     function _artifact(string memory dir, string memory name, bytes memory args) private returns (address deployed) {
         bytes memory init = bytes.concat(vm.getCode(string.concat(dir, "/", name, ".sol/", name, ".json")), args);
@@ -297,6 +299,66 @@ contract SentinelAccountV2Test {
         vm.expectRevert(SentinelAccountV2.OwnerOnly.selector);
         account.withdraw(address(debt), 999_500);
         require(shares.balanceOf(address(account)) == 100e18 && loans.borrowBalanceStored(address(account)) == 0);
+    }
+
+    function testOperatorEnumerationTracksConfiguredGrantsAndRemovals() external {
+        address other = address(0xCAFE);
+        uint64 expiry = uint64(block.timestamp + 1 days);
+        require(account.operatorCount() == 0);
+        _grant(address(lending), 2, address(debt), 1e6, 1e6);
+        _grant(address(lending), 2, address(debt), 2e6, 2e6);
+        _grant(address(lending), 0, address(col), 1e18, 1e18);
+        account.setGrant(other, address(lending), 2, address(debt), 1e6, 1e6, expiry);
+        require(account.operatorCount() == 2 && account.operatorAt(0) == OPERATOR && account.operatorAt(1) == other);
+        vm.prank(OPERATOR);
+        account.borrow(2e6);
+        vm.warp(expiry);
+        require(account.operatorCount() == 2);
+        account.revokeGrant(OPERATOR, address(lending), 2, address(debt));
+        account.revokeGrant(OPERATOR, address(lending), 2, address(debt));
+        require(account.operatorCount() == 2);
+        account.revokeGrant(OPERATOR, address(lending), 0, address(col));
+        require(account.operatorCount() == 1 && account.operatorAt(0) == other);
+        account.revokeGrant(other, address(lending), 2, address(debt));
+        require(account.operatorCount() == 0);
+        vm.expectRevert(abi.encodeWithSignature("Panic(uint256)", 0x32));
+        account.operatorAt(0);
+    }
+
+    function testEmergencyRevocationIsOwnerOnlyAndRegrantNeverResurrectsOtherRoutes() external {
+        address other = address(0xCAFE);
+        _grant(address(lending), 2, address(debt), 1e6, 1e6);
+        _grant(address(swap), 5, address(col), 1e18, 2e18);
+        account.setGrant(other, address(lending), 0, address(col), 1e18, 1e18, uint64(block.timestamp + 1 days));
+        vm.prank(OPERATOR);
+        vm.expectRevert(SentinelAccountV2.OwnerOnly.selector);
+        account.revokeAllOperators();
+        require(account.operatorCount() == 2);
+        vm.expectEmit(true, false, false, false, address(account));
+        emit AllOperatorsRevoked(1);
+        account.revokeAllOperators();
+        require(account.operatorCount() == 0);
+        (uint256 maxPerCall, uint256 remaining, uint64 expiry) =
+            account.grants(OPERATOR, address(swap), 5, address(col));
+        require(maxPerCall == 0 && remaining == 0 && expiry == 0);
+        vm.prank(other);
+        vm.expectRevert(SentinelAccountV2.OperatorNotAuthorized.selector);
+        account.supply(1e18);
+        _grant(address(lending), 2, address(debt), 1e6, 1e6);
+        require(account.operatorCount() == 1 && account.operatorAt(0) == OPERATOR);
+        vm.prank(OPERATOR);
+        vm.expectRevert(SentinelAccountV2.OperatorNotAuthorized.selector);
+        account.swapExactIn(address(col), 1e18, 990_000, uint64(block.timestamp + 300));
+        vm.prank(OPERATOR);
+        account.borrow(1e6);
+        vm.expectEmit(true, false, false, false, address(account));
+        emit AllOperatorsRevoked(2);
+        account.revokeAllOperators();
+        vm.prank(OPERATOR);
+        vm.expectRevert(SentinelAccountV2.OperatorNotAuthorized.selector);
+        account.borrow(1);
+        account.repay(1e6);
+        require(account.operatorCount() == 0 && loans.borrowBalanceStored(address(account)) == 0);
     }
 
     function testSwapHardStopsAndPinnedBindings() external {

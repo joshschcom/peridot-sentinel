@@ -53,9 +53,19 @@ contract SentinelAccountV2 {
         uint64 expiry;
     }
 
-    mapping(
-        address operator => mapping(address adapter => mapping(uint8 op => mapping(address inputAsset => Grant)))
-    ) public grants;
+    struct OperatorGrants {
+        uint256 routeCount;
+        uint256 index;
+        mapping(address adapter => mapping(uint8 op => mapping(address inputAsset => Grant))) routes;
+    }
+
+    struct OperatorSet {
+        address[] operators;
+        mapping(address operator => OperatorGrants) byOperator;
+    }
+
+    uint256 private operatorEpoch;
+    mapping(uint256 epoch => OperatorSet) private operatorSets;
 
     error UnsupportedChain(uint256 chainId);
     error InvalidConfiguration();
@@ -87,6 +97,7 @@ contract SentinelAccountV2 {
         uint64 expiry
     );
     event GrantRevoked(address indexed operator, address indexed adapter, uint8 indexed op, address inputAsset);
+    event AllOperatorsRevoked(uint256 indexed newEpoch);
     event PolicyAllowed(
         bytes32 indexed policyId,
         address indexed account,
@@ -178,16 +189,59 @@ contract SentinelAccountV2 {
             operator == address(0) || operator == owner || maxPerCall == 0 || maxPerCall > cumulativeLimit
                 || expiry <= block.timestamp || !_supportedGrant(adapter, op, inputAsset)
         ) revert InvalidGrant();
-        grants[operator][adapter][op][inputAsset] = Grant(maxPerCall, cumulativeLimit, expiry);
+        OperatorSet storage set = operatorSets[operatorEpoch];
+        OperatorGrants storage permissions = set.byOperator[operator];
+        if (permissions.routes[adapter][op][inputAsset].expiry == 0) {
+            if (permissions.routeCount == 0) {
+                permissions.index = set.operators.length;
+                set.operators.push(operator);
+            }
+            ++permissions.routeCount;
+        }
+        permissions.routes[adapter][op][inputAsset] = Grant(maxPerCall, cumulativeLimit, expiry);
         emit GrantSet(operator, adapter, op, inputAsset, maxPerCall, cumulativeLimit, expiry);
     }
 
     function revokeGrant(address operator, address adapter, uint8 op, address inputAsset) external onlyOwner {
-        delete grants[operator][adapter][op][inputAsset];
+        OperatorSet storage set = operatorSets[operatorEpoch];
+        OperatorGrants storage permissions = set.byOperator[operator];
+        if (permissions.routes[adapter][op][inputAsset].expiry != 0) {
+            delete permissions.routes[adapter][op][inputAsset];
+            if (--permissions.routeCount == 0) {
+                address last = set.operators[set.operators.length - 1];
+                set.operators[permissions.index] = last;
+                set.byOperator[last].index = permissions.index;
+                set.operators.pop();
+            }
+        }
         emit GrantRevoked(operator, adapter, op, inputAsset);
     }
 
-    function _supportedGrant(address adapter, uint8 op, address asset) private view returns (bool) {
+    /// @notice Operators with at least one configured grant. Expired and spent grants can still be revoked.
+    function operatorCount() external view returns (uint256) {
+        return operatorSets[operatorEpoch].operators.length;
+    }
+
+    /// @notice Enumeration order may change after a grant is revoked.
+    function operatorAt(uint256 index) external view returns (address) {
+        return operatorSets[operatorEpoch].operators[index];
+    }
+
+    function grants(address operator, address adapter, uint8 op, address inputAsset)
+        external
+        view
+        returns (uint256 maxPerCall, uint256 remaining, uint64 expiry)
+    {
+        Grant storage grant = operatorSets[operatorEpoch].byOperator[operator].routes[adapter][op][inputAsset];
+        return (grant.maxPerCall, grant.remaining, grant.expiry);
+    }
+
+    /// @notice All future lookups use a fresh set. Cost is independent of the number of grants.
+    function revokeAllOperators() external onlyOwner {
+        emit AllOperatorsRevoked(++operatorEpoch);
+    }
+
+    function _supportedGrant(address adapter, uint8 op, address asset) internal view virtual returns (bool) {
         if (adapter == address(swapAdapter)) return op == SWAP && (asset == token0 || asset == token1);
         if (adapter != address(lendingAdapter)) return false;
         if (op == SUPPLY) return asset == collateralAsset;
@@ -195,17 +249,17 @@ contract SentinelAccountV2 {
         return (op == BORROW || op == REPAY) && asset == debtAsset;
     }
 
-    function _charge(address adapter, uint8 op, address asset, uint256 amount) private {
+    function _charge(address adapter, uint8 op, address asset, uint256 amount) internal {
         if (amount == 0) revert InvalidAmount();
         if (msg.sender == owner) return;
-        Grant storage grant = grants[msg.sender][adapter][op][asset];
+        Grant storage grant = operatorSets[operatorEpoch].byOperator[msg.sender].routes[adapter][op][asset];
         if (grant.expiry == 0) revert OperatorNotAuthorized();
         if (block.timestamp >= grant.expiry) revert OperatorExpired();
         if (amount > grant.maxPerCall || amount > grant.remaining) revert BudgetExceeded();
         grant.remaining -= amount;
     }
 
-    function _checkPin(address target, bytes32 expected) private view {
+    function _checkPin(address target, bytes32 expected) internal view {
         if (target.codehash != expected) revert AdapterChanged();
     }
 
@@ -221,7 +275,7 @@ contract SentinelAccountV2 {
         if (code != 0) revert MarketOperationFailed(code);
     }
 
-    function _approve(address asset, address spender, uint256 amount) private {
+    function _approve(address asset, address spender, uint256 amount) internal {
         if (!IERC20(asset).approve(spender, amount) || IERC20(asset).allowance(address(this), spender) != amount) {
             revert TokenOperationFailed();
         }

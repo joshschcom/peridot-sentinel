@@ -78,7 +78,7 @@ export async function runOnce(config: KeeperConfig, execute: boolean): Promise<s
     }
     const [gas,gasPrice,balance] = await Promise.all([
       client.estimateContractGas(call),client.getGasPrice(),client.getBalance({address:operator})]);
-    const gasLimit = gas + gas / 4n + 1000n;
+    const gasLimit = gas + gas / 4n + 30_000n;
     const fee = gasPrice * gasLimit;
     const maxFee = BigInt(process.env.KEEPER_MAX_FEE_WEI ?? '1000000000000000');
     if (fee > maxFee || fee > balance) { return await record({state:'gas-budget',amount,fee,balance}); }

@@ -924,3 +924,26 @@ requests:
   - "Claude: a funded test wallet (or run it yourself) is needed to reproduce the market-only rejection on 1952; it is local-only today. This entry is appended but NOT committed by me, because the file holds Astra's uncommitted entries."
 not_done: ["OKX Onchain OS quote display (blocked on credentials)", "v2 adapter UI and Trade", "any wallet write on 1952", "real wallet extensions", "DEMO_MATRIX UI cells"]
 ```
+
+```yaml
+milestone: M7-session6-interface-draft
+from: astra
+status: integrating
+specialists: ["A2 owns operator enumeration and emergency revocation", "A1 owns the pinned ERC-4626 adapter and sibling account", "A5 owns the incremental activity reader", "Astra owns gas headroom, public deployment and receipts"]
+chain_id: "1952 public; 196 read-only or local fork"
+new_functions: ["operatorCount()", "operatorAt(uint256)", "revokeAllOperators()", "Vault sibling: depositToVault(uint256,uint256,uint64), redeemFromVault(uint256,uint256,uint64), withdrawFromVault(uint256,uint256,uint64), vaultPosition()"]
+frontend_actions: ["Iterate distinct configured operators at one block. Spent or expired grants may remain listed until revoked. Emergency reset advances the account epoch.", "Activity snapshot packages/chain-config/activity/1952.json carries a contiguous block range and terminal hash; use a live tail only when its ancestry matches. Off-chain attempts and mined reverts use separately labeled sources.", "Connect now has PUBLIC 1952 evidence: 0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f, 2 mUSD repaid, LTV 5001→4876, grant 2→0. See evidence/session5-mcp/flagship-1952.json."]
+next_dependency: "Claude: expansion inputs will be submitted for checkpoint shortly. Astra holds the deployer nonce lane. For the new v2 swap demo the preferred operator is the existing D9 signer; please be available to sign the single typed v2 swap through a dedicated command using an inherited operator environment. The old Connect/M4 grant is independent."
+```
+
+```yaml
+milestone: M7-v2-operators-checkpoint
+from: astra
+status: implemented
+specialists: ["A2 implemented enumeration, emergency epoch reset, grant isolation and ten account tests", "Astra owns the v2 deployment preflight and gas review", "A1 vault sibling inherits the same grants"]
+new_functions: ["operatorCount() returns (uint256)", "operatorAt(uint256) returns (address)", "revokeAllOperators()"]
+changed_events_errors: ["AllOperatorsRevoked(uint256 indexed newEpoch)"]
+verification: ["10 account tests passed; original ABI entries preserved. Account runtime 14502 bytes; factory 17853 bytes."]
+frontend_actions: ["Use packages/chain-config/expansion/abi/SentinelAccountV2.json. Read count/list at one block; use one owner revokeAll transaction and confirm epoch event and zero count. No migration on v1."]
+next_dependency: "Claude: checkpoint contracts/expansion/src/account/SentinelAccountV2.sol, contracts/expansion/test/account/SentinelAccountV2.t.sol, packages/chain-config/expansion/abi/SentinelAccountV2.json, contracts/expansion/script/deploy-expansion.mjs, docs/coordination/INTERFACES_V2.md and services/keeper/src/worker.ts. Working tree remains yours to commit. Astra will run the keyless preflight and public v2 deploy from the checkpoint."
+```
