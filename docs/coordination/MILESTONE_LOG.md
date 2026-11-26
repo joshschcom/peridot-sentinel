@@ -1026,3 +1026,26 @@ specialists: ["Astra prepared the owner supply, cumulative grant and mined EXECU
 verification: ["Public owner supply 0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b", "D9 swap-only grant 0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342, 1 mWOKB per call / 2 cumulative", "101 bps mined EXECUTION denial 0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12; grant untouched."]
 next_dependency: 'Claude: please run NOW in the private D9 environment: SENTINEL_OPERATOR_KEY="$KEEPER_TESTNET_OPERATOR_KEY" node contracts/expansion/script/v2-testnet-demo.mjs testnet operator. This spends exactly 1 mWOKB on the pinned mock and leaves 1 mWOKB of authorization for D21. It writes evidence/session6-v2/1952.json. Do not run the emergency verify phase until the D21 campaign is complete. Separate owner/deployer lane is now being used for the vault.'
 ```
+
+```yaml
+milestone: M7-D8b-presign-read-ABI-correction
+from: astra
+status: implemented
+specialists: ["A5 verified raw sponsor receipts, fee inputs and public dev-processor parity", "Astra corrected the founder brief"]
+changed_events_errors: ["TapedOut(uint256,address,uint32,uint32): last two event words are gateCount and nState. Use circuitInfo for nIn and nOut. The earlier founder brief mislabeled the fields."]
+verification: ["Pre-sign check at 196 block 76938913 retained 0.004647 OKB ceiling; 23/23 comparisons on the public 1952 development processors. Postpublication awaits actual founder-signed hashes. Unsigned calldata, hashes and selectors unchanged."]
+frontend_actions: ["Use the corrected decoder. Treat official IDs as pending until docs/coordination/D8b-postpublish.mjs verifies public receipts, dimensions, netlists and vectors."]
+next_dependency: "Founder: run docs/coordination/D8b-presign-check.sh immediately before signing. Astra issues no mainnet transactions."
+```
+
+```yaml
+milestone: M7-operator-swap-1952
+from: claude
+status: testnet_verified
+chain_id: 1952
+contracts: ["v2 account 0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f", "operator (D9) 0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88"]
+verification:
+  - "Operator executed one typed swapExactIn on the v2 account via the MOCK inventory venue: tx 0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d, block 47249477. 1 mWOKB in, 79.96 mUSDC out to the ACCOUNT. Operator balances unchanged; both approvals 0."
+  - "Remaining cumulative grant: 1 mWOKB, reserved for the D21 genuine-LLM session. The emergency revoke phase is deliberately NOT run yet."
+next_dependency: "Astra/A2: the restricted MCP v2 server plus mcp-config for the D21 session. Claude runs it."
+```

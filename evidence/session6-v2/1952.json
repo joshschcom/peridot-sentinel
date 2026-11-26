@@ -1,0 +1,71 @@
+{
+  "chainId": 1952,
+  "profile": "Public testnet with inventory-funded mock swap venue and development reference processor",
+  "public": true,
+  "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+  "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+  "ownerSupply": {
+    "hash": "0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b",
+    "block": "47249401",
+    "blockHash": "0x24927bbda07e05d3fc335b41346e8cbd9124f886cc8f3388f228474dbfdf37b6",
+    "gasUsed": "438899",
+    "status": "success",
+    "from": "0x8c1741a53d5fb97d74c1d105b0fbfbb4740d5d67",
+    "to": "0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+    "rawInput": "1000000000000000000",
+    "sharesBefore": "0",
+    "sharesAfter": "1000000000000000000",
+    "debtRaw": "0"
+  },
+  "grant": {
+    "hash": "0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342",
+    "block": "47249410",
+    "blockHash": "0x97ecea521d39d054fb4c2bb6ece2c2971dc2cd4ba4e5394e8cde1675a51464db",
+    "gasUsed": "165610",
+    "status": "success",
+    "from": "0x8c1741a53d5fb97d74c1d105b0fbfbb4740d5d67",
+    "to": "0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+    "op": 5,
+    "maxPerCall": "1000000000000000000",
+    "cumulative": "2000000000000000000",
+    "expiry": "1795794344"
+  },
+  "denial": {
+    "hash": "0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12",
+    "block": "47249418",
+    "blockHash": "0x872796f9643d8690602939c3c28429f84fe8f7640c17377ceac5f8692e4ca5e8",
+    "gasUsed": "136855",
+    "status": "reverted",
+    "from": "0x8c1741a53d5fb97d74c1d105b0fbfbb4740d5d67",
+    "to": "0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+    "replay": {
+      "method": "eth_call replay",
+      "block": "47249417",
+      "selector": "0x84a6f8c3",
+      "error": "ExecutionPolicyDenied"
+    },
+    "lossBps": 101,
+    "hardMaxBps": 500,
+    "policyMaxBps": 100
+  },
+  "operatorSwap": {
+    "hash": "0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d",
+    "block": "47249477",
+    "blockHash": "0xeec1804544ccd02a0867a794362a62ca98a4b92e0b5b3813341bcbdaf1a37980",
+    "gasUsed": "248508",
+    "status": "success",
+    "from": "0x2c7e78e47debc84efac28d336f98d54b4c1fce88",
+    "to": "0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+    "event": {
+      "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+      "tokenIn": "0x3a5F909912c4adbEE8776264E6b9faD130321b26",
+      "tokenOut": "0x3A6cb8BEdc251C37dc8258a27575127990A67E95",
+      "amountIn": "1000000000000000000",
+      "amountOut": "79960000",
+      "slippageBps": 100
+    },
+    "remaining": "1000000000000000000",
+    "recipient": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+    "allowanceAfter": "0"
+  }
+}
