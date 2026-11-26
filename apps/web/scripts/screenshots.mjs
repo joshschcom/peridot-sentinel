@@ -56,16 +56,20 @@ if (CHAIN) {
 
 const SHOTS = [
   { path: "/", name: "landing" },
-  { path: "/sentinel", name: "sentinel" },
+  { path: "/portfolio", name: "portfolio" },
+  { path: "/strategies", name: "strategies" },
+  { path: "/discover", name: "discover" },
+  { path: "/studio", name: "studio" },
+  { path: "/connect", name: "connect" },
   { path: `/markets/${chainMarket}`, name: "market-detail" },
   { path: "/studio/create", name: "studio-create" },
-  { path: "/automate", name: "automate" },
-  { path: "/connect", name: "connect" },
+  { path: "/activity", name: "activity" },
   { path: "/trade", name: "trade" },
   { path: "/circuits", name: "circuits" },
-  ...(CHAIN ? [{ path: `/sentinel/policy?market=${chainMarket}`, name: "sentinel-policy" }, { path: "/sentinel/activity", name: "sentinel-activity" }] : []),
+  ...(CHAIN ? [{ path: `/sentinel/policy?market=${chainMarket}`, name: "sentinel-policy" }] : []),
 ];
-const ALL_ROUTES = ["/", "/sentinel", CHAIN ? `/sentinel/policy?market=${chainMarket}` : "/sentinel/policy", "/sentinel/activity", "/automate", "/connect", "/trade", "/markets", "/markets?view=borrow", `/markets/${chainMarket}`, "/studio", "/studio/create", `/studio/${chainStudioMarket}`, "/circuits"];
+// Strategy-first routes (DECISIONS D23). The old URLs are redirects (checked in step 2).
+const ALL_ROUTES = ["/", "/portfolio", "/strategies", "/discover", "/activity", CHAIN ? `/sentinel/policy?market=${chainMarket}` : "/sentinel/policy", "/connect", "/trade", "/markets", "/markets?view=borrow", `/markets/${chainMarket}`, "/studio", "/studio/create", `/studio/${chainStudioMarket}`, "/circuits"];
 const WIDTHS = [390, 768, 1440];
 const SCHEMES = ["light", "dark"];
 
@@ -140,11 +144,22 @@ for (const path of ALL_ROUTES) {
   console.log(`checked ${path}`);
 }
 
-// 2. /app redirects to /sentinel.
+// 2. The old URLs redirect to the strategy-first routes (D23), with the query string kept. Not followed here; one
+//    is also followed in a browser to prove the page behind it renders.
+for (const [from, to] of [["/app", "/portfolio"], ["/sentinel", "/portfolio"], ["/sentinel/activity", "/activity"], ["/automate", "/strategies"]]) {
+  for (const query of ["", "?market=example-0"]) {
+    const response = await fetch(BASE + from + query, { redirect: "manual" });
+    const location = response.headers.get("location") ?? "";
+    const target = location ? new URL(location, BASE) : null;
+    if (response.status !== 307 || !target || target.pathname !== to || target.search !== query) failures.push(`${from}${query}: HTTP ${response.status} to "${location}", expected 307 to ${to}${query}`);
+  }
+}
 {
-  const { context, page } = await open("/app", 390, "light");
-  if (!page.url().endsWith("/sentinel")) failures.push(`/app did not redirect to /sentinel (got ${page.url()})`);
+  const { context, page } = await open("/automate?market=example-0", 390, "light");
+  if (!page.url().endsWith("/strategies?market=example-0")) failures.push(`/automate?market=example-0 did not land on /strategies?market=example-0 (got ${page.url()})`);
+  if ((await page.locator("h1").first().innerText()) !== "Strategies") failures.push("the page behind the /automate redirect is not Strategies");
   await context.close();
+  console.log("checked redirects");
 }
 
 // 3. Theme: follows the system with no stored choice; a toggle persists across reload.
@@ -192,7 +207,7 @@ if (CHAIN) {
     await context.close();
   }
   {
-    const { context, page, errors } = await open("/sentinel", 390, "light", 844);
+    const { context, page, errors } = await open("/portfolio", 390, "light", 844);
     await page.locator(`[data-testid="sentinel-account"][data-market="${chainMarket}" i] [data-testid="withdraw-open"]`).click();
     const sheet = page.locator("dialog[open]");
     await sheet.locator('[data-testid="withdraw-sheet"]').waitFor();

@@ -47,7 +47,38 @@ const expect = (condition, message) => {
   if (!condition) failures.push(message);
 };
 const browser = await chromium.launch();
-const ROUTES = ["/sentinel", "/sentinel/policy", "/sentinel/activity", "/automate", "/connect", "/trade", "/markets", "/studio", "/studio/create", "/circuits"];
+// Strategy-first routes (DECISIONS D23). The old URLs are redirects and are checked as redirects, never as pages.
+const ROUTES = ["/portfolio", "/sentinel/policy", "/activity", "/strategies", "/discover", "/connect", "/trade", "/markets", "/studio", "/studio/create", "/circuits"];
+// Expected strings and keys below are taken from DECISIONS D23, not from the rendered page.
+const D23 = {
+  headline: "Put your portfolio on autopilot.",
+  positioning: "Your automated DeFi portfolio",
+  tagline: /Your money\.\s*Your rules\.\s*Your intelligence\./,
+  ctaCreate: "Create a strategy",
+  ctaExplore: "Explore strategies",
+  pillars: ["Automate", "Discover", "Build"],
+  groups: { personal: ["portfolio", "strategies", "discover", "activity"], finance: ["earn", "borrow", "trade"], builders: ["studio", "circuits", "connect"] },
+  redirects: [["/app", "/portfolio"], ["/sentinel", "/portfolio"], ["/sentinel/activity", "/activity"], ["/automate", "/strategies"]],
+};
+/** Every old URL answers with a temporary redirect to its new route and keeps the query string. Nothing is followed. */
+async function checkRedirects() {
+  const seen = [];
+  for (const [from, to] of D23.redirects) {
+    for (const query of ["", "?market=0x0000000000000000000000000000000000000001"]) {
+      const response = await fetch(BASE + from + query, { redirect: "manual" });
+      const location = response.headers.get("location") ?? "";
+      const target = location ? new URL(location, BASE) : null;
+      seen.push({ from: from + query, status: response.status, location });
+      expect(response.status === 307 && target !== null && target.origin === new URL(BASE).origin && target.pathname === to && target.search === query, `redirect ${from}${query}: HTTP ${response.status} to "${location}", expected 307 to ${to}${query}`);
+    }
+  }
+  // The account policy page shares the /sentinel prefix and must stay a page.
+  const policy = await fetch(`${BASE}/sentinel/policy`, { redirect: "manual" });
+  expect(policy.status === 200, `/sentinel/policy must not be redirected (HTTP ${policy.status})`);
+  notes.push({ redirects: seen });
+}
+/** Every control that could lead to a signature: none may be enabled when the deployment is not verified. */
+const WRITE_BUTTONS = ["submit", "create-market", "withdraw-open", "withdraw-submit", "mint-test-tokens", "strategy-sign", "emergency-stop-submit", "v2-stop-submit", "v2-create-base", "v2-mint-wokb", "v2-mint-collateral", "v2-supply-submit", "v2-grant-submit", "vault-create", "vault-mint", "vault-limits-submit", "vault-submit"].map((id) => `button:not([disabled])[data-testid="${id}"]`).concat('button:not([disabled])[data-testid^="create-account-"]').join(", ");
 
 async function open(path, { width = 1440, walletChainId = "0x7a69", connect = true, watch = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height: width < 500 ? 844 : 1000 }, colorScheme: "light", reducedMotion: "reduce", deviceScaleFactor: width < 500 ? 2 : 1 });
@@ -122,13 +153,46 @@ if (mode === "wrong-network") {
       expect((await banner.count()) === 1, `${path} @${width}: deployment banner missing`);
       expect((await page.locator('[data-testid="fixture-banner"]').count()) === 0, `${path} @${width}: fixture banner shown: a failed chain check must not turn into example data`);
       expect((await page.getByText("Example", { exact: true }).count()) === 0 || path === "/studio/create" || path === "/circuits", `${path} @${width}: example-labelled data shown in chain mode`);
-      expect((await page.locator('button:not([disabled])[data-testid="submit"], button:not([disabled])[data-testid="create-market"], button:not([disabled])[data-testid^="create-account-"], button:not([disabled])[data-testid="withdraw-open"]').count()) === 0, `${path} @${width}: an enabled write button`);
+      expect((await page.locator(WRITE_BUTTONS).count()) === 0, `${path} @${width}: an enabled write button (${await page.locator(WRITE_BUTTONS).evaluateAll((nodes) => nodes.map((node) => node.dataset.testid).join(","))})`);
       expect((await overflow(page)) <= 0, `${path} @${width}: horizontal overflow ${await overflow(page)}px with the banner`);
       expect(errors.length === 0, `${path} @${width}: page errors: ${errors.join(" | ")}`);
       expect(wallet.sent.length === 0 && wallet.refused.length === 0, `${path} @${width}: a transaction was attempted`);
       if (testnet) expect((await page.locator('[data-testid="network-pill"]:visible').first().innerText()).includes("Testnet"), `${path} @${width}: network label is not Testnet`);
       reason ??= (await banner.innerText().catch(() => "")).replace(/\s+/g, " ").trim();
-      if (["/sentinel", "/markets", "/sentinel/activity"].includes(path)) {
+      if (path === "/strategies") {
+        // A broken deployment must not offer adoption. Go as far as the page allows: pick each template, enter an
+        // operator, ask for the review, then force the sign button. Nothing may reach the wallet.
+        const options = await page.locator('[data-testid^="template-option-"]').evaluateAll((nodes) => nodes.map((node) => node.dataset.testid));
+        const tried = [];
+        for (const option of options.filter((id) => id !== "template-option-imported")) {
+          await page.locator(`[data-testid="${option}"]`).click();
+          await page.waitForTimeout(200);
+          const unavailable = await page.locator('[data-testid="strategy-review-unavailable"]').count();
+          const operatorInput = page.locator('[data-testid="strategy-operator"]');
+          let plan = 0;
+          if (await operatorInput.count()) {
+            await operatorInput.fill("0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc");
+            const submit = page.locator('[data-testid="strategy-review-submit"]');
+            if (await submit.isEnabled().catch(() => false)) {
+              await submit.click();
+              await page.locator('[data-testid="strategy-plan"], [data-testid="strategy-plan-error"]').first().waitFor({ timeout: 30_000 }).catch(() => {});
+            }
+            plan = await page.locator('[data-testid="strategy-plan"]').count();
+          }
+          const sign = page.locator('[data-testid="strategy-sign"]');
+          const signEnabled = (await sign.count()) ? await sign.isEnabled() : false;
+          if (await sign.count()) await sign.click({ force: true }).catch(() => {});
+          await page.waitForTimeout(400);
+          tried.push({ option, reviewUnavailable: unavailable === 1, planBuilt: plan === 1, signEnabled });
+          expect(!signEnabled, `${path} @${width}: ${option}: the sign button is enabled on an unverified deployment`);
+          expect(unavailable === 1 || !signEnabled, `${path} @${width}: ${option}: adoption is offered on an unverified deployment`);
+        }
+        expect(options.length >= 2, `${path} @${width}: the template options are missing (${options.join(",")})`);
+        expect(wallet.sent.length === 0 && wallet.refused.length === 0, `${path} @${width}: trying to adopt a strategy reached the wallet: ${JSON.stringify(wallet.refused)}`);
+        if (width === 1440) notes.push({ adoptionOnBrokenDeployment: tried });
+        await shot(page, `${mode}-strategies-${width}`);
+      }
+      if (["/portfolio", "/markets", "/activity"].includes(path)) {
         const main = (await page.locator("main").innerText()).replace(/\s+/g, " ");
         expect(/unavailable/i.test(main), `${path} @${width}: no "unavailable" state in the page body`);
         expect(/could not be verified/i.test(main), `${path} @${width}: the page body does not say why`);
@@ -139,9 +203,10 @@ if (mode === "wrong-network") {
   }
   notes.push({ bannerText: reason });
   expect(reason && /Live data unavailable/.test(reason), "banner text missing");
+  await checkRedirects();
 } else if (mode === "rejected-manifest") {
   const expectReason = new RegExp(process.env.EXPECT_REASON ?? "rejected for live use");
-  for (const path of ["/sentinel", "/markets", "/markets/example-0", "/sentinel/activity"]) {
+  for (const path of ["/portfolio", "/markets", "/markets/example-0", "/activity", "/strategies", "/discover"]) {
     const { context, page, wallet, errors, status } = await open(path, { connect: false });
     expect(status === 200, `${path}: HTTP ${status}`);
     expect((await page.locator('[data-testid="fixture-banner"]').count()) === 1, `${path}: fixture banner missing although the manifest was rejected`);
@@ -220,7 +285,16 @@ if (mode === "wrong-network") {
   const expectedTxUrl = explorerTxUrl(1952, receipt.txHash);
   expect(expectedTxUrl === `${DOCS_EXPLORER_ROOT}/tx/${receipt.txHash}`, `the app's explorer root differs from the documented one: ${expectedTxUrl}`);
   const market = manifest.markets[0].controller;
-  const v2Manifest = JSON.parse(readFileSync(new URL("../../../packages/chain-config/expansion/deployments/1952.json", import.meta.url), "utf8"));
+  // EXPANSION_DIR: the directory the server under test was BUILT from (PERIDOT_EXPANSION_DIR), when it is a copy with a
+  // switch turned on. The checks then expect what that copy says. An evidence run of the real build never sets it.
+  const expansionDir = process.env.EXPANSION_DIR ? resolve(process.env.EXPANSION_DIR) : new URL("../../../packages/chain-config/expansion/deployments/", import.meta.url).pathname;
+  const v2Manifest = JSON.parse(readFileSync(`${expansionDir}/1952.json`, "utf8"));
+  const vaultManifest = JSON.parse(readFileSync(`${expansionDir}/vault-1952.json`, "utf8"));
+  const toolsV1 = JSON.parse(readFileSync(new URL("../../../services/mcp/tools.json", import.meta.url), "utf8"));
+  const toolsV2 = JSON.parse(readFileSync(new URL("../../../services/mcp-v2/tools.json", import.meta.url), "utf8"));
+  const judge = JSON.parse(readFileSync(new URL("../../../deployments/session7/1952/judge-01/manifest.json", import.meta.url), "utf8"));
+  const judgeActivity = JSON.parse(readFileSync(new URL("../../../deployments/session7/1952/judge-01/activity.json", import.meta.url), "utf8"));
+  const judgeGuide = readFileSync(new URL("../../../docs/JUDGE_DEMO.md", import.meta.url), "utf8");
   const v2Demo = JSON.parse(readFileSync(new URL("../../../evidence/session6-v2/1952.json", import.meta.url), "utf8"));
   const rejectionsFile = JSON.parse(readFileSync(new URL("../../../evidence/session6-rejections/public-1952.json", import.meta.url), "utf8"));
   const demoOwner = process.env.WATCH_ADDRESS ?? "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"; // public address from AGENTS.md; no key is used or needed
@@ -235,7 +309,7 @@ if (mode === "wrong-network") {
   const loads = { total: 0, deploymentBanner: 0, pageErrors: 0, slowest: { ms: 0, tag: "" } };
   for (const who of wallets.filter((entry) => !only || entry.name === only)) {
     for (const width of widths) {
-      for (const path of ["/", "/markets", "/markets?view=borrow", `/markets/${market}`, "/sentinel", `/sentinel/policy?market=${market}`, `/automate?market=${market}`, "/sentinel/activity", "/connect", "/trade", "/studio", "/studio/create", "/circuits"]) {
+      for (const path of ["/", "/markets", "/markets?view=borrow", `/markets/${market}`, "/portfolio", `/sentinel/policy?market=${market}`, `/strategies?market=${market}`, "/activity", "/discover", "/connect", "/trade", "/studio", "/studio/create", "/circuits"]) {
         // ONLY_PATHS=<regex> narrows a development run. An evidence run never sets it (the result file records it).
         if (process.env.ONLY_PATHS && !new RegExp(process.env.ONLY_PATHS).test(path)) continue;
         const tag = `${who.name} ${path.replace(market, "<market0>")} @${width}`;
@@ -265,9 +339,23 @@ if (mode === "wrong-network") {
           expect(/Contracts deployed on X Layer testnet/.test(main) && /mock tokens and a mock price feed/i.test(main), `${tag}: the landing status does not describe the testnet deployment honestly: ${main.slice(0, 200)}`);
           expect(!/No Peridot contract is deployed/.test(main), `${tag}: the landing page still says nothing is deployed`);
           expect(/development reference processor/i.test(main), `${tag}: the landing page does not name the development reference processor`);
-          const landing = await page.evaluate(() => ({ title: document.title, brand: document.querySelector('[data-testid="brand"]')?.textContent ?? "", tagline: document.querySelector('[data-testid="tagline"]')?.textContent ?? "", positioning: document.querySelector('[data-testid="positioning"]')?.textContent ?? "", body: document.body.innerText }));
+          const landing = await page.evaluate(() => {
+            const text = (id) => (document.querySelector(`[data-testid="${id}"]`)?.textContent ?? "").replace(/\s+/g, " ").trim();
+            const href = (id) => document.querySelector(`[data-testid="${id}"]`)?.getAttribute("href") ?? null;
+            return { title: document.title, brand: text("brand"), tagline: text("tagline"), positioning: text("positioning"), headline: (document.querySelector('[data-testid="headline"]')?.innerText ?? "").replace(/\s+/g, " ").trim(), supporting: text("supporting"), availability: text("hero-availability"), create: { text: text("cta-create"), href: href("cta-create") }, explore: { text: text("cta-explore"), href: href("cta-explore") }, pillars: [...document.querySelectorAll('[data-testid="pillars"] h3')].map((node) => node.textContent.trim()), templates: [...document.querySelectorAll('[data-testid="landing-templates"] > li')].length, body: document.body.innerText };
+          });
+          notes.push({ width, landing: { ...landing, body: undefined } });
           expect(/Peridot Sentinel/.test(landing.title) && landing.brand.includes("sentinel.") && landing.brand.includes("By Peridot"), `${tag}: wordmark or title is not Peridot Sentinel (${landing.title} / ${landing.brand})`);
-          expect(/Your money\.\s*Your rules\.\s*Your intelligence\./.test(landing.tagline) && landing.positioning.includes("The Financial Operating System for the Agent Economy."), `${tag}: tagline or positioning line missing`);
+          // D23: the headline, the positioning line, the unchanged tagline, the two calls to action and the three pillars.
+          expect(landing.headline === D23.headline, `${tag}: the headline is "${landing.headline}", D23 says "${D23.headline}"`);
+          expect(D23.tagline.test(landing.tagline) && landing.positioning.includes(D23.positioning), `${tag}: tagline or positioning line missing ("${landing.tagline}" / "${landing.positioning}")`);
+          expect(landing.create.text === D23.ctaCreate && landing.create.href === "/strategies#create" && landing.explore.text === D23.ctaExplore && landing.explore.href === "/discover", `${tag}: the calls to action are ${JSON.stringify([landing.create, landing.explore])}`);
+          expect(D23.pillars.every((pillar) => landing.pillars.some((shown) => shown.startsWith(pillar))) && landing.pillars.length === 3, `${tag}: the pillars are ${JSON.stringify(landing.pillars)}, D23 says ${D23.pillars.join(" / ")}`);
+          expect(!/Financial Operating System for the Agent Economy/.test(landing.body), `${tag}: the pre-D23 positioning line is still shown`);
+          expect(/testnet/i.test(landing.availability) && /test tokens/i.test(landing.availability), `${tag}: the hero does not say testnet and test tokens ("${landing.availability}")`);
+          // No invented numbers anywhere on the landing page: no yield, TVL, user or performance figure.
+          expect(!/\bAPY\b/.test(landing.body) && !/\d[\d.,]*\s*%\s*(APY|APR|yield|return)/i.test(landing.body) && !/TVL\s*[:$]|\$\s?\d[\d,.]*\s*(M|B|K|million|billion)\b/i.test(landing.body) && !/\d[\d,]*\+?\s+(users|depositors|traders)\b/i.test(landing.body), `${tag}: the landing page shows a performance, TVL or user figure`);
+          expect(landing.templates >= 2, `${tag}: the landing page lists ${landing.templates} strategy template(s)`);
           expect(!/Peridot Markets/.test(landing.body), `${tag}: the old product name is still shown`);
           await shot(page, `testnet-landing-${width}`);
           expect(wallet.sent.length === 0 && wallet.refused.length === 0, `${tag}: the page asked the wallet for ${JSON.stringify(wallet.refused)}`);
@@ -325,7 +413,7 @@ if (mode === "wrong-network") {
             await shot(page, "testnet-simulated-account-policy-rejection-1440");
           }
         }
-        if (path === "/sentinel") {
+        if (path === "/portfolio") {
           const accounts = await page.locator('[data-testid="sentinel-account"]').evaluateAll((nodes) => nodes.map((node) => node.dataset.account));
           notes.push({ wallet: who.name, width, sentinelAccounts: accounts });
           if (who.name === "demo-owner-watch-only") expect(accounts.some((entry) => entry?.toLowerCase() === receipt.sentinelAccount.toLowerCase()), `${tag}: the demo Sentinel account ${receipt.sentinelAccount} is not shown for its owner (got ${JSON.stringify(accounts)})`);
@@ -334,9 +422,16 @@ if (mode === "wrong-network") {
           const brand = (await page.locator('[data-testid="brand"]:visible').first().innerText()).replace(/\s+/g, " ");
           expect(brand.includes("sentinel."), `${tag}: wordmark is "${brand}"`);
           if (width === 1440) {
-            const rail = await page.locator("aside nav [data-nav]").evaluateAll((nodes) => nodes.map((node) => ({ key: node.dataset.nav, status: node.dataset.navStatus, link: node.tagName === "A", text: node.innerText.replace(/\s+/g, " ").trim() })));
+            const rail = await page.locator("aside [data-nav]").evaluateAll((nodes) => nodes.map((node) => ({ key: node.dataset.nav, group: node.closest("[data-nav-group]")?.dataset.navGroup ?? null, status: node.dataset.navStatus, link: node.tagName === "A", href: node.getAttribute("href"), current: node.getAttribute("aria-current"), text: node.innerText.replace(/\s+/g, " ").trim() })));
             notes.push({ wallet: who.name, rail });
-            expect(rail.map((item) => item.key).join(",") === "overview,earn,borrow,trade,automate,studio,circuits,connect,about", `${tag}: rail items are ${rail.map((item) => item.key).join(",")}`);
+            // D23: Personal (Portfolio, Strategies, Discover, Activity), Finance (Earn, Borrow, Trade), Builders (Studio, Circuits, Connect).
+            expect(rail.map((item) => item.key).join(",") === [...D23.groups.personal, ...D23.groups.finance, ...D23.groups.builders, "about"].join(","), `${tag}: rail items are ${rail.map((item) => item.key).join(",")}`);
+            for (const [group, keys] of Object.entries(D23.groups)) expect(rail.filter((item) => item.group === group).map((item) => item.key).join(",") === keys.join(","), `${tag}: nav group ${group} holds ${rail.filter((item) => item.group === group).map((item) => item.key).join(",")}`);
+            const groupLabels = await page.locator("aside [data-nav-group] h2").evaluateAll((nodes) => nodes.map((node) => node.textContent.trim()));
+            expect(groupLabels.join(",") === "Personal,Finance,Builders", `${tag}: nav group headings are ${groupLabels.join(",")}`);
+            // Portfolio is the primary dashboard: it is the current item here, and no old URL is linked from the rail.
+            expect(rail.find((item) => item.key === "portfolio")?.current === "page" && rail.filter((item) => item.current === "page").length === 1, `${tag}: Portfolio is not the one active nav item`);
+            expect(rail.every((item) => !/^\/(sentinel|automate|app)(\/|$|\?)/.test(item.href ?? "")), `${tag}: the rail links to an old URL: ${JSON.stringify(rail.map((item) => item.href))}`);
             const trade = rail.find((item) => item.key === "trade");
             // v2 is deployed on testnet (mock venue) and the page is read-only: a link that still says "In development".
             expect(trade && trade.link && trade.status === "development" && /In development/.test(trade.text), `${tag}: Trade must be a link marked "In development": ${JSON.stringify(trade)}`);
@@ -344,11 +439,11 @@ if (mode === "wrong-network") {
             const connectNav = rail.find((item) => item.key === "connect");
             expect(connectNav?.link === true && connectNav.status === "live" && !/In development|Planned/.test(connectNav.text), `${tag}: Connect must be a live link without a status chip: ${JSON.stringify(connectNav)}`);
           } else {
-            const tabs = await page.locator('nav[aria-label="Primary"]:visible [data-nav]').evaluateAll((nodes) => nodes.map((node) => node.dataset.nav));
-            expect(tabs.join(",") === "overview,earn,borrow,automate,more", `${tag}: tab bar is ${tabs.join(",")}`);
+            const tabs = await page.locator('[data-testid="tab-bar"]:visible [data-nav]').evaluateAll((nodes) => nodes.map((node) => node.dataset.nav));
+            expect(tabs.join(",") === [...D23.groups.personal, "more"].join(","), `${tag}: tab bar is ${tabs.join(",")}`);
             await page.locator('[data-nav="more"]:visible').click();
             const more = await page.locator('[data-testid="more-nav"] [data-nav]').evaluateAll((nodes) => nodes.map((node) => ({ key: node.dataset.nav, link: node.tagName === "A", text: node.innerText.replace(/\s+/g, " ").trim() })));
-            expect(more.map((item) => item.key).join(",") === "trade,studio,circuits,connect,about" && more.find((item) => item.key === "trade")?.link === true && /In development/.test(more.find((item) => item.key === "trade")?.text ?? ""), `${tag}: "More" lists ${JSON.stringify(more)}`);
+            expect(more.map((item) => item.key).join(",") === [...D23.groups.finance, ...D23.groups.builders, "about"].join(",") && more.find((item) => item.key === "trade")?.link === true && /In development/.test(more.find((item) => item.key === "trade")?.text ?? ""), `${tag}: "More" lists ${JSON.stringify(more)}`);
             await shot(page, `testnet-${who.name}-more-nav-${width}`);
             await page.locator("dialog[open]").getByRole("button", { name: "Close" }).click();
           }
@@ -365,13 +460,20 @@ if (mode === "wrong-network") {
           if (who.name === "demo-owner-watch-only") expect(portfolio.some((row) => row.kind === "sentinel" && /100 mCOL/.test(row.text) && /mUSD/.test(row.text)), `${tag}: the demo account's lending position is not in the portfolio: ${JSON.stringify(portfolio)}`);
           // One "no position" row per market. The public testnet has more than one market since the mined-rejection run.
           else expect(portfolio.length >= 1 && portfolio.every((row) => row.kind === "none"), `${tag}: positions shown for a wallet that has none: ${JSON.stringify(portfolio)}`);
-          await shot(page, `testnet-${who.name}-sentinel-${width}`);
+          // The primary dashboard: summary, budgets and the stop section exist for the owner; a wallet with nothing gets
+          // the onboarding steps and no stop control.
+          const home = { summary: await page.locator('[data-testid="portfolio-summary"]').count(), onboarding: await page.locator('[data-testid="portfolio-onboarding"]').getAttribute("data-next").catch(() => null), strategies: await page.locator('[data-testid="portfolio-summary"]').getAttribute("data-strategies").catch(() => null), stop: await page.locator('[data-testid="portfolio-stop"]').count(), stopButtons: await page.locator('[data-testid="portfolio-stop"] button:not([disabled])').count() };
+          notes.push({ wallet: who.name, width, portfolioHome: home });
+          expect((await page.locator("h1").first().innerText()) === "Portfolio", `${tag}: the page is not titled Portfolio`);
+          // The stop control belongs to an account's owner. It must never be enabled for a wallet with no account.
+          if (who.name === "empty-wallet") expect(home.stopButtons === 0 && /no Sentinel account/i.test(main), `${tag}: a stop control is offered to a wallet without an account: ${JSON.stringify(home)}`);
+          await shot(page, `testnet-${who.name}-portfolio-${width}`);
         }
         if (path.startsWith("/sentinel/policy") && who.name === "demo-owner-watch-only") {
-          expect((await page.locator('[data-testid="open-automate"]').getAttribute("href")) === `/automate?market=${market}`, `${tag}: the policy page does not point at Automate`);
+          expect((await page.locator('[data-testid="open-automate"]').getAttribute("href")) === `/strategies?market=${market}`, `${tag}: the policy page does not point at Strategies`);
           await shot(page, `testnet-${who.name}-policy-${width}`);
         }
-        if (path.startsWith("/automate")) {
+        if (path.startsWith("/strategies")) {
           const modes = Object.fromEntries(await page.locator('[data-testid="automation-modes"] [data-mode]').evaluateAll((nodes) => nodes.map((node) => [node.dataset.mode, node.dataset.availability])));
           notes.push({ wallet: who.name, width, modes });
           // Only what works is called live. Connect is available on testnet as agent-directed execution; hosted AI is not built.
@@ -382,8 +484,32 @@ if (mode === "wrong-network") {
           expect((await page.locator('#connect [data-testid="connect-open"]').getAttribute("href")) === "/connect", `${tag}: the Connect section does not link to /connect`);
           expect(/does not exist yet/.test(await page.locator("#hosted").innerText()), `${tag}: hosted AI is not described as unavailable`);
           // Neither section offers a control: Connect is set up outside this app, hosted AI does not exist.
-          expect((await page.locator("#connect button, #connect input, #hosted button, #hosted input").count()) === 0, `${tag}: Connect or hosted AI offers a control on Automate`);
-          expect(!/autonomous|monitors? your|continuous(ly)? monitor/i.test(main), `${tag}: Automate claims autonomous or continuous monitoring`);
+          expect((await page.locator("#connect button, #connect input, #hosted button, #hosted input").count()) === 0, `${tag}: Connect or hosted AI offers a control on Strategies`);
+          expect(!/autonomous|monitors? your|continuous(ly)? monitor/i.test(main), `${tag}: Strategies claims autonomous or continuous monitoring`);
+          // D23: Strategies is the page that absorbed Automate, with the builder, the active list and import/export.
+          expect((await page.locator("h1").first().innerText()) === "Strategies" && (await page.locator('[data-testid="create-strategy"]').getAttribute("href")) === "#create", `${tag}: the Strategies page has no "Create a strategy" action`);
+          const builder = { options: await page.locator('[data-testid^="template-option-"]').evaluateAll((nodes) => nodes.map((node) => node.dataset.testid.replace("template-option-", ""))), active: await page.locator('[data-testid="active-strategies"]').count(), importCard: await page.locator('[data-testid="strategy-import"]').count(), exportCard: await page.locator('[data-testid="strategy-export"]').count() };
+          notes.push({ wallet: who.name, width, builder });
+          // D23: start with debt protection and restricted external-agent templates. Those two, and nothing else.
+          expect(builder.options.join(",") === "debt-protection-v1,restricted-swap-v2" && builder.active === 1 && builder.importCard === 1, `${tag}: the strategy builder shows ${JSON.stringify(builder)}`);
+          expect((await page.locator('[data-testid="strategy-sign"]').count()) === 0, `${tag}: a sign button is shown before any review was asked for`);
+          if (who.name === "demo-owner-watch-only" && width === 1440) {
+            // The v2 template while the v2 deployment's switch for this app is off: the exact transaction can be
+            // reviewed (a read at one block as the owner's public address), and signing it is not offered.
+            const sentBefore = wallet.sent.length + wallet.refused.length;
+            await page.locator('[data-testid="template-option-restricted-swap-v2"]').click();
+            await page.locator('[data-testid="strategy-operator"]').fill("0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc");
+            await page.locator('[data-testid="strategy-review-submit"]').click();
+            await page.locator('[data-testid="strategy-plan"], [data-testid="strategy-plan-error"]').first().waitFor({ timeout: 60_000 }).catch(() => {});
+            const review = { plan: await page.locator('[data-testid="strategy-plan"]').count(), error: (await page.locator('[data-testid="strategy-plan-error"]').innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 200), account: await page.locator('[data-testid="strategy-plan"]').getAttribute("data-account").catch(() => null), transactions: await page.locator('[data-testid="strategy-tx"]').evaluateAll((nodes) => nodes.map((node) => ({ method: node.dataset.method, to: node.dataset.to, from: node.dataset.from }))), signEnabled: await page.locator('[data-testid="strategy-sign"]').isEnabled().catch(() => null), locked: (await page.locator('[data-testid="strategy-sign-locked"]').innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 200) };
+            notes.push({ wallet: who.name, width, v2TemplateReview: review });
+            expect(review.plan === 1 && review.account?.toLowerCase() === v2Manifest.contracts.account.toLowerCase() && review.transactions.length >= 1 && review.transactions.every((entry) => entry.to?.toLowerCase() === v2Manifest.contracts.account.toLowerCase() && entry.from?.toLowerCase() === who.address.toLowerCase()), `${tag}: the v2 template's review is ${JSON.stringify(review)}`);
+            if (v2Manifest.uiEnabled !== true) expect(review.signEnabled === false && /switched off/.test(review.locked), `${tag}: signing the v2 template is offered although the deployment's switch is off: ${JSON.stringify(review)}`);
+            expect(wallet.sent.length + wallet.refused.length === sentBefore, `${tag}: building a review asked the wallet for something`);
+            await shot(page, "testnet-v2-template-review-locked-1440");
+          }
+          // A template never carries a key, and importing grants nothing: the page says so where the import happens.
+          expect(/untrusted text/.test((await page.locator('[data-testid="strategy-import"]').innerText()).replace(/\s+/g, " ")) && /cannot grant anything/.test((await page.locator('[data-testid="strategy-import"]').innerText()).replace(/\s+/g, " ")), `${tag}: the import card does not say that an imported template is untrusted and grants nothing`);
           if (who.name === "demo-owner-watch-only") {
             // Operator candidates come from a paged log scan, which finishes after the page's first paint.
             await page.locator('[data-testid="automation"] li[data-operator]').first().waitFor({ timeout: 60_000 }).catch(() => {});
@@ -406,7 +532,7 @@ if (mode === "wrong-network") {
             expect(/No Sentinel account yet/.test(main), `${tag}: no empty state for a wallet without an account`);
             expect((await page.locator('[data-testid="emergency-stop"]').count()) === 0, `${tag}: an emergency stop is offered without an account`);
           }
-          await shot(page, `testnet-${who.name}-automate-${width}`);
+          await shot(page, `testnet-${who.name}-strategies-${width}`);
         }
         if (path === "/trade") {
           const { erc20Abi, createPublicClient, http } = await import("viem");
@@ -414,8 +540,31 @@ if (mode === "wrong-network") {
           await page.waitForFunction(() => ["ok", "error"].includes(document.querySelector('[data-testid="v2-account"]')?.getAttribute("data-state") ?? "") && ["ok", "error"].includes(document.querySelector('[data-testid="v2-quote"]')?.getAttribute("data-state") ?? ""), null, { timeout: 90_000 }).catch(() => {});
           expect(/Mock swap on testnet; real Uniswap v3 verified on mainnet fork/.test(main) && /inventory-backed mock swap venue/.test(main) && /not an OKX quote/.test(main), `${tag}: the Trade page does not carry the mock-venue labels`);
           expect((await page.locator('[data-testid="v2-deployment"]').getAttribute("data-state")) === "ok", `${tag}: the v2 deployment check is "${await page.locator('[data-testid="v2-deployment"]').getAttribute("data-state")}"`);
-          // No v2 transaction is offered: one input (the quote amount), and no button except read actions.
-          expect((await page.locator('[data-testid="trade"] input').count()) === 1 && (await page.locator('[data-testid="trade"] button').count()) === 0, `${tag}: the Trade page offers a control beyond the read-only quote amount`);
+          // What the page may offer follows the two switches the contracts team sets in the manifests, and nothing else.
+          const switches = { base: v2Manifest.uiEnabled === true, vault: vaultManifest.uiEnabled === true };
+          const ownerRoot = page.locator('[data-testid="v2-owner"]');
+          if (!switches.base && !switches.vault) {
+            // Both off: no v2 transaction is offered. One input (the quote amount), and no button at all.
+            expect((await page.locator('[data-testid="trade"] input').count()) === 1 && (await page.locator('[data-testid="trade"] button').count()) === 0 && (await ownerRoot.count()) === 0, `${tag}: the Trade page offers a control beyond the read-only quote amount`);
+          } else {
+            await page.locator('[data-testid="v2-verify"]:not([data-state="loading"])').waitFor({ timeout: 90_000 }).catch(() => {});
+            await page.waitForFunction(() => !document.querySelector('[data-testid="v2-owner"] [data-loading]'), null, { timeout: 60_000 }).catch(() => {});
+            const owner = { verify: await page.locator('[data-testid="v2-verify"]').getAttribute("data-state"), baseCard: await page.locator('[data-testid="v2-base"]').count(), vaultCard: await page.locator('[data-testid="vault-card"]').count(), vaultAccount: await page.locator('[data-testid="vault-card"]').getAttribute("data-account").catch(() => null), vaultCreate: await page.locator('[data-testid="vault-create"]').count(), stop: await page.locator('[data-testid="v2-emergency-stop"]').count() };
+            notes.push({ wallet: who.name, width, switches, ownerFlows: owner });
+            // The browser matched the PUBLIC chain against the manifest (code hashes, factory bindings) before offering anything.
+            expect(owner.verify === "ok", `${tag}: the v2 owner target did not verify against the public chain: ${JSON.stringify(owner)}`);
+            expect(owner.baseCard === (switches.base ? 1 : 0), `${tag}: the base v2 owner card does not follow the base switch (${JSON.stringify(switches)}): ${JSON.stringify(owner)}`);
+            expect(owner.vaultCard === (switches.vault ? 1 : 0), `${tag}: the vault card does not follow the vault switch (${JSON.stringify(switches)}): ${JSON.stringify(owner)}`);
+            if (switches.vault) {
+              // Accounts come from the factory for the connected wallet: the demo owner's is the public vault account,
+              // a wallet without one is offered creation and no vault action.
+              if (who.name === "demo-owner-watch-only") expect(owner.vaultAccount?.toLowerCase() === vaultManifest.contracts.vaultAccount.toLowerCase() && (await page.locator('[data-testid="vault-action"]').count()) === 1, `${tag}: the demo owner's public vault account is not shown: ${JSON.stringify(owner)}`);
+              else expect(owner.vaultAccount === "" && owner.vaultCreate === 1 && (await page.locator('[data-testid="vault-submit"]').count()) === 0, `${tag}: a vault action is offered to a wallet without a vault account: ${JSON.stringify(owner)}`);
+              expect(/Mock vault · no yield/.test(await page.locator('[data-testid="vault-card"]').innerText()), `${tag}: the vault is not labelled as a mock without yield`);
+            }
+            if (!switches.base) expect((await page.locator('[data-testid="v2-grant-submit"], [data-testid="v2-create-base"], [data-testid="v2-mint-wokb"]').count()) === 0, `${tag}: a base v2 write is offered although the base switch is off`);
+            expect((await page.locator('[data-testid="trade-not-yet"]').getAttribute("data-vault")) === String(switches.vault) && (await page.locator('[data-testid="trade-not-yet"]').getAttribute("data-owner-writes")) === String(switches.base), `${tag}: the "not in this app yet" list does not follow the switches`);
+          }
           const accountCard = page.locator('[data-testid="v2-account"]');
           const shown = { state: await accountCard.getAttribute("data-state"), block: await accountCard.getAttribute("data-block"), usdc: await accountCard.getAttribute("data-usdc"), wokb: await accountCard.getAttribute("data-wokb"), operators: await accountCard.getAttribute("data-operators"), grants: await accountCard.locator("[data-v2-grant]").evaluateAll((nodes) => nodes.map((node) => `${node.dataset.v2Grant}:${node.dataset.remaining}`)) };
           expect(shown.state === "ok", `${tag}: the v2 account read is "${shown.state}"`);
@@ -455,7 +604,9 @@ if (mode === "wrong-network") {
           expect(/mock tokens/i.test(main) && /development reference processor \(not TapeOut\)/.test(main), `${tag}: the Connect page does not carry the testnet scope label`);
           // Tools: the recorded catalogue, exactly one of which can send.
           const tools = await page.locator('[data-testid="connect-tools"] [data-tool]').evaluateAll((nodes) => nodes.map((node) => ({ name: node.dataset.tool, kind: node.dataset.kind })));
-          expect(tools.length === 12 && tools.filter((tool) => tool.kind === "execute").map((tool) => tool.name).join() === "sentinel_execute_auto_repay", `${tag}: tool list is ${JSON.stringify(tools)}`);
+          // The list is the server's checked-in catalogue: same names in the same order, and "can send" follows `writes`.
+          expect(tools.map((tool) => tool.name).join() === toolsV1.tools.map((tool) => tool.name).join() && tools.filter((tool) => tool.kind === "execute").map((tool) => tool.name).join() === toolsV1.tools.filter((tool) => tool.writes).map((tool) => tool.name).join() && tools.filter((tool) => tool.kind === "execute").length === 1, `${tag}: tool list is ${JSON.stringify(tools)}`);
+          expect(/services\/mcp\/tools\.json/.test(await page.locator('[data-testid="connect-tools"]').innerText()) && (await page.locator('[data-testid="connect-tools"] [data-tool-guarantees]').count()) === toolsV1.tools.length, `${tag}: the tool card does not name its source file or lacks the catalogue's guarantees`);
           // Limits and setup: no owner key, no withdraw, no permission changes, no arbitrary calldata; a keyless stdio command.
           const cannot = (await page.locator('[data-testid="connect-cannot"]').innerText()).replace(/\s+/g, " ");
           expect(/owner's key/.test(cannot) && /Withdraw/.test(cannot) && /Change permissions/.test(cannot) && /arbitrary calldata/.test(cannot), `${tag}: the "cannot" list is incomplete: ${cannot.slice(0, 200)}`);
@@ -463,7 +614,11 @@ if (mode === "wrong-network") {
           expect(/never entered on this page/.test(await page.locator('[data-testid="connect-key-note"]').innerText()), `${tag}: the page does not say the operator key is never entered here`);
           expect((await root.locator("input, textarea, select").count()) === 0, `${tag}: the Connect page has an input (it must never take a key)`);
           // The recorded run: one explorer link, to the public execute transaction. A simulation never gets one.
-          const txLinks = await root.locator('a[href*="/tx/"]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href")));
+          const txLinks = await root.locator('a[href*="/tx/"]').evaluateAll((nodes) => nodes.filter((node) => !node.closest('[data-testid="connect-judge"]')).map((node) => node.getAttribute("href")));
+          // Inside the judge card: only the two grant receipts and the transactions of its own activity snapshot.
+          const judgeLinks = await root.locator('[data-testid="connect-judge"] a[href*="/tx/"]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href")));
+          const judgeAllowed = new Set([judge.setupReceipts["repay-only"], judge.setupReceipts["swap-only"], ...judgeActivity.events.map((event) => event.transactionHash)].map((hash) => explorerTxUrl(1952, hash)));
+          expect(judgeLinks.length >= 2 && judgeLinks.every((href) => judgeAllowed.has(href)), `${tag}: the judge card links to a transaction that is neither a grant receipt nor in its snapshot`);
           // Linked transactions: the scripted run's execute, and the LLM session's swap and mined revert. Nothing else.
           const llmFile = JSON.parse(readFileSync(new URL("../../../evidence/session6-mcp-v2/verified.json", import.meta.url), "utf8"));
           const allowedTx = new Set([runHash, llmFile.swap.canonical.receipt.hash, llmFile.rejection.canonical.receipt.hash, v2Demo.emergencyRevoke.hash].map((hash) => explorerTxUrl(1952, hash)));
@@ -486,8 +641,55 @@ if (mode === "wrong-network") {
           const v1Config = JSON.parse(await page.locator('[data-testid="connect-config"]').innerText());
           expect(v1Config.mcpServers["sentinel-connect"].command === "node" && /services\/mcp\/server\.mjs$/.test(v1Config.mcpServers["sentinel-connect"].args[0]) && !("env" in v1Config.mcpServers["sentinel-connect"]), `${tag}: the keyless MCP configuration is ${JSON.stringify(v1Config)}`);
           expect((await page.locator('[data-testid="connect-config-v2"]').innerText()).trim() === repoText("services/mcp-v2/claude.mcp.json") && (await page.locator('[data-testid="connect-objective"]').innerText()).trim() === repoText("services/mcp-v2/objective.txt"), `${tag}: the v2 configuration or the objective differs from the repository files`);
-          expect((await page.locator('[data-testid="connect-tools-v2"] [data-tool-v2]').count()) === 7 && (await page.locator("[data-onboard-step]").count()) === 7, `${tag}: the onboarding does not list seven steps and the seven v2 tools`);
-          expect((await page.locator('[data-testid="connect-stop-link"]').getAttribute("href")) === "/automate" && (await page.locator('[data-testid="connect-session-link"]').getAttribute("href")) === "#llm-session" && /There is no hosted AI/.test(main), `${tag}: the onboarding lacks the revocation link, the session link or the no-hosted-AI statement`);
+          const v2Shown = await page.locator('[data-testid="connect-tools-v2"] [data-tool-v2]').evaluateAll((nodes) => nodes.map((node) => ({ name: node.dataset.toolV2, kind: node.dataset.kind })));
+          // The v2 catalogue has TWO tools that can send (the swap and the one-off mined rejection); the page must say so.
+          expect(v2Shown.map((tool) => tool.name).join() === toolsV2.tools.map((tool) => tool.name).join() && v2Shown.filter((tool) => tool.kind === "execute").map((tool) => tool.name).join() === toolsV2.tools.filter((tool) => tool.writes).map((tool) => tool.name).join() && (await page.locator("[data-onboard-step]").count()) === 7, `${tag}: the onboarding does not list seven steps and the v2 catalogue: ${JSON.stringify(v2Shown)}`);
+          const v2Sending = toolsV2.tools.filter((tool) => tool.writes).length;
+          expect(new RegExp(`${toolsV2.tools.length} tools, ${v2Sending} of which can send`).test(await page.locator('[data-onboard-step="5"]').innerText()) && /services\/mcp-v2\/tools\.json/.test(await page.locator('[data-testid="connect-tools-v2-source"]').innerText()), `${tag}: step 5 does not state how many v2 tools can send, or its source`);
+          // The reviewer walkthrough: the guide's numbered steps and every fenced command, verbatim and in order.
+          const guideSteps = [...judgeGuide.matchAll(/^## (\d+)\. (.+)$/gm)].map((match) => ({ n: match[1], title: match[2].trim() }));
+          const guideCommands = [...judgeGuide.slice(judgeGuide.indexOf("\n## 1. "), judgeGuide.indexOf("\n## Evidence and rehearsal")).matchAll(/```sh\n([\s\S]*?)\n```/g)].map((match) => match[1]);
+          const shownSteps = await page.locator('[data-testid="connect-judge-steps"] [data-judge-step]').evaluateAll((nodes) => nodes.map((node) => ({ n: node.dataset.judgeStep, title: node.querySelector("h3")?.textContent.trim() ?? "" })));
+          const shownCommands = await page.locator('[data-testid="connect-judge-steps"] [data-judge-command] pre').allInnerTexts();
+          expect(guideSteps.length === 7 && JSON.stringify(shownSteps) === JSON.stringify(guideSteps), `${tag}: the reviewer walkthrough's steps are ${JSON.stringify(shownSteps)}, the guide has ${JSON.stringify(guideSteps)}`);
+          expect(guideCommands.length > 0 && JSON.stringify(shownCommands.map((text) => text.trim())) === JSON.stringify(guideCommands.map((text) => text.trim())), `${tag}: the walkthrough's commands differ from docs/JUDGE_DEMO.md (${shownCommands.length} shown, ${guideCommands.length} in the guide)`);
+          expect(!/OWNER_KEY|OPERATOR_KEY=|PERIDOT_TESTNET_KEY|0x[0-9a-fA-F]{64}/.test(shownCommands.join("\n")), `${tag}: a key variable assignment or a 32-byte value appears in a walkthrough command`);
+          // The prepared judge campaign, read-only: addresses and prepared grants from its manifest, grants re-read live.
+          const judgeCard = page.locator('[data-testid="connect-judge"]');
+          await page.waitForFunction(() => ["ok", "error"].includes(document.querySelector('[data-testid="connect-judge"]')?.getAttribute("data-state") ?? ""), null, { timeout: 60_000 }).catch(() => {});
+          const judgeText = (await judgeCard.innerText()).replace(/\s+/g, " ");
+          const judgeShown = { state: await judgeCard.getAttribute("data-state"), campaign: await judgeCard.getAttribute("data-campaign"), owner: await judgeCard.getAttribute("data-owner"), operator: await judgeCard.getAttribute("data-operator"), block: await judgeCard.getAttribute("data-block"), markets: await judgeCard.locator("[data-judge-market]").evaluateAll((nodes) => nodes.map((node) => ({ key: node.dataset.judgeMarket, controller: node.dataset.controller, account: node.dataset.account, href: node.querySelector("a")?.getAttribute("href") }))), grants: await judgeCard.locator("[data-judge-grant]").evaluateAll((nodes) => nodes.map((node) => ({ kind: node.dataset.judgeGrant, state: node.dataset.state, remaining: node.dataset.remaining, expiry: node.dataset.expiry, preparedExpiry: node.dataset.preparedExpiry, account: node.dataset.account, receipt: node.querySelector("[data-judge-tx]")?.dataset.judgeTx ?? null }))) };
+          notes.push({ wallet: who.name, width, judge: judgeShown });
+          expect(judgeShown.campaign === judge.campaign && judgeShown.owner === judge.owner && judgeShown.operator === judge.operator && judgeShown.markets.length === 2 && judgeShown.markets.every((market) => market.controller === judge.markets[market.key].controller && market.account === judge.markets[market.key].account && market.href === `/markets/${market.controller}`), `${tag}: the judge campaign card shows ${JSON.stringify(judgeShown)}`);
+          expect(/Read-only/i.test(judgeText) && /valueless mock tokens/.test(judgeText) && /development reference processor/.test(judgeText) && judgeText.includes(judge.contracts.account), `${tag}: the judge campaign is not labelled read-only with its mock scope, or lacks the v2 account`);
+          const judgeRepay = judgeShown.grants.find((grant) => grant.kind === "repay");
+          const judgeSwap = judgeShown.grants.find((grant) => grant.kind === "swap");
+          // Both prepared grants expire on 3 December 2026, 16:50 UTC (docs/JUDGE_DEMO.md), with their grant receipts.
+          expect(judgeRepay?.preparedExpiry === judge.grants.repay.expiry && judgeSwap?.preparedExpiry === judge.grants.swap.expiry && judge.grants.repay.expiry === "1796316632" && (judgeText.match(/2026-12-03 16:50 UTC/g) ?? []).length >= 2 && judgeRepay?.receipt === judge.setupReceipts["repay-only"] && judgeSwap?.receipt === judge.setupReceipts["swap-only"], `${tag}: the prepared grants are shown as ${JSON.stringify([judgeRepay, judgeSwap])}`);
+          expect(judgeShown.state === "ok", `${tag}: the judge campaign's live read is "${judgeShown.state}"`);
+          if (judgeShown.state === "ok") {
+            // The live grant values must equal direct RPC reads at the block the card names, and the state must follow them.
+            const { SentinelAccountAbi } = await import("@peridot/chain-config");
+            const { createPublicClient, http, parseAbi } = await import("viem");
+            const { xLayerTestnet } = await import("../src/lib/chains.ts");
+            const rpc = createPublicClient({ transport: http(xLayerTestnet.rpcUrls.default.http[0], { retryCount: 5, retryDelay: 400 }) });
+            const at = { blockNumber: BigInt(judgeShown.block) };
+            const [repayDirect, swapDirect, blockDirect] = await Promise.all([rpc.readContract({ address: judge.markets.A.account, abi: SentinelAccountAbi, functionName: "operators", args: [judge.operator], ...at }), rpc.readContract({ address: judge.contracts.account, abi: parseAbi(["function grants(address,address,uint8,address) view returns (uint256,uint256,uint64)"]), functionName: "grants", args: [judge.operator, judge.contracts.swap, 5, judge.contracts.mockWokb], ...at }), rpc.getBlock(at)]);
+            const expectRepay = repayDirect[0] === 0 ? "revoked" : repayDirect[0] !== 8 ? "unexpected" : repayDirect[2] <= blockDirect.timestamp ? "expired" : repayDirect[1] === 0n ? "spent" : "ready";
+            const expectSwap = swapDirect[0] === 0n && swapDirect[1] === 0n && BigInt(swapDirect[2]) === 0n ? "revoked" : BigInt(swapDirect[2]) <= blockDirect.timestamp ? "expired" : swapDirect[1] === 0n || swapDirect[0] === 0n ? "spent" : "ready";
+            expect(judgeRepay?.remaining === repayDirect[1].toString() && judgeRepay.expiry === repayDirect[2].toString() && judgeRepay.state === expectRepay, `${tag}: the judge repay grant is shown as ${JSON.stringify(judgeRepay)}, the RPC says mask ${repayDirect[0]}, ${repayDirect[1]}, ${repayDirect[2]} (${expectRepay}) at block ${judgeShown.block}`);
+            expect(judgeSwap?.remaining === swapDirect[1].toString() && judgeSwap.expiry === BigInt(swapDirect[2]).toString() && judgeSwap.state === expectSwap, `${tag}: the judge swap grant is shown as ${JSON.stringify(judgeSwap)}, the RPC says ${swapDirect.join(", ")} (${expectSwap}) at block ${judgeShown.block}`);
+            notes.push({ wallet: who.name, width, judgeDirect: { block: judgeShown.block, repay: [repayDirect[0], repayDirect[1].toString(), repayDirect[2].toString(), expectRepay], swap: [swapDirect[0].toString(), swapDirect[1].toString(), BigInt(swapDirect[2]).toString(), expectSwap] } });
+          }
+          // Its scoped activity snapshot: the file's own range, terminal block and gap, every event, labelled as history.
+          const judgeLog = judgeCard.locator('[data-testid="judge-activity"]');
+          await judgeLog.locator("details").evaluate((node) => (node.open = true));
+          const judgeEvents = await judgeLog.locator("[data-judge-event]").evaluateAll((nodes) => nodes.map((node) => `${node.dataset.hash}:${node.dataset.judgeEvent}`));
+          const judgeGaps = await judgeLog.locator("[data-judge-gap]").evaluateAll((nodes) => nodes.map((node) => node.dataset.judgeGap));
+          expect((await judgeLog.getAttribute("data-from")) === judgeActivity.coverage.fromBlock && (await judgeLog.getAttribute("data-to")) === judgeActivity.coverage.toBlock && judgeEvents.length === judgeActivity.events.length && judgeActivity.events.every((event) => judgeEvents.includes(`${event.transactionHash}:${event.eventName}`)), `${tag}: the judge activity snapshot shows ${judgeEvents.length} events for blocks ${await judgeLog.getAttribute("data-from")} to ${await judgeLog.getAttribute("data-to")}`);
+          expect(judgeGaps.join() === judgeActivity.coverage.gaps.map((gap) => `${gap.fromBlock}-${gap.toBlock}`).join() && /Historical snapshot · not a live feed/i.test(await judgeLog.innerText()) && /Nothing after block/.test(await judgeLog.innerText()) && (await judgeLog.innerText()).includes(judgeActivity.coverage.toBlockHash.slice(0, 8)), `${tag}: the judge activity snapshot does not disclose its gaps (${judgeGaps.join()}), its end or its terminal block`);
+          expect((await overflow(page)) <= 0, `${tag}: overflow ${await overflow(page)}px with the judge events open`);
+          expect((await page.locator('[data-testid="connect-stop-link"]').getAttribute("href")) === "/strategies" && (await page.locator('[data-testid="connect-session-link"]').getAttribute("href")) === "#llm-session" && /There is no hosted AI/.test(main), `${tag}: the onboarding lacks the revocation link, the session link or the no-hosted-AI statement`);
           expect(!/0x[0-9a-fA-F]{64}/.test(await page.locator('[data-testid="connect-how"] pre').allInnerTexts().then((texts) => texts.join(" "))), `${tag}: a 32-byte hex value appears in a copyable block`);
           expect((await page.locator('[data-testid="connect-run"] [data-step]').count()) === 7, `${tag}: the recorded run does not show seven steps`);
           expect((await page.locator('[data-step="6"] a').count()) === 0 && /Simulated rejection · not a mined revert/.test(await page.locator('[data-step="6"]').innerText()) && (await page.locator('[data-testid="connect-rejection"]').getAttribute("data-error")) === "OperatorNotAuthorized", `${tag}: step 6 is not shown as a simulated rejection`);
@@ -516,7 +718,34 @@ if (mode === "wrong-network") {
           }
           await shot(page, `testnet-${who.name}-connect-${width}`);
         }
-        if (path === "/sentinel/activity") {
+        if (path === "/discover") {
+          // D23: a curated set of genuine templates, each labelled available / demonstration / planned, with no
+          // invented performance, TVL, APY or users.
+          const cards = await page.locator('[data-testid="discover-card"]').evaluateAll((nodes) => nodes.map((node) => ({ profile: node.dataset.profile, availability: node.dataset.availability, canSign: node.dataset.canSign, adopt: node.querySelector('[data-testid="discover-adopt"]')?.getAttribute("href") ?? null, adoptText: node.querySelector('[data-testid="discover-adopt"]')?.innerText.trim() ?? null, text: node.innerText.replace(/\s+/g, " ").slice(0, 200) })));
+          notes.push({ wallet: who.name, width, discover: cards });
+          expect(cards.length === 2 && cards.every((card) => ["available", "demonstration", "planned"].includes(card.availability ?? "")), `${tag}: Discover lists ${JSON.stringify(cards)}`);
+          // The v2 template can be signed only while the v2 deployment's own switch for this app is on.
+          // The link says "Adopt" only when this build can sign; otherwise it offers the review, or nothing.
+          for (const card of cards) expect((card.adopt === null || card.adopt === `/strategies?template=${card.profile}#create`) && (card.canSign === "true" ? /^Adopt/.test(card.adoptText ?? "") : card.adopt === null || /^Review the transaction/.test(card.adoptText ?? "")), `${tag}: the adopt link of ${card.profile} does not follow its availability: ${JSON.stringify(card)}`);
+          const v2Card = cards.find((card) => card.availability === "demonstration");
+          expect(v2Manifest.uiEnabled === true || (v2Card !== undefined && v2Card.canSign === "false"), `${tag}: with the v2 switch off, no template is shown as a demonstration that cannot be signed here`);
+          expect(/No returns, yields, TVL, user counts or creator earnings are shown/.test(main), `${tag}: Discover does not state that it shows no metrics`);
+          const claims = main.replace(/No returns, yields, TVL, user counts or creator earnings are shown here, because there are none\./, "");
+          expect(!/\bAPY\b|\bTVL\b/.test(claims) && !/\d[\d.,]*\s*%\s*(APR|yield|return)/i.test(claims) && !/\d[\d,]*\+?\s+(users|adopters|depositors)\b/i.test(claims), `${tag}: Discover shows a performance, TVL or user figure`);
+          expect((await page.locator('[data-testid="discover-planned"] li').count()) >= 1 && /Not available yet/i.test(main), `${tag}: planned items are not listed apart`);
+          // Inspecting a template shows its details without asking the wallet for anything.
+          await page.locator('[data-testid="discover-inspect"]').first().click();
+          expect((await page.locator('[data-testid="discover-details"]').count()) === 1 && (await overflow(page)) <= 0, `${tag}: the template details do not open, or overflow (${await overflow(page)}px)`);
+          await shot(page, `testnet-${who.name}-discover-${width}`);
+        }
+        if (path === "/studio") {
+          const workspace = (await page.locator('[data-testid="studio-workspace"]').innerText()).replace(/\s+/g, " ");
+          // D23: Studio is the creator workspace; managed vaults stay roadmap (and are not the ERC-4626 adapter).
+          expect((await page.locator('[data-testid="studio-create-strategy"]').getAttribute("href")) === "/strategies#create" && (await page.locator('[data-testid="studio-create-market"]').getAttribute("href")) === "/studio/create", `${tag}: the Studio workspace does not link to strategy and market creation`);
+          expect(/Managed vaults/i.test(workspace) && /Roadmap/i.test(workspace) && /not the ERC-4626 adapter/.test(workspace), `${tag}: managed vaults are not shown as roadmap, apart from the ERC-4626 adapter: ${workspace.slice(0, 300)}`);
+          await shot(page, `testnet-${who.name}-studio-${width}`);
+        }
+        if (path === "/activity") {
           const row = page.locator('[data-testid="testnet-auto-repay"]');
           const href = await row.locator('[data-testid="explorer-link"]').getAttribute("href").catch(() => null);
           expect(href === expectedTxUrl, `${tag}: explorer link is ${href}`);
@@ -550,8 +779,37 @@ if (mode === "wrong-network") {
           expect(["hidden", "scope-mismatch", "unavailable"].includes(keeper ?? "") && keeperRows === 0, `${tag}: keeper panel is "${keeper}" with ${keeperRows} row(s): a local keeper must not report into a testnet build`);
           if (process.env.EXPECT_KEEPER) expect(keeper === process.env.EXPECT_KEEPER, `${tag}: keeper panel is "${keeper}", expected "${process.env.EXPECT_KEEPER}"`);
           for (const entry of chainRows) expect(entry.link === null || entry.link.startsWith(`${DOCS_EXPLORER_ROOT}/tx/0x`), `${tag}: unexpected link ${entry.link}`);
-          // Coverage is stated whenever the scan is incomplete: both ends named, with the number of unread blocks.
-          if (coverage) expect(ranges === 2 && /deployment block/.test(coverage) && /have not been read/.test(coverage) && BigInt(gap ?? "0") > 0n && coverage.includes(`${LOG_PAGE_BLOCKS} blocks at a time`), `${tag}: incomplete scan is not described precisely: "${coverage}" (ranges ${ranges}, gap ${gap})`);
+          // The snapshot is merged into the list: its range counts as read only after its last block was verified, each
+          // row says where it was read from, a row found by both sources appears once, and the blocks NEITHER source
+          // covers are stated with their exact numbers.
+          const merge = { state: await coverageNode.locator("[data-snapshot]").getAttribute("data-snapshot").catch(() => null), added: Number((await coverageNode.locator("[data-snapshot]").getAttribute("data-snapshot-added").catch(() => null)) ?? -1), shared: Number((await coverageNode.locator("[data-snapshot]").getAttribute("data-snapshot-shared").catch(() => null)) ?? -1), to: await coverageNode.locator("[data-snapshot]").getAttribute("data-snapshot-to").catch(() => null), complete: await coverageNode.getAttribute("data-complete").catch(() => null) };
+          const rows = await page.locator('[data-testid="chain-activity"] li[data-result]').evaluateAll((nodes) => nodes.map((node) => ({ source: node.dataset.source ?? null, hash: node.querySelector("a")?.getAttribute("href")?.split("/tx/")[1] ?? null, title: node.querySelector("h3")?.innerText.replace(/\s+/g, " ") ?? "", text: node.innerText.replace(/\s+/g, " ") })));
+          notes.push({ wallet: who.name, width, merge, rowsBySource: rows.reduce((count, row) => ({ ...count, [row.source ?? "none"]: (count[row.source ?? "none"] ?? 0) + 1 }), {}) });
+          expect(merge.state === "merged" && merge.to === snapshotFile.coverage.toBlock, `${tag}: the snapshot is not merged into the activity list: ${JSON.stringify(merge)}`);
+          expect(rows.every((row) => ["scan", "snapshot", "both"].includes(row.source ?? "")) && rows.filter((row) => row.source === "snapshot").length === merge.added && rows.filter((row) => row.source === "both").length === merge.shared, `${tag}: the rows' sources do not add up to the stated merge: ${JSON.stringify(merge)}, ${rows.map((row) => row.source).join(",")}`);
+          expect(rows.every((row) => (row.source === "snapshot" ? /From the indexed snapshot/.test(row.text) : row.source === "both" ? /Live scan · also in the snapshot/.test(row.text) : /Live scan/.test(row.text))), `${tag}: a row does not say where it was read from`);
+          expect(new Set(rows.map((row) => `${row.hash}:${row.title}`)).size === rows.length, `${tag}: the merged list shows an entry twice`);
+          // Every snapshot-only row really is an event of the snapshot file, inside its range.
+          expect(rows.filter((row) => row.source !== "scan").every((row) => snapshotFile.events.some((event) => event.transactionHash === row.hash && ["PolicyAllowed", "AutoRepayExecuted"].includes(event.eventName))), `${tag}: a row attributed to the snapshot is not in the snapshot file`);
+          if (who.name === "demo-owner-watch-only") {
+            // What the snapshot holds for this owner (same filter as the scan) must all be in the list.
+            const owned = new Set([demoOwner.toLowerCase(), receipt.sentinelAccount.toLowerCase()]);
+            const expected = snapshotFile.events.filter((event) => (event.eventName === "AutoRepayExecuted" && owned.has(event.address.toLowerCase())) || (event.eventName === "PolicyAllowed" && ["IsolatedController", "SentinelAccount"].includes(event.contract) && owned.has(String(event.args.account).toLowerCase())));
+            const missing = expected.filter((event) => !rows.some((row) => row.hash === event.transactionHash));
+            notes.push({ wallet: who.name, width, snapshotEventsForOwner: expected.length, missingFromList: missing.map((event) => event.transactionHash) });
+            // Accounts of this owner that the snapshot does not index are still found by the scan, so "at least".
+            expect(expected.length > 0 && missing.length === 0 && merge.added + merge.shared >= 1, `${tag}: ${missing.length} of the snapshot's ${expected.length} events for this owner are missing from the merged list`);
+          } else expect(merge.added === 0 && merge.shared === 0, `${tag}: snapshot rows are shown for a wallet with no activity: ${JSON.stringify(merge)}`);
+          // Honest gap: named exactly, and equal to the blocks between the snapshot's end and the head scan's start.
+          const text = coverage;
+          expect(/merged from two sources/.test(text) && /re-read from the chain for this page and matches/.test(text) && text.includes(Number(snapshotFile.coverage.toBlock).toLocaleString("en-US")), `${tag}: the merged coverage does not name both sources and the verified snapshot range: "${text}"`);
+          if (merge.complete === "false") {
+            expect(ranges === 2 && /deployment block/.test(text) && /have not been read by either source/.test(text) && /until the snapshot is refreshed/.test(text) && BigInt(gap ?? "0") > 0n && text.includes(`${LOG_PAGE_BLOCKS} blocks at a time`) && text.includes((BigInt(snapshotFile.coverage.toBlock) + 1n).toLocaleString("en-US")), `${tag}: the unread blocks are not described precisely: "${text}" (ranges ${ranges}, gap ${gap})`);
+            // The snapshot card below states the same gap from its side.
+            // (The two are computed from two reads of the head a moment apart, so they may differ by a few blocks.)
+            const drift = BigInt(snapShown.gap ?? "0") - BigInt(gap ?? "0");
+            expect(snapShown.gap !== null && drift > -120n && drift < 120n, `${tag}: the list says ${gap} blocks are unread, the snapshot card says ${snapShown.gap}`);
+          } else expect(ranges === 1 && /cover every block from the deployment block/.test(text), `${tag}: a complete merged coverage is described as "${text}"`);
           // Paged from the deployment block: the recorded auto-repay (452 blocks after it) must be found by the scan
           // itself, with its explorer link, not only by the receipt re-read above.
           if (who.name === "demo-owner-watch-only") expect(chainRows.some((entry) => /Auto-repay/.test(entry.text) && entry.link === expectedTxUrl), `${tag}: the scan from the deployment block did not find the recorded auto-repay ${receipt.txHash} (${chainRows.length} entries)`);
@@ -599,6 +857,7 @@ if (mode === "wrong-network") {
     }
   }
   notes.push({ loads });
+  await checkRedirects();
 } else {
   throw new Error("mode must be wrong-network, broken-deployment, rejected-manifest, testnet-unverified or testnet-live");
 }

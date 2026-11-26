@@ -23,7 +23,9 @@ const OUT = process.env.OUT ? resolve(process.env.OUT) : null;
 const NEXT_DIR = process.env.NEXT_DIR ? resolve(process.env.NEXT_DIR) : null;
 const WATCH = "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"; // public demo owner address (AGENTS.md); no key is used
 const ALLOWED_HOSTS = new Set([new URL(BASE).host, "testrpc.xlayer.tech", "rpc.xlayer.tech"]);
-const ROUTES = ["/", "/sentinel", "/sentinel/policy", "/sentinel/activity", "/markets", "/markets?view=borrow", "/automate", "/connect", "/trade", "/studio", "/studio/create", "/circuits"];
+// Strategy-first routes (DECISIONS D23). The old URLs are redirects: they are checked as redirects further down.
+const ROUTES = ["/", "/portfolio", "/strategies", "/discover", "/activity", "/sentinel/policy", "/markets", "/markets?view=borrow", "/connect", "/trade", "/studio", "/studio/create", "/circuits"];
+const REDIRECTS = [["/app", "/portfolio"], ["/sentinel", "/portfolio"], ["/sentinel/activity", "/activity"], ["/automate", "/strategies"]];
 if (OUT) mkdirSync(OUT, { recursive: true });
 
 const failures = [];
@@ -46,6 +48,12 @@ if (NEXT_DIR) {
   for (const part of ["static", "server"]) if (existsSync(join(NEXT_DIR, part))) walk(join(NEXT_DIR, part));
   const clientFiles = files.filter((file) => file.startsWith(join(NEXT_DIR, "static")));
   const hits = { loopback: [], credentialNames: [] };
+  // The strategy SDK REJECTS imported template text that mentions a secret: its validator carries a deny-list regex
+  // with the words "mnemonic", "private key" and so on. That one regex, read here from the SDK source, is the only
+  // place where such words may appear in the build; it is removed before the scan, and only if it matches exactly.
+  const sdkValidator = readFileSync(join(repoRoot, "packages/strategy-sdk/validate.ts"), "utf8");
+  const denyList = /\/0x\[0-9a-f\]\{8,\}\|[^\n]*?mnemonic[^\n]*?\/i/.exec(sdkValidator)?.[0] ?? null;
+  notes.sdkDenyList = denyList ? "found in packages/strategy-sdk/validate.ts" : "NOT FOUND";
   const hex64 = new Set();
   for (const file of files) {
     const text = readFileSync(file, "utf8");
@@ -58,7 +66,7 @@ if (NEXT_DIR) {
     if (/127\.0\.0\.1|\/\/localhost|localhost:\d|:18545|:8787/.test(own)) hits.loopback.push(short);
     // Names of secrets must not even be referenced by the web build. (SENTINEL_OPERATOR_KEY is shown on /connect as the
     // NAME of a variable the reader sets in their own MCP host; it is documentation, and no value follows it.)
-    if (/OKX_API_KEY|OKX_API_SECRET|OKX_API_PASSPHRASE|OK-ACCESS-|PERIDOT_TESTNET_KEY|KEEPER_TESTNET_OPERATOR_KEY|PRIVATE_KEY|BEGIN [A-Z ]*PRIVATE KEY|mnemonic/i.test(text)) hits.credentialNames.push(short);
+    if (/OKX_API_KEY|OKX_API_SECRET|OKX_API_PASSPHRASE|OK-ACCESS-|PERIDOT_TESTNET_KEY|KEEPER_TESTNET_OPERATOR_KEY|PRIVATE_KEY|BEGIN [A-Z ]*PRIVATE KEY|mnemonic/i.test(denyList ? text.replaceAll(denyList, "") : text)) hits.credentialNames.push(short);
     if (clientFiles.includes(file)) for (const match of text.matchAll(/(?<![0-9a-fA-F])(?:0x)?([0-9a-fA-F]{64})(?![0-9a-fA-F])/g)) hex64.add(match[1].toLowerCase());
   }
   // A private key looks like any 32-byte hex value. So every such value in the CLIENT bundle must be explained: it
@@ -157,13 +165,40 @@ for (const [width, scheme] of [[1440, "light"], [390, "dark"]]) {
       expect(/Third-party circuit/i.test(third) && /not a Peridot circuit/i.test(third) && (await attr(page, "live-mainnet-eval", "data-state")) === "ok", `${tag}: the third-party example is not labelled or did not evaluate`);
       expect(!/enforced on mainnet/i.test(own + third), `${tag}: the page claims enforcement on mainnet`);
     }
-    if (path === "/sentinel") expect(/Sentinel v2 account/.test(main) && /Peridot lending/.test(main), `${tag}: v1 and v2 positions are not labelled apart`);
-    if (OUT && ["/", "/connect", "/trade", "/circuits", "/sentinel"].includes(path)) {
+    if (path === "/portfolio") expect(/Sentinel v2 account/.test(main) && /Peridot lending/.test(main), `${tag}: v1 and v2 positions are not labelled apart`);
+    if (path === "/") {
+      // D23 positioning, read from the hosted document itself.
+      const headline = ((await page.locator('[data-testid="headline"]').innerText().catch(() => "")) ?? "").replace(/\s+/g, " ").trim();
+      notes[`landing@${width}`] = { headline, create: await attr(page, "cta-create", "href"), explore: await attr(page, "cta-explore", "href") };
+      expect(headline === "Put your portfolio on autopilot." && (await attr(page, "cta-create", "href")) === "/strategies#create" && (await attr(page, "cta-explore", "href")) === "/discover" && /Your money\.\s*Your rules\.\s*Your intelligence\./.test(await text(page, '[data-testid="tagline"]')), `${tag}: the landing page does not carry the D23 headline, calls to action and tagline: ${JSON.stringify(notes[`landing@${width}`])}`);
+      expect(/testnet/i.test(await text(page, '[data-testid="hero-availability"]')) && /development reference processor/i.test(main) && /mock tokens and a mock price feed/i.test(main), `${tag}: the landing page does not state the testnet scope`);
+    }
+    if (path === "/discover") {
+      const cards = await page.locator('[data-testid="discover-card"]').evaluateAll((nodes) => nodes.map((node) => `${node.dataset.profile}:${node.dataset.availability}:${node.dataset.canSign}`));
+      notes[`discover@${width}`] = cards;
+      expect(cards.length === 2 && /No returns, yields, TVL, user counts or creator earnings are shown/.test(main), `${tag}: Discover does not list the two curated templates with the no-metrics statement: ${JSON.stringify(cards)}`);
+    }
+    if (path === "/strategies") {
+      // Browsing never offers an enabled signature: the sign button exists only inside a review the user asked for.
+      expect((await page.locator('[data-testid="strategy-builder"]').count()) === 1 && (await page.locator('[data-testid="strategy-sign"]').count()) === 0, `${tag}: the strategy builder is missing, or a sign button is shown before any review`);
+    }
+    if (OUT && ["/", "/connect", "/trade", "/circuits", "/portfolio", "/strategies", "/discover", "/studio"].includes(path)) {
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: `${OUT}/hosted${path === "/" ? "-landing" : path.replace(/\W+/g, "-")}-${width}-${scheme}.png`, fullPage: true });
     }
     console.log(`${failures.length ? "…" : "ok"} ${tag}`);
     await context.close();
+  }
+}
+// The old URLs: a temporary redirect on this origin to the new route, query string kept. Not followed.
+notes.redirects = [];
+for (const [from, to] of REDIRECTS) {
+  for (const query of ["", "?market=0x0000000000000000000000000000000000000001"]) {
+    const response = await fetch(BASE + from + query, { redirect: "manual" });
+    const location = response.headers.get("location") ?? "";
+    const target = location ? new URL(location, BASE) : null;
+    notes.redirects.push(`${from}${query} -> ${response.status} ${location}`);
+    expect([307, 308].includes(response.status) && target !== null && target.host === new URL(BASE).host && target.pathname === to && target.search === query, `redirect ${from}${query}: HTTP ${response.status} to "${location}", expected a redirect to ${to}${query} on this origin`);
   }
 }
 notes.hosts = [...allHosts].sort();
@@ -172,7 +207,7 @@ expect(backgrounds.light && backgrounds.dark && backgrounds.light !== background
 
 // A wallet on another chain: the banner appears and the page offers the switch to testnet; mainnet is never a target.
 {
-  const { context, page, handle } = await open("/sentinel", { walletChainId: "0xc4" });
+  const { context, page, handle } = await open("/portfolio", { walletChainId: "0xc4" });
   const banner = await text(page, '[data-testid="wrong-network-banner"]');
   notes.wrongNetwork = banner.slice(0, 160);
   expect(/X Layer Testnet/i.test(banner), `wrong network: no banner asking for X Layer testnet for a wallet on chain 196 ("${banner.slice(0, 120)}")`);
@@ -182,10 +217,10 @@ expect(backgrounds.light && backgrounds.dark && backgrounds.light !== background
 
 // RPC failure paths. Testnet RPC unreachable: no example data, no account data, an explicit failure state.
 {
-  const { context, page, errors } = await open("/sentinel", { block: ["testrpc.xlayer.tech"] });
+  const { context, page, errors } = await open("/portfolio", { block: ["testrpc.xlayer.tech"] });
   const main = await text(page, "body");
   notes.testnetRpcDown = { banner: (await text(page, '[data-testid="deployment-banner"]')).slice(0, 160), pageErrors: errors.length };
-  expect((await page.locator('[data-testid="deployment-banner"]').count()) === 1 && (await page.locator('[data-testid="fixture-banner"]').count()) === 0 && (await page.getByText("Example", { exact: true }).count()) === 0, `testnet RPC down: /sentinel does not fail closed (${main.slice(0, 160)})`);
+  expect((await page.locator('[data-testid="deployment-banner"]').count()) === 1 && (await page.locator('[data-testid="fixture-banner"]').count()) === 0 && (await page.getByText("Example", { exact: true }).count()) === 0, `testnet RPC down: /portfolio does not fail closed (${main.slice(0, 160)})`);
   expect(errors.length === 0, `testnet RPC down: page errors ${errors.join(" | ")}`);
   await context.close();
   for (const [path, testid] of [["/connect", "connect-grant"], ["/trade", "v2-deployment"]]) {
