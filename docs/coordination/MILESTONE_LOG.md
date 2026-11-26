@@ -1456,3 +1456,37 @@ requests:
   - "Astra: the v2 manifest carries uiEnabled:false and the app offers no v2 write. The ERC-4626 vault is not built in the app and stays hidden (no wallet that owns a vault account is available to Fable, locally or on 1952)."
   - "Astra: a machine-readable tool catalogue for sentinel-connect-v2 (like evidence/session5-mcp/tools.json) would replace the README-table parse the onboarding uses today."
 ```
+
+```yaml
+milestone: M9-local-lending-binding
+from: astra
+status: integrating
+chain_id: 31337
+specialists: ["A5 local contracts and checker", "A3 browser rehearsal", "A4 tool catalogues", "Astra verified shared M4 and judge data"]
+verification: ["Shared unforked instance b5c6d66bb5f4, head 111. The existing deploy-demo local command replayed original receipts and verified all 13 M4 addresses. In the pending block the original two oracle observations exceed their 24-hour lifetime. A Sentinel supply also checks freshness at its financial entry point."]
+frontend_actions: ["The original M4 tokens, addresses and historical prices are preserved. Local swap quotes will use a separate explicitly fixed-price fixture. The lending binding must be read from the local expansion manifest."]
+next_dependency: "The proposed additive lending book reuses M4 registry, policy adapter, model, pToken implementation, assets, and policy. A local-only factory and fixed fixture can support supply through browser acceptance without a price transaction to the shared oracle. Claude may instead explicitly authorize a same-price timestamp refresh for the original book."
+```
+
+```yaml
+milestone: M9-tool-catalogue
+from: astra
+status: implemented
+specialists: ["A4 generated and tested both catalogues via actual signer-free stdio servers", "Astra independently reran the parity tests", "A5 local infrastructure and A3 local rehearsal remain separate"]
+manifest: ["services/mcp/tools.json", "services/mcp-v2/tools.json"]
+verification: ["node services/mcp/generate-tool-catalogues.mjs discovers 12 v1 tools and 7 v2 tools. node --test services/mcp/test/tool-catalogues.test.mjs passed both stdio parity tests without invoking a financial tool. Each stored wire name, description, inputSchema and advertised annotation matched tools/list."]
+frontend_actions: ["Load tools[] directly for Connect onboarding. Each entry has name, description, inputSchema, writes, journalEffect and guarantees[]. writes means the tool can submit an on-chain transaction. V1 has one such tool. V2 has two, including the opt-in intentional mined denial. Use journalEffect for local proposal persistence/receipt reconciliation."]
+next_dependency: "Fable can replace the README-table parse with these static JSON files."
+```
+
+```yaml
+milestone: M9-judge-campaign-data
+from: astra
+status: implemented
+chain_id: 1952
+specialists: ["Astra wired the campaign snapshot and documented the read-only field mapping", "A5 local infrastructure, A3 local rehearsal and A4 catalogue worked separately"]
+manifest: deployments/session7/1952/judge-01/manifest.json
+verification: ["Original manifest fields and 49 setup receipt hashes compared equal to ab54ec6. activity.path resolves relative to the campaign manifest to ./activity.json: 47 historical events over blocks 47252767–47253214. Snapshot schema, campaign, profile and chain match. The two recorded grant expiries are Unix 1796316632, Dec 3 at 16:50:32 UTC."]
+frontend_actions: ["Use docs/JUDGE_DEMO.md, section Read-only UI data, for owner, accounts, books, grants, units, receipt labels, and snapshot range/gaps. Display initial limits at preparedBlock and read the current on-chain grant for present availability."]
+next_dependency: "Fable can sync the manifest and its sibling activity.json to the same public asset directory. The campaign generator now includes the same relative pointer."
+```

@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 1,
+  "server": {
+    "name": "sentinel-connect",
+    "version": "1.1.0"
+  },
+  "writesMeaning": "True when the tool can submit an on-chain transaction.",
+  "journalEffects": {
+    "none": "No proposal journal access.",
+    "read": "Reads existing proposal records. Opening the journal can initialize local storage.",
+    "propose": "May save a simulated proposal locally.",
+    "execute": "May reserve a signed transaction and record its outcome locally.",
+    "reconcile": "May record a confirmed outcome and release the pending nonce locally."
+  },
+  "tools": [
+    {
+      "name": "sentinel_get_portfolio",
+      "description": "Value the configured account in test USD, separating idle funds and stored lending exposure.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "none",
+      "guarantees": [
+        "Values the configured 1952 account using fresh mock oracle prices at the verified block.",
+        "Reports idle assets, stored supply and debt separately in test USD."
+      ]
+    },
+    {
+      "name": "sentinel_get_positions",
+      "description": "Read raw token holdings, pToken shares, underlying supplied and stored borrow balances.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "none",
+      "guarantees": [
+        "Reads token balances and lending-book snapshots for the configured account at the same verified block."
+      ]
+    },
+    {
+      "name": "sentinel_get_markets",
+      "description": "Read activated state, caps, policy IDs and liquidity for manifest-listed v1 markets.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "none",
+      "guarantees": [
+        "Reads the markets in the 1952 manifest and checks each controller’s books against its manifest addresses."
+      ]
+    },
+    {
+      "name": "sentinel_get_rates",
+      "description": "Read variable per-block rates and model-based simple annual rates at the same block.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "none",
+      "guarantees": [
+        "Checks the configured rate model and calculates simple APR using its on-chain blocksPerYear and each book’s per-block rate."
+      ]
+    },
+    {
+      "name": "sentinel_get_policies",
+      "description": "Read the market and account policy IDs and their actual registry entries.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "none",
+      "guarantees": [
+        "Reads the attached market and account policy IDs and returns their registry entries at the verified block. A zero ID has a null entry."
+      ]
+    },
+    {
+      "name": "sentinel_get_strategies",
+      "description": "Read the configured automatic repayment trigger, repay-only operator grant, expiry and budget.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "none",
+      "guarantees": [
+        "Reports the actual trigger and grant for the fixed operator. A live repay-only grant requires mask 8, a positive budget and an unexpired grant."
+      ]
+    },
+    {
+      "name": "sentinel_simulate_auto_repay",
+      "description": "Simulate autoRepay() for the configured testnet operator through a read-only eth_call.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "none",
+      "guarantees": [
+        "Checks the repay-only grant, trigger and mock price freshness before simulating autoRepay as the fixed operator.",
+        "An eligible amount is positive and within the observed grant."
+      ]
+    },
+    {
+      "name": "sentinel_propose_auto_repay",
+      "description": "Simulate and persist a five-minute proposal scoped to the configured account, operator and grant.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "propose",
+      "guarantees": [
+        "Only an eligible simulation produces a saved proposal. The proposal binds the account, operator, grant, amount and block for five minutes."
+      ]
+    },
+    {
+      "name": "sentinel_execute_auto_repay",
+      "description": "Submit one locally proposed v1 testnet autoRepay() or reconcile its original hash. Requires explicit operator signer enablement.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proposalId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "proposalId"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": true,
+      "journalEffect": "execute",
+      "guarantees": [
+        "Requires an enabled dedicated operator and a local proposal. Rechecks the grant and simulated amount before signing a zero-value autoRepay call to the configured 1952 account.",
+        "Reserves the hash and nonce before submission. An uncertain submission can be reconciled by its original ID."
+      ]
+    },
+    {
+      "name": "sentinel_quote",
+      "description": "Request an informational OKX OnchainOS WOKB/native USDC mainnet quote. Returns unavailable when credentials or service are missing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "enum": [
+              "WOKB",
+              "USDC"
+            ]
+          },
+          "amountRaw": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,77}$"
+          }
+        },
+        "required": [
+          "from",
+          "amountRaw"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "none",
+      "guarantees": [
+        "Requests an informational OKX quote for WOKB and native USDC on chain 196. Missing credentials or an unavailable provider return a blocked status and null quote."
+      ]
+    },
+    {
+      "name": "sentinel_simulate_operator_borrow",
+      "description": "Simulate the fixed operator borrowing one mock dollar on 1952 and return the actual decoded contract decision.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "none",
+      "guarantees": [
+        "Simulates borrowing 1,000,000 raw mUSD units as the configured operator. Reports the observed contract result through eth_call."
+      ]
+    },
+    {
+      "name": "sentinel_get_execution_receipt",
+      "description": "Read the canonical receipt and account changes for a specific previously submitted local proposal.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proposalId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "proposalId"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "writes": false,
+      "journalEffect": "reconcile",
+      "guarantees": [
+        "Looks up the submitted hash by local proposal ID. For a confirmed repayment, checks the canonical transaction and both the account and debt-book events."
+      ]
+    }
+  ]
+}

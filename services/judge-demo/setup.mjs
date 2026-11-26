@@ -192,6 +192,7 @@ export async function setup(s,adopt){
   assert.equal(await read(s,boxes.account,'operatorCount',[],at),1n)
   const balances=Object.fromEntries(await Promise.all(Object.entries(s.actors).map(async([k,a])=>[k,String(await s.balance(a,at))])))
   const manifest={schemaVersion:1,chainId:1952,profile:s.profile,campaign:s.campaign,label:'Valueless inventory-backed mock assets and development reference circuits',
+    activity:{path:'./activity.json',kind:'judge-event-snapshot',schemaVersion:1},
     deploymentBlock:s.state.steps['fund-judge'].blockNumber,preparedBlock:String(at),preparedBlockHash:end.blockHash,
     ...s.actors,base:sink,markets,policies,contracts:addresses(),runtimeCodeHashes:hashes,
     source:{baseCommit:base.commit,expansionCommit:expansion.source.expansionCommit},

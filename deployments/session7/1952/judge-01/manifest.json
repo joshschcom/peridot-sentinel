@@ -3,6 +3,11 @@
   "chainId": 1952,
   "profile": "public-testnet",
   "campaign": "judge-01",
+  "activity": {
+    "path": "./activity.json",
+    "kind": "judge-event-snapshot",
+    "schemaVersion": 1
+  },
   "label": "Valueless inventory-backed mock assets and development reference circuits",
   "deploymentBlock": "47252767",
   "preparedBlock": "47253173",

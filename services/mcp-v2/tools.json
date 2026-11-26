@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "server": {
+    "name": "sentinel-connect-v2",
+    "version": "2.0.0"
+  },
+  "writesMeaning": "True when the tool can submit an on-chain transaction.",
+  "journalEffects": {
+    "none": "No proposal journal access.",
+    "read": "Reads existing proposal records. Opening the journal can initialize local storage.",
+    "propose": "May save a simulated proposal locally.",
+    "execute": "May reserve a signed transaction and record its outcome locally.",
+    "reconcile": "May record a confirmed outcome and release the pending nonce locally."
+  },
+  "tools": [
+    {
+      "name": "read_account",
+      "description": "Read confirmed account, lending book exposure, mock idle assets, policy, remaining grants and submitted campaign transactions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "writes": false,
+      "journalEffect": "read",
+      "guarantees": [
+        "Checks account, adapter and circuit bindings against the 1952 manifest. Reads actual lending-book exposure and idle mock assets separately.",
+        "Includes recorded submissions for the fixed campaign from the local journal."
+      ]
+    },
+    {
+      "name": "read_market",
+      "description": "Read a normalized quote from the 1952 inventory-backed mock and request separate, informational 196 OKX market data for the chosen input.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "amountInRaw": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,77}$"
+          }
+        },
+        "required": [
+          "amountInRaw"
+        ],
+        "additionalProperties": false
+      },
+      "writes": false,
+      "journalEffect": "none",
+      "guarantees": [
+        "Returns the on-chain mock quote and policy minimum for the chosen input on 1952. The separate informational OKX quote on chain 196 can be unavailable."
+      ]
+    },
+    {
+      "name": "simulate_and_propose_swap",
+      "description": "Simulate exact WOKB mock input and minimum mUSDC output chosen by the owner-authorized agent. Save typed parameters and immutable deadline under a proposal ID.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "amountInRaw": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,77}$"
+          },
+          "minOutRaw": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,77}$"
+          }
+        },
+        "required": [
+          "amountInRaw",
+          "minOutRaw"
+        ],
+        "additionalProperties": false
+      },
+      "writes": false,
+      "journalEffect": "propose",
+      "guarantees": [
+        "Checks the current grant, idle input and campaign cap. Simulates the operator’s exact mock WOKB input and minimum mock USDC output before saving a new proposal.",
+        "The saved proposal fixes the account, route, raw amounts and five-minute deadline."
+      ]
+    },
+    {
+      "name": "execute_swap",
+      "description": "Execute or reconcile one previously simulated fixed-pair swap on 1952, using its persisted proposal ID.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proposalId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "proposalId"
+        ],
+        "additionalProperties": false
+      },
+      "writes": true,
+      "journalEffect": "execute",
+      "guarantees": [
+        "Rechecks the proposal, grant and pending simulation before signing a zero-value call to the configured 1952 account. Swap output goes to that account.",
+        "The journal allows at most one submitted swap per campaign and reserves the signed hash before broadcast."
+      ]
+    },
+    {
+      "name": "simulate_denied_borrow",
+      "description": "Simulate a fixed 1-raw-unit borrow by the swap operator. On an exact authorization denial, save its bounded negative-demo proposal.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "writes": false,
+      "journalEffect": "propose",
+      "guarantees": [
+        "A new negative-demo proposal requires an absent borrow grant and an eth_call returning OperatorNotAuthorized for the fixed one-raw-unit borrow."
+      ]
+    },
+    {
+      "name": "mine_denied_borrow",
+      "description": "Once per account campaign, submit the simulated 1-raw-unit unauthorized borrow with explicit gas to demonstrate a mined revert. Costs testnet gas.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proposalId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "proposalId"
+        ],
+        "additionalProperties": false
+      },
+      "writes": true,
+      "journalEffect": "execute",
+      "guarantees": [
+        "Requires both execution and mined-rejection enablement. Rechecks the absent grant and exact denial before submitting the fixed one-raw-unit borrow with a 300,000 gas limit.",
+        "The journal allows at most one submitted negative-demo transaction per campaign. A mined revert spends test OKB gas."
+      ]
+    },
+    {
+      "name": "get_receipt",
+      "description": "Read canonical receipt, matching event or decoded replay, block and resulting authorization, without submitting.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proposalId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "proposalId"
+        ],
+        "additionalProperties": false
+      },
+      "writes": false,
+      "journalEffect": "reconcile",
+      "guarantees": [
+        "Checks the reserved hash and signed transaction against the canonical block. Swap verification checks settlement events, approvals and balance changes.",
+        "Negative-demo verification checks the reverted receipt, empty logs and authorization replay. Receipt-window state mismatches are reported for review."
+      ]
+    }
+  ]
+}

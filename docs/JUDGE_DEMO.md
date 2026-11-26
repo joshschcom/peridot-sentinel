@@ -152,6 +152,20 @@ Use `studio-join` in the operator, rejection, revocation and activity commands f
 
 ### Prepared public campaign
 
+#### Read-only UI data
+
+Load the [judge-01 manifest](../deployments/session7/1952/judge-01/manifest.json). Its `chainId` is 1952, `profile` is `public-testnet`, and all amounts, block heights and Unix expiry timestamps below are decimal strings. Use `BigInt` for values in raw token units. These are observations at `preparedBlock` and `preparedBlockHash`.
+
+| UI field | Manifest fields and interpretation |
+| --- | --- |
+| Owner and operator | `owner` controls both v1 accounts and the v2 account. `operator` is the separate restricted signer. |
+| Markets and borrowers | `markets.A` and `markets.B` each contain `controller`, `collateralMarket`, `debtMarket`, `account` (v1 borrower), `marketPolicy`, `creationTx` and `creationBlock`. `policies.A/B.capBps` and `policies.account.capBps` are basis points. |
+| Repay grant | `grants.repay.account` is the market A borrower. `budgetRaw` is cumulative mUSD (6 decimals, `base.MockDebt`); `expiry` is in seconds UTC. The v1 repay-only mask is 8. The grant receipt is `setupReceipts["repay-only"]`. |
+| Swap grant | `grants.swap.account` is the v2 account at `contracts.account`; `contracts.swap` is its adapter. Operation 5 spends `contracts.mockWokb` (18 decimals) for `contracts.mockUsdc` (6 decimals). `perCallRaw`, initial `remainingRaw` and `expiry` describe the grant at preparation. Its receipt is `setupReceipts["swap-only"]`. |
+| Historical activity | Resolve `activity.path` alongside the manifest and verify its `kind`, `schemaVersion`, `chainId`, `profile` and `campaign`. Display `coverage.fromBlock`, `coverage.toBlock`, `coverage.toBlockHash` and `coverage.gaps` with the events. The snapshot’s own range advances on refresh. [Scoped snapshot](../deployments/session7/1952/judge-01/activity.json) |
+
+For current spendable limits, read `operators(operator)` on the v1 account and `grants(operator, swapAdapter, 5, inputAsset)` on the v2 account at a stated block and compare each expiry with that block’s timestamp. A missing snapshot or failed read is unavailable data.
+
 Claude ran the one-command setup once on public 1952 for `judge-01`. It completed at **block 47,253,173** with **49 successful setup receipts**. The judge owner is `0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B`. Its market A borrower is `0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2`, and its swap account is `0x154815582Eae6b49B7F0f3cABD16adCA0227d269`. Some contract addresses coincide with the private fork because their factories and creation nonces matched. Use the public manifest, block hashes, owner and receipts to identify this public run. [Public manifest and all setup hashes](../deployments/session7/1952/judge-01/manifest.json)
 
 | Testnet wallet | Before setup (test OKB) | At the prepared block (test OKB) |
