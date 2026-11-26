@@ -1,0 +1,15 @@
+{
+  "mode": "rejected-manifest",
+  "onlyPaths": null,
+  "case": "template-root",
+  "base": "http://127.0.0.1:3212",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": true,
+  "failures": [],
+  "notes": [
+    {
+      "reasonShown": "This build shows example data Every balance, market, position and activity entry in the app is an explicitly labelled example. Nothing is read from X Layer, no transaction can be sent, and example records have no addresses or transaction hashes. REASON The manifest for chain 31337 says \"deployed\" bu"
+    }
+  ]
+}

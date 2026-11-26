@@ -1,0 +1,15 @@
+{
+  "mode": "testnet-unverified",
+  "onlyPaths": null,
+  "case": null,
+  "base": "http://127.0.0.1:3212",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": true,
+  "failures": [],
+  "notes": [
+    {
+      "bannerText": "Live data unavailable. The deployment on X Layer Testnet could not be verified, so nothing is read from it and transactions are blocked. No bytecode at 1 manifest address(es), e.g. 0x00000000000000000000000000000000000dEaD1. Check again"
+    }
+  ]
+}

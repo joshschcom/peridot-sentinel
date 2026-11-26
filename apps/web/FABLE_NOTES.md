@@ -119,6 +119,24 @@ New build-time inputs, all optional, all read by `scripts/sync-manifests.mjs` in
 - **Hosting**: `DEPLOY.md`, `vercel.json`. A testnet build has no loopback string (`LOCAL_RPC_URL` in `src/lib/chains.ts` exists only when `NEXT_PUBLIC_PERIDOT_TARGET=local`). `scripts/hosted-checks.mjs` is the clean-browser validation for a deployed URL (`BASE_URL=...`), with `NEXT_DIR=.next` for the bundle scan.
 - **Checker traps**: pipes buffer the checker's output until it ends. `ONLY_PATHS=<regex>` narrows `testnet-live` for development (recorded in the result file; never use it for evidence). Chain state moves under the checks (grants are spent, operators are revoked, markets are added): assert against a direct RPC read at the block the page names, not against yesterday's numbers.
 
+### Run 4 verification (final commit e4cda08, 2026-11-26)
+
+- `npm test` 74/74, `npm run typecheck` clean, `npm run check:tokens` clean, `npm run build` ok with a scrubbed environment. A fresh clone built with the exact Vercel commands at 62fcb47 (not repeated at e4cda08).
+- `scripts/hosted-checks.mjs` against `next start` of the production build: all passed (24 clean-profile page loads; hosts = app origin + the two X Layer RPCs; bundle scan clean; RPC-down paths fail closed). `evidence/screenshots/hosted-local/`. **Not run against a hosted URL: none existed.** When the founder deploys: `BASE_URL=https://... node scripts/hosted-checks.mjs` (omit `NEXT_DIR`, or build the same commit locally and pass it).
+- `chain-checks.mjs testnet-live` on that build, `KEEPER_API_URL` unset: all passed, 52 loads. `evidence/screenshots/testnet-1952-run4/`.
+- Negative checks (`wrong-network`, `broken-deployment`, `rejected-manifest` x2, `testnet-unverified`): all pass, `evidence/fable/run4/negative/`. How to set them up: tampered manifest copies in a temp dir (one contract address without bytecode; template root changed; `PolicyRegistry` removed; the same broken address in a 1952 copy), a dev server per mode on port 3212 with `PERIDOT_DEPLOYMENTS_DIR=<dir>` (plus `NEXT_PUBLIC_PERIDOT_TARGET=local` for the three local modes). **Do not pass `EXPECT_REASON=""`**: an empty string becomes a regex that matches everything. Run `node scripts/sync-manifests.mjs` afterwards, because the dev server's `predev` leaves the tampered manifest in `src/generated/`.
+- `circuits-fail-closed` passed against real chain 196 at 8d1ccc6 and was not re-run after the TapedOut decode fix (9e50d75); its three cases stop at the receipt step, before the decode.
+- Fixture mode: `screenshots.mjs` all UI checks pass; 58 screenshots in `evidence/screenshots/brand/`. `OUT` for that script is relative to `scripts/`, so use `OUT=../../../evidence/screenshots/<dir>` (for `chain-checks.mjs` and `hosted-checks.mjs` it is relative to the working directory).
+- `DEMO_MATRIX.md` UI cells were updated in this run; the edit was committed inside another agent's commit (29acc41).
+
+### More traps from run 4
+
+- `innerText` returns CSS-transformed text: eyebrows are uppercase, so match them case-insensitively in checks.
+- A closed `<details>` has to be opened before its text is read in a check.
+- An env var that is unset at build time is NOT inlined by Next, so `process.env.X === "local" ? "literal" : ...` keeps the literal in the bundle. Values that must not ship go through `next.config.ts` `env`.
+- `npm ci` at the repo root wipes `node_modules`, including the Playwright browser (`PLAYWRIGHT_BROWSERS_PATH=0`) and whatever other agents are running from it. Test install commands in a fresh clone outside the repo.
+- Kill a dev server by the PID listening on its port (`lsof -nP -iTCP:<port> -sTCP:LISTEN -t`).
+
 ## Not done after run 4
 
 1. **Positive native evaluation of a published Peridot circuit** has never run: nothing is published. After the founder publishes, put the IDs and receipt hashes into `tapeout-196.json`, rebuild, and run `chain-checks.mjs testnet-live` (it reads the expected count from that file) plus a manual look at the three results against the 23 vectors.

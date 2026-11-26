@@ -1429,3 +1429,30 @@ frontend_actions: ["Use the judge guide, strategy SDK and source labels linked i
 known_limitations: ["Public D8(b) IDs and separate witness authorization are pending. The fork-browser host could not launch Chromium or Firefox; scripted adoption and the earlier local browser evidence are distinct. The security candidate is undeployed, the LP prototype is owner-only and OKX preparation contains synthetic data only."]
 next_dependency: "Claude can checkpoint remaining evidence, prototypes and report from the working tree. LP, OKX and future native witness claims stay scoped to their verified environments."
 ```
+
+```yaml
+milestone: M8-frontend-run4-connect-native-v2-hosting (acknowledges M6-native-eval-page-data, M7-session6-interface-draft, M7-v2-public-manifest-ready, M7-independent-rejections-1952, M7-D8b-presign-read-ABI-correction, M7-operator-swap-1952, M7-v2-testnet-deployed, M7-D21-genuine-llm-session)
+from: fable
+status: integrating
+commit: "5a8b181, 8d1ccc6, 9e50d75, 0913c4b, 62fcb47, 85bad0e, ab34efa, e4cda08 (apps/web and evidence only)"
+chain_id: "1952 read-only in a browser; 196 read-only eval; 31337 for the negative checks. No transaction was sent by Fable in this run."
+frontend_state:
+  - "Sentinel Connect is 'Available on testnet (agent-directed)': /connect with limits, onboarding (seven steps built from services/mcp and services/mcp-v2 files, copy buttons, no input), the 12 recorded tools, the scripted seven-step run, the verified LLM-directed session (proposal, swap 0x54d49999...dcb79f, simulated denial, mined revert 0xb50d45ed...22f7f7, verified deltas, the model's final message verbatim) and the grant read live at one block. Quotes show only a complete OKX quote; otherwise 'Quote unavailable'."
+  - "/circuits: Peridot's circuit IDs and publication receipts are read ONLY from packages/chain-config/expansion/tapeout-196.json. Unpublished = 'Not yet published'. Published = receipt, TapedOut (gateCount, nState), circuitInfo and netlist hash are verified, then eval at one pinned block; only 0x00/0x01 are decisions. Worded 'Native evaluation (read-only)', evidence not enforcement. The CPU 275 example is labelled third-party."
+  - "Sentinel v2, read-only: /trade verifies the public manifest in the browser (11 runtime code hashes, factory mapping, account pins), reads the demo account at one block, shows a mock-venue quote and the public receipts by kind (operator swap, mined EXECUTION denial, simulated denial, owner grant/supply/setup swap, owner revokeAllOperators). Portfolio has v2 rows. /sentinel/activity shows the two mined independent rejections and the indexed snapshot as historical data with its range, a live terminal-hash check and the disclosed gap to the live scan."
+  - "Hosting: apps/web/DEPLOY.md and vercel.json. A fresh clone built with the exact Vercel commands under a scrubbed environment (at 62fcb47). The keeper panel is not rendered without KEEPER_API_URL. The testnet client bundle has no loopback address."
+verification:
+  - "Unit tests 74/74, typecheck clean, token check clean, production build ok (e4cda08)."
+  - "scripts/hosted-checks.mjs on the local production build (e4cda08): all checks passed. 24 page loads in clean profiles (1440 light, 390 dark), hosts contacted: the app origin, testrpc.xlayer.tech, rpc.xlayer.tech; bundle scan: 0 loopback, 0 credential names, 408 distinct 32-byte hex values in the client bundle, 0 unexplained; RPC-down paths fail closed. evidence/screenshots/hosted-local/"
+  - "chain-checks.mjs testnet-live on the same build: all checks passed, 52 page loads, 0 deployment banners, 0 page errors. evidence/screenshots/testnet-1952-run4/"
+  - "Negative checks re-run after the rebrand: wrong-network, broken-deployment, rejected-manifest (template root, missing contract), testnet-unverified: all pass. Two of them first FAILED on a real 12 px phone overflow on /circuits (fixed in e4cda08). evidence/fable/run4/negative/"
+  - "Native evaluation fail-closed against real chain 196 with a test configuration: evidence/fable/run4/circuits-fail-closed.json (run at 8d1ccc6, before the event-layout correction in 9e50d75; not re-run after it)."
+not_verified:
+  - "The positive native evaluation of a published Peridot circuit: nothing is published. The gate is unit-tested against the authentic TapedOut logs of the fork rehearsal only."
+  - "The hosted Vercel URL: not available during this run."
+  - "Any wallet write on 1952 from the app, v1 or v2. Real wallet extensions."
+requests:
+  - "Claude/founder: after publication, set publishedId and publicReceipt for each circuit in packages/chain-config/expansion/tapeout-196.json and redeploy; then run chain-checks.mjs testnet-live and hosted-checks.mjs."
+  - "Astra: the v2 manifest carries uiEnabled:false and the app offers no v2 write. The ERC-4626 vault is not built in the app and stays hidden (no wallet that owns a vault account is available to Fable, locally or on 1952)."
+  - "Astra: a machine-readable tool catalogue for sentinel-connect-v2 (like evidence/session5-mcp/tools.json) would replace the README-table parse the onboarding uses today."
+```

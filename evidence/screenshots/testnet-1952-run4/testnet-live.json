@@ -1,0 +1,1049 @@
+{
+  "mode": "testnet-live",
+  "onlyPaths": null,
+  "case": null,
+  "base": "http://127.0.0.1:3220",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": true,
+  "failures": [],
+  "notes": [
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "gasBanner": true,
+      "faucet": "https://web3.okx.com/xlayer/faucet/xlayerfaucet",
+      "gasText": "Your wallet has no test OKB. Transactions need a little OKB for the network fee, so they cannot be sent yet. You can still look around. Get test OKB from the faucet"
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "sentinelAccounts": []
+    },
+    {
+      "wallet": "empty-wallet",
+      "rail": [
+        {
+          "key": "overview",
+          "status": "live",
+          "link": true,
+          "text": "Overview"
+        },
+        {
+          "key": "earn",
+          "status": "live",
+          "link": true,
+          "text": "Earn"
+        },
+        {
+          "key": "borrow",
+          "status": "live",
+          "link": true,
+          "text": "Borrow"
+        },
+        {
+          "key": "trade",
+          "status": "development",
+          "link": true,
+          "text": "Trade In development"
+        },
+        {
+          "key": "automate",
+          "status": "live",
+          "link": true,
+          "text": "Automate"
+        },
+        {
+          "key": "studio",
+          "status": "live",
+          "link": true,
+          "text": "Studio"
+        },
+        {
+          "key": "circuits",
+          "status": "live",
+          "link": true,
+          "text": "Circuits"
+        },
+        {
+          "key": "connect",
+          "status": "live",
+          "link": true,
+          "text": "Connect"
+        },
+        {
+          "key": "about",
+          "status": "live",
+          "link": true,
+          "text": "About and status"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "portfolio": [
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #0 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #1 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #2 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #3 No position"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "portfolioV2": {
+        "state": "none",
+        "account": "",
+        "rows": []
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "modes": {
+        "rule-based": "live",
+        "connect": "live",
+        "hosted": "planned"
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "snapshot": {
+        "state": "canonical",
+        "from": "47161508",
+        "to": "47250330",
+        "events": "108",
+        "gap": "0",
+        "listed": 17
+      },
+      "minedRejections": [
+        {
+          "error": "AccountPolicyRejected",
+          "hash": "0x4d9730244f37960058310b2ec2d173546634aed58436fa70966e5c2d6a6d4c0b",
+          "href": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x4d9730244f37960058310b2ec2d173546634aed58436fa70966e5c2d6a6d4c0b"
+        },
+        {
+          "error": "MarketPolicyRejected",
+          "hash": "0xb0981049d5c21deb724ac471709e459da14c81c634b12352925f7829023f4feb",
+          "href": "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb0981049d5c21deb724ac471709e459da14c81c634b12352925f7829023f4feb"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "ms": 9050,
+      "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+      "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
+      "onChainEntries": 0,
+      "autoRepayInScan": false,
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,250,339 to the latest block 47,254,338. The 87,831 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "ranges": 2,
+      "unreadBlocks": "87831",
+      "keeperPanel": "hidden",
+      "keeperRows": 0,
+      "keeperText": ""
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "connectGrant": {
+        "state": "ok",
+        "readiness": "spent",
+        "remaining": "0",
+        "mask": "8",
+        "expiry": "1796305268",
+        "block": "47254348",
+        "directRead": {
+          "mask": 8,
+          "remaining": "0",
+          "expiry": "1796305268"
+        }
+      },
+      "tools": 12,
+      "kinds": {
+        "scripted": "Verified",
+        "llm": "Verified",
+        "simulated-rejection": "Recorded · nothing sent",
+        "mined-revert": "Recorded · reverted on chain"
+      },
+      "txLinks": [
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f"
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "v2": {
+        "state": "ok",
+        "block": "47254362",
+        "usdc": "199900000",
+        "wokb": "1500000000000000000",
+        "operators": "0",
+        "grants": [],
+        "quoteExpected": "80000000",
+        "receipts": [
+          "operator-swap:0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d",
+          "mined-denial:0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12",
+          "simulated-denial:",
+          "emergency-revoke:0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+          "owner-grant:0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342",
+          "owner-supply:0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b",
+          "owner-setup-swap:0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c"
+        ]
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "peridotCircuits": [
+        "MARKET:unpublished:",
+        "ACCOUNT:unpublished:",
+        "EXECUTION:unpublished:"
+      ],
+      "configuredPublished": 0
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 1440,
+      "liveMainnetEval": {
+        "state": "ok",
+        "block": "76,944,198",
+        "first": {
+          "input": "0x03",
+          "output": "0x01"
+        },
+        "second": {
+          "input": "0x02",
+          "output": "0x00"
+        },
+        "table": [
+          "0x00->0x00",
+          "0x01->0x00",
+          "0x02->0x00",
+          "0x03->0x01"
+        ],
+        "processorHref": "https://www.okx.com/web3/explorer/xlayer/address/0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+        "netlistMatches": "true"
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "gasBanner": true,
+      "faucet": "https://web3.okx.com/xlayer/faucet/xlayerfaucet",
+      "gasText": "Your wallet has no test OKB. Transactions need a little OKB for the network fee, so they cannot be sent yet. You can still look around. Get test OKB from the faucet"
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "sentinelAccounts": []
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "portfolio": [
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #0 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #1 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #2 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #3 No position"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "portfolioV2": {
+        "state": "none",
+        "account": "",
+        "rows": []
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "modes": {
+        "rule-based": "live",
+        "connect": "live",
+        "hosted": "planned"
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "snapshot": {
+        "state": "canonical",
+        "from": "47161508",
+        "to": "47250330",
+        "events": "108",
+        "gap": "156",
+        "listed": 17
+      },
+      "minedRejections": [
+        {
+          "error": "AccountPolicyRejected",
+          "hash": "0x4d9730244f37960058310b2ec2d173546634aed58436fa70966e5c2d6a6d4c0b",
+          "href": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x4d9730244f37960058310b2ec2d173546634aed58436fa70966e5c2d6a6d4c0b"
+        },
+        {
+          "error": "MarketPolicyRejected",
+          "hash": "0xb0981049d5c21deb724ac471709e459da14c81c634b12352925f7829023f4feb",
+          "href": "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb0981049d5c21deb724ac471709e459da14c81c634b12352925f7829023f4feb"
+        }
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "ms": 8522,
+      "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+      "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
+      "onChainEntries": 0,
+      "autoRepayInScan": false,
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,250,497 to the latest block 47,254,496. The 87,989 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "ranges": 2,
+      "unreadBlocks": "87989",
+      "keeperPanel": "hidden",
+      "keeperRows": 0,
+      "keeperText": ""
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "connectGrant": {
+        "state": "ok",
+        "readiness": "spent",
+        "remaining": "0",
+        "mask": "8",
+        "expiry": "1796305268",
+        "block": "47254504",
+        "directRead": {
+          "mask": 8,
+          "remaining": "0",
+          "expiry": "1796305268"
+        }
+      },
+      "tools": 12,
+      "kinds": {
+        "scripted": "Verified",
+        "llm": "Verified",
+        "simulated-rejection": "Recorded · nothing sent",
+        "mined-revert": "Recorded · reverted on chain"
+      },
+      "txLinks": [
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f"
+      ]
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "v2": {
+        "state": "ok",
+        "block": "47254519",
+        "usdc": "199900000",
+        "wokb": "1500000000000000000",
+        "operators": "0",
+        "grants": [],
+        "quoteExpected": "80000000",
+        "receipts": [
+          "operator-swap:0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d",
+          "mined-denial:0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12",
+          "simulated-denial:",
+          "emergency-revoke:0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+          "owner-grant:0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342",
+          "owner-supply:0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b",
+          "owner-setup-swap:0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c"
+        ]
+      }
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "peridotCircuits": [
+        "MARKET:unpublished:",
+        "ACCOUNT:unpublished:",
+        "EXECUTION:unpublished:"
+      ],
+      "configuredPublished": 0
+    },
+    {
+      "wallet": "empty-wallet",
+      "width": 390,
+      "liveMainnetEval": {
+        "state": "ok",
+        "block": "76,944,355",
+        "first": {
+          "input": "0x03",
+          "output": "0x01"
+        },
+        "second": {
+          "input": "0x02",
+          "output": "0x00"
+        },
+        "table": [
+          "0x00->0x00",
+          "0x01->0x00",
+          "0x02->0x00",
+          "0x03->0x01"
+        ],
+        "processorHref": "https://www.okx.com/web3/explorer/xlayer/address/0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+        "netlistMatches": "true"
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "gasBanner": false,
+      "faucet": null,
+      "gasText": ""
+    },
+    {
+      "testnetRejectionSimulation": {
+        "borrow": "12 mUSD through the Sentinel account",
+        "category": "account-policy",
+        "rejectionText": "YOUR SENTINEL POLICY Simulation · nothing sent Stopped by your Sentinel policy Your own policy circuit denied the operation. The market would not have been asked: your personal limit is stricter here. Lower the amount, or review your policy if this limit is no longer what you want. Review your polic",
+        "otherLayer": {
+          "layer": "market-policy",
+          "verdict": "allow",
+          "basis": "local-preview",
+          "text": "The market's policy circuit would allow this operation. Only your own Sentinel rule stops it. Local preview of the same circuit on the same inputs. It was not reached on chain."
+        },
+        "sent": 0
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "sentinelAccounts": [
+        "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+        "0xab27B9C504Ea9E2aF7391D0e60AAE85BC27cBd3C"
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "rail": [
+        {
+          "key": "overview",
+          "status": "live",
+          "link": true,
+          "text": "Overview"
+        },
+        {
+          "key": "earn",
+          "status": "live",
+          "link": true,
+          "text": "Earn"
+        },
+        {
+          "key": "borrow",
+          "status": "live",
+          "link": true,
+          "text": "Borrow"
+        },
+        {
+          "key": "trade",
+          "status": "development",
+          "link": true,
+          "text": "Trade In development"
+        },
+        {
+          "key": "automate",
+          "status": "live",
+          "link": true,
+          "text": "Automate"
+        },
+        {
+          "key": "studio",
+          "status": "live",
+          "link": true,
+          "text": "Studio"
+        },
+        {
+          "key": "circuits",
+          "status": "live",
+          "link": true,
+          "text": "Circuits"
+        },
+        {
+          "key": "connect",
+          "status": "live",
+          "link": true,
+          "text": "Connect"
+        },
+        {
+          "key": "about",
+          "status": "live",
+          "link": true,
+          "text": "About and status"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "portfolio": [
+        {
+          "kind": "sentinel",
+          "text": "mCOL / mUSD #0 Sentinel account 100 mCOL 0 78.006 mUSD 48.76%"
+        },
+        {
+          "kind": "wallet",
+          "text": "Wallet 0 200.0054 mUSD 0 No debt"
+        },
+        {
+          "kind": "sentinel",
+          "text": "mCOL / mUSD #1 Sentinel account 100 mCOL 0 0 No debt"
+        },
+        {
+          "kind": "wallet",
+          "text": "Wallet 0 200 mUSD 0 No debt"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #2 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #3 No position"
+        },
+        {
+          "kind": "v2-idle",
+          "text": "Idle tokens in the account 1.5 mWOKB · 199.9 mUSDC"
+        },
+        {
+          "kind": "v2-lending",
+          "text": "Peridot lending, through the v2 lending adapter collateral shares 1000000000000000000 · debt 0 (raw units)"
+        },
+        {
+          "kind": "v2-operators",
+          "text": "Operators listed by the account None"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "portfolioV2": {
+        "state": "account",
+        "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+        "rows": [
+          "v2-idle: Idle tokens in the account 1.5 mWOKB · 199.9 mUSDC",
+          "v2-lending: Peridot lending, through the v2 lending adapter collateral shares 1000000000000000000 · debt 0 (raw units)",
+          "v2-operators: Operators listed by the account None"
+        ]
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "modes": {
+        "rule-based": "live",
+        "connect": "live",
+        "hosted": "planned"
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "operators": [
+        {
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "mask": "8",
+          "text": "0x2c7E…CE88 Repay Budget left 0 mUSD · expires 03 Dec 2026 Check what it can do Revoke"
+        }
+      ],
+      "emergencyStop": {
+        "operators": "1",
+        "trigger": "4500",
+        "scope": "Now active: 0x2c7E…CE88, trigger at 45%. This sends 2 transactions, one at a time."
+      },
+      "outline": [
+        {
+          "field": "Objective",
+          "status": "live",
+          "text": "Objective Live Repay debt from idle funds when loan-to-value reaches 45% autoRepayTriggerBps on the account. autoRepay() reverts with TriggerNotMet below it. Pl"
+        },
+        {
+          "field": "Capital budget",
+          "status": "live",
+          "text": "Capital budget Live 0 mUSD left Cumulative budget of the operator authorisation. It only goes down, and a new authorisation replaces it."
+        },
+        {
+          "field": "Permitted operations",
+          "status": "live",
+          "text": "Permitted operations Live repay Permission mask of the authorisation (repay = 8, borrow = 4). There is no mask bit for withdrawing."
+        },
+        {
+          "field": "Approved protocols",
+          "status": "planned",
+          "text": "Approved protocols Planned Fixed: this account's Peridot lending market (mCOL / mUSD) A v1 account is bound to one market controller, so there is nothing to cho"
+        },
+        {
+          "field": "Risk limits",
+          "status": "live",
+          "text": "Risk limits Live Trigger 45%, your policy cap 55% The trigger, plus your account policy circuit and the market policy circuit on every risk-increasing action. P"
+        },
+        {
+          "field": "Expiry",
+          "status": "live",
+          "text": "Expiry Live 03 Dec 2026 Expiry timestamp of the authorisation, compared with the block time."
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "accountRepays": [
+        {
+          "hash": "0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+          "link": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77"
+        }
+      ],
+      "discovery": "partial",
+      "partialNote": "The operator list comes from events in the blocks this app has read, which is not the account's whole history. An operator authorised in unread blocks would not be listed above. Read so far: blocks 47,161,508–47,162,507 and 47,250,657–47,254,656. Also revoke t"
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "snapshot": {
+        "state": "canonical",
+        "from": "47161508",
+        "to": "47250330",
+        "events": "108",
+        "gap": "335",
+        "listed": 17
+      },
+      "minedRejections": [
+        {
+          "error": "AccountPolicyRejected",
+          "hash": "0x4d9730244f37960058310b2ec2d173546634aed58436fa70966e5c2d6a6d4c0b",
+          "href": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x4d9730244f37960058310b2ec2d173546634aed58436fa70966e5c2d6a6d4c0b"
+        },
+        {
+          "error": "MarketPolicyRejected",
+          "hash": "0xb0981049d5c21deb724ac471709e459da14c81c634b12352925f7829023f4feb",
+          "href": "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb0981049d5c21deb724ac471709e459da14c81c634b12352925f7829023f4feb"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "ms": 8977,
+      "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+      "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
+      "onChainEntries": 6,
+      "autoRepayInScan": true,
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,250,679 to the latest block 47,254,678. The 88,171 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "ranges": 2,
+      "unreadBlocks": "88171",
+      "keeperPanel": "hidden",
+      "keeperRows": 0,
+      "keeperText": ""
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "connectGrant": {
+        "state": "ok",
+        "readiness": "spent",
+        "remaining": "0",
+        "mask": "8",
+        "expiry": "1796305268",
+        "block": "47254686",
+        "directRead": {
+          "mask": 8,
+          "remaining": "0",
+          "expiry": "1796305268"
+        }
+      },
+      "tools": 12,
+      "kinds": {
+        "scripted": "Verified",
+        "llm": "Verified",
+        "simulated-rejection": "Recorded · nothing sent",
+        "mined-revert": "Recorded · reverted on chain"
+      },
+      "txLinks": [
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f"
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "v2": {
+        "state": "ok",
+        "block": "47254700",
+        "usdc": "199900000",
+        "wokb": "1500000000000000000",
+        "operators": "0",
+        "grants": [],
+        "quoteExpected": "80000000",
+        "receipts": [
+          "operator-swap:0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d",
+          "mined-denial:0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12",
+          "simulated-denial:",
+          "emergency-revoke:0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+          "owner-grant:0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342",
+          "owner-supply:0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b",
+          "owner-setup-swap:0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c"
+        ]
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "peridotCircuits": [
+        "MARKET:unpublished:",
+        "ACCOUNT:unpublished:",
+        "EXECUTION:unpublished:"
+      ],
+      "configuredPublished": 0
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 1440,
+      "liveMainnetEval": {
+        "state": "ok",
+        "block": "76,944,535",
+        "first": {
+          "input": "0x03",
+          "output": "0x01"
+        },
+        "second": {
+          "input": "0x02",
+          "output": "0x00"
+        },
+        "table": [
+          "0x00->0x00",
+          "0x01->0x00",
+          "0x02->0x00",
+          "0x03->0x01"
+        ],
+        "processorHref": "https://www.okx.com/web3/explorer/xlayer/address/0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+        "netlistMatches": "true"
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "gasBanner": false,
+      "faucet": null,
+      "gasText": ""
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "sentinelAccounts": [
+        "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+        "0xab27B9C504Ea9E2aF7391D0e60AAE85BC27cBd3C"
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "portfolio": [
+        {
+          "kind": "sentinel",
+          "text": "mCOL / mUSD #0 Sentinel account 100 mCOL 0 78.006 mUSD 48.76%"
+        },
+        {
+          "kind": "wallet",
+          "text": "Wallet 0 200.0054 mUSD 0 No debt"
+        },
+        {
+          "kind": "sentinel",
+          "text": "mCOL / mUSD #1 Sentinel account 100 mCOL 0 0 No debt"
+        },
+        {
+          "kind": "wallet",
+          "text": "Wallet 0 200 mUSD 0 No debt"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #2 No position"
+        },
+        {
+          "kind": "none",
+          "text": "mCOL / mUSD #3 No position"
+        },
+        {
+          "kind": "v2-idle",
+          "text": "Idle tokens in the account 1.5 mWOKB · 199.9 mUSDC"
+        },
+        {
+          "kind": "v2-lending",
+          "text": "Peridot lending, through the v2 lending adapter collateral shares 1000000000000000000 · debt 0 (raw units)"
+        },
+        {
+          "kind": "v2-operators",
+          "text": "Operators listed by the account None"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "portfolioV2": {
+        "state": "account",
+        "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+        "rows": [
+          "v2-idle: Idle tokens in the account 1.5 mWOKB · 199.9 mUSDC",
+          "v2-lending: Peridot lending, through the v2 lending adapter collateral shares 1000000000000000000 · debt 0 (raw units)",
+          "v2-operators: Operators listed by the account None"
+        ]
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "modes": {
+        "rule-based": "live",
+        "connect": "live",
+        "hosted": "planned"
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "operators": [
+        {
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "mask": "8",
+          "text": "0x2c7E…CE88 Repay Budget left 0 mUSD · expires 03 Dec 2026 Check what it can do Revoke"
+        }
+      ],
+      "emergencyStop": {
+        "operators": "1",
+        "trigger": "4500",
+        "scope": "Now active: 0x2c7E…CE88, trigger at 45%. This sends 2 transactions, one at a time."
+      },
+      "outline": [
+        {
+          "field": "Objective",
+          "status": "live",
+          "text": "Objective Live Repay debt from idle funds when loan-to-value reaches 45% autoRepayTriggerBps on the account. autoRepay() reverts with TriggerNotMet below it. Pl"
+        },
+        {
+          "field": "Capital budget",
+          "status": "live",
+          "text": "Capital budget Live 0 mUSD left Cumulative budget of the operator authorisation. It only goes down, and a new authorisation replaces it."
+        },
+        {
+          "field": "Permitted operations",
+          "status": "live",
+          "text": "Permitted operations Live repay Permission mask of the authorisation (repay = 8, borrow = 4). There is no mask bit for withdrawing."
+        },
+        {
+          "field": "Approved protocols",
+          "status": "planned",
+          "text": "Approved protocols Planned Fixed: this account's Peridot lending market (mCOL / mUSD) A v1 account is bound to one market controller, so there is nothing to cho"
+        },
+        {
+          "field": "Risk limits",
+          "status": "live",
+          "text": "Risk limits Live Trigger 45%, your policy cap 55% The trigger, plus your account policy circuit and the market policy circuit on every risk-increasing action. P"
+        },
+        {
+          "field": "Expiry",
+          "status": "live",
+          "text": "Expiry Live 03 Dec 2026 Expiry timestamp of the authorisation, compared with the block time."
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "accountRepays": [
+        {
+          "hash": "0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+          "link": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77"
+        }
+      ],
+      "discovery": "partial",
+      "partialNote": "The operator list comes from events in the blocks this app has read, which is not the account's whole history. An operator authorised in unread blocks would not be listed above. Read so far: blocks 47,161,508–47,162,507 and 47,250,834–47,254,833. Also revoke t"
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "snapshot": {
+        "state": "canonical",
+        "from": "47161508",
+        "to": "47250330",
+        "events": "108",
+        "gap": "512",
+        "listed": 17
+      },
+      "minedRejections": [
+        {
+          "error": "AccountPolicyRejected",
+          "hash": "0x4d9730244f37960058310b2ec2d173546634aed58436fa70966e5c2d6a6d4c0b",
+          "href": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x4d9730244f37960058310b2ec2d173546634aed58436fa70966e5c2d6a6d4c0b"
+        },
+        {
+          "error": "MarketPolicyRejected",
+          "hash": "0xb0981049d5c21deb724ac471709e459da14c81c634b12352925f7829023f4feb",
+          "href": "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb0981049d5c21deb724ac471709e459da14c81c634b12352925f7829023f4feb"
+        }
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "ms": 8395,
+      "explorerLink": "https://www.okx.com/web3/explorer/xlayer-test/tx/0x38cb05f18271aae2cc7cb6e40e783f039ff267d72478a64cc92d792de76f5a77",
+      "reread": "Re-read from the testnet RPC just now: success, block 47161960, AutoRepayExecuted 20, loan-to-value 50.01% → 37.51%.",
+      "onChainEntries": 6,
+      "autoRepayInScan": true,
+      "coverage": "On-chain events are read from the deployment block 47,161,508 to 47,162,507, and from 47,250,857 to the latest block 47,254,856. The 88,349 blocks in between have not been read: the network's public RPC only answers event queries 100 blocks at a time, and this app has no indexer. Scan more blocks",
+      "ranges": 2,
+      "unreadBlocks": "88349",
+      "keeperPanel": "hidden",
+      "keeperRows": 0,
+      "keeperText": ""
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "connectGrant": {
+        "state": "ok",
+        "readiness": "spent",
+        "remaining": "0",
+        "mask": "8",
+        "expiry": "1796305268",
+        "block": "47254864",
+        "directRead": {
+          "mask": 8,
+          "remaining": "0",
+          "expiry": "1796305268"
+        }
+      },
+      "tools": 12,
+      "kinds": {
+        "scripted": "Verified",
+        "llm": "Verified",
+        "simulated-rejection": "Recorded · nothing sent",
+        "mined-revert": "Recorded · reverted on chain"
+      },
+      "txLinks": [
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+        "https://www.okx.com/web3/explorer/xlayer-test/tx/0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f"
+      ]
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "v2": {
+        "state": "ok",
+        "block": "47254878",
+        "usdc": "199900000",
+        "wokb": "1500000000000000000",
+        "operators": "0",
+        "grants": [],
+        "quoteExpected": "80000000",
+        "receipts": [
+          "operator-swap:0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d",
+          "mined-denial:0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12",
+          "simulated-denial:",
+          "emergency-revoke:0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+          "owner-grant:0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342",
+          "owner-supply:0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b",
+          "owner-setup-swap:0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c"
+        ]
+      }
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "peridotCircuits": [
+        "MARKET:unpublished:",
+        "ACCOUNT:unpublished:",
+        "EXECUTION:unpublished:"
+      ],
+      "configuredPublished": 0
+    },
+    {
+      "wallet": "demo-owner-watch-only",
+      "width": 390,
+      "liveMainnetEval": {
+        "state": "ok",
+        "block": "76,944,714",
+        "first": {
+          "input": "0x03",
+          "output": "0x01"
+        },
+        "second": {
+          "input": "0x02",
+          "output": "0x00"
+        },
+        "table": [
+          "0x00->0x00",
+          "0x01->0x00",
+          "0x02->0x00",
+          "0x03->0x01"
+        ],
+        "processorHref": "https://www.okx.com/web3/explorer/xlayer/address/0xB04EB79D1A5EECaabAAfF7B77d7c27578EE693FF",
+        "netlistMatches": "true"
+      }
+    },
+    {
+      "loads": {
+        "total": 52,
+        "deploymentBanner": 0,
+        "pageErrors": 0,
+        "slowest": {
+          "ms": 13216,
+          "tag": "demo-owner-watch-only /sentinel @390"
+        }
+      }
+    }
+  ]
+}
