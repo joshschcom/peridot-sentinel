@@ -1,0 +1,44 @@
+{
+  "chainId": 31337,
+  "profile": "local",
+  "public": false,
+  "uiEnabled": true,
+  "anvil": {
+    "rpcUrl": "http://127.0.0.1:18545",
+    "instanceId": "0xb5c6d66bb5f479feeedb14b148e63b526d74c86b029e3c71727ffd7509961552",
+    "genesisHash": "0xfe69ff5c33c779143459c1e65914598d5d5de21eb8d031036e9167d905b22dc8"
+  },
+  "journal": "deployments/session8/local/deployment-b5c6d66bb5f4.json",
+  "readyBlock": "135",
+  "readyBlockHash": "0x358b76b41a723dda0e786cad2dc3413402c32054944989a633c2a37d96805114",
+  "schemaVersion": 1,
+  "label": "Unforked local Anvil. Mock ERC-4626 savings vault holding valueless mUSDC.",
+  "deploymentBlock": "124",
+  "contracts": {
+    "mockVault": "0x70e0bA845a1A0F2DA3359C97E0285013525FFC49",
+    "vaultAdapter": "0x4826533B4897376654Bb4d4AD88B7faFD0C98528",
+    "vaultFactory": "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154"
+  },
+  "runtimeCodeHashes": {
+    "mockVault": "0xd815d69f8f0c948e5fe14d477dccc74563983d1927c6827c01a6366ed690fe91",
+    "vaultAdapter": "0x544b37d09310bddd8121443b357c16f0335afabaf205586143ac95245ba8c175",
+    "vaultFactory": "0x7f102bb20469a84a62b622f6683d5959a95dce0f6d651db746013c4485e79e25"
+  },
+  "baseContracts": {
+    "lending": "0x4c5859f0F772848b2D91F1D83E2Fe57935348029",
+    "swap": "0x998abeb3E57409262aE5b751f60747921B33613E",
+    "execution": "0x95401dc811bb5740090279Ba06cfA8fcF6113778",
+    "mockUsdc": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E"
+  },
+  "asset": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
+  "assetDecimals": 6,
+  "shareDecimals": 6,
+  "sourcePolicy": "0x2203a619deefc167ac023b3c9d8c0194a48482f2dc894106ab94de7c64912833",
+  "source": {
+    "expansionCommit": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",
+    "vaultCommit": "a48f203a802f15d34502f56e2ec0c0a2b74d1434",
+    "m4Commit": "ac9b26ae146d08d89db9548660697f255f574276",
+    "localQuoteCreationHash": "0xf9347378114b063b97edb1a14acc4fd1a5c50025f9437970ceb721020bb340ae",
+    "localLendingPricesCreationHash": "0x78a1ba7421f58b58ca85189b13214b74a9447a94260c87d9fa251d2870f28d2e"
+  }
+}

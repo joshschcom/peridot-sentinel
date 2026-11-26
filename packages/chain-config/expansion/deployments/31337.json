@@ -1,0 +1,84 @@
+{
+  "chainId": 31337,
+  "profile": "local",
+  "public": false,
+  "uiEnabled": true,
+  "anvil": {
+    "rpcUrl": "http://127.0.0.1:18545",
+    "instanceId": "0xb5c6d66bb5f479feeedb14b148e63b526d74c86b029e3c71727ffd7509961552",
+    "genesisHash": "0xfe69ff5c33c779143459c1e65914598d5d5de21eb8d031036e9167d905b22dc8"
+  },
+  "journal": "deployments/session8/local/deployment-b5c6d66bb5f4.json",
+  "readyBlock": "135",
+  "readyBlockHash": "0x358b76b41a723dda0e786cad2dc3413402c32054944989a633c2a37d96805114",
+  "schemaVersion": 2,
+  "label": "Unforked local Anvil. Inventory-backed mock venue; prices fixed in the constructor. The timestamp is the current simulated block time.",
+  "deploymentBlock": "113",
+  "source": {
+    "expansionCommit": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",
+    "vaultCommit": "a48f203a802f15d34502f56e2ec0c0a2b74d1434",
+    "m4Commit": "ac9b26ae146d08d89db9548660697f255f574276",
+    "localQuoteCreationHash": "0xf9347378114b063b97edb1a14acc4fd1a5c50025f9437970ceb721020bb340ae",
+    "localLendingPricesCreationHash": "0x78a1ba7421f58b58ca85189b13214b74a9447a94260c87d9fa251d2870f28d2e"
+  },
+  "m4": {
+    "marketFactory": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+    "controller": "0x05242D4AC717Cdf38C36AF290F2b0DA99AA82c67",
+    "collateralMarket": "0x1F708C24a0D3A740cD47cC0444E9480899f3dA7D",
+    "debtMarket": "0xf41B47c54dEFF12f8fE830A411a09D865eBb120E",
+    "accountPolicy": "0x2203a619deefc167ac023b3c9d8c0194a48482f2dc894106ab94de7c64912833"
+  },
+  "lendingMarket": {
+    "label": "Separate local acceptance book; fixed simulated 1.6 USD mCOL and 1 USD mUSD, always marked fresh",
+    "factory": "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
+    "controller": "0x7357f955700586aAA8Cfad1271354a1cCC353126",
+    "collateralMarket": "0xD4eF5bFBe5925B905BD3EC0921bFe28b04ac61aE",
+    "debtMarket": "0xADb31e24bE04846754f13ad5c4AdceC36CE9415e",
+    "collateralAsset": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "debtAsset": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "priceSource": "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
+    "marketPolicy": "0xe21b3c464e79344521fb55d7a395f9ac0dff8a7b0206c7d350ef032308ccf09a"
+  },
+  "contracts": {
+    "mockWokb": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+    "mockUsdc": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
+    "venue": "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
+    "mockOracle": "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
+    "source": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
+    "cpu": "0x851356ae760d987E095750cCeb3bC6014560891C",
+    "execution": "0x95401dc811bb5740090279Ba06cfA8fcF6113778",
+    "swap": "0x998abeb3E57409262aE5b751f60747921B33613E",
+    "acceptancePrices": "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
+    "acceptanceFactory": "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
+    "lending": "0x4c5859f0F772848b2D91F1D83E2Fe57935348029",
+    "factory": "0x1291Be112d480055DaFd8a610b7d1e203891C274"
+  },
+  "runtimeCodeHashes": {
+    "mockWokb": "0x607ad62d751e0292f17a3e6877b289b73e8b7498273df14dac1b9540dee7881b",
+    "mockUsdc": "0x708bccc84cad71b9869bbe839a229a6715abef2a0e5054b04c43e73905b11f0f",
+    "venue": "0x47e4bce3f7dcbfb340797863af50fffd319bfd4dfc73c209fed6241f39614555",
+    "mockOracle": "0xdd0bc322962db7d8c527865d2d358ef9fe0f1575caa21a31e3bc4608aa00e7bb",
+    "source": "0x59747195703e3494a71077facdcc2721e0cc92e5b920fc9f1804eb7bedce077a",
+    "cpu": "0x517d307fe4b14e4ff7b5b6a471683050078abadab2a5a74c985303a2516f54de",
+    "execution": "0x2d8f5f9cd7507fea9a6f711b53c011d5f2abb8310101a30c8eea949e96ef1aae",
+    "swap": "0xac00dff98cf996abafeaba353d7bab515dbea1666ebcc3f6b9316c49e3212909",
+    "acceptancePrices": "0x3aa2d93f23b3a00c4cdaaadd30a254d9bd025bfaedbf586c01381de0c287690c",
+    "acceptanceFactory": "0x638e95324c111b684239cebb415a302f0aa980814382309fceb20f7c926018c3",
+    "lending": "0xf269a4d06225cb210ba46f1de05050ddb47dc612727d40259a138354255b74a1",
+    "factory": "0x2ae7a64ffba07be9991c0ce1c44e336a42066f5f36c5bc00b7d212492780b712"
+  },
+  "execution": {
+    "mode": "development-reference",
+    "circuitId": "1",
+    "netlistHash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b"
+  },
+  "swap": {
+    "feePpm": 500,
+    "hardMaxLossBps": 500,
+    "policyMaxLossBps": 100,
+    "mockWokbDecimals": 18,
+    "mockUsdcDecimals": 6,
+    "fixedWokbUsdWad": "80000000000000000000",
+    "fixedUsdcUsdWad": "1000000000000000000"
+  }
+}
