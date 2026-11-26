@@ -1,0 +1,252 @@
+{
+  "label": "Private Anvil chain 31337, fork of public X Layer 196. All transaction hashes are local.",
+  "upstream": {
+    "rpc": "https://rpc.xlayer.tech",
+    "block": "76931173",
+    "hash": "0x10908ada4cb486c8d506ba492aca1927e47a5a51e56f19e444f06f46c3acb574",
+    "timestamp": "1795700209"
+  },
+  "bootstrapSwapReceipt": {
+    "label": "95 bps limit allows V2 exact-input swap",
+    "hash": "0xd7892dc0af23872a809c3d523aeab193424550a0a633406fe4f173a6bfb9c0cf",
+    "status": "success",
+    "actor": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    "to": "0x476be03038fd6ad005b8c1c2da3285841e2615f9",
+    "created": null,
+    "block": "76931198",
+    "blockHash": "0x091ba10b3bd5b6587bd1bfcc9acba4b58f2d9014c2f71308f85a25528b88f566",
+    "gas": "457718"
+  },
+  "forkInitAccounts": {
+    "owner": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    "operator": "0x90F79bf6EB2c4f870365E785982E1f101E93b906"
+  },
+  "vault": "0xf90E63079D97a0A1f479b2b168457F420CAFf6ba",
+  "asset": "0xB6CEceAB302E2E4948951eE7843FC24E92933061",
+  "implementation": "0xdCe929A335C75a1676EF5957A4D7a3b928C48820",
+  "implementationSlot": "0x000000000000000000000000dce929a335c75a1676ef5957a4d7a3b928c48820",
+  "implementationCodeHash": "0x42d7995d1b8d50e0745d706e98d3fa5104b66a62b53bab40ba7186cd6b693741",
+  "contracts": {
+    "SingleVaultAdapter": {
+      "address": "0x17A7428596776A82b9E2D11fd7c523e8e1BA92B1",
+      "runtimeHash": "0x1c1b48ffc04f4eee7cda7327479107454ea21a4fa91a83ce4e9adb64237aa5d2"
+    },
+    "VaultSentinelAccountFactoryV2": {
+      "address": "0xA9639c9bA80dcF06e858C6495a72e4661C059Fe3",
+      "runtimeHash": "0xc90bf2636be0e2320c9bca1d86e92d66dcfeecc67e327f2d8d4159eacd165426"
+    },
+    "VaultSentinelAccountV2": {
+      "address": "0x6E6897AE9E403a1723B229A548e4365e87f4d422",
+      "runtimeHash": "0xc497f089b53fa0001a993cf4ed6292512e31294f66861a2bf3aa3db2f556d570"
+    }
+  },
+  "bookMarket": "0x7b06b26f55B118c0a5035Db71685352a39F8cBCe",
+  "fundingBootstrapAccount": "0x476BE03038Fd6ad005B8C1C2Da3285841E2615f9",
+  "policyId": "0x970ad2d7b4a942cd6fdb8231e31f322d70e16c6029a2d07c46757182beb94325",
+  "before": {
+    "shares": "0",
+    "claimAssets": "0",
+    "liquidShares": "0",
+    "liquidAssets": "0",
+    "accountAssets": "60000000",
+    "operatorAssets": "0",
+    "allowance": "0",
+    "remainingDeposit": "55000000"
+  },
+  "denialSelector": "0x3ffc41a6",
+  "afterDeposit": {
+    "shares": "49674782",
+    "claimAssets": "49999999",
+    "liquidShares": "49674782",
+    "liquidAssets": "49999999",
+    "accountAssets": "10000000",
+    "operatorAssets": "0",
+    "allowance": "0",
+    "remainingDeposit": "5000000"
+  },
+  "afterWithdraw": {
+    "shares": "44707303",
+    "claimAssets": "44999999",
+    "liquidShares": "44707303",
+    "liquidAssets": "44999999",
+    "accountAssets": "15000000",
+    "operatorAssets": "0",
+    "allowance": "0",
+    "remainingDeposit": "5000000"
+  },
+  "after": {
+    "shares": "0",
+    "claimAssets": "0",
+    "liquidShares": "0",
+    "liquidAssets": "0",
+    "accountAssets": "59999999",
+    "operatorAssets": "0",
+    "allowance": "0",
+    "remainingDeposit": "0"
+  },
+  "minted": {
+    "sender": "0x6E6897AE9E403a1723B229A548e4365e87f4d422",
+    "owner": "0x6E6897AE9E403a1723B229A548e4365e87f4d422",
+    "assets": "50000000",
+    "shares": "49674782"
+  },
+  "withdrawn": {
+    "sender": "0x6E6897AE9E403a1723B229A548e4365e87f4d422",
+    "receiver": "0x6E6897AE9E403a1723B229A548e4365e87f4d422",
+    "owner": "0x6E6897AE9E403a1723B229A548e4365e87f4d422",
+    "assets": "5000000",
+    "shares": "4967479"
+  },
+  "redeemed": {
+    "sender": "0x6E6897AE9E403a1723B229A548e4365e87f4d422",
+    "receiver": "0x6E6897AE9E403a1723B229A548e4365e87f4d422",
+    "owner": "0x6E6897AE9E403a1723B229A548e4365e87f4d422",
+    "assets": "44999999",
+    "shares": "44707303"
+  },
+  "receipts": [
+    {
+      "label": "Deploy SingleVaultAdapter",
+      "hash": "0x7a242de9bda95fc8e7c84360ae5162ba3519401740a934f20b7e6245a3e145cc",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0x17a7428596776a82b9e2d11fd7c523e8e1ba92b1",
+      "status": "success",
+      "block": "76931199",
+      "blockHash": "0x577d5502ed63f37c47c8426b7f34a010770e5512cbca05654dc79fcd9351d675",
+      "gas": "719555"
+    },
+    {
+      "label": "Deploy VaultSentinelAccountFactoryV2",
+      "hash": "0xa7f10f377f6db5ca2f1aa55d88dd6c562fe53f8ae9e0e2c60a20a30b0811e008",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": null,
+      "created": "0xa9639c9ba80dcf06e858c6495a72e4661c059fe3",
+      "status": "success",
+      "block": "76931200",
+      "blockHash": "0xbba6665de01c46b067cc073fb081d45e54cb34a8319c7bd044bab3abbfb5495a",
+      "gas": "5308937"
+    },
+    {
+      "label": "Create optional vault-enabled account",
+      "hash": "0x183ba13187eb650e6d8e99049aae7f5ea3fb213b1608067143f286217e19ab95",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0xa9639c9ba80dcf06e858c6495a72e4661c059fe3",
+      "created": null,
+      "status": "success",
+      "block": "76931201",
+      "blockHash": "0xd642a0c51f28920b1b8f46d5e8c9fd8471098e2d2cb40532f76d893690f50629",
+      "gas": "4303076"
+    },
+    {
+      "label": "Owner moves prior fork swap proceeds into its wallet",
+      "hash": "0x94a98557df2234aa4a0212785d88355ef0abc8a3e2ca4cd1710959a25bae60dd",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x476be03038fd6ad005b8c1c2da3285841e2615f9",
+      "created": null,
+      "status": "success",
+      "block": "76931202",
+      "blockHash": "0x6b42d48d282f23ab11aa9e3297196746c2ad3fee9a5ef16c9993ccb281448464",
+      "gas": "72413"
+    },
+    {
+      "label": "Fund vault-enabled account from real fork swap proceeds",
+      "hash": "0x94e2f343a74ae238b072f1abb87102cb549e2f79e1d72f133602980b3449d73d",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0xb6ceceab302e2e4948951ee7843fc24e92933061",
+      "created": null,
+      "status": "success",
+      "block": "76931203",
+      "blockHash": "0xd7c20d40211d5c40d2422a722792435964b5451c371f66a529950e7a5aab8cc3",
+      "gas": "57359"
+    },
+    {
+      "label": "Owner limits allocation to 60 USDC and 0.98 spUSDC per USDC",
+      "hash": "0x493cf8c57e0ab49af009980d6efde59566136348603cf3e3a0e98e63b055b5a5",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x6e6897ae9e403a1723b229a548e4365e87f4d422",
+      "created": null,
+      "status": "success",
+      "block": "76931204",
+      "blockHash": "0xc96693b2396d4c1be1e68090a815aa05907ef219a75d74c7e0b3838531419303",
+      "gas": "68297"
+    },
+    {
+      "label": "Grant vault deposit to operator",
+      "hash": "0x758ac34aa128c9c52478c36d815637427664b3f8a3099c812c4377ef6423ea69",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x6e6897ae9e403a1723b229a548e4365e87f4d422",
+      "created": null,
+      "status": "success",
+      "block": "76931205",
+      "blockHash": "0x76caa07149990de10edb99e58af6c9bd0f4e4f01e226ca0ee2f51d4992b6f945",
+      "gas": "165735"
+    },
+    {
+      "label": "Minimum 51 shares rejects 50 USDC allocation",
+      "hash": "0x984af745060f45bc1f6de2d8793b58d7900c6dd3ec80e9e3ebeb6e6bf12df05f",
+      "actor": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "to": "0x6e6897ae9e403a1723b229a548e4365e87f4d422",
+      "created": null,
+      "status": "reverted",
+      "block": "76931206",
+      "blockHash": "0x27f476f7416a92e6105f648a02cea0b25b648942b90b65779b84c5e52645d33b",
+      "gas": "123143"
+    },
+    {
+      "label": "Operator deposits 50 USDC into real Spark spUSDC",
+      "hash": "0xd87f7cfc7e1f3f54a6f5d4334915c79af7a45d57baa93b439493f9ad49702a7e",
+      "actor": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "to": "0x6e6897ae9e403a1723b229a548e4365e87f4d422",
+      "created": null,
+      "status": "success",
+      "block": "76931207",
+      "blockHash": "0x87748e90f5c840d756d310fdf42d684cac13f107e3dd18c4bbebc0b688f5ead4",
+      "gas": "183181"
+    },
+    {
+      "label": "Owner withdraws exact 5 USDC to account",
+      "hash": "0x9bad2dc4c316b42e2855aae56d4b7c5d5af4a7adbdc99af53ddd40d675410a89",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x6e6897ae9e403a1723b229a548e4365e87f4d422",
+      "created": null,
+      "status": "success",
+      "block": "76931208",
+      "blockHash": "0xd860a6951cba7c7e6f6e0788c05d1bdafa7385dbcc2cfacc3be2421cb91b6d78",
+      "gas": "122732"
+    },
+    {
+      "label": "Owner disables additional deposits",
+      "hash": "0xed3e72330871c2ba7e9cfe8fcef30e3e29af3f875a36a6c74fad3373c7678af8",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x6e6897ae9e403a1723b229a548e4365e87f4d422",
+      "created": null,
+      "status": "success",
+      "block": "76931209",
+      "blockHash": "0xf9ef00afb484ad2f544e15b2320a07d63e18f97a26cdf9cdaeced8056eddf5a9",
+      "gas": "27176"
+    },
+    {
+      "label": "Owner emergency revokes all operators",
+      "hash": "0x74ec97894e173a9c0975637e5ac68ffdfdf450cf5c60e9a793ae952b9aca6370",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x6e6897ae9e403a1723b229a548e4365e87f4d422",
+      "created": null,
+      "status": "success",
+      "block": "76931210",
+      "blockHash": "0x582dccb36e9cd3a478feede5932bb9b8e1fa3995f99654039da6817c11be13a7",
+      "gas": "45206"
+    },
+    {
+      "label": "Owner redeems remaining Spark shares into account",
+      "hash": "0x19105fc850be034fc80319e89e88ddc0b3f29eed760d31d5360236a15b30be26",
+      "actor": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "to": "0x6e6897ae9e403a1723b229a548e4365e87f4d422",
+      "created": null,
+      "status": "success",
+      "block": "76931211",
+      "blockHash": "0x155312774d6a1fe5afa9b0daff435113e7c943308a2be32890c766964cc0894a",
+      "gas": "118529"
+    }
+  ]
+}

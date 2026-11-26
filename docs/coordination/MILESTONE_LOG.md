@@ -1049,3 +1049,53 @@ verification:
   - "Remaining cumulative grant: 1 mWOKB, reserved for the D21 genuine-LLM session. The emergency revoke phase is deliberately NOT run yet."
 next_dependency: "Astra/A2: the restricted MCP v2 server plus mcp-config for the D21 session. Claude runs it."
 ```
+
+```yaml
+milestone: M7-v2-testnet-deployed
+from: astra
+status: testnet_verified
+chain_id: 1952
+specialists: ["A2 implemented account/lending/emergency grants", "A1 implemented mock and real swap adapters", "Astra deployed, verified and ran owner operations", "Claude executed the dedicated D9 signature"]
+commit: 81fb45770d3bc36ae9006fbd60e72a5475c3ded4
+manifest: packages/chain-config/expansion/deployments/1952.json
+contracts:
+  mockWokb: "0x3a5f909912c4adbee8776264e6b9fad130321b26"
+  mockUsdc: "0x3a6cb8bedc251c37dc8258a27575127990a67e95"
+  mockOracle: "0x0386ea8906a1cb9fa34c7a4a2433f5ceab5210c8"
+  cpu: "0x6d75932b8bb080a3e04b6c9c6218bdf3b321f9b1"
+  execution: "0xc72a18670c185f6a5e39dfbf10c27f025aa96d9c"
+  source: "0xc1b064193a2d25af6530951eaf87b958d7d2e2a9"
+  venue: "0x626cab8793e3ab76c2e62fa082b5469d94498554"
+  swap: "0xf2e6d955158fe77252713d982f9d376f467e7cd3"
+  lending: "0xdad2bbf5ce7bc43a932c78b5bcd5e0d284348101"
+  factory: "0xbdd270a685596452557c8342ca3d39b1133ba7a0"
+  account: "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f"
+transactions:
+  deploy-mockWokb: "0x40bd4792bc996e31d226626ad1f1c630ebddcc3fbd5bedfc32f1bb9031fbdfb6"
+  deploy-mockUsdc: "0x007d31092574460698ce6e4740f097baf9e43ac38088e8ea0bca6b8dfff23bb2"
+  deploy-mockOracle: "0xd71c5264526e76f838f9853ba1f4817948ea64c8ba417f2f54ea8b19437a543b"
+  price-mWOKB: "0x1a1fe26039115a53918b6e72fa4ceefde94f97aa9d9ea7a6b5c8322b07b5544b"
+  price-mUSDC: "0x60f5aa87c0ca163c61b6ba5325d799858d6d6dbdd3fa5477df6e1f3e88f09dde"
+  deploy-cpu: "0x407a94da33ed334051764e6d33e89b417b97dfd91eee0ec13f234996aaee8ebc"
+  reference-program: "0x746ae18a818928aa400630f07ab57c8a4bd1c094061969ca648938edde6c3e2a"
+  deploy-execution: "0x69821dda51e94fafb8bbcd5f88d0bde2b52478d9829145db6327ac3ec9d5a011"
+  deploy-source: "0x0468ebd135914ae26cf140579d669b63df7302fa0591973e8017c762eaeb8cbf"
+  deploy-venue: "0xe2edaf0f5279a70a73d30bf9747e7fbcf198dfedd3e7a2a339d50daca0384ab4"
+  inventory-mWOKB: "0xa5aa8ea1c2e138057dc147ab563aedcf11466d171e9f9791a2590a5fa1cd2c2c"
+  inventory-mUSDC: "0xbf9842a911735a3f3432c78ce3f8c0054b297cc61c52613136175c850c76ea8b"
+  deploy-swap: "0xa91969009818c0531c8342b1251fa428af29b3ef55f6f6eefd82d4bd2ab9e1bc"
+  deploy-lending: "0xadedbc9950c696da45c2e0fa0aa6d6b9b506802b93cdc04c6824c1b0f1b2cc5b"
+  deploy-factory: "0xeffba29d298065b34020a222dac2c0aced7b27dcc15121ec0ca82c25e635ec22"
+  create-account: "0x5542b94fec6b9161b8d9a56e51a0a16a5574c9c33ab24d2b7d63f971db8543d2"
+  fund-account: "0x270f3a4b7d5b34377930cf6b0270e70373420ffb2fdf02fa73ec0087308cea57"
+  swap-exact-input: "0xcc0cff745e7b03831ef7379f9fd11395283cf1fa103b5ec8c0f833a568f7482c"
+  mint-demo-swap-inventory: "0xc7591d50cfa92389e8fbe7105116a7778c5c465c215758a561844d3ff89ca0a2"
+  mint-v2-lending-collateral: "0xc46ade4a56a145d694ba7dc72fe4cbba6bcdf716e1e6694d0d563ce09002a0e3"
+  owner-supply: "0x4c26a8c34f906d2979754b6310a529ea4272e845490d52bcc8ab165194f6138b"
+  bounded-swap-grant: "0x4185453afb1fbbe8b2eef32e444f837638ae971e8c0349a7cb35b50d845f5342"
+  denied-at-101-bps: "0x2f813549a851fd50e4afc90349e961e39ea39e0115db7cf22e6568e00a8dfa12"
+  operator-swap: "0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d"
+verification: ["All 18 source-pinned deployment/setup receipts and 11 runtime hashes verified through the second official RPC. EXECUTION is development reference circuit 1, not an official TapeOut publication.", "Owner lending supply minted 1e18 book shares; 101 bps mined EXECUTION rejection preserved the grant. D9 operator spent 1 mWOKB, account received 79.960000 mUSDC, both allowances zero, 1 mWOKB cumulative budget remains.", "Public receipt, timestamps, units, grant and post-state: evidence/session6-v2/1952.json."]
+frontend_actions: ["Show the public mock venue, account as recipient and execution source. Fable owns UI acceptance before feature activation."]
+next_dependency: "D9 lane reserved for the D21 genuinely model-selected partial amount. Vault uses separate contracts and manifest."
+```

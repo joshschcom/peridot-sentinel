@@ -361,6 +361,23 @@ contract SentinelAccountV2Test {
         require(account.operatorCount() == 0 && loans.borrowBalanceStored(address(account)) == 0);
     }
 
+    function testEmergencyStopClosesRedeemAndRepayGrantsWithLiveDebt() external {
+        account.borrow(2e6);
+        _grant(address(lending), 1, address(shares), 1e18, 2e18);
+        _grant(address(lending), 3, address(debt), 1e6, 2e6);
+        account.revokeAllOperators();
+        vm.prank(OPERATOR);
+        vm.expectRevert(SentinelAccountV2.OperatorNotAuthorized.selector);
+        account.redeem(1e18);
+        vm.prank(OPERATOR);
+        vm.expectRevert(SentinelAccountV2.OperatorNotAuthorized.selector);
+        account.repay(1e6);
+        require(loans.borrowBalanceStored(address(account)) == 2e6);
+        account.repay(2e6);
+        account.redeem(1e18);
+        require(shares.balanceOf(address(account)) == 99e18);
+    }
+
     function testSwapHardStopsAndPinnedBindings() external {
         uint64 deadline = uint64(block.timestamp + 1);
         vm.expectRevert(SentinelAccountV2.SlippageExceeded.selector);

@@ -1,0 +1,21 @@
+{
+  "profile": "public testnet",
+  "chainId": 1952,
+  "actor": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+  "steps": {
+    "operator-swap": {
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "dataHash": "0x4d27284916a995ca1c62baca535b834adad21bb04e6b1dff0d892c6ac6809219",
+      "value": "0",
+      "expected": "success",
+      "nonce": 2,
+      "gasLimit": "448086",
+      "hash": "0x623c753bfc084e370bab5ddde0f3f729ba9372c5de00ea47f12029bb066a672d",
+      "status": "success",
+      "block": "47249477",
+      "blockHash": "0xeec1804544ccd02a0867a794362a62ca98a4b92e0b5b3813341bcbdaf1a37980",
+      "gasUsed": "248508"
+    }
+  },
+  "data": {}
+}

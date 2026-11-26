@@ -1,0 +1,163 @@
+{
+  "profile": "public testnet",
+  "chainId": 1952,
+  "actor": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "steps": {
+    "deploy-mockVault": {
+      "to": null,
+      "dataHash": "0xcc243ac7b0f0bb3f2b3865d758ef94d31fe3a926201d3eae575348d2c5601eed",
+      "value": "0",
+      "expected": "success",
+      "nonce": 70,
+      "gasLimit": "1351419",
+      "hash": "0xd18377d6de94d9a4a4e5d3b7bed588ca4508ed36d32ab20783a14c81fc3370f9",
+      "status": "success",
+      "block": "47249459",
+      "blockHash": "0x50286b435b9ef35f2f60ef50a416dcf2a5315a2e01fc18bd90cabdf792871743",
+      "gasUsed": "982102"
+    },
+    "deploy-vaultAdapter": {
+      "to": null,
+      "dataHash": "0x7e113928b17b096f9c18e1779293b0f02ce59e389e3e0260b61091d9ad937f51",
+      "value": "0",
+      "expected": "success",
+      "nonce": 71,
+      "gasLimit": "973446",
+      "hash": "0xd32e8b8e7665d7e3328cbcc0b8e8912d507be15e0003777c26fd20a811cc011a",
+      "status": "success",
+      "block": "47249468",
+      "blockHash": "0xc1da8f64565e936b046e5341209ae041c51fb28473638065109bb759cdd26a85",
+      "gasUsed": "700854"
+    },
+    "deploy-vaultFactory": {
+      "to": null,
+      "dataHash": "0xcbd1f5c81b652aee375424fc9ce33412aa3a5daee300ab4ae8d1ed5047461bed",
+      "value": "0",
+      "expected": "success",
+      "nonce": 72,
+      "gasLimit": "7166284",
+      "hash": "0x767cb242ad4bdea7edfe71a7c07cacf3bbca4aed87c0707d7f35cda40b13fe7e",
+      "status": "success",
+      "block": "47249476",
+      "blockHash": "0x4f997cc824e0242624b7267a2ec6c55a56b9592db2fa7fd61a5ddfe650ebedf0",
+      "gasUsed": "5308912"
+    },
+    "create-optional-vault-account": {
+      "to": "0x8e8279b8532124bd727AfF4622e8d3711f01E874",
+      "dataHash": "0xefd7d7d1e36ac1c9eea29043423cbb53064648cb13d98d194fd3a579dbfb9962",
+      "value": "0",
+      "expected": "success",
+      "nonce": 73,
+      "gasLimit": "5836358",
+      "hash": "0xc61efd04e599ba6f8a86e8578e53d7acdf01793394c22fe78ee2bdee14db37f3",
+      "status": "success",
+      "block": "47249484",
+      "blockHash": "0x62d41f3156e5146366d5733e83ee513c320bac51b9a81b37c877385a4ae08aec",
+      "gasUsed": "4284425"
+    },
+    "mint-valueless-mUSDC": {
+      "to": "0x3A6cb8BEdc251C37dc8258a27575127990A67E95",
+      "dataHash": "0x4ef3b9621faf1dbae675d5e4af7812510a22d240a41b1e47b5e0498c304e702f",
+      "value": "0",
+      "expected": "success",
+      "nonce": 74,
+      "gasLimit": "98474",
+      "hash": "0xf182f6def06422f99c9e7f54626823f96c90811ed27a3bc08a14ee1e53acc97b",
+      "status": "success",
+      "block": "47249499",
+      "blockHash": "0xbaefbd0105969dd9405cd206c4fcaa126883b60b0c5dfbe98c5d512934d9f62f",
+      "gasUsed": "50963"
+    },
+    "set-vault-deposit-limits": {
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "dataHash": "0x1add58ca17b17ca0c66f091153ef5622eb5b560b142f7b5a8633242159ddb6a4",
+      "value": "0",
+      "expected": "success",
+      "nonce": 75,
+      "gasLimit": "122202",
+      "hash": "0xada590370e7ff4bd0115df145b11196dfd6da06f786fddca53ccfe96f4cffb3f",
+      "status": "success",
+      "block": "47249506",
+      "blockHash": "0x3f59fcab79ce5265514d3136e7ee6042e079623d8299d8c394635ada018ceadb",
+      "gasUsed": "68297"
+    },
+    "deposit-10-mUSDC": {
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "dataHash": "0x835b2ad4ef596e2a967d6387158bb7e9fa8299cf04af65dcba2e3426ed438db3",
+      "value": "0",
+      "expected": "success",
+      "nonce": 76,
+      "gasLimit": "286534",
+      "hash": "0xf56ac33ccfbef6f46189bf79ef36dea1fd5f696976dcc2b24017741331faef45",
+      "status": "success",
+      "block": "47249514",
+      "blockHash": "0x6f4c189016756e1cf401ca1c4289e1a810141c2342c119ef420c7935e45bf06d",
+      "gasUsed": "151808"
+    },
+    "withdraw-2-mUSDC": {
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "dataHash": "0xf35f1e822e0916e4bb0698b58dd65a2da354dbb3b6d634998b5a0b9b79ed7c31",
+      "value": "0",
+      "expected": "success",
+      "nonce": 77,
+      "gasLimit": "167418",
+      "hash": "0xa0fa9c65d5b95a2bb1406e572205966e49a8ded26d37943588e9fd61d5aee62a",
+      "status": "success",
+      "block": "47249522",
+      "blockHash": "0x5cf10805c0be484ba277226513bd71ec271217874503aa4caa404cd41f78dd80",
+      "gasUsed": "80720"
+    },
+    "redeem-4-mock-vault-shares": {
+      "to": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+      "dataHash": "0xb7be92de1ceace2f6ab993ac98995588d7f4625880e7c260e3e5ade385ce7652",
+      "value": "0",
+      "expected": "success",
+      "nonce": 78,
+      "gasLimit": "162934",
+      "hash": "0x00b9a256794be7392e58505c896e5336f325b042680ef99da280b0c4ad478cda",
+      "status": "success",
+      "block": "47249530",
+      "blockHash": "0x9f4add659dac92df0cef602932390a5a497202343ebde522948f1d1615eefe95",
+      "gasUsed": "77824"
+    }
+  },
+  "data": {
+    "build": {
+      "sourceCommit": "a48f203a802f15d34502f56e2ec0c0a2b74d1434",
+      "sourceHashes": {
+        "contracts/expansion/foundry.toml": "0x1ff9692f922fee4e578d25f11b80c415238b66b477f23c7a6cc35d31806a8c93",
+        "contracts/expansion/script/session6-transactions.mjs": "0x2ebc14ad9fab60e10896641e55594925cdfba08e8e2fbaff0a5ed0ac4916aebf",
+        "contracts/expansion/script/vault/deploy.mjs": "0x900538c1b2fcf7dc6d15bbc51835066a8e131ab393244cb1183ca3e8d4e41c68",
+        "contracts/expansion/src/account/PeridotLendingAdapter.sol": "0x52e97a57dce1d792c7596db7a1df414a5d1d6c4a2384a41484281359c519a14e",
+        "contracts/expansion/src/account/SentinelAccountV2.sol": "0x2aee7d95d06f62bc81862a74410a19857e9693003af97bf21f307a09891779e9",
+        "contracts/expansion/src/vault/SingleVaultAdapter.sol": "0x5707e598f1ab63d714af3e36e36050d36524d46ab02b88e1df10bc4cdcf957fb",
+        "contracts/expansion/src/vault/TestnetSavingsVault.sol": "0xc78fecca25b1792f3c4258f400be3a1d01ffc6e4780768d0159fd53fc6d0a13a",
+        "contracts/expansion/src/vault/VaultSentinelAccountFactoryV2.sol": "0xedc7e824c10e579e7e1774b7c27a9f8d40b50a1dce4a0e3d8586a4ff6c24dd1e",
+        "contracts/expansion/src/vault/VaultSentinelAccountV2.sol": "0xd69b02ec499178677bc23f04fc378737fdfc211316af0d0214201988a23c16e0",
+        "contracts/lib/openzeppelin/interfaces/draft-IERC6093.sol": "0x880da465c203cec76b10d72dbd87c80f387df4102274f23eea1f9c9b0918792b",
+        "contracts/lib/openzeppelin/token/ERC20/ERC20.sol": "0xbf61ab2ae1d575a17ea58fbb99ca232baddcc4e0eeea180e84cbc74b0c348b31",
+        "contracts/lib/openzeppelin/token/ERC20/IERC20.sol": "0xe06a3f08a987af6ad2e1c1e774405d4fe08f1694b67517438b467cecf0da0ef7",
+        "contracts/lib/openzeppelin/token/ERC20/extensions/IERC20Metadata.sol": "0x70f2f713b13b7ce4610bcd0ac9fec0f3cc43693b043abcb8dc40a42a726eb330",
+        "contracts/lib/openzeppelin/utils/Context.sol": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
+        "contracts/lib/openzeppelin/utils/Panic.sol": "0xf7fe324703a64fc51702311dc51562d5cb1497734f074e4f483bfb6717572d7a",
+        "contracts/lib/openzeppelin/utils/math/Math.sol": "0xa00be322d7db5786750ce0ac7e2f5b633ac30a5ed5fa1ced1e74acfc19acecea",
+        "contracts/lib/openzeppelin/utils/math/SafeCast.sol": "0x195533c86d0ef72bcc06456a4f66a9b941f38eb403739b00f21fd7c1abd1ae54"
+      },
+      "creationHashes": {
+        "mockVault": "0x3dd6d11cce014bb476a28724196caf265642766ede48d2e5ffa87cf72f3f93a6",
+        "vaultAdapter": "0x0a5990ffff5629278ae78775c2df01988868cf70274c9521e516c8e07c9afe87",
+        "vaultFactory": "0x2994d6073592573818fe266db35a4b7edc52318ae6e710739bd3ae07ee19119f",
+        "vaultAccount": "0x378369f8c7ef3872c99102d2f34d79893cac256ceb88401806f618379f727c1f"
+      }
+    },
+    "core": {
+      "lending": "0xdad2bbf5ce7bc43a932c78b5bcd5e0d284348101",
+      "swap": "0xf2e6d955158fe77252713d982f9d376f467e7cd3",
+      "execution": "0xc72a18670c185f6a5e39dfbf10c27f025aa96d9c",
+      "mockUsdc": "0x3a6cb8bedc251c37dc8258a27575127990a67e95"
+    },
+    "deadline-deposit-10-mUSDC": "1795711947",
+    "deadline-withdraw-2-mUSDC": "1795711954",
+    "deadline-redeem-4-mock-vault-shares": "1795711962"
+  }
+}

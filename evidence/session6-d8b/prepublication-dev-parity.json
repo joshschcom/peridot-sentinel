@@ -1,0 +1,126 @@
+{
+  "mode": "Development parity only; no public receipts supplied or configuration written",
+  "publicConfigStatus": "awaiting-founder-publication",
+  "development": {
+    "chainId": 1952,
+    "mode": "development-reference",
+    "block": "47249225",
+    "blockHash": "0x0e053ac11caecaedc6bee3a17ba04728ff80e859d2aeaa78658725c5f335b225",
+    "programs": [
+      {
+        "processor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+        "id": "1",
+        "hash": "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+        "vectors": [
+          {
+            "inputs": "0x722c0b",
+            "output": "0x01"
+          },
+          {
+            "inputs": "0x922c0b",
+            "output": "0x01"
+          },
+          {
+            "inputs": "0xb22c0b",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0x822c0b",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0x922c03",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0x992c03",
+            "output": "0x01"
+          }
+        ]
+      },
+      {
+        "processor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+        "id": "2",
+        "hash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+        "vectors": [
+          {
+            "inputs": "0x72af0a",
+            "output": "0x01"
+          },
+          {
+            "inputs": "0x92af0a",
+            "output": "0x01"
+          },
+          {
+            "inputs": "0xb2af0a",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0x82af0a",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0x92af02",
+            "output": "0x01"
+          },
+          {
+            "inputs": "0x99af02",
+            "output": "0x00"
+          }
+        ]
+      },
+      {
+        "processor": "0x6d75932b8bb080a3e04b6c9c6218bdf3b321f9b1",
+        "id": "1",
+        "hash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b",
+        "vectors": [
+          {
+            "inputs": "0xf50000",
+            "output": "0x01"
+          },
+          {
+            "inputs": "0xf56300",
+            "output": "0x01"
+          },
+          {
+            "inputs": "0xf56400",
+            "output": "0x01"
+          },
+          {
+            "inputs": "0xf56500",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0xf5f401",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0xe50000",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0xd50000",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0xb50000",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0x750000",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0xf50004",
+            "output": "0x00"
+          },
+          {
+            "inputs": "0xf40000",
+            "output": "0x00"
+          }
+        ]
+      }
+    ]
+  }
+}
+
