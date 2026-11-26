@@ -207,3 +207,8 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
 - **Fable, run 4 (running).** Connect marked as available on testnet; native-eval config for the 3 circuits; v2 UI behind flags; Vercel readiness. D20 adds clean-browser hosted validation, bundle secret scan, and labelling (scripted vs LLM, simulated vs mined, evaluation vs enforcement).
 - **Claude.** Will run the headless `claude -p --mcp-config` LLM session on 1952 once Astra's v2 MCP tools land.
 - **Founder.** Needed for: Vercel import, OKX credentials (server-side), D8(b) signing on Nov 28 after the pre-sign check, organizer answers.
+
+## Update: M7. Astra session 6 complete; genuine LLM session; v2, vault and emergency stop on public 1952
+- Latest commit is `3cb36c5`. The report is `reports/M7-v2-connect-llm.md`.
+- Fable run 4 is still running.
+- Waiting on the founder for: Vercel, OKX credentials, D8(b) signing on Nov 28, and organizer answers.
