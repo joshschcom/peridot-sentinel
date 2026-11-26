@@ -7,7 +7,7 @@ import { Advanced, Badge, Button, Card, CardHeader, EmptyState, ExampleTag, Mono
 import { IconArrowUpRight, IconBot, IconUser } from "@/components/ui/icons";
 import { useActivity } from "@/hooks/use-data";
 import { formatAmount, formatBps } from "@/lib/amount";
-import { LogCoverageText } from "@/components/domain/log-coverage";
+import { LogCoverageText, MergedCoverageText } from "@/components/domain/log-coverage";
 import { WRITE_CHAIN_ID, explorerTxUrl } from "@/lib/chains";
 import { type ErrorCategory, mapContractError, rawErrorText } from "@/lib/errors";
 import { EVIDENCE, FORK_LABEL, LOCAL_LABEL, TESTNET_LABEL } from "@/lib/evidence";
@@ -41,7 +41,9 @@ export function SentinelActivity() {
   const [filter, setFilter] = useState<Filter>("all");
   const queryClient = useQueryClient();
   const entries = activity.data?.status === "ok" ? activity.data.value.entries : null;
-  const coverage = activity.data?.status === "ok" ? activity.data.value.coverage : undefined;
+  const feed = activity.data?.status === "ok" ? activity.data.value : undefined;
+  const coverage = feed?.coverage;
+  const snapshot = feed?.snapshot;
   const scanFurther = () => {
     extendLogWindow();
     void queryClient.invalidateQueries();
@@ -69,7 +71,7 @@ export function SentinelActivity() {
         <EmptyState title="Nothing here yet">Actions by you or your operator will appear here with their outcome{coverage && !coverage.complete ? " (in the block ranges that were read, see below)" : ""}.</EmptyState>
       ) : (
         <Card as="section" data-testid="chain-activity">
-          {fixture ? null : <CardHeader eyebrow="On chain" title="Your wallet and Sentinel accounts" description="Events emitted by the contracts in mined transactions: PolicyAllowed and AutoRepayExecuted." />}
+          {fixture ? null : <CardHeader eyebrow="On chain" title="Your wallet and Sentinel accounts" description={`Events emitted by the contracts in mined transactions: PolicyAllowed and AutoRepayExecuted.${snapshot && snapshot.state !== "not-canonical" && snapshot.state !== "unverified" ? " Read by this page's own scan and from the indexed snapshot, merged into one list; each entry says where it was read from." : ""}`} />}
           <ul className="divide-y divide-line">
             {shown.map((entry) => (
               <Entry key={entry.id} entry={entry} fixture={fixture} />
@@ -77,11 +79,9 @@ export function SentinelActivity() {
           </ul>
         </Card>
       )}
-      {coverage && !coverage.complete ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-control border border-line px-4 py-3 text-[0.8125rem]" data-testid="activity-coverage">
-          <p className="min-w-0 flex-1 text-muted">
-            <LogCoverageText coverage={coverage} />
-          </p>
+      {coverage && feed && (!coverage.complete || snapshot) ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-control border border-line px-4 py-3 text-[0.8125rem]" data-testid="activity-coverage" data-complete={String(coverage.complete)}>
+          <p className="min-w-0 flex-1 text-muted">{snapshot ? <MergedCoverageText feed={feed} /> : <LogCoverageText coverage={coverage} />}</p>
           <Button size="sm" variant="secondary" onClick={scanFurther} disabled={activity.isFetching}>
             Scan more blocks
           </Button>
@@ -103,7 +103,7 @@ function Entry({ entry, fixture }: { entry: ActivityEntry; fixture: boolean }) {
   const rejection = error ? REJECTION_BADGE[error.category] : undefined;
   const url = entry.txHash.status === "ok" ? explorerTxUrl(WRITE_CHAIN_ID, entry.txHash.value) : null;
   return (
-    <li className="flex gap-3.5 p-4 sm:p-5" data-result={entry.result} data-category={error?.category}>
+    <li className="flex gap-3.5 p-4 sm:p-5" data-result={entry.result} data-category={error?.category} data-source={entry.source}>
       <span className="grid size-9 shrink-0 place-items-center rounded-full bg-raised" title={entry.actor === "operator" ? "Operator (automation)" : "You (owner)"}>
         {entry.actor === "operator" ? <IconBot size={18} /> : <IconUser size={18} />}
       </span>
@@ -121,6 +121,7 @@ function Entry({ entry, fixture }: { entry: ActivityEntry; fixture: boolean }) {
           {entry.result === "allowed" ? <Badge tone="success">Allowed</Badge> : <Badge tone={rejection?.tone ?? "neutral"}>{rejection?.label ?? "Failed"}</Badge>}
           <Badge tone="outline">{EVIDENCE_LABEL[entry.evidence]}</Badge>
           <Badge tone="outline">{entry.actor === "operator" ? "Operator" : "Owner"}</Badge>
+          {entry.source === "snapshot" ? <Badge tone="outline">From the indexed snapshot</Badge> : entry.source === "both" ? <Badge tone="outline">Live scan · also in the snapshot</Badge> : entry.source === "scan" ? <Badge tone="outline">Live scan</Badge> : null}
           {fixture ? <ExampleTag /> : null}
         </div>
         {entry.detail ? <p className="mt-2 text-sm text-muted">{entry.detail}</p> : null}

@@ -241,6 +241,8 @@ export interface ActivitySnapshot {
   /** Hash of the last covered block. The browser re-reads it before the snapshot is called canonical. */
   toBlockHash: `0x${string}`;
   status: string;
+  /** The contracts the indexer followed, each from its own first block. A contract not listed here is not covered. */
+  sources: Array<{ address: `0x${string}`; fromBlock: bigint }>;
   events: SnapshotEvent[];
 }
 
@@ -262,7 +264,15 @@ export function parseActivitySnapshot(json: unknown, file: string): Maybe<Activi
     if (!e || block === null || !tx || index === null || !at || typeof e.eventName !== "string" || typeof e.contract !== "string" || block < from || block > to) return unavailable("The indexed activity snapshot has an event outside its stated block range or in an unknown format");
     events.push({ blockNumber: block, transactionHash: tx, logIndex: index, address: at, contract: e.contract, eventName: e.eventName, args: rec(e.args) ?? {}, timestamp: uint(e.timestamp) });
   }
-  return ok({ file, chainId: 1952, updatedAt: root.updatedAt, fromBlock: from, toBlock: to, toBlockHash: terminal, status: typeof coverage?.status === "string" ? coverage.status : "unknown", events });
+  const sources: ActivitySnapshot["sources"] = [];
+  for (const item of Array.isArray(root.sources) ? root.sources : []) {
+    const source = rec(item);
+    const at = address(source?.address);
+    const first = uint(source?.fromBlock);
+    if (!at || first === null) return unavailable("The indexed activity snapshot lists a source in an unknown format");
+    sources.push({ address: at, fromBlock: first });
+  }
+  return ok({ file, chainId: 1952, updatedAt: root.updatedAt, fromBlock: from, toBlock: to, toBlockHash: terminal, status: typeof coverage?.status === "string" ? coverage.status : "unknown", sources, events });
 }
 
 export const EXPANSION = {

@@ -6,7 +6,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { LtvMeter } from "@/components/domain/ltv-meter";
 import { Amount, marketTitle, tokenAmount, usdOf } from "@/components/domain/market-bits";
 import { PolicyRules } from "@/components/domain/policy-card";
-import { LogCoverageText } from "@/components/domain/log-coverage";
+import { LogCoverageText, MergedCoverageText } from "@/components/domain/log-coverage";
 import { ACTIVE_STATUS_LABEL, useActiveStrategies } from "@/components/domain/strategy-bits";
 import { Badge, Button, ButtonLink, Card, CardHeader, DefinitionRow, EmptyState, ExampleTag, Notice, Skeleton, Stat, Value, cx } from "@/components/ui/core";
 import { IconArrowRight, IconBot, IconCheck, IconLock, IconShield } from "@/components/ui/icons";
@@ -270,7 +270,7 @@ function RecentOperations() {
       )}
       {feed?.coverage && !feed.coverage.complete ? (
         <p className="border-t border-line px-5 py-3 text-xs text-faint sm:px-6">
-          <LogCoverageText coverage={feed.coverage} />
+          {feed.snapshot ? <MergedCoverageText feed={feed} /> : <LogCoverageText coverage={feed.coverage} />}
         </p>
       ) : null}
     </Card>

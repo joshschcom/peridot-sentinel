@@ -209,6 +209,11 @@ export interface ActivityEntry {
   error?: RawError;
   detail?: string;
   txHash: Maybe<Hex>;
+  /**
+   * Chain mode on a target with an indexed snapshot: where this row was read from. "scan" is this page's own log
+   * scan, "snapshot" the indexed snapshot shipped with the build, "both" a row found by both (shown once).
+   */
+  source?: "scan" | "snapshot" | "both";
 }
 
 export interface PolicyTemplate {
@@ -257,6 +262,17 @@ export interface ActivityFeed {
    * the deployment block and the head were not read (see `scanPlan`); the UI must say which.
    */
   coverage?: LogCoverage;
+  /** The ranges this page's own scan read, when `coverage` also counts the snapshot's range. */
+  scanRanges?: Array<{ from: bigint; to: bigint }>;
+  /** Blocks from the deployment block to `head` that no source covers. Empty when `coverage.complete`. */
+  gaps?: Array<{ from: bigint; to: bigint }>;
+  head?: bigint;
+  /**
+   * The indexed snapshot's part in this list. "merged": its last block was re-read and matches, its events are in
+   * the list and its range counts as read. "events-only": events are in the list, but it does not index every
+   * contract of this list, so its range is NOT counted. "not-canonical" / "unverified": nothing of it is used.
+   */
+  snapshot?: { file: string; fromBlock: bigint; toBlock: bigint; updatedAt: string; state: "merged" | "events-only" | "not-canonical" | "unverified"; added: number; shared: number; skipped: number; unindexed: number };
 }
 
 export interface ActivityService extends ServiceMeta {
