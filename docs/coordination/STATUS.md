@@ -233,3 +233,18 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
   - Astra session 8: v2 and vault on the shared local node for browser write acceptance, the MCP tool catalogue, and judge-01 loader data.
   - Fable run 5: the D23 strategy-first redesign (landing, nav groups, Portfolio, Strategies, Discover, Studio, judge-01 wiring, local write acceptance).
 - **Founder:** Vercel, OKX credentials, D8(b) on Nov 28, organizer.
+
+## PAUSE (usage limit reached): resume checklist
+- **Last pushed:** 19a035c (Astra session 8 closed). Fable run 5 (strategy-first redesign) was told to commit at a clean point and update FABLE_NOTES.md. Check `git status` and `git log`, then push its commits.
+- **Background services run by Claude** (they may stop when the session ends):
+  - shared Anvil 127.0.0.1:18545 (state in .research/anvil-18545-state.json);
+  - keeper read service :8787 (simulate-only);
+  - private 1952 fork :19750 (auto-impersonate).
+
+  Restart commands are in this STATUS history.
+- **Resume Astra** with `codex exec resume 01a212ed-f090-7143-89e7-8b707c7b7631`. Resume Fable with a new run that reads apps/web/FABLE_NOTES.md.
+- **Founder actions pending:** Vercel import; OKX credentials (server-side env only); D8(b) signing on Nov 28 after `docs/coordination/D8b-presign-check.sh`; the one remaining organizer question.
+- **Watch items:**
+  - judge-01 grants expire 2026-12-03 16:50 UTC; create judge-02 on demo day.
+  - The local M4 oracle goes stale about 24 h after the refresh on 11-26.
+  - Feature freeze 2026-12-02.
