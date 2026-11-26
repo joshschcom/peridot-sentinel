@@ -22,7 +22,8 @@ const PAGES = [
   { name: "strategies", path: "/strategies", wallet: true, ready: ['[data-testid="active-strategies"]:not([data-count=""])', '[data-testid="emergency-stop"]', '[data-testid="account-repays"]:not([data-count=""])'] },
   { name: "discover", path: "/discover", wallet: true, ready: ['[data-testid="discover-card"]'] },
   { name: "studio", path: "/studio", wallet: true, ready: ['[data-testid="studio-workspace"]'] },
-  { name: "connect", path: "/connect", wallet: true, ready: ['[data-testid="connect-grant"]:not([data-state="loading"])', '[data-testid="connect-judge"]:not([data-state="loading"])'] },
+  // Connect is the longest page (about 17,000 px at phone width): captured at scale 1 there so it is not cut off.
+  { name: "connect", path: "/connect", wallet: true, tall: true, ready: ['[data-testid="connect-grant"]:not([data-state="loading"])', '[data-testid="connect-judge"]:not([data-state="loading"])'] },
 ];
 mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch();
@@ -30,7 +31,7 @@ const report = [];
 for (const entry of PAGES.filter((candidate) => !only || only.includes(candidate.name))) {
   for (const width of [390, 1440]) {
     for (const scheme of ["light", "dark"]) {
-      const context = await browser.newContext({ viewport: { width, height: width < 500 ? 844 : 900 }, colorScheme: scheme, deviceScaleFactor: width < 500 ? 2 : 1, reducedMotion: "reduce" });
+      const context = await browser.newContext({ viewport: { width, height: width < 500 ? 844 : 900 }, colorScheme: scheme, deviceScaleFactor: width < 500 && !entry.tall ? 2 : 1, reducedMotion: "reduce" });
       const wallet = entry.wallet ? await installTestWallet(context, { account: WATCH, walletChainId: "0x7a0", watchOnly: true }) : null;
       const page = await context.newPage();
       const errors = [];
@@ -43,24 +44,26 @@ for (const entry of PAGES.filter((candidate) => !only || only.includes(candidate
       await page.waitForFunction(() => !document.querySelector("[data-loading]"), null, { timeout: 90_000 }).catch(() => notReady.push("[data-loading] still present"));
       await page.waitForTimeout(800);
       // Grow the viewport to the document so sticky and fixed chrome sits where a reader sees it.
+      const CAP = entry.tall ? 30000 : 16000;
+      let pageHeight = 0;
       for (let pass = 0; pass < 2; pass++) {
-        const height = await page.evaluate(() => document.documentElement.scrollHeight);
-        await page.setViewportSize({ width, height: Math.min(Math.max(height, 600), 16000) });
+        pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+        await page.setViewportSize({ width, height: Math.min(Math.max(pageHeight, 600), CAP) });
         await page.waitForTimeout(200);
       }
       await page.evaluate(() => window.scrollTo(0, 0));
       const file = `${entry.name}-${width}-${scheme}.png`;
       await page.screenshot({ path: `${OUT}/${file}` });
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-      const state = { file, overflowPx: overflow, pageErrors: errors, notReady, deploymentBanner: await page.locator('[data-testid="deployment-banner"]').count(), fixtureBanner: await page.locator('[data-testid="fixture-banner"]').count(), walletRequests: wallet ? wallet.sent.length + wallet.refused.length : 0 };
+      const state = { file, pageHeightPx: pageHeight, truncated: pageHeight > CAP, overflowPx: overflow, pageErrors: errors, notReady, deploymentBanner: await page.locator('[data-testid="deployment-banner"]').count(), fixtureBanner: await page.locator('[data-testid="fixture-banner"]').count(), walletRequests: wallet ? wallet.sent.length + wallet.refused.length : 0 };
       report.push(state);
-      console.log(`${overflow > 0 || errors.length || notReady.length || state.deploymentBanner || state.fixtureBanner ? "!!" : "ok"} ${file}${notReady.length ? ` not ready: ${notReady.join(", ")}` : ""}${overflow > 0 ? ` overflow ${overflow}px` : ""}`);
+      console.log(`${overflow > 0 || errors.length || notReady.length || state.deploymentBanner || state.fixtureBanner || state.truncated ? "!!" : "ok"} ${file}${state.truncated ? ` TRUNCATED at ${CAP}px of ${pageHeight}px` : ""}${notReady.length ? ` not ready: ${notReady.join(", ")}` : ""}${overflow > 0 ? ` overflow ${overflow}px` : ""}`);
       await context.close();
     }
   }
 }
 await browser.close();
-const bad = report.filter((entry) => entry.overflowPx > 0 || entry.pageErrors.length || entry.notReady.length || entry.deploymentBanner || entry.fixtureBanner || entry.walletRequests);
+const bad = report.filter((entry) => entry.truncated || entry.overflowPx > 0 || entry.pageErrors.length || entry.notReady.length || entry.deploymentBanner || entry.fixtureBanner || entry.walletRequests);
 writeFileSync(`${OUT}/shots.json`, `${JSON.stringify({ base: BASE, at: new Date().toISOString(), wallet: "watch-only test wallet reporting the public demo owner address on chain 1952; it cannot sign or send", passed: bad.length === 0, shots: report }, null, 2)}\n`);
 console.log(bad.length ? `${bad.length} capture(s) with a problem` : `All ${report.length} captures are clean. ${OUT}`);
 process.exit(bad.length ? 1 : 0);

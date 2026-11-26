@@ -33,7 +33,7 @@ const VAULT_FACTORY = abi("VaultSentinelAccountFactoryV2");
 const SWAP = abi("SinglePoolSwapAdapter");
 const RUN_ID = `run-${new Date().toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15)}`;
 const SHOTS = resolve(repo, "evidence/screenshots/local-v2", RUN_ID);
-const OUT = resolve(repo, "evidence/fable/run5");
+const OUT = resolve(repo, process.env.EVIDENCE_DIR ?? "evidence/fable/run6");
 if (!LOOPBACK_RPC.test(RPC)) throw new Error("E2E only runs against a loopback RPC");
 for (const index of [OWNER_INDEX, OPERATOR_INDEX]) if (!(index >= 3 && index <= 9)) throw new Error("Use accounts #3-#9 only");
 if (OWNER_INDEX === OPERATOR_INDEX) throw new Error("Owner and operator must differ");
@@ -264,6 +264,21 @@ try {
     return `shares 4000000 in, assets +${idleAfter - idleBefore} (minimum ${shownBound}, quote ${shownQuote})`;
   });
   await shot("05-vault-after-deposit-withdraw-redeem");
+
+  // Portfolio on the local chain lists both v2 accounts, and the rows equal the chain.
+  await go("/portfolio");
+  const rows = page.locator('[data-testid="portfolio-v2-owner"]');
+  await page.locator('[data-testid="portfolio-v2-owner"][data-state="account"]').waitFor({ timeout: 30000 });
+  const [wokbNow, usdcNow, positionNow, idleNow] = await Promise.all([balance(WOKB, account), balance(USDC, account), read(vaultAccount, VAULT_ACCOUNT, "vaultPosition"), balance(USDC, vaultAccount)]);
+  const whole = (raw, decimals) => Number(raw / 10n ** BigInt(decimals - 4)) / 1e4; // display comparison only, 4 decimals
+  const idleText = (await rows.locator('[data-portfolio-row="v2-idle"]').innerText()).replace(/\s+/g, " ");
+  const vaultRow = rows.locator('[data-portfolio-row="v2-vault"]');
+  assert(same(await rows.getAttribute("data-account"), account) && same(await rows.getAttribute("data-vault-account"), vaultAccount), "Portfolio shows other v2 accounts than the factories report");
+  assert(idleText.includes(`${whole(wokbNow, 18).toLocaleString("en-US", { maximumFractionDigits: 4 })} mWOKB`) && idleText.includes(`${whole(usdcNow, 6).toLocaleString("en-US", { maximumFractionDigits: 4 })} mUSDC`), `Portfolio's idle row "${idleText}" differs from the chain (${wokbNow} mWOKB raw, ${usdcNow} mUSDC raw)`);
+  assert((await vaultRow.getAttribute("data-shares")) === String(positionNow[0]) && (await vaultRow.getAttribute("data-idle")) === String(idleNow), "Portfolio's vault row differs from the chain");
+  assert((await rows.locator('[data-portfolio-row="v2-lending"], [data-portfolio-row="v2-operators"]').count()) === 2, "Portfolio lacks the v2 lending or operator row");
+  steps.push({ label: "Portfolio v2 rows equal the chain (read-only)", idle: idleText, vaultShares: String(positionNow[0]), vaultIdle: String(idleNow) });
+  await shot("06-portfolio-v2-rows");
 
   // A bound the vault cannot meet is refused in simulation; nothing is sent. Asked of the chain directly, as the owner.
   const impossible = await revertName(owner, vaultAccount, VAULT_ACCOUNT, "redeemFromVault", [E6, 10n * E6, (await chain.getBlock()).timestamp + 1200n]);

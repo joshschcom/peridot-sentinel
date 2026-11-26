@@ -28,7 +28,11 @@ const repo = resolve(here, "../../..");
 const json = (path) => JSON.parse(readFileSync(resolve(repo, path), "utf8"));
 const BASE = process.env.BASE_URL ?? "http://127.0.0.1:3213";
 const RPC = process.env.FORK_RPC ?? "http://127.0.0.1:19750";
-const owner = process.env.FORK_OWNER ?? "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"; // public demo owner, impersonated by the fork
+// FRESH=1: the path of a wallet that owns NOTHING on 1952 (what a reviewer's wallet meets): it creates its own vault
+// account at the public vault factory, mints test mUSDC to it, sets its limits and uses the vault. Default: the
+// public demo owner and the public accounts.
+const FRESH = process.env.FRESH === "1";
+const owner = process.env.FORK_OWNER ?? (FRESH ? "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f" : "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"); // an impersonated address either way; no key
 const operator = process.env.FORK_OPERATOR ?? "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc"; // an address only for the app; the fork impersonates it for the one script-sent swap
 // The addresses asserted against are the PUBLIC manifests', never the override copy's.
 const M = json("packages/chain-config/expansion/deployments/1952.json");
@@ -71,14 +75,19 @@ const E18 = 10n ** 18n;
 const E6 = 10n ** 6n;
 // Ownership, read from the fork before anything is clicked.
 const account = M.contracts.account;
-const vaultAccount = V.contracts.vaultAccount;
-const preflight = {
+let vaultAccount = V.contracts.vaultAccount;
+const preflight = FRESH ? { fresh: true, vaultAccountOf: await read(V.contracts.vaultFactory, VAULT_FACTORY, "accountOf", [owner]), v2AccountOf: await read(M.contracts.factory, FACTORY, "accountOf", [owner]), gasWei: (await chain.getBalance({ address: owner })).toString() } : {
   v2AccountOf: await read(M.contracts.factory, FACTORY, "accountOf", [owner]),
   v2Owner: await read(account, ACCOUNT, "owner"),
   vaultAccountOf: await read(V.contracts.vaultFactory, VAULT_FACTORY, "accountOf", [owner]),
   vaultOwner: await read(vaultAccount, VAULT_ACCOUNT, "owner"),
 };
-if (!same(preflight.v2AccountOf, account) || !same(preflight.v2Owner, owner) || !same(preflight.vaultAccountOf, vaultAccount) || !same(preflight.vaultOwner, owner)) throw new Error(`The demo owner does not own the public accounts on this fork: ${JSON.stringify(preflight)}`);
+if (!FRESH && (!same(preflight.v2AccountOf, account) || !same(preflight.v2Owner, owner) || !same(preflight.vaultAccountOf, vaultAccount) || !same(preflight.vaultOwner, owner))) throw new Error(`The demo owner does not own the public accounts on this fork: ${JSON.stringify(preflight)}`);
+const freshSetup = [];
+if (FRESH && BigInt(preflight.gasWei) < E18 / 100n) {
+  await jsonRpc(RPC, "anvil_setBalance", [owner, `0x${E18.toString(16)}`]);
+  freshSetup.push({ label: "anvil_setBalance(fresh wallet, 1 test OKB): a fork-only cheat so the impersonated wallet can pay gas", notATransaction: true });
+}
 
 const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: "light", reducedMotion: "reduce" });
@@ -141,9 +150,9 @@ try {
   assert(/fork/i.test(pill), `the network is not labelled as a fork (got "${pill}")`);
   assert((await page.locator('a[href*="okx.com/web3/explorer"]').count()) === 0, "a fork build shows an explorer link");
   const base = page.locator('[data-testid="v2-base"]');
-  await page.locator(`[data-testid="v2-base"][data-account="${account}"]`).waitFor({ timeout: 30000 });
+  if (!FRESH) await page.locator(`[data-testid="v2-base"][data-account="${account}"]`).waitFor({ timeout: 30000 });
   await shot("01-trade-owner-flows-on-the-fork");
-
+  if (!FRESH) {
   /* ---------- v2 account: new swap-only grant, operator swap (script-sent), revoke-all ---------- */
   const before = { operators: await read(account, ACCOUNT, "operatorCount"), wokb: await balance(WOKB, account), usdc: await balance(USDC, account) };
   assert(before.operators === 0n, `the public v2 account already lists ${before.operators} operator(s) on this fork: run on a state where the emergency stop is the last owner action, or revoke first`);
@@ -207,9 +216,32 @@ try {
   });
   await page.locator('[data-testid="v2-grants-empty"]').waitFor({ timeout: 30000 });
   await shot("03-v2-after-revoke-all");
+  }
 
   /* ---------- the public vault account ---------- */
   const vault = page.locator('[data-testid="vault-card"]');
+  if (FRESH) {
+    scriptSent.push(...freshSetup);
+    await vault.waitFor({ timeout: 30000 });
+    if (same(preflight.vaultAccountOf, zeroAddress)) {
+      // No account yet: the card offers creation and no vault action.
+      assert((await vault.getAttribute("data-account")) === "" && (await page.locator('[data-testid="vault-submit"], [data-testid="vault-mint"]').count()) === 0, "a vault action is offered to a wallet without a vault account");
+      await transact(vault, page.locator('[data-testid="vault-create"]'), "fresh wallet: create its own vault account at the public vault factory", async (tx) => {
+        vaultAccount = await read(V.contracts.vaultFactory, VAULT_FACTORY, "accountOf", [owner]);
+        assert(same(tx.to, V.contracts.vaultFactory) && !same(vaultAccount, zeroAddress) && same(await read(vaultAccount, VAULT_ACCOUNT, "owner"), owner) && same(await read(vaultAccount, VAULT_ACCOUNT, "vaultAdapter"), V.contracts.vaultAdapter) && same(await read(vaultAccount, VAULT_ACCOUNT, "vault"), V.contracts.mockVault) && !same(vaultAccount, V.contracts.vaultAccount), "the new vault account's owner or bindings are wrong");
+        return `accountOf(fresh wallet) = ${vaultAccount}, owner() = the wallet, adapter and vault as in the public manifest`;
+      });
+    } else {
+      vaultAccount = preflight.vaultAccountOf;
+      steps.push({ label: "fresh wallet: create vault account", skipped: `already exists from an earlier run on this fork: ${vaultAccount}` });
+    }
+    await page.locator(`[data-testid="vault-card"][data-account="${vaultAccount}"]`).waitFor({ timeout: 30000 });
+    const idleBeforeMint = await balance(USDC, vaultAccount);
+    await transact(vault, page.locator('[data-testid="vault-mint"]'), "fresh wallet: mint 12 test mUSDC to its vault account (the token's mint is open to anyone)", async (tx) => {
+      assert(same(tx.to, USDC) && (await balance(USDC, vaultAccount)) === idleBeforeMint + 12n * E6, "the vault account did not receive 12 mUSDC");
+      return `idle mUSDC ${idleBeforeMint} -> ${idleBeforeMint + 12n * E6}`;
+    });
+  }
   await page.locator(`[data-testid="vault-card"][data-account="${vaultAccount}"]`).waitFor({ timeout: 30000 });
   assert((await root.getAttribute("data-vault-writes")) === "true", "the vault is not writable in this build");
   const position0 = await read(vaultAccount, VAULT_ACCOUNT, "vaultPosition");
@@ -279,7 +311,7 @@ try {
 }
 
 const endBlock = Number(await jsonRpc(RPC, "eth_blockNumber"));
-const file = `${OUT}/fork-v2-vault-${RUN_ID}.json`;
+const file = `${OUT}/fork-${FRESH ? "fresh-wallet-vault" : "v2-vault"}-${RUN_ID}.json`;
 writeFileSync(
   file,
   `${JSON.stringify(
@@ -293,7 +325,10 @@ writeFileSync(
       runId: RUN_ID,
       owner,
       operator,
-      publicAccounts: { v2Account: account, vaultAccount },
+      scenario: FRESH ? "a wallet that owns nothing on 1952: creates its own vault account, funds it by mint, sets limits, deposits, withdraws, redeems" : "the public demo owner on the public v2 and vault accounts",
+      commit: process.env.BUILD_COMMIT ?? null,
+      publicAccounts: FRESH ? null : { v2Account: account, vaultAccount },
+      vaultAccountUsed: vaultAccount,
       ownershipPreflight: preflight,
       startBlock,
       endBlock,

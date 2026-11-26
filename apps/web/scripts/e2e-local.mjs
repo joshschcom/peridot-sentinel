@@ -490,8 +490,13 @@ try {
       const receipt = await chain.getTransactionReceipt({ hash: txs.at(-1) });
       const minedAt = (await chain.getBlock({ blockNumber: receipt.blockNumber })).timestamp;
       assert(mask === 8 && remaining === USD(3), `grant is mask ${mask}, remaining ${remaining}`);
-      assert(expiry > minedAt && expiry <= minedAt + 7n * 86400n && expiry >= minedAt + 7n * 86400n - 600n, `expiry ${expiry} is not about 7 days after block time ${minedAt}`);
-      return `operators(${operator}) = mask 8, remaining 3 mUSD, expiry ${expiry} (block time ${minedAt})`;
+      // The app counts the lifetime from the chain's clock at the block it read, never from the browser's. This node
+      // only mines when a transaction arrives, so after an idle hour the block it read is an hour older than the block
+      // the grant is mined in. The grant may therefore be SHORTER than seven days from the mined block by that idle
+      // time, never longer: at most 7 days after the mined block, and at least 7 days after the block the app read.
+      const readAt = (await chain.getBlock({ blockNumber: receipt.blockNumber - 1n })).timestamp;
+      assert(expiry > minedAt && expiry <= minedAt + 7n * 86400n && expiry >= readAt + 7n * 86400n - 600n, `expiry ${expiry} is not 7 days counted from the chain time the app read (${readAt}); mined at ${minedAt}`);
+      return `operators(${operator}) = mask 8, remaining 3 mUSD, expiry ${expiry} (7 days from the chain time the app read, ${readAt}; mined at block time ${minedAt})`;
     });
     await operatorRow.waitFor({ timeout: 20000 });
 
