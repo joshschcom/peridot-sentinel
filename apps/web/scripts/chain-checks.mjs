@@ -143,7 +143,8 @@ if (mode === "wrong-network") {
 } else if (mode === "broken-deployment" || mode === "testnet-unverified") {
   const testnet = mode === "testnet-unverified";
   let reason = null;
-  for (const width of [1440, 390]) {
+  // 360 px too: a failure reason quotes a full address, which must wrap inside the cards at the narrowest width.
+  for (const width of [1440, 390, 360]) {
     for (const path of ROUTES) {
       // On the 1952 target the local test wallet is on another chain; connect it anyway to cover banner stacking.
       const { context, page, wallet, errors, status } = await open(path, { width });
@@ -174,7 +175,7 @@ if (mode === "wrong-network") {
             await operatorInput.fill("0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc");
             const submit = page.locator('[data-testid="strategy-review-submit"]');
             if (await submit.isEnabled().catch(() => false)) {
-              await submit.click();
+              await submit.click({ timeout: 5000 }).catch(() => submit.click({ force: true, timeout: 5000 }).catch(() => {}));
               await page.locator('[data-testid="strategy-plan"], [data-testid="strategy-plan-error"]').first().waitFor({ timeout: 30_000 }).catch(() => {});
             }
             plan = await page.locator('[data-testid="strategy-plan"]').count();
@@ -185,7 +186,8 @@ if (mode === "wrong-network") {
           await page.waitForTimeout(400);
           tried.push({ option, reviewUnavailable: unavailable === 1, planBuilt: plan === 1, signEnabled });
           expect(!signEnabled, `${path} @${width}: ${option}: the sign button is enabled on an unverified deployment`);
-          expect(unavailable === 1 || !signEnabled, `${path} @${width}: ${option}: adoption is offered on an unverified deployment`);
+          // Not even the review: no plan is built from a chain the browser could not verify.
+          expect(unavailable === 1 && plan === 0 && (await operatorInput.count()) === 0, `${path} @${width}: ${option}: a strategy review is offered on an unverified deployment (${JSON.stringify(tried.at(-1))})`);
         }
         expect(options.length >= 2, `${path} @${width}: the template options are missing (${options.join(",")})`);
         expect(wallet.sent.length === 0 && wallet.refused.length === 0, `${path} @${width}: trying to adopt a strategy reached the wallet: ${JSON.stringify(wallet.refused)}`);

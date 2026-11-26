@@ -158,7 +158,8 @@ export function EmptyState({ title, children, action, ...rest }: { title: ReactN
   return (
     <div className="flex flex-col items-center rounded-card border border-dashed border-line-strong px-6 py-12 text-center" {...rest}>
       <h3 className="text-base font-semibold">{title}</h3>
-      {children ? <p className="mt-1.5 max-w-md text-sm text-muted">{children}</p> : null}
+      {/* w-full + anywhere: a reason that quotes an address must wrap inside the card at phone width. */}
+      {children ? <p className="mt-1.5 w-full max-w-md text-sm text-muted [overflow-wrap:anywhere]">{children}</p> : null}
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
   );
@@ -180,5 +181,6 @@ export function Advanced({ label = "Advanced details", children, className }: { 
 }
 
 export function Mono({ children, className }: { children: ReactNode; className?: string }) {
-  return <code className={cx("font-mono text-[0.8125rem] break-all", className)}>{children}</code>;
+  // Wraps as a whole when it fits on the next line, and breaks inside only when it is longer than the line.
+  return <code className={cx("font-mono text-[0.8125rem] [overflow-wrap:anywhere]", className)}>{children}</code>;
 }

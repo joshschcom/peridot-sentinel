@@ -202,18 +202,37 @@ export default function LandingPage() {
 
         {/* Studio */}
         <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 sm:pb-24">
-          <div className="rounded-3xl bg-inverse px-6 py-12 text-on-inverse sm:px-12 sm:py-16" data-testid="landing-studio">
-            <p className="text-sm font-medium opacity-70">Studio, for builders</p>
-            <h2 className="headline mt-3 max-w-2xl">Create financial products others can adopt.</h2>
-            <p className="mt-4 max-w-xl text-lg opacity-70">Publish a strategy template, or launch an isolated lending market with its own limits and policy circuit. Studio shows the exact call before anything is signed. Managed vaults are on the roadmap.</p>
-            <div className="mt-8 flex flex-col gap-3 xs:flex-row">
-              <Link href="/studio" className="inline-flex h-13 items-center justify-center gap-2 rounded-full bg-bg px-7 font-medium text-fg hover:opacity-90">
-                Open Studio <IconArrowRight size={18} />
-              </Link>
-              <Link href="/studio/create" className="inline-flex h-13 items-center justify-center rounded-full border border-on-inverse px-7 font-medium hover:opacity-80">
-                Build a market
-              </Link>
+          <div className="grid gap-10 rounded-3xl bg-inverse px-6 py-12 text-on-inverse sm:px-12 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16" data-testid="landing-studio">
+            <div className="min-w-0">
+              <p className="text-sm font-medium opacity-70">Studio, for builders</p>
+              <h2 className="headline mt-3 max-w-2xl">Create financial products others can adopt.</h2>
+              <p className="mt-4 max-w-xl text-lg opacity-70">Publish a strategy template, or launch an isolated lending market with its own limits and policy circuit. Studio shows the exact call before anything is signed. Managed vaults are on the roadmap.</p>
+              <div className="mt-8 flex flex-col gap-3 xs:flex-row">
+                <Link href="/studio" className="inline-flex h-13 items-center justify-center gap-2 rounded-full bg-bg px-7 font-medium text-fg hover:opacity-90">
+                  Open Studio <IconArrowRight size={18} />
+                </Link>
+                <Link href="/studio/create" className="inline-flex h-13 items-center justify-center rounded-full border border-on-inverse px-7 font-medium hover:opacity-80">
+                  Build a market
+                </Link>
+              </div>
             </div>
+            {/* What a builder can make, with the same status words Studio itself derives. */}
+            <ul className="min-w-0 divide-y divide-on-inverse/20 border-y border-on-inverse/20" data-testid="landing-studio-list">
+              {[
+                { name: "Strategy template", body: "Budget, trigger and lifetime, exported as JSON with a content hash.", status: CURATED.length === 0 ? "Planned" : LANDING_CONTEXT.testnetLive ? "Available on testnet" : "Demonstration" },
+                { name: "Lending market", body: "Isolated, with your limits and your policy circuit on every borrow.", status: live ? "Available on testnet" : "Example data in this build" },
+                { name: "Policy circuit", body: "A rule compiled to a small circuit with a deterministic hash.", status: "Library" },
+                { name: "Managed vault", body: "A pooled product run under a published policy. No contract exists.", status: "Roadmap" },
+              ].map((item) => (
+                <li key={item.name} className="flex items-start justify-between gap-4 py-4" data-status={item.status}>
+                  <div className="min-w-0">
+                    <p className="font-medium">{item.name}</p>
+                    <p className="mt-1 text-sm opacity-70">{item.body}</p>
+                  </div>
+                  <span className="mt-0.5 shrink-0 rounded-full border border-on-inverse/40 px-2.5 py-0.5 text-xs font-medium whitespace-nowrap">{item.status}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 

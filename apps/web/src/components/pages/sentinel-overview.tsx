@@ -304,7 +304,8 @@ function AccountView({ account }: { account: SentinelAccount }) {
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
             <IconShield size={17} className="text-fg" />
             <span className="font-medium text-fg">Sentinel account</span>
-            <span aria-hidden="true">·</span>
+            {/* The separator is dropped at phone width, where the market name wraps onto its own line. */}
+            <span aria-hidden="true" className="hidden sm:inline">·</span>
             <Link href={marketHref} className="rounded underline-offset-4 hover:text-fg hover:underline">
               {marketTitle(m)}, market #{m.index}
             </Link>

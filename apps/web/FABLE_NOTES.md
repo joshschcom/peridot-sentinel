@@ -14,6 +14,8 @@ Working notes for the frontend lead. Read this first when resuming.
 | `NEXT_PUBLIC_WALLET_FIXTURE=wrong-network npm run dev` + `WALLET_CHECK=wrong-network npm run screenshots` | Exercises the wrong-network banner with the in-memory example wallet. |
 | `NEXT_PUBLIC_PERIDOT_TARGET=local` | Targets the local Anvil deployment (31337, RPC `NEXT_PUBLIC_LOCAL_RPC_URL`, default `http://127.0.0.1:18545`). Label becomes "Local development chain". |
 | `PERIDOT_DEPLOYMENTS_DIR=<dir>` | Override the manifest directory for testing the manifest-present path without touching `packages/`. |
+| `PERIDOT_EXPANSION_DIR=<dir>` | Same for the v2 manifests AND the vault manifests (`<chain>.json`, `vault-<chain>.json` live in `packages/chain-config/expansion/deployments/`, not in the v1 directory). `PERIDOT_JUDGE_DIR`, `PERIDOT_ACTIVITY_DIR`, `PERIDOT_TAPEOUT_MANIFEST` override the other inputs. |
+| `EXPANSION_DIR=<dir> node scripts/chain-checks.mjs testnet-live` | Tells the CHECK which v2/vault manifests the server was built from, when that is a copy with a switch turned on. Never set it for an evidence run of the real build. |
 
 Always kill only the dev server PID you started. Astra shares the machine: never `pkill node`.
 

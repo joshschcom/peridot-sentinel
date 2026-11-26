@@ -17,9 +17,9 @@ import { TxFeedback } from "@/components/domain/tx-feedback";
 import { Advanced, Button, Card, CardHeader, Mono, Notice, cx } from "@/components/ui/core";
 import { IconAlert, IconLock, IconShield } from "@/components/ui/icons";
 import { useChainTx } from "@/hooks/use-chain-tx";
-import { useWallet, useWriteGate } from "@/hooks/use-wallet";
+import { useDeploymentCheck, useWallet, useWriteGate } from "@/hooks/use-wallet";
 import { formatAmount, toDecimalString } from "@/lib/amount";
-import { IS_PRIVATE_FORK, WRITE_CHAIN_ID } from "@/lib/chains";
+import { IS_PRIVATE_FORK, WRITE_CHAIN, WRITE_CHAIN_ID } from "@/lib/chains";
 import { shortAddress } from "@/lib/format";
 import { CURATED, type CheckedStrategy, IMPORT_LIMIT, IMPORT_RULES, type StrategyEdits, budgetAsset, editStrategy, exportFileName, parseStrategy, rawFromText, templateAvailability } from "@/lib/strategy";
 import { METHOD_ARGS, METHOD_TEXT, type OwnerTransaction, type PlanKind, type StrategyPlan, argumentText, ownerTransactionStep, reviewStrategy } from "@/services/chain/strategy";
@@ -184,6 +184,9 @@ type ReviewState = { phase: "idle" } | { phase: "loading" } | { phase: "error"; 
 function Review({ strategy, availability }: { strategy: CheckedStrategy; availability: ReturnType<typeof templateAvailability> }) {
   const wallet = useWallet();
   const gate = useWriteGate("account");
+  // A deployment this browser could not verify offers no adoption at all: no plan is built from it, nothing is signed.
+  const deployment = useDeploymentCheck();
+  const unverified = deployment.data && !deployment.data.ok ? deployment.data.reason : null;
   const tx = useChainTx();
   const owner = wallet.status === "connected" ? (wallet.address as Address) : null;
   const [operator, setOperator] = useState("");
@@ -233,10 +236,10 @@ function Review({ strategy, availability }: { strategy: CheckedStrategy; availab
     await build();
   };
 
-  if (!availability.canReview) {
+  if (!availability.canReview || unverified !== null) {
     return (
-      <Notice tone="warning" icon={<IconAlert size={18} />} title="Adoption is not offered in this build" data-testid="strategy-review-unavailable">
-        {availability.reason}
+      <Notice tone="warning" icon={<IconAlert size={18} />} title={availability.canReview ? "Adoption is not offered: the deployment could not be verified" : "Adoption is not offered in this build"} data-testid="strategy-review-unavailable" data-why={availability.canReview ? "unverified" : "availability"}>
+        {availability.canReview ? `The contracts on ${WRITE_CHAIN.name} are not the deployment this app expects (${unverified}). No plan is built from a chain this app cannot verify, and nothing can be signed.` : availability.reason}
       </Notice>
     );
   }
@@ -459,8 +462,9 @@ function ExportPanel({ strategy }: { strategy: CheckedStrategy }) {
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="secondary" onClick={() => void copy("json")}>{copied === "json" ? "Copied" : "Copy JSON"}</Button>
           <Button size="sm" variant="secondary" onClick={() => void copy("hash")}>{copied === "hash" ? "Copied" : "Copy hash"}</Button>
-          <Button size="sm" variant="secondary" onClick={download} data-testid="strategy-export-download">Download {exportFileName(strategy)}</Button>
+          <Button size="sm" variant="secondary" onClick={download} data-testid="strategy-export-download" title={exportFileName(strategy)}>Download file</Button>
         </div>
+        <p className="font-mono text-xs break-all text-faint">{exportFileName(strategy)}</p>
       </div>
     </details>
   );

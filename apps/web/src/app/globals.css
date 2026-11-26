@@ -90,6 +90,9 @@
     font-feature-settings: "ss01", "cv11";
     line-height: 1.5;
     overflow-x: clip;
+    /* A long unbreakable string (an address or a hash inside an error or a lock reason) wraps instead of widening
+       the page. It only breaks a word that would otherwise overflow its line. */
+    overflow-wrap: break-word;
   }
   *,
   ::before,

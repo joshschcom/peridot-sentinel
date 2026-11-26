@@ -195,7 +195,7 @@ function EvidenceKinds({ run, llm }: { run: ConnectTranscript | null; llm: LlmSe
 function TxAnchor({ hash }: { hash: string }) {
   const url = explorerTxUrl(1952, hash);
   return url ? (
-    <a href={url} target="_blank" rel="noreferrer" className="font-mono text-[0.8125rem] break-all text-fg underline underline-offset-4" data-tx={hash}>
+    <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 align-baseline font-mono text-[0.8125rem] whitespace-nowrap text-fg underline underline-offset-4" data-tx={hash}>
       {shortHash(hash)} <IconArrowUpRight size={13} />
     </a>
   ) : (

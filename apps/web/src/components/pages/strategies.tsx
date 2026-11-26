@@ -157,7 +157,7 @@ export function Strategies() {
         <>
           {list.length > 1 ? (
             <label className="block text-sm">
-              <span className="font-medium">Account</span>
+              <span className="block font-medium">Account</span>
               <select id="account-select" value={account.marketId} onChange={(event) => choose(event.target.value)} className="mt-2 h-11 w-full max-w-xl rounded-control border border-line-strong bg-bg px-3">
                 {list.map((entry) => (
                   <option key={entry.marketId} value={entry.marketId}>
@@ -382,7 +382,7 @@ export function EmergencyStop({ account }: { account: SentinelAccount }) {
             {discovery?.coverage ? <span className="text-muted"> Read so far: {coverageRanges(discovery.coverage)}.</span> : null}
           </p>
           <label className="block">
-            <span className="text-muted">Also revoke this address (optional)</span>
+            <span className="block text-muted">Also revoke this address (optional)</span>
             <input id="emergency-extra" type="text" spellCheck={false} autoComplete="off" value={extra} onChange={(event) => setExtra(event.target.value.trim())} placeholder="0x…" className="mt-1.5 h-10 w-full max-w-xl min-w-0 rounded-control border border-line-strong bg-bg px-3 font-mono text-[0.8125rem] outline-none focus:border-fg" />
           </label>
           {extra !== "" && !extraValid ? <p className="text-danger">This is not a valid address.</p> : null}

@@ -39,7 +39,7 @@ export function SentinelPolicy() {
         <>
           {list.length > 1 ? (
             <label className="block text-sm">
-              <span className="font-medium">Account</span>
+              <span className="block font-medium">Account</span>
               <select id="account-select" value={account.marketId} onChange={(event) => choose(event.target.value)} className="mt-2 h-11 w-full max-w-xl rounded-control border border-line-strong bg-bg px-3">
                 {list.map((entry) => (
                   <option key={entry.marketId} value={entry.marketId}>
