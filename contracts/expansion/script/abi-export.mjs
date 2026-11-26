@@ -1,5 +1,6 @@
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs'
-const names=['SentinelAccountV2','SentinelAccountFactoryV2','PeridotLendingAdapter','SinglePoolSwapAdapter','ExecutionPolicy','TestnetInventoryVenue']
+const names=['SentinelAccountV2','SentinelAccountFactoryV2','PeridotLendingAdapter','SinglePoolSwapAdapter','ExecutionPolicy','TestnetInventoryVenue',
+  'SingleVaultAdapter','TestnetSavingsVault','VaultSentinelAccountV2','VaultSentinelAccountFactoryV2']
 const dir=new URL('../../../packages/chain-config/expansion/abi/',import.meta.url)
 mkdirSync(dir,{recursive:true})
 for (const name of names) {

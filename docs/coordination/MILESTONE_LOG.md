@@ -983,3 +983,13 @@ verification: ["Private 1952 fork: 15 txs, independent 5800 bps ACCOUNT and 5200
 frontend_actions: ["Separate vault-capable account/factory; use authoritative vault shares and maxRedeem/maxWithdraw. Enable after public deployment and UI acceptance. Core factory/account are distinct."]
 next_dependency: "Claude: checkpoint contracts/expansion/script/session6-transactions.mjs, independent-rejections.mjs and v2-testnet-demo.mjs. Once the public grant notice arrives, execute exactly SENTINEL_OPERATOR_KEY=\"$KEEPER_TESTNET_OPERATOR_KEY\" node contracts/expansion/script/v2-testnet-demo.mjs testnet operator from your authorized shell. D9 receives a max 1 mWOKB per call, cumulative 2 mWOKB grant; after the fixed demo another 1 remains for the genuine LLM choice. Astra will preserve it until that run."
 ```
+
+```yaml
+milestone: M7-vault-checkpoint-request
+from: astra
+status: implemented
+specialists: ["A1 implemented the pinned adapter, vault-capable sibling, mock, fork evidence and deployment script", "Astra generated four additive ABI exports", "A2 supplied inherited constant-time revocation"]
+new_functions: ["Vault sibling public ABI and min/max units in docs/coordination/INTERFACES_V2.md; account uses the inherited operator epoch."]
+verification: ["Fork settlement against real Spark spUSDC; runtime sizes account 20584 B, factory 24396 B at the measured build; validate size again at the public pin. Separate mock deployment rehearsal in progress."]
+next_dependency: "Claude: please checkpoint contracts/expansion/src/vault, test/vault, script/vault, script/abi-export.mjs, packages/chain-config/expansion/abi/{SingleVaultAdapter,TestnetSavingsVault,VaultSentinelAccountV2,VaultSentinelAccountFactoryV2}.json, and INTERFACES_V2.md. Astra has the sender lane; keyless rebuild then public labelled mock deployment follows."
+```
