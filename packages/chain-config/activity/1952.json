@@ -2,19 +2,19 @@
   "schemaVersion": 1,
   "kind": "indexed-event-snapshot",
   "chainId": 1952,
-  "updatedAt": "2026-11-26T15:54:13.141Z",
+  "updatedAt": "2026-11-26T16:06:40.651Z",
   "scopeDigest": "7cd38c1d539d8d6f471240e19ca4ee17ce75e41a4356f0911079e3387fe4624d",
   "coverage": {
     "fromBlock": "47161508",
-    "toBlock": "47249589",
-    "toBlockHash": "0x185379aaf8c7e8d155f09bea36f980c5da42208576574fc32726c36748d0654b",
-    "headAtRefresh": "47249601",
+    "toBlock": "47250330",
+    "toBlockHash": "0xd371e2436e61ccc38f79fd6a059e3ad253c0369376e00cb8a62704a3e56543d8",
+    "headAtRefresh": "47250342",
     "confirmations": 12,
     "status": "caught-up",
     "gaps": [
       {
-        "fromBlock": "47249590",
-        "toBlock": "47249601",
+        "fromBlock": "47250331",
+        "toBlock": "47250342",
         "reason": "confirmation-depth"
       }
     ]
@@ -1878,6 +1878,57 @@
         "shares": "4000000"
       },
       "timestamp": "1795708367"
+    },
+    {
+      "blockNumber": "47250026",
+      "blockHash": "0x62655e7c4b7d9c23541423e58a482526c8d4571cf741f43de487391ae549377f",
+      "transactionHash": "0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+      "transactionIndex": "1",
+      "logIndex": "6",
+      "address": "0xf2e6D955158FE77252713d982F9d376F467E7cD3",
+      "contract": "SinglePoolSwapAdapter",
+      "eventName": "Swapped",
+      "args": {
+        "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+        "input": "0x3a5F909912c4adbEE8776264E6b9faD130321b26",
+        "output": "0x3A6cb8BEdc251C37dc8258a27575127990A67E95",
+        "amountIn": "500000000000000000",
+        "amountOut": "39980000"
+      },
+      "timestamp": "1795708863"
+    },
+    {
+      "blockNumber": "47250026",
+      "blockHash": "0x62655e7c4b7d9c23541423e58a482526c8d4571cf741f43de487391ae549377f",
+      "transactionHash": "0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+      "transactionIndex": "1",
+      "logIndex": "8",
+      "address": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "contract": "SentinelAccountV2",
+      "eventName": "SwapSettled",
+      "args": {
+        "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+        "tokenIn": "0x3a5F909912c4adbEE8776264E6b9faD130321b26",
+        "tokenOut": "0x3A6cb8BEdc251C37dc8258a27575127990A67E95",
+        "amountIn": "500000000000000000",
+        "amountOut": "39980000",
+        "slippageBps": "25"
+      },
+      "timestamp": "1795708863"
+    },
+    {
+      "blockNumber": "47250298",
+      "blockHash": "0xa3b3af09df4fdf2751d47a9f8c44b88beadc4480b95699a983ccc209c0226e90",
+      "transactionHash": "0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+      "transactionIndex": "2",
+      "logIndex": "0",
+      "address": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "contract": "SentinelAccountV2",
+      "eventName": "AllOperatorsRevoked",
+      "args": {
+        "newEpoch": "1"
+      },
+      "timestamp": "1795709135"
     }
   ]
 }

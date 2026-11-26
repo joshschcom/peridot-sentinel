@@ -67,6 +67,19 @@
       "block": "47249418",
       "blockHash": "0x872796f9643d8690602939c3c28429f84fe8f7640c17377ceac5f8692e4ca5e8",
       "gasUsed": "136855"
+    },
+    "emergency-revoke-all": {
+      "to": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "dataHash": "0x9ac9a702ff5b016588c3a8e0aea81291ff2a24ae8577f420b17cf8199c91257c",
+      "value": "0",
+      "expected": "success",
+      "nonce": 79,
+      "gasLimit": "90488",
+      "hash": "0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+      "status": "success",
+      "block": "47250298",
+      "blockHash": "0xa3b3af09df4fdf2751d47a9f8c44b88beadc4480b95699a983ccc209c0226e90",
+      "gasUsed": "44986"
     }
   },
   "data": {

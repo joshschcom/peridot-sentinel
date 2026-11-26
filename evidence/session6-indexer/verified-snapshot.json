@@ -1,25 +1,25 @@
 {
   "chainId": 1952,
   "method": "Public receipt and marketCount reads",
-  "snapshotSHA256": "691b315cabe12c2a4ce0abc0c0ab9ce478079a0fa9efe040143295c858812daa",
+  "snapshotSHA256": "6e7fae1d76a75bf9bb9e05af540cd6844e1f0cbf43f21381e724825de380b0d8",
   "coverage": {
     "fromBlock": "47161508",
-    "toBlock": "47249589",
-    "toBlockHash": "0x185379aaf8c7e8d155f09bea36f980c5da42208576574fc32726c36748d0654b",
-    "headAtRefresh": "47249601",
+    "toBlock": "47250330",
+    "toBlockHash": "0xd371e2436e61ccc38f79fd6a059e3ad253c0369376e00cb8a62704a3e56543d8",
+    "headAtRefresh": "47250342",
     "confirmations": 12,
     "status": "caught-up",
     "gaps": [
       {
-        "fromBlock": "47249590",
-        "toBlock": "47249601",
+        "fromBlock": "47250331",
+        "toBlock": "47250342",
         "reason": "confirmation-depth"
       }
     ]
   },
   "sourceCount": 21,
-  "verifiedLogs": 105,
-  "successfulReceiptCount": 44,
+  "verifiedLogs": 108,
+  "successfulReceiptCount": 46,
   "factoryMarketCount": "2",
   "markets": [
     {
@@ -34,6 +34,11 @@
     }
   ],
   "connectReceipt": "0xc5daaf3401cde7a7b1e8f93c97290f8d9711825ba871097af074304340569b0f",
+  "d21": {
+    "swapReceipt": "0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f",
+    "deniedBorrowReceiptWithZeroLogs": "0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7"
+  },
+  "emergencyRevokeReceipt": "0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
   "vaultReceipts": [
     "0xf56ac33ccfbef6f46189bf79ef36dea1fd5f696976dcc2b24017741331faef45",
     "0xa0fa9c65d5b95a2bb1406e572205966e49a8ded26d37943588e9fd61d5aee62a",

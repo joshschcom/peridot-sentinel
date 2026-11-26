@@ -1178,3 +1178,43 @@ cost: "Claude session about $0.52"
 labels: "Agent-directed single session, not continuous autonomous monitoring. Mock tokens, mock venue, mock feed, development reference processor."
 next_dependency: "Astra: revoke the demo authority (emergency revokeAllOperators phase) and refresh the activity snapshot. Fable: show the transcript, the proposal, both receipts and the verified deltas on Connect."
 ```
+
+```yaml
+milestone: M7-D21-genuine-model-receipts
+from: astra
+status: testnet_verified
+chain_id: 1952
+specialists: ["Claude launched a separate claude-opus-5-5 host on its subscription", "A2 implemented the isolated MCP and historical verifier", "A1 reviewed the signer boundary and settlement assertions", "Astra independently replayed simulations and verified both canonical receipts"]
+transactions:
+  modelSelectedMockSwap: "0x54d49999e12e1dd0eb6247c54cf76cfec0ec3945e7f2b6c96e994768d5dcb79f"
+  modelDeniedBorrow: "0xb50d45edea461c9f6d50e45e28f2faa9ffde4971f02f31909e591b5b1922f7f7"
+verification: ["After reading the grant and mock quote the model chose 0.5 mWOKB out of 1 remaining, with a 39.900000 mUSDC minimum. The account received 39.980000 mUSDC at block 47250026, gas 248430/447955. Half the prior grant remained, approvals zero.", "The one-raw-unit borrow was simulated separately, then mined reverted at block 47250116. Replayed OperatorNotAuthorized() selector 0x2e430953 and verified unchanged grants, books, idle balances and allowances. Public OKX quote unavailable.", "Claude and Astra independently obtained identical receipts, monetary deltas and historical block hashes using the keyless verifier. Only the observed confirmation counts advanced."]
+frontend_actions: ["Link evidence/session6-mcp-v2/verified.json as a recorded, genuine single-session demonstration. Distinguish this swap from the earlier 1 mWOKB baseline and distinguish the mined authorization rejection from its preceding simulation."]
+next_dependency: "Astra: complete owner emergency stop and A5 final activity refresh."
+```
+
+```yaml
+milestone: M7-public-emergency-stop
+from: astra
+status: testnet_verified
+chain_id: 1952
+specialists: ["A2 implemented epoch invalidation", "A1 covered all three vault operators' entry points", "Astra covered active-debt repay/redeem and ran the owner stop after independent D21 verification"]
+contracts: ["0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f"]
+transactions: ["0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f"]
+verification: ["Block 47250298, 44986 gas, AllOperatorsRevoked(1). operatorCount returned zero and the previously partly spent D9 swap grant returned (0,0,0) at the receipt block. The v1 keeper account and optional vault sibling have their own permissions."]
+frontend_actions: ["Re-read count, grants and balances at one confirmed block. Show the pre-revoke D21 budget as historical. This account requires an owner-authorized new grant before any later D9 execution."]
+next_dependency: "A5 refreshes the activity snapshot once this block is 12 deep."
+```
+
+```yaml
+milestone: M7-session6-report
+from: astra
+status: testnet_verified
+chain_id: 1952
+manifest: packages/chain-config/activity/1952.json
+specialists: ["A2 implemented operator enumeration/revocation, the Studio rejection rehearsal and D21 MCP", "A1 implemented the pinned ERC-4626 sibling and fork rehearsal, reviewed the MCP and researched OKX", "A5 implemented activity indexing and D8(b) verification and reconciled the final public snapshot", "Astra integrated, deployed, ran the owner operations and independently verified. Claude checkpointed sources and ran the dedicated D9/model host. Fable owns the UI."]
+verification: ["Session 6 report in docs/coordination/ASTRA_REPORT.md. 23/23 expansion, 14/14 MCP, 7/7 indexer, 2/2 D8(b), keeper smoke passed.", "Final snapshot 47161508–47250330, 108 events verified against 46 successful receipts, 21 sources and two markets, 12-block depth. Terminal hash 0xd371e2436e61ccc38f79fd6a059e3ad253c0369376e00cb8a62704a3e56543d8. Model swap and owner emergency event indexed. Mined denied BORROW has zero logs.", "Both public RPCs returned zero D9 grant and zero configured v2 operators after the owner stop."]
+frontend_actions: ["Refresh the bundled activity snapshot. Label the indexed block range and subsequent live coverage. Use the dedicated receipts for reverts. Fable's read-only testnet v2 Trade and activity checkpoint is 0913c4b. Keep the optional vault disabled until browser acceptance by December 2."]
+known_limitations: ["1952 integrations use valueless mock tokens, inventory-backed mock venues and a development reference processor. Spark settlement used a private fork of 196. OKX authentication and November 28 founder circuit publication remain dependencies."]
+next_dependency: "Claude checkpoint remaining report, evidence, history snapshot and notices. The next operator demonstration on this v2 account requires fresh owner authorization."
+```

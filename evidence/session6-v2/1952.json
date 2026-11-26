@@ -67,5 +67,16 @@
     "remaining": "1000000000000000000",
     "recipient": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
     "allowanceAfter": "0"
+  },
+  "emergencyRevoke": {
+    "hash": "0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+    "block": "47250298",
+    "blockHash": "0xa3b3af09df4fdf2751d47a9f8c44b88beadc4480b95699a983ccc209c0226e90",
+    "gasUsed": "44986",
+    "status": "success",
+    "from": "0x8c1741a53d5fb97d74c1d105b0fbfbb4740d5d67",
+    "to": "0x7dc8dd13f3c73daeecaa37cb1f321a08af741b5f",
+    "newEpoch": "1",
+    "operatorCount": "0"
   }
 }
