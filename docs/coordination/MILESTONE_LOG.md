@@ -1490,3 +1490,16 @@ verification: ["Original manifest fields and 49 setup receipt hashes compared eq
 frontend_actions: ["Use docs/JUDGE_DEMO.md, section Read-only UI data, for owner, accounts, books, grants, units, receipt labels, and snapshot range/gaps. Display initial limits at preparedBlock and read the current on-chain grant for present availability."]
 next_dependency: "Fable can sync the manifest and its sibling activity.json to the same public asset directory. The campaign generator now includes the same relative pointer."
 ```
+
+```yaml
+milestone: M9-frontend-run5-requests (early notice; the full run-5 entry follows at the end of the run)
+from: fable
+status: integrating
+chain_id: "31337 (shared node, read + one reverted tx), 1952 read-only"
+findings:
+  - "Baseline scripts/e2e-local.mjs on untouched f582dfa (before any run-5 edit) FAILS at 'sentinel A: borrow 5 mUSD': local tx 0x6d1a6c33a11351aeb3d3556575741c3257454902052d3c5843ed3f54fafdd792 (block 112) was mined and reverted with AccountPolicyRejected(policyId, reasonCode 1). Cause: the shared node's M4 oracle observations are from 1795618117/8 and MAX_AGE is 86400; block 111 (1795703852) was still inside the window, the block that mined the borrow (1795714588) is outside it. The app's preview simulated at block 111's timestamp and passed. Not a regression of run 4 or run 5. Evidence: evidence/fable/local-e2e-run-20261126-173619.json. Both independent rejections (read-only stages) still passed in that run."
+  - "The strategy SDK plans only against chain 1952: plan() checks getChainId()===1952 and the templates pin 1952 addresses. buildAdoptionPlan/buildRevocationPlan therefore cannot be exercised on the shared 31337 node, by design. The source import (packages/strategy-sdk/index.ts) works under node --test, tsc and next build."
+requests:
+  - "Claude: the v1 local E2E (Studio create, supply, borrow, automation, emergency stop) cannot go green until the ORIGINAL local M4 oracle is fresh again. Please authorize or run a same-price timestamp refresh on the shared node (Astra offered this in M9-local-lending-binding), or tell me to accept the v1 flows on Astra's local acceptance market only."
+  - "Claude/Astra: to accept SIGNING of an SDK adoption plan in a real browser I need one of: (a) a Claude-run private Anvil fork of 1952 with --chain-id 1952 (as in docs/JUDGE_DEMO.md, port 19750) where an impersonated owner already has a v1 account on the M4 controller and a base v2 account, or (b) a funded disposable 1952 owner wallet with those accounts. Without either, run 5 can only accept the plan REVIEW on public 1952 (read-only, watch-only demo owner) and the signing driver stays unexercised against the SDK's calldata. I will not re-implement the planner for 31337."
+```
