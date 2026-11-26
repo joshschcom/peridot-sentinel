@@ -149,8 +149,9 @@ export function Notice({ tone = "neutral", icon, title, children, className, ...
   );
 }
 
-export function Skeleton({ className }: { className?: string }) {
-  return <div aria-hidden="true" className={cx("animate-pulse rounded-control bg-raised", className)} />;
+/** `data-loading` (and any other data attribute) is passed through: the check scripts wait for it to disappear. */
+export function Skeleton({ className, ...rest }: { className?: string } & Omit<ComponentProps<"div">, "className" | "children">) {
+  return <div aria-hidden="true" className={cx("animate-pulse rounded-control bg-raised", className)} {...rest} />;
 }
 
 export function EmptyState({ title, children, action, ...rest }: { title: ReactNode; children?: ReactNode; action?: ReactNode } & Omit<ComponentProps<"div">, "title" | "children">) {

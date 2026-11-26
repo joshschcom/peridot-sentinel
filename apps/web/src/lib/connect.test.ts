@@ -67,9 +67,12 @@ test("a transcript that is not a confirmed 1952 execute is rejected, never shown
 test("Connect is not advertised without both the catalogue and the run", () => {
   assert.equal(connectVerified(parseConnectTools(null), CONNECT.transcript), false);
   assert.equal(connectVerified(CONNECT.tools, parseConnectTranscript(null, null)), false);
-  const twoExecutes = structuredClone(RAW_EVIDENCE.connectTools.json) as { tools: Array<{ annotations: { destructiveHint: boolean } }> };
-  twoExecutes.tools[0]!.annotations.destructiveHint = true;
-  assert.equal(connectVerified(parseConnectTools(twoExecutes), CONNECT.transcript), false);
+  type RawTool = { name: string; writes: boolean; journalEffect: string; annotations: { destructiveHint: boolean; readOnlyHint: boolean } | null };
+  const twoExecutes = structuredClone(RAW_EVIDENCE.connectTools.json) as { tools: RawTool[] };
+  Object.assign(twoExecutes.tools[0]!, { writes: true, journalEffect: "execute", annotations: { destructiveHint: true, readOnlyHint: false } });
+  const parsedTwo = parseConnectTools(twoExecutes);
+  assert.equal(parsedTwo.status, "ok");
+  assert.equal(connectVerified(parsedTwo, CONNECT.transcript), false);
 });
 
 test("grant readiness: spent, expired, revoked and wider-than-repay are all 'cannot execute now'", () => {
@@ -131,4 +134,46 @@ test("LLM-directed session: the model's swap, the simulated denial, the mined re
   const notReverted = structuredClone(json);
   notReverted.rejection.receipt.status = "success";
   assert.equal(parseLlmSession(notReverted, file).status, "unavailable");
+});
+
+test("tool catalogue: nothing is classified by guessing, and a contradiction makes the catalogue unavailable", () => {
+  type RawTool = { name: string; writes?: boolean; journalEffect?: string; guarantees?: unknown; annotations: { destructiveHint: boolean; readOnlyHint: boolean } | null };
+  const clone = () => structuredClone(RAW_EVIDENCE.connectTools.json) as { tools: RawTool[] };
+  // `writes` says it can send, the MCP annotation says it cannot.
+  const contradicts = clone();
+  contradicts.tools[0]!.writes = true;
+  contradicts.tools[0]!.journalEffect = "execute";
+  assert.equal(parseConnectTools(contradicts).status, "unavailable");
+  // A sending tool that is not journalled as an execution.
+  const unjournalled = clone();
+  const execute = unjournalled.tools.find((tool) => tool.writes)!;
+  execute.journalEffect = "none";
+  assert.equal(parseConnectTools(unjournalled).status, "unavailable");
+  // Missing fields are not filled in.
+  const noWrites = clone();
+  delete noWrites.tools[0]!.writes;
+  assert.equal(parseConnectTools(noWrites).status, "unavailable");
+  const noGuarantees = clone();
+  noGuarantees.tools[0]!.guarantees = "trust me";
+  assert.equal(parseConnectTools(noGuarantees).status, "unavailable");
+  const duplicate = clone();
+  duplicate.tools[1]!.name = duplicate.tools[0]!.name;
+  assert.equal(parseConnectTools(duplicate).status, "unavailable");
+  assert.equal(parseConnectTools({ server: { name: "x" }, tools: [] }).status, "unavailable");
+});
+
+test("v2 tool catalogue: seven tools, two of which can send (the swap and the one-off mined rejection)", () => {
+  assert.equal(CONNECT.toolsV2.status, "ok");
+  if (CONNECT.toolsV2.status !== "ok") return;
+  const { tools, server } = CONNECT.toolsV2.value;
+  assert.equal(server, "sentinel-connect-v2");
+  assert.equal(tools.length, 7);
+  assert.deepEqual(tools.filter((tool) => tool.kind === "execute").map((tool) => tool.name), ["execute_swap", "mine_denied_borrow"]);
+  assert.deepEqual(tools.filter((tool) => tool.kind === "proposal").map((tool) => tool.name), ["simulate_and_propose_swap", "simulate_denied_borrow"]);
+  // Both sending tools take only a proposal id: no amount, recipient, account or calldata reaches them directly.
+  for (const tool of tools.filter((entry) => entry.kind === "execute")) assert.deepEqual(tool.inputs, ["proposalId"]);
+  assert.ok(tools.every((tool) => tool.guarantees.length > 0));
+  assert.ok(!tools.some((tool) => /withdraw|set_grant|set_policy|revoke|calldata|transfer/i.test(tool.name)));
+  assert.equal(CONNECT.toolsV2File, "services/mcp-v2/tools.json");
+  assert.equal(CONNECT.toolsFile, "services/mcp/tools.json");
 });

@@ -67,7 +67,10 @@ const evidence = {
   forkSettlement: settlementFile ? { file: `evidence/a5/${settlementFile}`, json: readEvidence(`evidence/a5/${settlementFile}`) } : { file: null, json: null },
   // Sentinel Connect: the external MCP client's seven-step run on public testnet 1952 and the server's tool catalogue.
   connectTranscript: { file: "evidence/session5-mcp/flagship-1952.json", json: readEvidence("evidence/session5-mcp/flagship-1952.json") },
-  connectTools: { file: "evidence/session5-mcp/tools.json", json: readEvidence("evidence/session5-mcp/tools.json") },
+  // The servers' own checked-in catalogues (name, description, input schema, whether a tool can submit a transaction,
+  // journal effect, guarantees). A registration-parity test in services/ keeps them equal to what the servers register.
+  connectTools: { file: "services/mcp/tools.json", json: slimTools(readEvidence("services/mcp/tools.json")) },
+  connectToolsV2: { file: "services/mcp-v2/tools.json", json: slimTools(readEvidence("services/mcp-v2/tools.json")) },
   // Policy vectors rehearsed on a mainnet FORK (never public): used to test the input encoders and as labelled examples.
   tapeoutVectors: { file: "evidence/session5-d8b/proposal-and-fork.json", json: slimVectors(readEvidence("evidence/session5-d8b/proposal-and-fork.json")) },
   // Sentinel v2 on public testnet 1952: owner supply, swap-only grant, mined EXECUTION denial, operator swap (mock venue).
@@ -78,6 +81,17 @@ const evidence = {
   // final message, quoted verbatim from the recorded transcript.
   llmSession: { file: "evidence/session6-mcp-v2/verified.json", json: slimLlmSession(readEvidence("evidence/session6-mcp-v2/verified.json")) },
 };
+// Only the fields the Connect page shows.
+function slimTools(json) {
+  if (!json || !Array.isArray(json.tools)) return null;
+  return {
+    schemaVersion: json.schemaVersion ?? null,
+    server: json.server ?? null,
+    writesMeaning: json.writesMeaning ?? null,
+    journalEffects: json.journalEffects ?? null,
+    tools: json.tools.map((tool) => ({ name: tool.name, description: tool.description, inputSchema: tool.inputSchema, annotations: tool.annotations ?? null, writes: tool.writes, journalEffect: tool.journalEffect, guarantees: tool.guarantees })),
+  };
+}
 function slimLlmSession(json) {
   if (!json || !json.swap || !json.rejection) return null;
   const dir = join(repoRoot, "evidence/session6-mcp-v2");
@@ -154,12 +168,22 @@ function readJsonFile(path) {
     return null;
   }
 }
+// A local manifest records the loopback RPC it was deployed through (`anvil.rpcUrl`). The app never reads it: the
+// RPC of a local-target build comes from next.config.ts only. It is removed here so that no build, and in particular
+// no hosted testnet build, carries a loopback address inside a bundled manifest.
+function withoutNodeUrl(json) {
+  if (json && typeof json === "object" && json.anvil && typeof json.anvil === "object" && "rpcUrl" in json.anvil) {
+    const { rpcUrl: _dropped, ...anvil } = json.anvil;
+    return { ...json, anvil };
+  }
+  return json;
+}
 function readChainDir(dir, prefix = "") {
   const found = {};
   if (!existsSync(dir)) return found;
   for (const file of readdirSync(dir).sort()) {
     const match = new RegExp(`^${prefix}(\\d+)\\.json$`).exec(file);
-    if (match) found[match[1]] = readJsonFile(join(dir, file));
+    if (match) found[match[1]] = withoutNodeUrl(readJsonFile(join(dir, file)));
   }
   return found;
 }
@@ -169,19 +193,73 @@ function readText(relativePath) {
   const path = join(repoRoot, relativePath);
   return existsSync(path) ? readFileSync(path, "utf8") : null;
 }
-function v2Tools() {
-  const names = readEvidence("evidence/session6-mcp-v2/stdio-read.json")?.tools;
-  const readme = readText("services/mcp-v2/README.md");
-  if (!Array.isArray(names) || !readme) return null;
-  // Rows of the README's tool table: | `name` | typed input | output or effect |
-  const rows = Object.fromEntries([...readme.matchAll(/^\| `([a-z_]+)` \| (.+?) \| (.+?) \|$/gm)].map((match) => [match[1], { input: match[2], effect: match[3] }]));
-  return names.map((name) => ({ name, input: rows[name]?.input ?? null, effect: rows[name]?.effect ?? null }));
+// The prepared public judge campaign (docs/JUDGE_DEMO.md, "Read-only UI data"). An ALLOWLIST of fields: addresses,
+// policies, the two grants with their receipts, and the scoped activity snapshot the manifest points at. Funding
+// balances, the other setup receipts and the journal stay out of the bundle. PERIDOT_JUDGE_DIR overrides the directory.
+function judgeCampaign() {
+  const dir = process.env.PERIDOT_JUDGE_DIR ? resolve(process.env.PERIDOT_JUDGE_DIR) : join(repoRoot, "deployments/session7/1952/judge-01");
+  const file = relative(repoRoot, join(dir, "manifest.json"));
+  const manifest = readJsonFile(join(dir, "manifest.json"));
+  if (!manifest || typeof manifest !== "object") return { file, json: null, activityFile: null, activity: null };
+  const pick = (source, keys) => (source && typeof source === "object" ? Object.fromEntries(keys.map((key) => [key, source[key] ?? null])) : null);
+  const market = (entry) => pick(entry, ["controller", "debtMarket", "collateralMarket", "account", "marketPolicy", "creationTx", "creationBlock", "marketId"]);
+  const policy = (entry) => pick(entry, ["policyId", "capBps"]);
+  const json = {
+    ...pick(manifest, ["schemaVersion", "chainId", "profile", "campaign", "label", "deploymentBlock", "preparedBlock", "preparedBlockHash", "owner", "operator"]),
+    base: pick(manifest.base, ["MockCollateral", "MockDebt", "MarketFactory", "SentinelAccountFactory"]),
+    markets: { A: market(manifest.markets?.A), B: market(manifest.markets?.B) },
+    policies: { A: policy(manifest.policies?.A), B: policy(manifest.policies?.B), account: policy(manifest.policies?.account), execution: pick(manifest.policies?.execution, ["mode"]) },
+    contracts: pick(manifest.contracts, ["mockWokb", "mockUsdc", "swap", "factory", "account"]),
+    grants: { repay: pick(manifest.grants?.repay, ["account", "budgetRaw", "expiry"]), swap: pick(manifest.grants?.swap, ["account", "perCallRaw", "remainingRaw", "expiry"]) },
+    grantReceipts: { repay: manifest.setupReceipts?.["repay-only"] ?? null, swap: manifest.setupReceipts?.["swap-only"] ?? null },
+    setupReceiptCount: manifest.setupReceipts && typeof manifest.setupReceipts === "object" ? Object.keys(manifest.setupReceipts).length : null,
+    activity: pick(manifest.activity, ["path", "kind", "schemaVersion"]),
+  };
+  // The snapshot is resolved next to the manifest and may not leave its directory.
+  const activityPath = typeof manifest.activity?.path === "string" && /^\.\/[A-Za-z0-9._-]+\.json$/.test(manifest.activity.path) ? join(dir, manifest.activity.path) : null;
+  const raw = activityPath ? readJsonFile(activityPath) : null;
+  const activity = raw && Array.isArray(raw.events)
+    ? {
+        ...pick(raw, ["schemaVersion", "kind", "chainId", "campaign", "profile", "updatedAt"]),
+        coverage: pick(raw.coverage, ["fromBlock", "toBlock", "toBlockHash", "headAtRefresh", "confirmations", "gaps"]),
+        sources: Array.isArray(raw.sources) ? raw.sources.length : null,
+        events: raw.events.map((event) => pick(event, ["blockNumber", "transactionHash", "logIndex", "address", "contract", "eventName", "timestamp"])),
+      }
+    : null;
+  return { file, json, activityFile: activityPath ? relative(repoRoot, activityPath) : null, activity };
+}
+// The reviewer walkthrough: the numbered steps of docs/JUDGE_DEMO.md with their shell commands, verbatim. Only the
+// headings and the fenced `sh` blocks are taken, so the page shows exactly the commands the guide gives. Prose stays
+// in the guide.
+function judgeSteps() {
+  const text = readText("docs/JUDGE_DEMO.md");
+  if (!text) return null;
+  const steps = [];
+  let current = null;
+  let fence = null;
+  for (const line of text.split("\n")) {
+    if (fence !== null) {
+      if (line.trim() === "```") {
+        if (current) current.commands.push(fence.join("\n"));
+        fence = null;
+      } else fence.push(line);
+      continue;
+    }
+    const heading = /^## (.+)$/.exec(line);
+    if (heading) {
+      const numbered = /^(\d+)\. (.+)$/.exec(heading[1]);
+      current = numbered ? { n: Number(numbered[1]), title: numbered[2].trim(), commands: [] } : null;
+      if (current) steps.push(current);
+      continue;
+    }
+    if (/^```sh\s*$/.test(line)) fence = [];
+  }
+  return steps.length > 0 ? steps : null;
 }
 const onboarding = {
   v2Config: { file: "services/mcp-v2/claude.mcp.json", text: readText("services/mcp-v2/claude.mcp.json") },
   v2Objective: { file: "services/mcp-v2/objective.txt", text: readText("services/mcp-v2/objective.txt") },
-  v2Tools: { file: "services/mcp-v2/README.md", server: readEvidence("evidence/session6-mcp-v2/stdio-read.json")?.server ?? null, tools: v2Tools() },
-  judgeDemo: { file: "docs/JUDGE_DEMO.md", present: existsSync(join(repoRoot, "docs/JUDGE_DEMO.md")) },
+  judgeDemo: { file: "docs/JUDGE_DEMO.md", present: existsSync(join(repoRoot, "docs/JUDGE_DEMO.md")), steps: judgeSteps() },
 };
 const tapeoutPath = process.env.PERIDOT_TAPEOUT_MANIFEST ? resolve(process.env.PERIDOT_TAPEOUT_MANIFEST) : join(repoRoot, "packages/chain-config/expansion/tapeout-196.json");
 const expansionDir = process.env.PERIDOT_EXPANSION_DIR ? resolve(process.env.PERIDOT_EXPANSION_DIR) : join(repoRoot, "packages/chain-config/expansion/deployments");
@@ -193,12 +271,13 @@ const config = {
   // decides whether the app offers the vault at all.
   vault: { dir: relative(repoRoot, expansionDir), byChain: readChainDir(expansionDir, "vault-") },
   activity: { dir: relative(repoRoot, activityDir), byChain: readChainDir(activityDir) },
+  judge: judgeCampaign(),
   onboarding,
 };
 writeFileSync(
   join(outDir, "config.ts"),
   `// GENERATED by scripts/sync-manifests.mjs. Do not edit, do not commit.
-export const RAW_CONFIG: { tapeout: { file: string; json: unknown }; expansion: { dir: string; byChain: Record<string, unknown> }; vault: { dir: string; byChain: Record<string, unknown> }; activity: { dir: string; byChain: Record<string, unknown> }; onboarding: { v2Config: { file: string; text: string | null }; v2Objective: { file: string; text: string | null }; v2Tools: { file: string; server: unknown; tools: Array<{ name: string; input: string | null; effect: string | null }> | null }; judgeDemo: { file: string; present: boolean } } } = ${JSON.stringify(config, null, 2)};
+export const RAW_CONFIG: { tapeout: { file: string; json: unknown }; expansion: { dir: string; byChain: Record<string, unknown> }; vault: { dir: string; byChain: Record<string, unknown> }; activity: { dir: string; byChain: Record<string, unknown> }; judge: { file: string; json: unknown; activityFile: string | null; activity: unknown }; onboarding: { v2Config: { file: string; text: string | null }; v2Objective: { file: string; text: string | null }; judgeDemo: { file: string; present: boolean; steps: Array<{ n: number; title: string; commands: string[] }> | null } } } = ${JSON.stringify(config, null, 2)};
 `,
 );
 const ids = Object.keys(entries);

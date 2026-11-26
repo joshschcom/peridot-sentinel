@@ -21,6 +21,7 @@ import { EXPANSION } from "@/lib/expansion";
 import { shortAddress, shortHash } from "@/lib/format";
 import { Op } from "@/lib/policy";
 import { readConnectGrant } from "@/services/chain/connect";
+import { JUDGE, JudgeCampaignCard } from "./judge-campaign";
 import { FORCE_FIXTURE } from "@/services/runtime";
 import type { Address } from "@/services/types";
 
@@ -72,6 +73,14 @@ export function Connect() {
         <a href="#run" className="font-medium underline underline-offset-4">
           The scripted seven-step run
         </a>
+        {JUDGE.status === "ok" ? (
+          <>
+            <span className="text-muted"> · </span>
+            <a href="#judge" className="font-medium underline underline-offset-4" data-testid="connect-judge-link">
+              The prepared judge campaign
+            </a>
+          </>
+        ) : null}
       </p>
       <Card as="section" data-testid="connect-limits">
         <CardHeader title="What an agent can and cannot do" description="The limits are in the account contract and in the tool list, not in a promise from the agent." />
@@ -86,6 +95,8 @@ export function Connect() {
       {run ? <LiveGrant run={run} /> : null}
       <Tools />
       <HowToConnect llm={llm} />
+      <JudgeCampaignCard />
+      <JudgeWalkthrough />
       {run ? (
         <Transcript run={run} />
       ) : (
@@ -418,7 +429,7 @@ function Tools() {
         title={`${tools.length} tools, ${executes} of them can send a transaction`}
         description={
           <>
-            As announced by the server <Mono>{server}</Mono> {version} to an external MCP client over stdio. Recorded in <Mono>{CONNECT.toolsFile}</Mono>.
+            The catalogue of the server <Mono>{server}</Mono> {version}, read from <Mono>{CONNECT.toolsFile}</Mono> in the repository. A test in the server's own suite keeps that file equal to the tools the server registers.
           </>
         }
       />
@@ -434,6 +445,7 @@ function Tools() {
                   Input: <Mono>{tool.inputs.join(", ")}</Mono>.
                 </span>
               ) : null}
+              <ToolGuarantees guarantees={tool.guarantees} />
             </span>
             <span>
               <Badge tone={tool.kind === "execute" ? "warning" : "outline"} wrap>
@@ -444,6 +456,21 @@ function Tools() {
         ))}
       </ul>
     </Card>
+  );
+}
+
+/** What the server states it checks before a tool answers, verbatim from the catalogue. Closed by default. */
+function ToolGuarantees({ guarantees }: { guarantees: string[] }) {
+  if (guarantees.length === 0) return null;
+  return (
+    <details className="mt-1 text-[0.8125rem]" data-tool-guarantees={guarantees.length}>
+      <summary className="cursor-pointer text-faint hover:text-fg">What the server checks</summary>
+      <ul className="mt-1 list-disc space-y-1 pl-4 text-muted">
+        {guarantees.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ul>
+    </details>
   );
 }
 
@@ -495,7 +522,9 @@ const V1_READ_ONLY_PROMPT = "Read the Sentinel account's positions, both policie
 function HowToConnect({ llm }: { llm: LlmSession | null }) {
   const hostConfig = JSON.stringify({ mcpServers: { "sentinel-connect": { command: "node", args: [CONNECT_STDIO_COMMAND.replace(/^node /, "")] } } }, null, 2);
   const onboarding = RAW_CONFIG.onboarding;
-  const v2Tools = onboarding.v2Tools.tools ?? [];
+  const v2 = CONNECT.toolsV2.status === "ok" ? CONNECT.toolsV2.value : null;
+  const v2Tools = v2?.tools ?? [];
+  const v2Sending = v2Tools.filter((tool) => tool.kind === "execute");
   const demo = EXPANSION.demo.status === "ok" ? EXPANSION.demo.value : null;
   return (
     <Card as="section" id="onboarding" className="scroll-mt-28" data-testid="connect-how">
@@ -532,9 +561,9 @@ function HowToConnect({ llm }: { llm: LlmSession | null }) {
             The operator key stays in the environment of the MCP server process. It is never entered on this page: there is no field for it here, the app never sees it, and the model never sees it either. Give it only to a server you run yourself. The operator can do the one granted operation and nothing else; it can never withdraw.
           </p>
         </OnboardStep>
-        <OnboardStep n={5} title="The v2 server: a swap campaign with seven tools">
+        <OnboardStep n={5} title={v2 ? `The v2 server: a swap campaign with ${v2Tools.length} tools, ${v2Sending.length} of which can send a transaction` : "The v2 server: a swap campaign"}>
           <p>
-            The session in which a language model chose and executed a swap used the v2 server{onboarding.v2Tools.server && typeof onboarding.v2Tools.server === "object" && "name" in onboarding.v2Tools.server ? <> (<Mono>{String((onboarding.v2Tools.server as { name: unknown }).name)}</Mono>)</> : null}. Its launcher starts the signer and the model as separate processes joined by a private socket, so the key is in neither the model's process nor its configuration:
+            The session in which a language model chose and executed a swap used the v2 server{v2 ? <> (<Mono>{v2.server}</Mono> {v2.version})</> : null}. Its launcher starts the signer and the model as separate processes joined by a private socket, so the key is in neither the model's process nor its configuration:
           </p>
           <Code>bash services/mcp-v2/run-claude.sh</Code>
           {onboarding.v2Config.text ? (
@@ -546,17 +575,37 @@ function HowToConnect({ llm }: { llm: LlmSession | null }) {
             </>
           ) : null}
           {v2Tools.length > 0 ? (
-            <ul className="divide-y divide-line rounded-control border border-line" data-testid="connect-tools-v2" data-count={v2Tools.length}>
-              {v2Tools.map((tool) => (
-                <li key={tool.name} className="px-3.5 py-2.5" data-tool-v2={tool.name}>
-                  <Mono className="font-medium text-fg">{tool.name}</Mono>
-                  {tool.input ? <span className="text-faint"> · input: {tool.input.replace(/`/g, "")}</span> : null}
-                  {tool.effect ? <span className="block">{tool.effect.replace(/`/g, "")}</span> : null}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          <p className="text-xs text-faint">It needs a live swap grant from the account's owner and the operator key in the launcher's environment. Without them, use the keyless setup in steps 1 to 3. The model is given these tools only: it has no shell, no file access and no tool that takes calldata, a recipient or another account.</p>
+            <>
+              <ul className="divide-y divide-line rounded-control border border-line" data-testid="connect-tools-v2" data-count={v2Tools.length} data-execute-count={v2Sending.length}>
+                {v2Tools.map((tool) => (
+                  <li key={tool.name} className="px-3.5 py-2.5" data-tool-v2={tool.name} data-kind={tool.kind}>
+                    <span className="flex flex-wrap items-center justify-between gap-2">
+                      <Mono className="font-medium text-fg">{tool.name}</Mono>
+                      <Badge tone={tool.kind === "execute" ? "warning" : "outline"} wrap>
+                        {KIND_LABEL[tool.kind]}
+                      </Badge>
+                    </span>
+                    <span className="mt-1 block">
+                      {tool.description}
+                      {tool.inputs.length > 0 ? (
+                        <span className="text-faint">
+                          {" "}
+                          Input: <Mono>{tool.inputs.join(", ")}</Mono>.
+                        </span>
+                      ) : null}
+                    </span>
+                    <ToolGuarantees guarantees={tool.guarantees} />
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-faint" data-testid="connect-tools-v2-source">
+                From <Mono>{CONNECT.toolsV2File}</Mono>. {v2Sending.length} of these tools can send: {v2Sending.map((tool) => tool.name).join(" and ")}. Each takes only the id of a proposal the server simulated and saved itself, and the campaign allows each at most once.
+              </p>
+            </>
+          ) : (
+            <p className="text-xs text-warning">The v2 tool catalogue is not in this build{CONNECT.toolsV2.status === "unavailable" ? `: ${CONNECT.toolsV2.reason}` : ""}.</p>
+          )}
+          <p className="text-xs text-faint">It needs a live swap grant from the account's owner and the operator key in the launcher's environment. Without them, use the keyless setup in steps 1 to 3. The model is given these tools only: it has no shell, no file access and no tool that takes calldata, a recipient or another account. The launcher also switches on the one-off mined-rejection tool, and it writes the session's transcript to a file.</p>
         </OnboardStep>
         {onboarding.v2Objective.text ? (
           <OnboardStep n={6} title="An objective that was really used">
@@ -592,9 +641,75 @@ function HowToConnect({ llm }: { llm: LlmSession | null }) {
       </ol>
       {onboarding.judgeDemo.present ? (
         <p className="border-t border-line p-5 text-xs text-faint sm:px-6">
-          A step-by-step reproduction for reviewers is in <Mono>{onboarding.judgeDemo.file}</Mono>.
+          Reviewers: the reproducible path with fresh grants is the{" "}
+          <a href="#judge-steps" className="text-fg underline underline-offset-4">
+            judge campaign walkthrough
+          </a>{" "}
+          below, taken from <Mono>{onboarding.judgeDemo.file}</Mono>. It uses its own small server (<Mono>services/judge-connect</Mono>, four tools) rather than the two servers described above.
         </p>
       ) : null}
+    </Card>
+  );
+}
+
+/* ---------- the reviewer walkthrough (docs/JUDGE_DEMO.md) ---------- */
+type Role = "none" | "signer" | "owner" | "coordinator";
+const ROLE_LABEL: Record<Role, string> = { none: "No key needed", signer: "Signer host · operator key", owner: "Owner shell · owner key", coordinator: "Coordinator · deployer environment" };
+/**
+ * Who runs each command of a step, in order, and one line of context. Written from the guide's own text; a note is
+ * shown only while the step's heading still matches, so a reordered guide loses the notes rather than mislabelling.
+ */
+const JUDGE_STEP_NOTES: Array<{ n: number; heading: RegExp; roles: Role[]; note: string }> = [
+  { n: 1, heading: /Create market A in Studio/, roles: ["coordinator", "coordinator"], note: "Optional for the prepared campaign, which already has its markets A and B. For a new campaign the coordinator funds a fresh judge address, the judge creates market A in Studio with that wallet, and the coordinator completes the kit from the creation transaction." },
+  { n: 2, heading: /Connect an external MCP client/, roles: ["none", "signer", "none"], note: "Reads and simulated proposals need no signer. For a model-directed run the restricted server runs on the signer host with the operator key in its own environment; the model's process, started in a separate clean shell, is given only the socket path." },
+  { n: 3, heading: /Run a permitted operation/, roles: ["signer"], note: "One repayment of up to 2 mUSD on the v1 account and one swap of 0.25 jWOKB on the v2 account, each inside its grant. Signed by the operator on the signer host, never by this app." },
+  { n: 4, heading: /independent policy rejections/, roles: ["owner"], note: "Two owner borrows that are meant to fail: on market A the account policy rejects while the market policy allows, on market B the reverse. Both are mined reverts." },
+  { n: 5, heading: /mined unauthorized operator action/, roles: ["signer"], note: "The operator tries a borrow it has no grant for. The server requires the OperatorNotAuthorized simulation first, then mines the revert." },
+  { n: 6, heading: /Revoke all agent permissions/, roles: ["owner"], note: "The owner revokes every operator on all three accounts and clears the trigger. The second command only verifies and takes no signer." },
+  { n: 7, heading: /Read activity/, roles: ["none"], note: "Refreshes the campaign's activity snapshot (the one shown above) once the demonstration has reached its confirmation depth." },
+];
+
+function JudgeWalkthrough() {
+  const { file, steps } = RAW_CONFIG.onboarding.judgeDemo;
+  if (!steps || steps.length === 0) return null;
+  return (
+    <Card as="section" id="judge-steps" className="scroll-mt-28" data-testid="connect-judge-steps" data-count={steps.length}>
+      <CardHeader
+        eyebrow="For reviewers"
+        title="Reproduce the demonstration with the judge campaign"
+        description={
+          <>
+            The steps and commands of <Mono>{file}</Mono>, in its order. Run them from a checkout of the repository; nothing here runs in this website, and no key is ever entered on this page. Read the guide itself for the preparation and for what each result file contains.
+          </>
+        }
+      />
+      <ol className="divide-y divide-line px-5 sm:px-6">
+        {steps.map((entry) => {
+          const notes = JUDGE_STEP_NOTES.find((candidate) => candidate.n === entry.n && candidate.heading.test(entry.title)) ?? null;
+          return (
+            <li key={entry.n} className="grid grid-cols-1 gap-x-5 gap-y-2 py-5 md:grid-cols-[2.5rem_minmax(0,1fr)]" data-judge-step={entry.n}>
+              <span className="num grid size-8 place-items-center rounded-full bg-inverse text-sm font-medium text-on-inverse">{entry.n}</span>
+              <div className="min-w-0 space-y-2.5">
+                <h3 className="text-sm font-semibold">{entry.title}</h3>
+                {notes ? <p className="text-sm text-muted">{notes.note}</p> : null}
+                {entry.commands.map((command, index) => (
+                  <div key={command} className="space-y-1.5" data-judge-command>
+                    {notes?.roles[index] ? (
+                      <Badge tone={notes.roles[index] === "none" ? "success" : "warning"} wrap>
+                        {ROLE_LABEL[notes.roles[index]]}
+                      </Badge>
+                    ) : null}
+                    <Code>{command}</Code>
+                  </div>
+                ))}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      <p className="border-t border-line p-5 text-xs text-faint sm:px-6">
+        Signed commands are run by the party that holds the corresponding key: the operator key on the signer host, the owner key in the owner's shell. This app holds neither and takes no part in them. Its role is to show the result: the two grants above are read live from the chain. The campaign's two v1 accounts also appear on Portfolio and Strategies for the owner's wallet; its v2 account belongs to the campaign's own v2 deployment and is shown on this page only.
+      </p>
     </Card>
   );
 }

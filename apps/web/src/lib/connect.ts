@@ -36,7 +36,7 @@ const uint = (value: unknown): bigint | null => {
 
 /* ---------- tools ---------- */
 
-/** read: eth_call / RPC reads only. proposal: writes a local five-minute proposal, no transaction. execute: may send. */
+/** read: eth_call / RPC reads only. proposal: may save a local five-minute proposal, no transaction. execute: may send. */
 export type ConnectToolKind = "read" | "proposal" | "execute";
 export interface ConnectTool {
   name: string;
@@ -44,24 +44,46 @@ export interface ConnectTool {
   kind: ConnectToolKind;
   /** Property names of the input schema; empty for tools that take `{}`. */
   inputs: string[];
+  /** The catalogue's own journal effect: none, read, propose, execute or reconcile. */
+  journalEffect: string;
+  /** What the server states it checks before answering, verbatim from the catalogue. */
+  guarantees: string[];
+}
+export interface ConnectCatalogue {
+  server: string;
+  version: string;
+  tools: ConnectTool[];
 }
 
-export function parseConnectTools(json: unknown): Maybe<{ server: string; version: string; tools: ConnectTool[] }> {
+const JOURNAL_EFFECTS = ["none", "read", "propose", "execute", "reconcile"];
+
+/**
+ * Parses a server's checked-in tool catalogue (services/mcp/tools.json, services/mcp-v2/tools.json). The kind of a
+ * tool comes from the catalogue's own `writes` flag ("can submit an on-chain transaction") and `journalEffect`. Nothing
+ * is classified by guessing from a name: an entry without those fields, or one whose MCP annotations contradict them,
+ * makes the whole catalogue unavailable.
+ */
+export function parseConnectTools(json: unknown): Maybe<ConnectCatalogue> {
   const root = rec(json);
   const server = rec(root?.server);
   const list = Array.isArray(root?.tools) ? root.tools : null;
-  if (!root || !server || !list || !str(server.name)) return unavailable("The Sentinel Connect tool catalogue is not available in this build");
+  if (!root || !server || !list || list.length === 0 || !str(server.name)) return unavailable("The Sentinel Connect tool catalogue is not available in this build");
   const tools: ConnectTool[] = [];
   for (const entry of list) {
     const tool = rec(entry);
-    const annotations = rec(tool?.annotations);
     const name = str(tool?.name);
     const description = str(tool?.description);
-    // The kind comes from the server's own annotations. A tool without them is not classified by guessing.
-    if (!tool || !name || !description || !annotations || typeof annotations.readOnlyHint !== "boolean" || typeof annotations.destructiveHint !== "boolean") return unavailable("The Sentinel Connect tool catalogue has an entry this app cannot classify");
-    const kind: ConnectToolKind = annotations.destructiveHint ? "execute" : annotations.readOnlyHint ? "read" : "proposal";
-    tools.push({ name, description, kind, inputs: Object.keys(rec(rec(tool.inputSchema)?.properties) ?? {}) });
+    const journalEffect = str(tool?.journalEffect);
+    const guarantees = Array.isArray(tool?.guarantees) ? tool.guarantees : null;
+    if (!tool || !name || !description || typeof tool.writes !== "boolean" || !journalEffect || !JOURNAL_EFFECTS.includes(journalEffect) || !guarantees || !guarantees.every((item) => typeof item === "string")) return unavailable("The Sentinel Connect tool catalogue has an entry this app cannot classify");
+    // A tool that can send must be journalled as an execution, and nothing else may be.
+    if (tool.writes !== (journalEffect === "execute")) return unavailable(`The Sentinel Connect tool catalogue contradicts itself about ${name}`);
+    const annotations = rec(tool.annotations);
+    if (annotations && (annotations.destructiveHint !== tool.writes || (annotations.readOnlyHint === true && (tool.writes || journalEffect === "propose")))) return unavailable(`The Sentinel Connect tool catalogue contradicts the MCP annotations of ${name}`);
+    const kind: ConnectToolKind = tool.writes ? "execute" : journalEffect === "propose" ? "proposal" : "read";
+    tools.push({ name, description, kind, inputs: Object.keys(rec(rec(tool.inputSchema)?.properties) ?? {}), journalEffect, guarantees: guarantees as string[] });
   }
+  if (new Set(tools.map((tool) => tool.name)).size !== tools.length) return unavailable("The Sentinel Connect tool catalogue lists a tool twice");
   return ok({ server: str(server.name)!, version: str(server.version) ?? "?", tools });
 }
 
@@ -345,6 +367,9 @@ export const CONNECT = {
   llm: parseLlmSession(RAW_EVIDENCE.llmSession.json, RAW_EVIDENCE.llmSession.file),
   tools: parseConnectTools(RAW_EVIDENCE.connectTools.json),
   toolsFile: RAW_EVIDENCE.connectTools.file,
+  /** The v2 campaign server's catalogue. It has more than one tool that can send. */
+  toolsV2: parseConnectTools(RAW_EVIDENCE.connectToolsV2.json),
+  toolsV2File: RAW_EVIDENCE.connectToolsV2.file,
   transcript: parseConnectTranscript(RAW_EVIDENCE.connectTranscript.json, RAW_EVIDENCE.connectTranscript.file),
 };
 
