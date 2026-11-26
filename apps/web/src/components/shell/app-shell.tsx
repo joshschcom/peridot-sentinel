@@ -6,6 +6,7 @@ import { cx } from "@/components/ui/core";
 import { IconBorrow, IconBot, IconCircuit, IconConnect, IconEarn, IconInfo, IconMore, IconShield, IconStudio, IconTrade } from "@/components/ui/icons";
 import { Sheet } from "@/components/ui/sheet";
 import { AVAILABILITY_LABEL, type Availability } from "@/lib/brand";
+import { connectVerified } from "@/lib/connect";
 import { Brand } from "./brand";
 import { DeploymentBanner, FixtureBanner, GasBanner, NetworkPill, WrongNetworkBanner } from "./status";
 import { ThemeToggle } from "./theme-toggle";
@@ -39,7 +40,8 @@ const PRIMARY: NavItem[] = [
 
 const SECONDARY: NavItem[] = [
   { key: "circuits", label: "Circuits", icon: IconCircuit, href: "/circuits", active: (pathname) => under(pathname, "/circuits") },
-  { key: "connect", label: "Connect", icon: IconConnect, href: "/automate#connect", status: "development", active: () => false },
+  // Shown without a status chip only while the build holds the verified testnet run (src/lib/connect.ts).
+  { key: "connect", label: "Connect", icon: IconConnect, href: "/connect", ...(connectVerified() ? {} : { status: "development" as const }), active: (pathname) => under(pathname, "/connect") },
   { key: "about", label: "About and status", icon: IconInfo, href: "/", active: () => false },
 ];
 

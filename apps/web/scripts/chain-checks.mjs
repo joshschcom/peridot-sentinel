@@ -41,7 +41,7 @@ const expect = (condition, message) => {
   if (!condition) failures.push(message);
 };
 const browser = await chromium.launch();
-const ROUTES = ["/sentinel", "/sentinel/policy", "/sentinel/activity", "/automate", "/markets", "/studio", "/studio/create", "/circuits"];
+const ROUTES = ["/sentinel", "/sentinel/policy", "/sentinel/activity", "/automate", "/connect", "/markets", "/studio", "/studio/create", "/circuits"];
 
 async function open(path, { width = 1440, walletChainId = "0x7a69", connect = true, watch = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height: width < 500 ? 844 : 1000 }, colorScheme: "light", reducedMotion: "reduce", deviceScaleFactor: width < 500 ? 2 : 1 });
@@ -181,7 +181,9 @@ if (mode === "wrong-network") {
   const loads = { total: 0, deploymentBanner: 0, pageErrors: 0, slowest: { ms: 0, tag: "" } };
   for (const who of wallets.filter((entry) => !only || entry.name === only)) {
     for (const width of widths) {
-      for (const path of ["/", "/markets", "/markets?view=borrow", `/markets/${market}`, "/sentinel", `/sentinel/policy?market=${market}`, `/automate?market=${market}`, "/sentinel/activity", "/studio", "/studio/create", "/circuits"]) {
+      for (const path of ["/", "/markets", "/markets?view=borrow", `/markets/${market}`, "/sentinel", `/sentinel/policy?market=${market}`, `/automate?market=${market}`, "/sentinel/activity", "/connect", "/studio", "/studio/create", "/circuits"]) {
+        // ONLY_PATHS=<regex> narrows a development run. An evidence run never sets it (the result file records it).
+        if (process.env.ONLY_PATHS && !new RegExp(process.env.ONLY_PATHS).test(path)) continue;
         const tag = `${who.name} ${path.replace(market, "<market0>")} @${width}`;
         const started = Date.now();
         // "/" is the landing page: it has no wallet button and no app shell.
@@ -283,7 +285,9 @@ if (mode === "wrong-network") {
             expect(rail.map((item) => item.key).join(",") === "overview,earn,borrow,trade,automate,studio,circuits,connect,about", `${tag}: rail items are ${rail.map((item) => item.key).join(",")}`);
             const trade = rail.find((item) => item.key === "trade");
             expect(trade && !trade.link && trade.status === "planned" && /Planned/.test(trade.text), `${tag}: Trade must be a non-link marked Planned: ${JSON.stringify(trade)}`);
-            expect(/In development/.test(rail.find((item) => item.key === "connect")?.text ?? ""), `${tag}: Connect is not marked "In development"`);
+            // Connect was verified on public testnet (evidence/session5-mcp/flagship-1952.json): a real link, no "In development".
+            const connectNav = rail.find((item) => item.key === "connect");
+            expect(connectNav?.link === true && connectNav.status === "live" && !/In development|Planned/.test(connectNav.text), `${tag}: Connect must be a live link without a status chip: ${JSON.stringify(connectNav)}`);
           } else {
             const tabs = await page.locator('nav[aria-label="Primary"]:visible [data-nav]').evaluateAll((nodes) => nodes.map((node) => node.dataset.nav));
             expect(tabs.join(",") === "overview,earn,borrow,automate,more", `${tag}: tab bar is ${tabs.join(",")}`);
@@ -307,10 +311,16 @@ if (mode === "wrong-network") {
         if (path.startsWith("/automate")) {
           const modes = Object.fromEntries(await page.locator('[data-testid="automation-modes"] [data-mode]').evaluateAll((nodes) => nodes.map((node) => [node.dataset.mode, node.dataset.availability])));
           notes.push({ wallet: who.name, width, modes });
-          // Only what works is called live. Connect stays "development" until the MCP flow is verified on testnet.
-          expect(modes["rule-based"] === "live" && modes.connect === "development" && modes.hosted === "planned", `${tag}: mode availability is ${JSON.stringify(modes)}`);
-          expect(/not available in this app yet/.test(await page.locator("#connect").innerText()) && /does not exist yet/.test(await page.locator("#hosted").innerText()), `${tag}: Connect or hosted AI is not described as unavailable`);
-          expect((await page.locator("#connect button:not([disabled]), #connect input, #hosted button, #hosted input").count()) === 0, `${tag}: an unavailable mode offers a control`);
+          // Only what works is called live. Connect is available on testnet as agent-directed execution; hosted AI is not built.
+          expect(modes["rule-based"] === "live" && modes.connect === "live" && modes.hosted === "planned", `${tag}: mode availability is ${JSON.stringify(modes)}`);
+          const connectText = (await page.locator("#connect").innerText()).replace(/\s+/g, " ");
+          expect(/Available on testnet \(agent-directed\)/.test(connectText) && /scripted external MCP client/.test(connectText) && !/In development|not available in this app yet/.test(connectText), `${tag}: the Connect section is not labelled "Available on testnet (agent-directed)": ${connectText.slice(0, 200)}`);
+          expect(/Available on testnet \(agent-directed\)/.test(await page.locator('[data-testid="automation-modes"] [data-mode="connect"]').innerText()), `${tag}: the Connect mode card does not carry the testnet availability label`);
+          expect((await page.locator('#connect [data-testid="connect-open"]').getAttribute("href")) === "/connect", `${tag}: the Connect section does not link to /connect`);
+          expect(/does not exist yet/.test(await page.locator("#hosted").innerText()), `${tag}: hosted AI is not described as unavailable`);
+          // Neither section offers a control: Connect is set up outside this app, hosted AI does not exist.
+          expect((await page.locator("#connect button, #connect input, #hosted button, #hosted input").count()) === 0, `${tag}: Connect or hosted AI offers a control on Automate`);
+          expect(!/autonomous|monitors? your|continuous(ly)? monitor/i.test(main), `${tag}: Automate claims autonomous or continuous monitoring`);
           if (who.name === "demo-owner-watch-only") {
             // Operator candidates come from a paged log scan, which finishes after the page's first paint.
             await page.locator('[data-testid="automation"] li[data-operator]').first().waitFor({ timeout: 60_000 }).catch(() => {});
@@ -329,12 +339,57 @@ if (mode === "wrong-network") {
             expect(repayRows.some((row) => row.hash?.toLowerCase() === receipt.txHash.toLowerCase() && row.link === expectedTxUrl), `${tag}: the account's public auto-repay ${receipt.txHash} is not shown on Automate with its explorer link: ${JSON.stringify(repayRows)}`);
             // The operator list comes from a scan with a gap on testnet: the stop must say "found", not "every".
             expect((await stop.getAttribute("data-discovery")) === "partial" && /the operators this page found/.test(await stop.innerText()) && !/Revokes every operator/.test(await stop.innerText()) && (await page.locator("#emergency-extra").count()) === 1, `${tag}: the emergency stop overstates what it knows about operators on a partially scanned chain`);
-            expect((await page.locator('[data-testid="connect-grant"]').count()) === 1, `${tag}: the Connect section does not show the authorisation an agent would use`);
           } else {
             expect(/No Sentinel account yet/.test(main), `${tag}: no empty state for a wallet without an account`);
             expect((await page.locator('[data-testid="emergency-stop"]').count()) === 0, `${tag}: an emergency stop is offered without an account`);
           }
           await shot(page, `testnet-${who.name}-automate-${width}`);
+        }
+        if (path === "/connect") {
+          const flagship = JSON.parse(readFileSync(new URL("../../../evidence/session5-mcp/flagship-1952.json", import.meta.url), "utf8"));
+          const runHash = flagship.steps["5"].receipt.hash;
+          const root = page.locator('[data-testid="connect"]');
+          expect((await root.getAttribute("data-connect")) === "available" && /Available on testnet \(agent-directed\)/.test(main), `${tag}: Connect is not shown as available on testnet (agent-directed)`);
+          expect(/agent-directed execution/.test(main) && !/autonomous|continuous(ly)? monitor/i.test(main), `${tag}: Connect must be called agent-directed execution and never autonomous monitoring`);
+          expect(/mock tokens/i.test(main) && /development reference processor \(not TapeOut\)/.test(main), `${tag}: the Connect page does not carry the testnet scope label`);
+          // Tools: the recorded catalogue, exactly one of which can send.
+          const tools = await page.locator('[data-testid="connect-tools"] [data-tool]').evaluateAll((nodes) => nodes.map((node) => ({ name: node.dataset.tool, kind: node.dataset.kind })));
+          expect(tools.length === 12 && tools.filter((tool) => tool.kind === "execute").map((tool) => tool.name).join() === "sentinel_execute_auto_repay", `${tag}: tool list is ${JSON.stringify(tools)}`);
+          // Limits and setup: no owner key, no withdraw, no permission changes, no arbitrary calldata; a keyless stdio command.
+          const cannot = (await page.locator('[data-testid="connect-cannot"]').innerText()).replace(/\s+/g, " ");
+          expect(/owner's key/.test(cannot) && /Withdraw/.test(cannot) && /Change permissions/.test(cannot) && /arbitrary calldata/.test(cannot), `${tag}: the "cannot" list is incomplete: ${cannot.slice(0, 200)}`);
+          expect(/^node \S+services\/mcp\/server\.mjs$/.test((await page.locator('[data-testid="connect-command"]').innerText()).trim()), `${tag}: the stdio command is not shown`);
+          expect(/never entered on this page/.test(await page.locator('[data-testid="connect-key-note"]').innerText()), `${tag}: the page does not say the operator key is never entered here`);
+          expect((await root.locator("input, textarea, select").count()) === 0, `${tag}: the Connect page has an input (it must never take a key)`);
+          // The recorded run: one explorer link, to the public execute transaction. A simulation never gets one.
+          const txLinks = await root.locator('a[href*="/tx/"]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href")));
+          expect(txLinks.length === 2 && txLinks.every((href) => href === explorerTxUrl(1952, runHash)), `${tag}: explorer transaction links on Connect are ${JSON.stringify(txLinks)}`);
+          expect((await page.locator('[data-testid="connect-run"] [data-step]').count()) === 7, `${tag}: the recorded run does not show seven steps`);
+          expect((await page.locator('[data-step="6"] a').count()) === 0 && /Simulated rejection · not a mined revert/.test(await page.locator('[data-step="6"]').innerText()) && (await page.locator('[data-testid="connect-rejection"]').getAttribute("data-error")) === "OperatorNotAuthorized", `${tag}: step 6 is not shown as a simulated rejection`);
+          const quote = page.locator('[data-testid="connect-quote"]');
+          const quoteText = (await quote.innerText()).replace(/\s+/g, " ");
+          expect((await quote.getAttribute("data-available")) === "false" && /Quote unavailable/.test(quoteText) && !/\d[\d,.]* (WOKB|USDC)/.test(quoteText), `${tag}: the unavailable quote is shown as "${quoteText.slice(0, 160)}"`);
+          // Kinds of evidence stay apart: scripted client verified, LLM session pending, simulated rejection, no mined revert.
+          const kinds = Object.fromEntries(await page.locator('[data-testid="connect-evidence"] [data-evidence]').evaluateAll((nodes) => nodes.map((node) => [node.dataset.evidence, node.dataset.status])));
+          expect(kinds.scripted === "Verified" && kinds.llm === "Pending" && /nothing sent/.test(kinds["simulated-rejection"] ?? "") && kinds["mined-revert"] === "None recorded", `${tag}: evidence kinds are ${JSON.stringify(kinds)}`);
+          // The live grant must equal a direct RPC read at the block the page names.
+          const grant = page.locator('[data-testid="connect-grant"]');
+          await page.waitForFunction(() => ["ok", "error"].includes(document.querySelector('[data-testid="connect-grant"]')?.getAttribute("data-state") ?? ""), null, { timeout: 60_000 }).catch(() => {});
+          const shown = { state: await grant.getAttribute("data-state"), readiness: await grant.getAttribute("data-readiness"), remaining: await grant.getAttribute("data-remaining"), mask: await grant.getAttribute("data-mask"), expiry: await grant.getAttribute("data-expiry"), block: await grant.getAttribute("data-block") };
+          expect(shown.state === "ok", `${tag}: the live grant read is "${shown.state}"`);
+          if (shown.state === "ok") {
+            const { SentinelAccountAbi } = await import("@peridot/chain-config");
+            const { createPublicClient, http } = await import("viem");
+            const { xLayerTestnet } = await import("../src/lib/chains.ts");
+            const rpc = createPublicClient({ transport: http(xLayerTestnet.rpcUrls.default.http[0], { retryCount: 5, retryDelay: 400 }) });
+            const direct = await rpc.readContract({ address: flagship.steps["1"].account.data.account, abi: SentinelAccountAbi, functionName: "operators", args: [flagship.steps["2"].authorization.data.operator], blockNumber: BigInt(shown.block) });
+            const directBlock = await rpc.getBlock({ blockNumber: BigInt(shown.block) });
+            expect(String(direct[0]) === shown.mask && direct[1].toString() === shown.remaining && direct[2].toString() === shown.expiry, `${tag}: the page shows grant ${JSON.stringify(shown)} but the RPC says mask ${direct[0]}, remaining ${direct[1]}, expiry ${direct[2]} at block ${shown.block}`);
+            const expected = direct[0] === 0 ? "revoked" : direct[0] !== 8 ? "not-repay-only" : direct[2] <= directBlock.timestamp ? "expired" : direct[1] === 0n ? "spent" : "ready";
+            expect(shown.readiness === expected, `${tag}: readiness is "${shown.readiness}", expected "${expected}"`);
+            notes.push({ wallet: who.name, width, connectGrant: { ...shown, directRead: { mask: direct[0], remaining: direct[1].toString(), expiry: direct[2].toString() } }, tools: tools.length, kinds, txLinks });
+          }
+          await shot(page, `testnet-${who.name}-connect-${width}`);
         }
         if (path === "/sentinel/activity") {
           const row = page.locator('[data-testid="testnet-auto-repay"]');
@@ -352,11 +407,12 @@ if (mode === "wrong-network") {
           const ranges = Number((await coverageNode.locator("[data-ranges]").getAttribute("data-ranges").catch(() => null)) ?? 0);
           const gap = (await coverageNode.locator("[data-gap]").getAttribute("data-gap").catch(() => null)) ?? null;
           // The keeper service on this machine watches the LOCAL chain. On a 1952 build it must never contribute rows.
-          const keeper = await page.locator('[data-testid="keeper-panel"]').getAttribute("data-keeper");
+          // Without KEEPER_API_URL the panel is not rendered at all ("hidden"), which is what the hosted app must do.
+          const keeper = (await page.locator('[data-testid="keeper-panel"]').count()) === 0 ? "hidden" : await page.locator('[data-testid="keeper-panel"]').getAttribute("data-keeper");
           const keeperRows = await page.locator('[data-testid="keeper-panel"] li[data-keeper-state], [data-testid="keeper-panel"] [data-chain-repay]').count();
           const keeperText = (await page.locator('[data-testid="keeper-message"]').first().innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 240);
           notes.push({ wallet: who.name, width, ms, explorerLink: href, reread: rereadText, onChainEntries: chainRows.length, autoRepayInScan: chainRows.some((entry) => /Auto-repay/.test(entry.text)), coverage: coverage || "complete from the deployment block", ranges, unreadBlocks: gap, keeperPanel: keeper, keeperRows, keeperText });
-          expect(["not-configured", "scope-mismatch", "unavailable"].includes(keeper ?? "") && keeperRows === 0, `${tag}: keeper panel is "${keeper}" with ${keeperRows} row(s): a local keeper must not report into a testnet build`);
+          expect(["hidden", "scope-mismatch", "unavailable"].includes(keeper ?? "") && keeperRows === 0, `${tag}: keeper panel is "${keeper}" with ${keeperRows} row(s): a local keeper must not report into a testnet build`);
           if (process.env.EXPECT_KEEPER) expect(keeper === process.env.EXPECT_KEEPER, `${tag}: keeper panel is "${keeper}", expected "${process.env.EXPECT_KEEPER}"`);
           for (const entry of chainRows) expect(entry.link === null || entry.link.startsWith(`${DOCS_EXPLORER_ROOT}/tx/0x`), `${tag}: unexpected link ${entry.link}`);
           // Coverage is stated whenever the scan is incomplete: both ends named, with the number of unread blocks.
@@ -401,7 +457,7 @@ if (mode === "wrong-network") {
 }
 
 await browser.close();
-const result = { mode, case: process.env.CASE ?? null, base: BASE, account, readOnlyWallet: true, passed: failures.length === 0, failures, notes };
+const result = { mode, onlyPaths: process.env.ONLY_PATHS ?? null, case: process.env.CASE ?? null, base: BASE, account, readOnlyWallet: true, passed: failures.length === 0, failures, notes };
 if (OUT) writeFileSync(`${OUT}/${mode}${process.env.CASE ? `-${process.env.CASE}` : ""}.json`, JSON.stringify(result, null, 2) + "\n");
 if (failures.length) {
   console.error(`${mode}: ${failures.length} check(s) FAILED:\n- ${failures.join("\n- ")}`);

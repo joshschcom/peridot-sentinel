@@ -23,9 +23,10 @@ import { IconAlert, IconBot, IconConnect, IconLock, IconShield } from "@/compone
 import { useChainTx } from "@/hooks/use-chain-tx";
 import { useAccounts, useMarket, useMarkets } from "@/hooks/use-data";
 import { useWriteGate } from "@/hooks/use-wallet";
-import { formatBps } from "@/lib/amount";
+import { formatAmount, formatBps } from "@/lib/amount";
 import { AVAILABILITY_LABEL, type Availability } from "@/lib/brand";
 import { WRITE_CHAIN_ID, explorerTxUrl } from "@/lib/chains";
+import { CONNECT, CONNECT_STATUS_LABEL, connectVerified } from "@/lib/connect";
 import { formatDay, shortAddress, shortHash } from "@/lib/format";
 import { Op } from "@/lib/policy";
 import { services } from "@/services";
@@ -37,14 +38,19 @@ import { KeeperPanel } from "./keeper-panel";
 
 /**
  * Availability of each mode in THIS build. "live" for rule-based holds only while accounts are read from the chain.
- * Sentinel Connect flips to "live" only after the MCP flow is verified on testnet (MILESTONE_LOG notice from Astra).
+ * Sentinel Connect is "live" (shown as "Available on testnet (agent-directed)") only while the build contains the
+ * recorded public testnet run and a tool catalogue with exactly one executing tool (src/lib/connect.ts).
  */
-const CONNECT_AVAILABILITY: Availability = "development";
+const CONNECT_AVAILABILITY: Availability = connectVerified() ? "live" : "development";
 const HOSTED_AVAILABILITY: Availability = "planned";
 const TONE: Record<Availability, Tone> = { live: "success", development: "warning", planned: "outline" };
 
-function AvailabilityBadge({ status }: { status: Availability }) {
-  return <Badge tone={TONE[status]}>{AVAILABILITY_LABEL[status]}</Badge>;
+function AvailabilityBadge({ status, label }: { status: Availability; label?: string }) {
+  return (
+    <Badge tone={TONE[status]} wrap={Boolean(label)}>
+      {label ?? AVAILABILITY_LABEL[status]}
+    </Badge>
+  );
 }
 
 export function Automate() {
@@ -94,9 +100,10 @@ export function Automate() {
           name="Bring your own agent"
           sub="Sentinel Connect"
           status={CONNECT_AVAILABILITY}
+          statusLabel={CONNECT_AVAILABILITY === "live" ? CONNECT_STATUS_LABEL : undefined}
           body="Your own agent reads the account, simulates, and executes one restricted operation through the same operator authorisation, over MCP. It never holds your key."
-          href="#connect"
-          cta="What is being built"
+          href={CONNECT_AVAILABILITY === "live" ? "/connect" : "#connect"}
+          cta={CONNECT_AVAILABILITY === "live" ? "Tools, setup and the recorded run" : "What is being built"}
         />
         <Mode id="hosted" icon={<IconBot size={18} />} name="Peridot-hosted AI" status={HOSTED_AVAILABILITY} body="An agent run by Peridot that proposes actions for your account. Not built: no hosted model runs in this app, and nothing here calls one." />
       </ul>
@@ -127,7 +134,7 @@ export function Automate() {
         </EmptyState>
       )}
 
-      <ConnectSection account={account} />
+      <ConnectSection />
 
       <Card as="section" id="hosted" className="scroll-mt-28" data-mode="hosted" data-availability={HOSTED_AVAILABILITY}>
         <CardHeader eyebrow="Mode 3" title="Peridot-hosted AI" description="An agent operated by Peridot that proposes actions within your policy." action={<AvailabilityBadge status={HOSTED_AVAILABILITY} />} />
@@ -138,7 +145,7 @@ export function Automate() {
 
       <section id="agent-activity" className="scroll-mt-28 space-y-3">
         <h2 className="text-lg font-semibold tracking-tight">Agent activity</h2>
-        <p className="max-w-2xl text-sm text-muted">What the chain confirms for this account, and separately what the automation service reports (checked, simulated, submitted). A report alone is never shown as confirmed.</p>
+        <p className="max-w-2xl text-sm text-muted">What the chain confirms for this account. When an automation service is connected to this deployment, its reports (checked, simulated, submitted) are listed separately, and a report alone is never shown as confirmed.</p>
         {account ? <AccountRepays account={account} market={markets.data?.status === "ok" ? (markets.data.value.find((entry) => entry.id === account.marketId) ?? null) : null} /> : null}
         <KeeperPanel />
         <ButtonLink href="/sentinel/activity" variant="secondary" size="sm">
@@ -149,12 +156,12 @@ export function Automate() {
   );
 }
 
-function Mode({ id, icon, name, sub, status, statusNote, body, href, cta }: { id: string; icon: React.ReactNode; name: string; sub?: string; status: Availability; statusNote?: string | null; body: string; href?: string; cta?: string }) {
+function Mode({ id, icon, name, sub, status, statusLabel, statusNote, body, href, cta }: { id: string; icon: React.ReactNode; name: string; sub?: string; status: Availability; statusLabel?: string; statusNote?: string | null; body: string; href?: string; cta?: string }) {
   return (
     <Card as="li" className="flex flex-col p-5" data-mode={id} data-availability={status}>
       <div className="flex items-start justify-between gap-3">
         <span className="grid size-9 shrink-0 place-items-center rounded-full bg-raised">{icon}</span>
-        <AvailabilityBadge status={status} />
+        <AvailabilityBadge status={status} label={statusLabel} />
       </div>
       <h2 className="mt-4 text-base font-semibold tracking-tight">{name}</h2>
       {sub ? <p className="text-xs font-medium text-faint">{sub}</p> : null}
@@ -419,43 +426,53 @@ function AccountRepays({ account, market }: { account: SentinelAccount; market: 
 }
 
 /** Sentinel Connect (MCP). Described, not offered: nothing on this card can be switched on. */
-function ConnectSection({ account }: { account: SentinelAccount | null }) {
-  const grants = account ? account.operators.filter((entry) => !entry.revoked) : [];
+function ConnectSection() {
+  const run = CONNECT.transcript.status === "ok" ? CONNECT.transcript.value : null;
+  const tools = CONNECT.tools.status === "ok" ? CONNECT.tools.value.tools : [];
+  const txUrl = run ? explorerTxUrl(run.chainId, run.step5.hash) : null;
   return (
     <Card as="section" id="connect" className="scroll-mt-28" data-mode="connect" data-availability={CONNECT_AVAILABILITY}>
       <CardHeader
         eyebrow="Mode 2 · Sentinel Connect"
         title="Bring your own agent"
-        description="A local MCP server that lets an agent you run work with your Sentinel account through typed tools."
-        action={<AvailabilityBadge status={CONNECT_AVAILABILITY} />}
+        description="A local MCP server that lets an agent you run work with a Sentinel account through typed tools. Agent-directed: it acts when your agent calls a tool, and does not watch the account on its own."
+        action={<AvailabilityBadge status={CONNECT_AVAILABILITY} label={CONNECT_AVAILABILITY === "live" ? CONNECT_STATUS_LABEL : undefined} />}
       />
       <div className="space-y-4 p-5 text-sm sm:p-6">
-        <p className="text-muted">
-          Sentinel Connect is being built and is not available in this app yet. This page will show it as available only after the full flow has been run by an external MCP client on X Layer testnet. Until then there is nothing to install or connect here.
-        </p>
+        {CONNECT_AVAILABILITY === "live" && run ? (
+          <p className="text-muted" data-testid="connect-summary">
+            Verified on X Layer testnet with a scripted external MCP client: {tools.length} tools, {tools.filter((tool) => tool.kind === "execute").length} of which can send a transaction. In the recorded run the agent repaid{" "}
+            <span className="num text-fg">
+              {formatAmount(run.step5.amountRaw, run.debt.decimals)} {run.debt.symbol}
+            </span>{" "}
+            under a repay-only grant
+            {txUrl ? (
+              <>
+                {" "}
+                (
+                <a href={txUrl} target="_blank" rel="noreferrer" className="font-mono text-[0.8125rem] text-fg underline underline-offset-4">
+                  {shortHash(run.step5.hash)}
+                </a>
+                )
+              </>
+            ) : null}
+            , and its attempt to borrow was refused by the account contract in a simulation.
+          </p>
+        ) : (
+          <p className="text-muted">Sentinel Connect is not shown as available in this build: its recorded testnet run is missing.</p>
+        )}
         <div>
-          <h3 className="font-medium">Designed limits</h3>
+          <h3 className="font-medium">Limits</h3>
           <ul className="mt-2 list-disc space-y-1.5 pl-5 text-muted">
             <li>The agent reads the account, its policy and the remaining authorisation, asks for a quote, and simulates.</li>
-            <li>It can execute one kind of operation: the one your operator authorisation allows, with the same typed parameters it simulated.</li>
+            <li>It can execute one kind of operation: a repayment from the account's own funds, under the operator authorisation the owner granted.</li>
             <li>No arbitrary calldata, no owner key, and no tool that withdraws or changes permissions.</li>
             <li>The emergency stop on this page revokes the agent's operator like any other.</li>
           </ul>
         </div>
-        {grants.length > 0 ? (
-          <div data-testid="connect-grant">
-            <h3 className="font-medium">The authorisation an agent would act under</h3>
-            <ul className="mt-2 space-y-1 text-muted">
-              {grants.map((entry) => (
-                <li key={entry.operator.status === "ok" ? entry.operator.value : entry.label} className="num">
-                  Operator {entry.operator.status === "ok" ? <Mono>{shortAddress(entry.operator.value)}</Mono> : entry.label}: {(entry.opsMask & (1 << Op.REPAY)) !== 0 ? "repay" : ""}
-                  {(entry.opsMask & (1 << Op.BORROW)) !== 0 ? " borrow" : ""} only, expires {formatDay(entry.expiresAt)}. It cannot withdraw.
-                </li>
-              ))}
-            </ul>
-            <p className="mt-2 text-xs text-faint">Read from your account. Shown for orientation: no agent is connected through this app.</p>
-          </div>
-        ) : null}
+        <ButtonLink href="/connect" variant="secondary" size="sm" data-testid="connect-open">
+          Tools, setup and the recorded run
+        </ButtonLink>
       </div>
     </Card>
   );

@@ -17,7 +17,9 @@ export function useKeeper() {
       return feed;
     },
     enabled: services.activity.source === "chain",
-    refetchInterval: 15_000,
+    // A deployment without a keeper service (KEEPER_API_URL unset, e.g. the hosted app) is asked once and never polled.
+    refetchInterval: (query) => (query.state.data?.state === "not-configured" ? false : 15_000),
+    staleTime: (query) => (query.state.data?.state === "not-configured" ? Number.POSITIVE_INFINITY : 0),
     retry: false,
   });
 }

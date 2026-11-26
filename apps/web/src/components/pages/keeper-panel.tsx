@@ -45,6 +45,9 @@ export function KeeperPanel() {
   const market = feed?.state === "ok" && markets.data?.status === "ok" ? (markets.data.value.find((entry) => feed.accountController && sameAddress(entry.id, feed.accountController)) ?? null) : null;
   const token = market?.debt.token ?? null;
   const yours = feed?.state === "ok" && wallet.status === "connected" && feed.accountOwner !== null && sameAddress(feed.accountOwner, wallet.address);
+  // No keeper service is configured for this deployment (KEEPER_API_URL unset, as on the hosted app): there is
+  // nothing to report, so the panel is not rendered at all. On-chain activity is shown by its own components.
+  if (!fixture && feed?.state === "not-configured") return null;
 
   return (
     <Card as="section" data-testid="keeper-panel" data-keeper={state}>
@@ -58,10 +61,6 @@ export function KeeperPanel() {
         <Rows groups={groupKeeperItems(EXAMPLE_ITEMS)} token={{ symbol: "tUSDC", name: "Example", decimals: 6, address: { status: "unavailable", reason: "example" }, mock: true }} example />
       ) : state === "loading" ? (
         <Skeleton className="m-5 h-32" />
-      ) : feed?.state === "not-configured" ? (
-        <p className="p-5 text-sm text-muted sm:p-6" data-testid="keeper-message">
-          No keeper service is connected to this app. On-chain activity above is unaffected.
-        </p>
       ) : feed?.state === "scope-mismatch" ? (
         <div className="space-y-3 p-5 sm:p-6" data-testid="keeper-message">
           <Notice tone="warning" icon={<IconAlert size={18} />} title="Keeper reports withheld">
