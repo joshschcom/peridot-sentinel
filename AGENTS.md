@@ -24,7 +24,7 @@ The master specification is `/Users/joshua/Peridot/OKX/PERIDOT_XLAYER_CLAUDE_HAN
 4. Do not modify other repositories under `/Users/joshua/Peridot`. Do not check out, add worktrees to, build in, or write to them.
 5. **Git:**
    - Commit only your own paths, using explicit pathspecs (`git add <paths>`, never `git add -A` or `git add .`).
-   - No force-push, no history rewrite, no branch deletion. Do not push or create remotes (founder decision pending).
+   - No force-push, no history rewrite, no branch deletion. Remote: private `joshschcom/peridot-sentinel` (to be transferred to PeridotFinance). **Only Claude pushes**; agents never push or add remotes.
    - If `.git/index.lock` exists, wait and retry.
    - Add a body line `Agent: <role> (<model>)` to each commit.
 6. Never fabricate a test result, transaction hash, address or PR. Never call a fake processor "TapeOut". Label every mock, fixture, fork and simulation as such.
