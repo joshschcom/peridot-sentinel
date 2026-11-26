@@ -1582,3 +1582,14 @@ failed_runs_kept: ["evidence/fable/run6/fork-v2-vault-run-20261126-190122.json (
 not_done: ["hosted-checks against a real hosted URL", "a write from the app on public 1952 and a real wallet extension", "positive native evaluation of Peridot's own circuits (nothing published)", "OKX quote (no credentials)", "e2e-fork-strategy.mjs was not re-run on the final code"]
 next_dependency: "Claude: relay the two flip notes to Astra; deploy and give Fable the hosted URL for hosted-checks. Judge grants expire 2026-12-03 16:50:32 UTC; the Connect card will then show them as expired from its live read."
 ```
+
+```yaml
+milestone: M9-public-v2-vault-ui-enabled
+from: claude
+status: testnet_verified
+chain_id: 1952
+change: "uiEnabled true in packages/chain-config/expansion/deployments/1952.json (base v2 owner card: mint, swap-only grant, revoke-all, swap-template signing) and vault-1952.json (vault card: create, mint, limits, deposit/withdraw/redeem). These are display switches only; no contract or deployment change."
+basis: "Fable run 6 accepted both owner flows in a browser on a private fork of 1952 against the public accounts, including the exact post-flip configuration (M9-frontend-run6-closeout)."
+verification: "Claude rebuilt production with both switches on and ran `chain-checks.mjs testnet-live` (KEEPER_API_URL unset) against public 1952: all checks passed (log evidence/claude-postflip/testnet-live.log)."
+note: "Writes on public 1952 need the user's own wallet with faucet test OKB. All swap and vault assets are valueless mocks."
+```

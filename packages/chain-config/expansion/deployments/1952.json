@@ -3,7 +3,7 @@
   "profile": "1952",
   "chainId": 1952,
   "label": "Public testnet with inventory-funded mock swap venue and development reference processor",
-  "uiEnabled": false,
+  "uiEnabled": true,
   "source": {
     "baseSourceCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
     "expansionCommit": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",

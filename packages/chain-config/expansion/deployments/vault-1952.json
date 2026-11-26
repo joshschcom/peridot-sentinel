@@ -3,7 +3,7 @@
   "profile": "1952",
   "chainId": 1952,
   "public": true,
-  "uiEnabled": false,
+  "uiEnabled": true,
   "label": "Public X Layer testnet 1952; inventory-backed mock ERC-4626 savings vault and valueless mUSDC",
   "deploymentBlock": "47249459",
   "contracts": {
