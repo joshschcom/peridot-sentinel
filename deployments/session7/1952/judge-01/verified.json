@@ -1,0 +1,95 @@
+{
+  "chainId": 1952,
+  "campaign": "judge-01",
+  "profile": "public-testnet",
+  "results": [
+    {
+      "url": "https://testrpc.xlayer.tech",
+      "verifiedReceipts": 49
+    },
+    {
+      "url": "https://xlayertestrpc.okx.com",
+      "verifiedReceipts": 49
+    }
+  ],
+  "prepared": {
+    "campaign": "judge-01",
+    "profile": "public-testnet",
+    "blockNumber": "47253173",
+    "blockHash": "0x1a86453f32d35597ee8b0be414fb5a20569516dab7b90dbcffb86cba7bd2c1df",
+    "repayReady": true,
+    "swapReady": true,
+    "current": {
+      "swapGrant": [
+        "1000000000000000000",
+        "2000000000000000000",
+        "1796316632"
+      ],
+      "borrowGrant": [
+        "0",
+        "0",
+        "0"
+      ],
+      "repayGrant": [
+        8,
+        "2000000",
+        "1796316632"
+      ],
+      "idleIn": "3000000000000000000",
+      "idleOut": "0",
+      "operatorOut": "0",
+      "books": [
+        "0",
+        "0"
+      ],
+      "allowance": "0",
+      "venueAllowance": "0",
+      "v1Debt": "64000000",
+      "v1Funds": "64000000",
+      "v1Allowance": "0"
+    },
+    "ownerWei": "5657257202862861",
+    "operatorWei": "200079643798982190",
+    "deployerWei": "192597542314877119"
+  },
+  "current": {
+    "campaign": "judge-01",
+    "profile": "public-testnet",
+    "blockNumber": "47253353",
+    "blockHash": "0x2538f6699cb47a659ba4b2c637d85ccb3f0312b8d5215bd293cd466505000313",
+    "repayReady": true,
+    "swapReady": true,
+    "current": {
+      "swapGrant": [
+        "1000000000000000000",
+        "2000000000000000000",
+        "1796316632"
+      ],
+      "borrowGrant": [
+        "0",
+        "0",
+        "0"
+      ],
+      "repayGrant": [
+        8,
+        "2000000",
+        "1796316632"
+      ],
+      "idleIn": "3000000000000000000",
+      "idleOut": "0",
+      "operatorOut": "0",
+      "books": [
+        "0",
+        "0"
+      ],
+      "allowance": "0",
+      "venueAllowance": "0",
+      "v1Debt": "64000000",
+      "v1Funds": "64000000",
+      "v1Allowance": "0"
+    },
+    "ownerWei": "5657257202862861",
+    "operatorWei": "200079643798982190",
+    "deployerWei": "192597542314877119"
+  }
+}

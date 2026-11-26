@@ -17,6 +17,24 @@ The demo is 3 minutes, following handoff §14. Every step must state its environ
 3. **Keeper service in execute mode**, run by Claude with the operator key from env only. Confirm its `/v1/status`.
 4. **Fallback footage.** Pre-record every step once. Real receipts are already on record (see SUBMISSION_EVIDENCE). Replayed footage must never be presented as live.
 
+
+## Judge campaign (reproducible, Astra session 7)
+
+- **Current campaign:** `judge-01` on public 1952. Its manifest is `deployments/session7/1952/judge-01/manifest.json`.
+  - Judge owner: `0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B`.
+  - Lending accounts A and B, and swap account v2.
+  - Fresh Studio market caps.
+  - An unused repay-only grant and an unused swap-only grant, both **expiring 2026-12-03 16:50:32 UTC**.
+- **For recording or judging after Dec 3,** create a new named campaign with a fresh owner. Claude runs this, with keys supplied via env only:
+  ```sh
+  JUDGE_OWNER=<fresh testnet EOA> JUDGE_OWNER_KEY=<env only> PERIDOT_TESTNET_KEY=<env only> \
+    node services/judge-demo/run.mjs testnet setup judge-02
+  ```
+  - It uses about 0.0063 test OKB from the deployer.
+  - Replaying `judge-01` does not revive expired authority.
+  - Refresh the price feeds on demo day.
+- **Judge walkthrough:** see `docs/JUDGE_DEMO.md`. It covers the Studio market, connecting an MCP client, the permitted swap and repay, both independent rejections, the unauthorized operator action, revoke-all, and the activity view.
+
 ## Script
 
 | Time | Step | Environment | Shown | Evidence |

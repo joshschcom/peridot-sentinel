@@ -1,0 +1,845 @@
+{
+  "schemaVersion": 1,
+  "kind": "judge-event-snapshot",
+  "scopeDigest": "d9b3c591e41f220935e6f29595c957497e598f067cfb467b41862b86cbbd05bf",
+  "chainId": 1952,
+  "campaign": "judge-01",
+  "profile": "public-testnet",
+  "updatedAt": "2026-11-26T16:54:36.224Z",
+  "coverage": {
+    "fromBlock": "47252767",
+    "toBlock": "47253214",
+    "toBlockHash": "0x8717f8338cbeeec62c28d5122909534cf1a11f198ee93bc10ca421a8e5362d12",
+    "headAtRefresh": "47253226",
+    "confirmations": 12,
+    "gaps": [
+      {
+        "fromBlock": "47253215",
+        "toBlock": "47253226",
+        "reason": "confirmation-depth"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "fromBlock": "47252767"
+    },
+    {
+      "address": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+      "contract": "MarketPToken",
+      "fromBlock": "47252767"
+    },
+    {
+      "address": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "contract": "MarketPToken",
+      "fromBlock": "47252767"
+    },
+    {
+      "address": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "contract": "SentinelAccount",
+      "fromBlock": "47252767"
+    },
+    {
+      "address": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+      "contract": "IsolatedController",
+      "fromBlock": "47252767"
+    },
+    {
+      "address": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+      "contract": "MarketPToken",
+      "fromBlock": "47252767"
+    },
+    {
+      "address": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+      "contract": "MarketPToken",
+      "fromBlock": "47252767"
+    },
+    {
+      "address": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+      "contract": "SentinelAccount",
+      "fromBlock": "47252767"
+    },
+    {
+      "address": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+      "contract": "SentinelAccountV2",
+      "fromBlock": "47252767"
+    },
+    {
+      "address": "0x29E2D42f371383A0ee02924EF2b339BE0592cA52",
+      "contract": "SinglePoolSwapAdapter",
+      "fromBlock": "47252767"
+    }
+  ],
+  "events": [
+    {
+      "blockNumber": "47252850",
+      "blockHash": "0x550d05f051aa5397d3121280650456331094c048ad4e28391919163d100d6aae",
+      "transactionHash": "0x6982692aee960e2cf254dbcffff6ec9fd4510a933903bccc680193e4b6d35365",
+      "transactionIndex": "2",
+      "logIndex": "0",
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "eventName": "MarketPolicySet",
+      "args": {
+        "controller": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+        "policyId": "0x7f887eb7a1b1328aed23de12bd982f96a61acfd17ca9f3be0bce083bebcf18a2"
+      },
+      "timestamp": "1795711687"
+    },
+    {
+      "blockNumber": "47252850",
+      "blockHash": "0x550d05f051aa5397d3121280650456331094c048ad4e28391919163d100d6aae",
+      "transactionHash": "0x6982692aee960e2cf254dbcffff6ec9fd4510a933903bccc680193e4b6d35365",
+      "transactionIndex": "2",
+      "logIndex": "1",
+      "address": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+      "contract": "MarketPToken",
+      "eventName": "NewPeridottroller",
+      "args": {
+        "oldPeridottroller": "0x0000000000000000000000000000000000000000",
+        "newPeridottroller": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4"
+      },
+      "timestamp": "1795711687"
+    },
+    {
+      "blockNumber": "47252850",
+      "blockHash": "0x550d05f051aa5397d3121280650456331094c048ad4e28391919163d100d6aae",
+      "transactionHash": "0x6982692aee960e2cf254dbcffff6ec9fd4510a933903bccc680193e4b6d35365",
+      "transactionIndex": "2",
+      "logIndex": "2",
+      "address": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+      "contract": "MarketPToken",
+      "eventName": "NewMarketInterestRateModel",
+      "args": {
+        "oldInterestRateModel": "0x0000000000000000000000000000000000000000",
+        "newInterestRateModel": "0x0796A0772Ef9aF1F610Fd460EFC008Cc53dCE23B"
+      },
+      "timestamp": "1795711687"
+    },
+    {
+      "blockNumber": "47252850",
+      "blockHash": "0x550d05f051aa5397d3121280650456331094c048ad4e28391919163d100d6aae",
+      "transactionHash": "0x6982692aee960e2cf254dbcffff6ec9fd4510a933903bccc680193e4b6d35365",
+      "transactionIndex": "2",
+      "logIndex": "3",
+      "address": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "contract": "MarketPToken",
+      "eventName": "NewPeridottroller",
+      "args": {
+        "oldPeridottroller": "0x0000000000000000000000000000000000000000",
+        "newPeridottroller": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4"
+      },
+      "timestamp": "1795711687"
+    },
+    {
+      "blockNumber": "47252850",
+      "blockHash": "0x550d05f051aa5397d3121280650456331094c048ad4e28391919163d100d6aae",
+      "transactionHash": "0x6982692aee960e2cf254dbcffff6ec9fd4510a933903bccc680193e4b6d35365",
+      "transactionIndex": "2",
+      "logIndex": "4",
+      "address": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "contract": "MarketPToken",
+      "eventName": "NewMarketInterestRateModel",
+      "args": {
+        "oldInterestRateModel": "0x0000000000000000000000000000000000000000",
+        "newInterestRateModel": "0x0796A0772Ef9aF1F610Fd460EFC008Cc53dCE23B"
+      },
+      "timestamp": "1795711687"
+    },
+    {
+      "blockNumber": "47252877",
+      "blockHash": "0xba5efeb3796d75403aba1100ce2316faed60b30aa998cb3a5b8df1727c67c87b",
+      "transactionHash": "0x6f63d3ecef8db70d8ca6d42d32f7da17c230e23b1c6bb9d0bf53e0c5a795071f",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "contract": "MarketPToken",
+      "eventName": "AccrueInterest",
+      "args": {
+        "cashPrior": "0",
+        "interestAccumulated": "0",
+        "borrowIndex": "1000000017123287653",
+        "totalBorrows": "0"
+      },
+      "timestamp": "1795711714"
+    },
+    {
+      "blockNumber": "47252877",
+      "blockHash": "0xba5efeb3796d75403aba1100ce2316faed60b30aa998cb3a5b8df1727c67c87b",
+      "transactionHash": "0x6f63d3ecef8db70d8ca6d42d32f7da17c230e23b1c6bb9d0bf53e0c5a795071f",
+      "transactionIndex": "1",
+      "logIndex": "1",
+      "address": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+      "contract": "MarketPToken",
+      "eventName": "AccrueInterest",
+      "args": {
+        "cashPrior": "0",
+        "interestAccumulated": "0",
+        "borrowIndex": "1000000017123287653",
+        "totalBorrows": "0"
+      },
+      "timestamp": "1795711714"
+    },
+    {
+      "blockNumber": "47252877",
+      "blockHash": "0xba5efeb3796d75403aba1100ce2316faed60b30aa998cb3a5b8df1727c67c87b",
+      "transactionHash": "0x6f63d3ecef8db70d8ca6d42d32f7da17c230e23b1c6bb9d0bf53e0c5a795071f",
+      "transactionIndex": "1",
+      "logIndex": "2",
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0x7f887eb7a1b1328aed23de12bd982f96a61acfd17ca9f3be0bce083bebcf18a2",
+        "account": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+        "op": "0",
+        "postLtvBps": "0",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795711714"
+    },
+    {
+      "blockNumber": "47252877",
+      "blockHash": "0xba5efeb3796d75403aba1100ce2316faed60b30aa998cb3a5b8df1727c67c87b",
+      "transactionHash": "0x6f63d3ecef8db70d8ca6d42d32f7da17c230e23b1c6bb9d0bf53e0c5a795071f",
+      "transactionIndex": "1",
+      "logIndex": "4",
+      "address": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "contract": "MarketPToken",
+      "eventName": "Mint",
+      "args": {
+        "minter": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+        "mintAmount": "200000000",
+        "mintTokens": "200000000"
+      },
+      "timestamp": "1795711714"
+    },
+    {
+      "blockNumber": "47252877",
+      "blockHash": "0xba5efeb3796d75403aba1100ce2316faed60b30aa998cb3a5b8df1727c67c87b",
+      "transactionHash": "0x6f63d3ecef8db70d8ca6d42d32f7da17c230e23b1c6bb9d0bf53e0c5a795071f",
+      "transactionIndex": "1",
+      "logIndex": "5",
+      "address": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "contract": "MarketPToken",
+      "eventName": "Transfer",
+      "args": {
+        "from": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+        "to": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+        "amount": "200000000"
+      },
+      "timestamp": "1795711714"
+    },
+    {
+      "blockNumber": "47252884",
+      "blockHash": "0x53d4026b1ae520b73a0889c963b76e4a5c4cee55adb00145473379f3aa036fed",
+      "transactionHash": "0x4bc0fece887e5b926bff639d44692b53d937841d79d8a1d65626fcceeb9194bc",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "eventName": "MarketActivated",
+      "args": {
+        "controller": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4"
+      },
+      "timestamp": "1795711721"
+    },
+    {
+      "blockNumber": "47252893",
+      "blockHash": "0xb3336f091419e6a3314bff31289fa089189818d08f5d7d3b41e35019c4a08567",
+      "transactionHash": "0xf3cc6c98784fec7c105672f403ffa040c6f48728ce3d04b4406ff8b565cd53c9",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "contract": "SentinelAccount",
+      "eventName": "AccountPolicySet",
+      "args": {
+        "policyId": "0xb2af346486a445dcbae00922a47badbd6248d54745377c46d5db8c58c73899cd"
+      },
+      "timestamp": "1795711730"
+    },
+    {
+      "blockNumber": "47252911",
+      "blockHash": "0x6aedff696c93ece7eaa43f0d1a433c6121efb75919ff48ed5080f9af1ebc1cac",
+      "transactionHash": "0x463f00b3caf9cf8042b6a538a2dd1bf4a0b7a8cfa2b9dda1128ed299970bffdb",
+      "transactionIndex": "2",
+      "logIndex": "3",
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "eventName": "MarketEntered",
+      "args": {
+        "pToken": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+        "account": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2"
+      },
+      "timestamp": "1795711748"
+    },
+    {
+      "blockNumber": "47252920",
+      "blockHash": "0xba699f9706517764612d5303b74e10882f7106fe90d01ac4cb4993dcc9af2131",
+      "transactionHash": "0x792a42752945bde9a84c9720abe81c34135fed34a87aed9a4d1d709a3b13cd04",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+      "contract": "MarketPToken",
+      "eventName": "AccrueInterest",
+      "args": {
+        "cashPrior": "0",
+        "interestAccumulated": "0",
+        "borrowIndex": "1000000044393709196",
+        "totalBorrows": "0"
+      },
+      "timestamp": "1795711757"
+    },
+    {
+      "blockNumber": "47252920",
+      "blockHash": "0xba699f9706517764612d5303b74e10882f7106fe90d01ac4cb4993dcc9af2131",
+      "transactionHash": "0x792a42752945bde9a84c9720abe81c34135fed34a87aed9a4d1d709a3b13cd04",
+      "transactionIndex": "1",
+      "logIndex": "1",
+      "address": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "contract": "MarketPToken",
+      "eventName": "AccrueInterest",
+      "args": {
+        "cashPrior": "200000000",
+        "interestAccumulated": "0",
+        "borrowIndex": "1000000044393709196",
+        "totalBorrows": "0"
+      },
+      "timestamp": "1795711757"
+    },
+    {
+      "blockNumber": "47252920",
+      "blockHash": "0xba699f9706517764612d5303b74e10882f7106fe90d01ac4cb4993dcc9af2131",
+      "transactionHash": "0x792a42752945bde9a84c9720abe81c34135fed34a87aed9a4d1d709a3b13cd04",
+      "transactionIndex": "1",
+      "logIndex": "2",
+      "address": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "contract": "SentinelAccount",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0xb2af346486a445dcbae00922a47badbd6248d54745377c46d5db8c58c73899cd",
+        "account": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "op": "0",
+        "postLtvBps": "0",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795711757"
+    },
+    {
+      "blockNumber": "47252920",
+      "blockHash": "0xba699f9706517764612d5303b74e10882f7106fe90d01ac4cb4993dcc9af2131",
+      "transactionHash": "0x792a42752945bde9a84c9720abe81c34135fed34a87aed9a4d1d709a3b13cd04",
+      "transactionIndex": "1",
+      "logIndex": "4",
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0x7f887eb7a1b1328aed23de12bd982f96a61acfd17ca9f3be0bce083bebcf18a2",
+        "account": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "op": "0",
+        "postLtvBps": "0",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795711757"
+    },
+    {
+      "blockNumber": "47252920",
+      "blockHash": "0xba699f9706517764612d5303b74e10882f7106fe90d01ac4cb4993dcc9af2131",
+      "transactionHash": "0x792a42752945bde9a84c9720abe81c34135fed34a87aed9a4d1d709a3b13cd04",
+      "transactionIndex": "1",
+      "logIndex": "6",
+      "address": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+      "contract": "MarketPToken",
+      "eventName": "Mint",
+      "args": {
+        "minter": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "mintAmount": "100000000000000000000",
+        "mintTokens": "100000000000000000000"
+      },
+      "timestamp": "1795711757"
+    },
+    {
+      "blockNumber": "47252920",
+      "blockHash": "0xba699f9706517764612d5303b74e10882f7106fe90d01ac4cb4993dcc9af2131",
+      "transactionHash": "0x792a42752945bde9a84c9720abe81c34135fed34a87aed9a4d1d709a3b13cd04",
+      "transactionIndex": "1",
+      "logIndex": "7",
+      "address": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+      "contract": "MarketPToken",
+      "eventName": "Transfer",
+      "args": {
+        "from": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+        "to": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "amount": "100000000000000000000"
+      },
+      "timestamp": "1795711757"
+    },
+    {
+      "blockNumber": "47252929",
+      "blockHash": "0x556cd05bd7dc4df2643a97ec906e72479fa425e30fceae1102c9eae77d7782f0",
+      "transactionHash": "0xc343814cfff579480c1512b3b362049fbe34454a4687e7d0a8f6c15372b80d69",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+      "contract": "IsolatedController",
+      "eventName": "MarketPolicySet",
+      "args": {
+        "controller": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+        "policyId": "0x53a422789af77c0799bd4f25dd4bc38a9e28825481d51d6bf60c03d09cb5c9fd"
+      },
+      "timestamp": "1795711766"
+    },
+    {
+      "blockNumber": "47252929",
+      "blockHash": "0x556cd05bd7dc4df2643a97ec906e72479fa425e30fceae1102c9eae77d7782f0",
+      "transactionHash": "0xc343814cfff579480c1512b3b362049fbe34454a4687e7d0a8f6c15372b80d69",
+      "transactionIndex": "1",
+      "logIndex": "1",
+      "address": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+      "contract": "MarketPToken",
+      "eventName": "NewPeridottroller",
+      "args": {
+        "oldPeridottroller": "0x0000000000000000000000000000000000000000",
+        "newPeridottroller": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1"
+      },
+      "timestamp": "1795711766"
+    },
+    {
+      "blockNumber": "47252929",
+      "blockHash": "0x556cd05bd7dc4df2643a97ec906e72479fa425e30fceae1102c9eae77d7782f0",
+      "transactionHash": "0xc343814cfff579480c1512b3b362049fbe34454a4687e7d0a8f6c15372b80d69",
+      "transactionIndex": "1",
+      "logIndex": "2",
+      "address": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+      "contract": "MarketPToken",
+      "eventName": "NewMarketInterestRateModel",
+      "args": {
+        "oldInterestRateModel": "0x0000000000000000000000000000000000000000",
+        "newInterestRateModel": "0x0796A0772Ef9aF1F610Fd460EFC008Cc53dCE23B"
+      },
+      "timestamp": "1795711766"
+    },
+    {
+      "blockNumber": "47252929",
+      "blockHash": "0x556cd05bd7dc4df2643a97ec906e72479fa425e30fceae1102c9eae77d7782f0",
+      "transactionHash": "0xc343814cfff579480c1512b3b362049fbe34454a4687e7d0a8f6c15372b80d69",
+      "transactionIndex": "1",
+      "logIndex": "3",
+      "address": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+      "contract": "MarketPToken",
+      "eventName": "NewPeridottroller",
+      "args": {
+        "oldPeridottroller": "0x0000000000000000000000000000000000000000",
+        "newPeridottroller": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1"
+      },
+      "timestamp": "1795711766"
+    },
+    {
+      "blockNumber": "47252929",
+      "blockHash": "0x556cd05bd7dc4df2643a97ec906e72479fa425e30fceae1102c9eae77d7782f0",
+      "transactionHash": "0xc343814cfff579480c1512b3b362049fbe34454a4687e7d0a8f6c15372b80d69",
+      "transactionIndex": "1",
+      "logIndex": "4",
+      "address": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+      "contract": "MarketPToken",
+      "eventName": "NewMarketInterestRateModel",
+      "args": {
+        "oldInterestRateModel": "0x0000000000000000000000000000000000000000",
+        "newInterestRateModel": "0x0796A0772Ef9aF1F610Fd460EFC008Cc53dCE23B"
+      },
+      "timestamp": "1795711766"
+    },
+    {
+      "blockNumber": "47252954",
+      "blockHash": "0x7b3e12e440287c709614b007287a3a4163484dc117478b7f139a7405de079071",
+      "transactionHash": "0xa2079c21b25d376ac31ca29755812c2ce15d1aa0d68d5035022752e07fa793ee",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+      "contract": "MarketPToken",
+      "eventName": "AccrueInterest",
+      "args": {
+        "cashPrior": "0",
+        "interestAccumulated": "0",
+        "borrowIndex": "1000000015854895975",
+        "totalBorrows": "0"
+      },
+      "timestamp": "1795711791"
+    },
+    {
+      "blockNumber": "47252954",
+      "blockHash": "0x7b3e12e440287c709614b007287a3a4163484dc117478b7f139a7405de079071",
+      "transactionHash": "0xa2079c21b25d376ac31ca29755812c2ce15d1aa0d68d5035022752e07fa793ee",
+      "transactionIndex": "1",
+      "logIndex": "1",
+      "address": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+      "contract": "MarketPToken",
+      "eventName": "AccrueInterest",
+      "args": {
+        "cashPrior": "0",
+        "interestAccumulated": "0",
+        "borrowIndex": "1000000015854895975",
+        "totalBorrows": "0"
+      },
+      "timestamp": "1795711791"
+    },
+    {
+      "blockNumber": "47252954",
+      "blockHash": "0x7b3e12e440287c709614b007287a3a4163484dc117478b7f139a7405de079071",
+      "transactionHash": "0xa2079c21b25d376ac31ca29755812c2ce15d1aa0d68d5035022752e07fa793ee",
+      "transactionIndex": "1",
+      "logIndex": "2",
+      "address": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+      "contract": "IsolatedController",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0x53a422789af77c0799bd4f25dd4bc38a9e28825481d51d6bf60c03d09cb5c9fd",
+        "account": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+        "op": "0",
+        "postLtvBps": "0",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795711791"
+    },
+    {
+      "blockNumber": "47252954",
+      "blockHash": "0x7b3e12e440287c709614b007287a3a4163484dc117478b7f139a7405de079071",
+      "transactionHash": "0xa2079c21b25d376ac31ca29755812c2ce15d1aa0d68d5035022752e07fa793ee",
+      "transactionIndex": "1",
+      "logIndex": "4",
+      "address": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+      "contract": "MarketPToken",
+      "eventName": "Mint",
+      "args": {
+        "minter": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+        "mintAmount": "200000000",
+        "mintTokens": "200000000"
+      },
+      "timestamp": "1795711791"
+    },
+    {
+      "blockNumber": "47252954",
+      "blockHash": "0x7b3e12e440287c709614b007287a3a4163484dc117478b7f139a7405de079071",
+      "transactionHash": "0xa2079c21b25d376ac31ca29755812c2ce15d1aa0d68d5035022752e07fa793ee",
+      "transactionIndex": "1",
+      "logIndex": "5",
+      "address": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+      "contract": "MarketPToken",
+      "eventName": "Transfer",
+      "args": {
+        "from": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+        "to": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+        "amount": "200000000"
+      },
+      "timestamp": "1795711791"
+    },
+    {
+      "blockNumber": "47252961",
+      "blockHash": "0x947451c4a3f918d75dc618b4ed26c9947fad9ba23cad2f28b9778a0f8d3ce07b",
+      "transactionHash": "0x0fbe7ed9f7011cd845cbc4a91618779287cbaa23c027afb373185456a962deac",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+      "contract": "IsolatedController",
+      "eventName": "MarketActivated",
+      "args": {
+        "controller": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1"
+      },
+      "timestamp": "1795711798"
+    },
+    {
+      "blockNumber": "47252968",
+      "blockHash": "0x2b3c0bcca3badee2a003ebd92e833321c3785c8c51247ec4b13592eb8bdeaae8",
+      "transactionHash": "0xc5c21f218eb4daebbeae7cbbf31382c034f2c5a8d21c766fd7f5b59884545d9a",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+      "contract": "SentinelAccount",
+      "eventName": "AccountPolicySet",
+      "args": {
+        "policyId": "0xb2af346486a445dcbae00922a47badbd6248d54745377c46d5db8c58c73899cd"
+      },
+      "timestamp": "1795711805"
+    },
+    {
+      "blockNumber": "47252984",
+      "blockHash": "0x404fdaae1043c9fe9dcd7d0e4af7a0ab0faa826c494089885bc36a97e4fca359",
+      "transactionHash": "0x14ed853f2e91653014c0d24329fa7c0d15045c35ae395edde7b37ac83454aee2",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+      "contract": "IsolatedController",
+      "eventName": "MarketEntered",
+      "args": {
+        "pToken": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+        "account": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2"
+      },
+      "timestamp": "1795711821"
+    },
+    {
+      "blockNumber": "47252992",
+      "blockHash": "0x7297a4fa0379602f230cdecc74ef20a857734fa8bcb64048a9327ea72f4227fc",
+      "transactionHash": "0xb54b3ccb87480e75543e739f24de782fd39ecdfc7b03a5b054e677c2ebfa4b80",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+      "contract": "MarketPToken",
+      "eventName": "AccrueInterest",
+      "args": {
+        "cashPrior": "0",
+        "interestAccumulated": "0",
+        "borrowIndex": "1000000039954338239",
+        "totalBorrows": "0"
+      },
+      "timestamp": "1795711829"
+    },
+    {
+      "blockNumber": "47252992",
+      "blockHash": "0x7297a4fa0379602f230cdecc74ef20a857734fa8bcb64048a9327ea72f4227fc",
+      "transactionHash": "0xb54b3ccb87480e75543e739f24de782fd39ecdfc7b03a5b054e677c2ebfa4b80",
+      "transactionIndex": "1",
+      "logIndex": "1",
+      "address": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+      "contract": "MarketPToken",
+      "eventName": "AccrueInterest",
+      "args": {
+        "cashPrior": "200000000",
+        "interestAccumulated": "0",
+        "borrowIndex": "1000000039954338239",
+        "totalBorrows": "0"
+      },
+      "timestamp": "1795711829"
+    },
+    {
+      "blockNumber": "47252992",
+      "blockHash": "0x7297a4fa0379602f230cdecc74ef20a857734fa8bcb64048a9327ea72f4227fc",
+      "transactionHash": "0xb54b3ccb87480e75543e739f24de782fd39ecdfc7b03a5b054e677c2ebfa4b80",
+      "transactionIndex": "1",
+      "logIndex": "2",
+      "address": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+      "contract": "SentinelAccount",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0xb2af346486a445dcbae00922a47badbd6248d54745377c46d5db8c58c73899cd",
+        "account": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+        "op": "0",
+        "postLtvBps": "0",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795711829"
+    },
+    {
+      "blockNumber": "47252992",
+      "blockHash": "0x7297a4fa0379602f230cdecc74ef20a857734fa8bcb64048a9327ea72f4227fc",
+      "transactionHash": "0xb54b3ccb87480e75543e739f24de782fd39ecdfc7b03a5b054e677c2ebfa4b80",
+      "transactionIndex": "1",
+      "logIndex": "4",
+      "address": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+      "contract": "IsolatedController",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0x53a422789af77c0799bd4f25dd4bc38a9e28825481d51d6bf60c03d09cb5c9fd",
+        "account": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+        "op": "0",
+        "postLtvBps": "0",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795711829"
+    },
+    {
+      "blockNumber": "47252992",
+      "blockHash": "0x7297a4fa0379602f230cdecc74ef20a857734fa8bcb64048a9327ea72f4227fc",
+      "transactionHash": "0xb54b3ccb87480e75543e739f24de782fd39ecdfc7b03a5b054e677c2ebfa4b80",
+      "transactionIndex": "1",
+      "logIndex": "6",
+      "address": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+      "contract": "MarketPToken",
+      "eventName": "Mint",
+      "args": {
+        "minter": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+        "mintAmount": "100000000000000000000",
+        "mintTokens": "100000000000000000000"
+      },
+      "timestamp": "1795711829"
+    },
+    {
+      "blockNumber": "47252992",
+      "blockHash": "0x7297a4fa0379602f230cdecc74ef20a857734fa8bcb64048a9327ea72f4227fc",
+      "transactionHash": "0xb54b3ccb87480e75543e739f24de782fd39ecdfc7b03a5b054e677c2ebfa4b80",
+      "transactionIndex": "1",
+      "logIndex": "7",
+      "address": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+      "contract": "MarketPToken",
+      "eventName": "Transfer",
+      "args": {
+        "from": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+        "to": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+        "amount": "100000000000000000000"
+      },
+      "timestamp": "1795711829"
+    },
+    {
+      "blockNumber": "47253001",
+      "blockHash": "0xdc493be086275c98d90e72f8345b3a2e55a90e000c00fc180a882857ddddf7d5",
+      "transactionHash": "0x85c6b724a169eb21a5067c1c40119f38b64602a94078031ce9532bc7dda15332",
+      "transactionIndex": "2",
+      "logIndex": "2",
+      "address": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+      "contract": "MarketPToken",
+      "eventName": "AccrueInterest",
+      "args": {
+        "cashPrior": "100000000000000000000",
+        "interestAccumulated": "0",
+        "borrowIndex": "1000000095763574435",
+        "totalBorrows": "0"
+      },
+      "timestamp": "1795711838"
+    },
+    {
+      "blockNumber": "47253001",
+      "blockHash": "0xdc493be086275c98d90e72f8345b3a2e55a90e000c00fc180a882857ddddf7d5",
+      "transactionHash": "0x85c6b724a169eb21a5067c1c40119f38b64602a94078031ce9532bc7dda15332",
+      "transactionIndex": "2",
+      "logIndex": "3",
+      "address": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "contract": "MarketPToken",
+      "eventName": "AccrueInterest",
+      "args": {
+        "cashPrior": "200000000",
+        "interestAccumulated": "0",
+        "borrowIndex": "1000000095763574435",
+        "totalBorrows": "0"
+      },
+      "timestamp": "1795711838"
+    },
+    {
+      "blockNumber": "47253001",
+      "blockHash": "0xdc493be086275c98d90e72f8345b3a2e55a90e000c00fc180a882857ddddf7d5",
+      "transactionHash": "0x85c6b724a169eb21a5067c1c40119f38b64602a94078031ce9532bc7dda15332",
+      "transactionIndex": "2",
+      "logIndex": "4",
+      "address": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "contract": "SentinelAccount",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0xb2af346486a445dcbae00922a47badbd6248d54745377c46d5db8c58c73899cd",
+        "account": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "op": "2",
+        "postLtvBps": "4000",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795711838"
+    },
+    {
+      "blockNumber": "47253001",
+      "blockHash": "0xdc493be086275c98d90e72f8345b3a2e55a90e000c00fc180a882857ddddf7d5",
+      "transactionHash": "0x85c6b724a169eb21a5067c1c40119f38b64602a94078031ce9532bc7dda15332",
+      "transactionIndex": "2",
+      "logIndex": "5",
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0x7f887eb7a1b1328aed23de12bd982f96a61acfd17ca9f3be0bce083bebcf18a2",
+        "account": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "op": "2",
+        "postLtvBps": "4000",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795711838"
+    },
+    {
+      "blockNumber": "47253001",
+      "blockHash": "0xdc493be086275c98d90e72f8345b3a2e55a90e000c00fc180a882857ddddf7d5",
+      "transactionHash": "0x85c6b724a169eb21a5067c1c40119f38b64602a94078031ce9532bc7dda15332",
+      "transactionIndex": "2",
+      "logIndex": "7",
+      "address": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "contract": "MarketPToken",
+      "eventName": "Borrow",
+      "args": {
+        "borrower": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "borrowAmount": "64000000",
+        "accountBorrows": "64000000",
+        "totalBorrows": "64000000"
+      },
+      "timestamp": "1795711838"
+    },
+    {
+      "blockNumber": "47253008",
+      "blockHash": "0x735b45b5be9f0c04a06fa01829b0a8de22f62be6ccb10fb4facbc49f8fd2ee01",
+      "transactionHash": "0x0f3d82bd370e08974585f592699c038223fb9adfef1392d198985e19998d3fa8",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "contract": "SentinelAccount",
+      "eventName": "AutoRepayTriggerSet",
+      "args": {
+        "triggerBps": "3500"
+      },
+      "timestamp": "1795711845"
+    },
+    {
+      "blockNumber": "47253016",
+      "blockHash": "0xb6f8f7e9512d70a5fff544daaffafb7a1efa270c9c0e1b73c086c0ab76f543ba",
+      "transactionHash": "0x8d2c4a25c03b0e0bc31b5fdf1e748b73ab045181e12b731308487304d4a91e76",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "contract": "SentinelAccount",
+      "eventName": "OperatorSet",
+      "args": {
+        "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+        "opsMask": "8",
+        "maxAmount": "2000000",
+        "expiry": "1796316632"
+      },
+      "timestamp": "1795711853"
+    },
+    {
+      "blockNumber": "47253157",
+      "blockHash": "0x78a9d2a3d0b20fb349394461f52fc4b59da340ebcde8823da6db938ca2191cda",
+      "transactionHash": "0x947f4c3231041e312f49095558f88b3f99e5910a0ee5d61bcbb093e2e59f595c",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+      "contract": "SentinelAccountV2",
+      "eventName": "AccountPolicySet",
+      "args": {
+        "policyId": "0xb2af346486a445dcbae00922a47badbd6248d54745377c46d5db8c58c73899cd"
+      },
+      "timestamp": "1795711994"
+    },
+    {
+      "blockNumber": "47253173",
+      "blockHash": "0x1a86453f32d35597ee8b0be414fb5a20569516dab7b90dbcffb86cba7bd2c1df",
+      "transactionHash": "0x81ecd45e8dce8714d8ab9ee3b0b08d2e4c339030330b06d15356e0071e9ae496",
+      "transactionIndex": "1",
+      "logIndex": "0",
+      "address": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+      "contract": "SentinelAccountV2",
+      "eventName": "GrantSet",
+      "args": {
+        "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+        "adapter": "0x29E2D42f371383A0ee02924EF2b339BE0592cA52",
+        "op": "5",
+        "inputAsset": "0x8EcDe41881EFa0730FCDCEb7cb0474F017422d0B",
+        "maxPerCall": "1000000000000000000",
+        "cumulativeLimit": "2000000000000000000",
+        "expiry": "1796316632"
+      },
+      "timestamp": "1795712010"
+    }
+  ]
+}

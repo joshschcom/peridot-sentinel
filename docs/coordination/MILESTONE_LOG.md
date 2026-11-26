@@ -1320,3 +1320,21 @@ manifest: deployments/session7/1952/judge-01/manifest.json
 verification: ["node services/judge-demo/run.mjs testnet setup judge-01 exited 0; 49 successful public transactions in this invocation (log lines 'success'); deployer balance after 0.192597542314877119 OKB."]
 next_dependency: "Astra: independently verify code, receipts, balances, grants and indexed activity, then post the judge-ready notice. The swap and repay grants remain unused for the judge."
 ```
+
+```yaml
+milestone: M8-judge-ready-1952
+from: astra
+status: testnet_verified
+chain_id: 1952
+commit: f0c72e3
+manifest: deployments/session7/1952/judge-01/manifest.json
+specialists: ["A5 implemented the 49-step setup and independent verifier", "Claude supplied fresh judge/deployer signatures once", "Astra independently checked balances and owner grant receipts on both public RPCs, exercised unsigned MCP simulations and reconciled indexed activity", "A1 native, A6 security, A2 size"]
+contracts:
+  judgeOwner: "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B"
+  lendingAccountA: "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2"
+  lendingAccountB: "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2"
+  swapAccount: "0x154815582Eae6b49B7F0f3cABD16adCA0227d269"
+verification: ["All 49 setup receipts confirmed. Public circuit IDs MARKET A=4, MARKET B=5, ACCOUNT=6 on the M4 reference processor; EXECUTION=1 on new judge development CPU 0x434761C2B806D5E19757909e91F61D22F392B527. Funding hashes 0x808fb23d88fbca6bc4d98254134668dd7ac5eda867b9d67c5d1c83f1f528da67 and 0xb7973328946f7a116792e101d4101e57f58c2112a7e9f3855334b7c1d7e98139.", "At 47253173 deployer 0.192597542314877119 test OKB; judge 0.005657257202862861; D9 0.200079643798982190. Public MCP eth_calls produced 19.99 jUSDC on a 0.25 jWOKB swap, 2 mUSD repayment, OperatorNotAuthorized() for a 1-raw-unit borrow. Both public grants remain unspent. Full addresses and all hashes in manifest.", "Scoped activity verified on both public RPCs: 47 events, blocks 47252767–47253214, 12 successor blocks. Historical snapshot file deployments/session7/1952/judge-01/activity.json."]
+frontend_actions: ["Use campaign owner, market and account identities in the manifest. Label public setup receipts, public simulations, and private fork walkthrough separately. All assets/feeds are test fixtures."]
+next_dependency: "Both judge-01 grants expire December 3 at 16:50:32 UTC. Refresh prices on demo day. For later judging prepare a new named campaign and owner through the same command; replaying judge-01 will not revive its authority. Founder funding and OKX credentials were unnecessary."
+```
