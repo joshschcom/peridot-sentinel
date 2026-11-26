@@ -126,7 +126,7 @@ New build-time inputs, all optional, all read by `scripts/sync-manifests.mjs` in
 - `chain-checks.mjs testnet-live` on that build, `KEEPER_API_URL` unset: all passed, 52 loads. `evidence/screenshots/testnet-1952-run4/`.
 - Negative checks (`wrong-network`, `broken-deployment`, `rejected-manifest` x2, `testnet-unverified`): all pass, `evidence/fable/run4/negative/`. How to set them up: tampered manifest copies in a temp dir (one contract address without bytecode; template root changed; `PolicyRegistry` removed; the same broken address in a 1952 copy), a dev server per mode on port 3212 with `PERIDOT_DEPLOYMENTS_DIR=<dir>` (plus `NEXT_PUBLIC_PERIDOT_TARGET=local` for the three local modes). **Do not pass `EXPECT_REASON=""`**: an empty string becomes a regex that matches everything. Run `node scripts/sync-manifests.mjs` afterwards, because the dev server's `predev` leaves the tampered manifest in `src/generated/`.
 - `circuits-fail-closed` passed against real chain 196 at 8d1ccc6 and was not re-run after the TapedOut decode fix (9e50d75); its three cases stop at the receipt step, before the decode.
-- Fixture mode: `screenshots.mjs` all UI checks pass; 58 screenshots in `evidence/screenshots/brand/`. `OUT` for that script is relative to `scripts/`, so use `OUT=../../../evidence/screenshots/<dir>` (for `chain-checks.mjs` and `hosted-checks.mjs` it is relative to the working directory).
+- Fixture mode: `screenshots.mjs` re-run on the final code (after e4cda08): all UI checks pass, including 360 px; 58 screenshots in `evidence/screenshots/brand/`. `OUT` for that script is relative to `scripts/`, so use `OUT=../../../evidence/screenshots/<dir>` (for `chain-checks.mjs` and `hosted-checks.mjs` it is relative to the working directory).
 - `DEMO_MATRIX.md` UI cells were updated in this run; the edit was committed inside another agent's commit (29acc41).
 
 ### More traps from run 4
@@ -145,6 +145,10 @@ New build-time inputs, all optional, all read by `scripts/sync-manifests.mjs` in
 4. **Activity snapshot is shown next to the live scan, not merged into it.** The gap between the snapshot's last block and the live scan's first block is computed and disclosed. A true merge into `ActivityService` is open.
 5. **OKX Onchain OS quote**: still unavailable (no credentials). The UI path for an available quote exists and is unit-tested with a placeholder shape only.
 6. Market-only rejection from a browser wallet on public testnet: not done (Astra's mined receipts are shown instead).
+7. **`scripts/e2e-local.mjs` was NOT re-run in run 4**, although `automate.tsx`, the keeper panel, `chains.ts` (local RPC now comes from `next.config.ts`) and `DefinitionRow` changed. Only local READ paths were exercised (the negative checks). Run it first thing in run 5.
+8. **Onboarding is not aligned with `docs/JUDGE_DEMO.md`**, which landed late in run 4 and was not read. The page only points to it. The Connect grant card still reads the session-5 demo account (grant spent); the `judge-01` campaign (`deployments/session7/1952/judge-01/manifest.json`, fresh grants expiring 2026-12-03) is not wired anywhere in the app.
+9. The step-5 wording about the v2 launcher (separate processes, private socket, model without shell or file access) is taken from `services/mcp-v2/README.md` and `claude.mcp.json`; `run-claude.sh` and `host.mjs` were not read.
+10. `docs/coordination/D8b-postpublish.mjs` writes `publishedId` as a decimal string and `publicReceipt` as the transaction hash into `tapeout-196.json`: that is the shape `parseTapeoutConfig` accepts (checked by reading the script, not by running it).
 
 ## Answers from Astra (M4-testnet-preflight-and-frontend-reads, f88817a)
 
