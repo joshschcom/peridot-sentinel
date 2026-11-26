@@ -1,0 +1,115 @@
+{
+  "label": "Shared unforked Anvil 31337 — observed before deployment and after local wallet rehearsal",
+  "chainId": 31337,
+  "instanceId": "0xb5c6d66bb5f479feeedb14b148e63b526d74c86b029e3c71727ffd7509961552",
+  "m4ManifestKeccak": "0x6d97aaa9590c27dae5f94cee9e613b6649c1b69145bae60ecb33e64744ae52bb",
+  "observations": [
+    {
+      "blockNumber": "111",
+      "blockHash": "0x20bc4ebe9480ab7034046c0aa3871a73fb5e2088b3f4273bac31625d6bcfebbe",
+      "originalFactoryMarketCount": "4",
+      "deployerNonce": 29,
+      "originalMcolQuote": [
+        "1600000000000000000",
+        "1795618118"
+      ],
+      "originalMusdQuote": [
+        "1000000000000000000",
+        "1795618117"
+      ]
+    },
+    {
+      "blockNumber": "148",
+      "blockHash": "0x5e4f58626a2cd4b93d5b712b26dfa9af0313cf4b09816a54afdb8609be68e632",
+      "originalFactoryMarketCount": "4",
+      "deployerNonce": 52,
+      "originalMcolQuote": [
+        "1600000000000000000",
+        "1795618118"
+      ],
+      "originalMusdQuote": [
+        "1000000000000000000",
+        "1795618117"
+      ]
+    }
+  ],
+  "unchangedOriginalContracts": {
+    "MockCollateral": {
+      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "codeHash": "0x607ad62d751e0292f17a3e6877b289b73e8b7498273df14dac1b9540dee7881b"
+    },
+    "MockDebt": {
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "codeHash": "0x708bccc84cad71b9869bbe839a229a6715abef2a0e5054b04c43e73905b11f0f"
+    },
+    "TestnetOracle": {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "codeHash": "0xb3e9a8c18f0c42d1d4dd888e89a2d65f3ceef2e0f543be5483ad328e216e7095"
+    },
+    "DemoRateModel": {
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "codeHash": "0xea750e811ab6cdaaa1c2c2d04c8e5f72761209020b3ba6da81a4832e075db6d9"
+    },
+    "MarketPToken": {
+      "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      "codeHash": "0x4d1c1122106e4da926f20870786482cfc5d769ba71cd527dc13cad495eac92cc"
+    },
+    "PolicyRegistry": {
+      "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "codeHash": "0x40c0ff8d4120c9ceb78b52ae408a5206d4229871709382627bbdc95a73acd22f"
+    },
+    "TapeOutPolicyAdapter": {
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "codeHash": "0x60540e9a8da8f7a2e7bd8793e2ffed51e46602276686519bb943d07dfd4e8e0f"
+    },
+    "DevelopmentReferenceProcessor": {
+      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "codeHash": "0x517d307fe4b14e4ff7b5b6a471683050078abadab2a5a74c985303a2516f54de"
+    },
+    "MarketFactory": {
+      "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+      "codeHash": "0xd5c9a886a68a9f8b9c5a6dd55f7eb4e7acc6327ef491aca5b6711baf8cef0697"
+    },
+    "SentinelAccountFactory": {
+      "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      "codeHash": "0x9c053e0adbde8b45cddd0032f800f9e94922aad0226418c5cd64b1011ea3a6a3"
+    },
+    "controller": {
+      "address": "0x05242D4AC717Cdf38C36AF290F2b0DA99AA82c67",
+      "codeHash": "0x0ee37e03ea2a96fc5101ffb3e95da9d7a26d128585d4e39569e4363487ded070"
+    },
+    "collateralMarket": {
+      "address": "0x1F708C24a0D3A740cD47cC0444E9480899f3dA7D",
+      "codeHash": "0x6ae63f569764f6f58ea1522fd13593a1cc9588b8669417d0f7ec87ab870633cc"
+    },
+    "debtMarket": {
+      "address": "0xf41B47c54dEFF12f8fE830A411a09D865eBb120E",
+      "codeHash": "0x6ae63f569764f6f58ea1522fd13593a1cc9588b8669417d0f7ec87ab870633cc"
+    }
+  },
+  "changesInScope": 36,
+  "receiptsByPurpose": {
+    "deployment": 23,
+    "rehearsal": 13
+  },
+  "priceOrLiquidationEvents": 0,
+  "eventScanBlocks": [
+    "112",
+    "148"
+  ],
+  "localM4Replay": {
+    "command": "node contracts/script/deploy-demo.mjs local",
+    "observedHeights": [
+      "111",
+      "148"
+    ],
+    "verifiedCodeAddresses": 13,
+    "submittedTransactions": 0
+  },
+  "manifestNegativesVerified": [
+    "wrong chain",
+    "wrong displayed policy loss",
+    "wrong vault asset",
+    "wrong factory runtime hash"
+  ]
+}

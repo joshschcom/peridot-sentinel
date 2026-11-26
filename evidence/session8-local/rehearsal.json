@@ -1,0 +1,332 @@
+{
+  "label": "Unforked, unlocked local Anvil; scripted wallet transactions using valueless mock assets",
+  "context": {
+    "chainId": 31337,
+    "instanceId": "0xb5c6d66bb5f479feeedb14b148e63b526d74c86b029e3c71727ffd7509961552",
+    "genesisHash": "0xfe69ff5c33c779143459c1e65914598d5d5de21eb8d031036e9167d905b22dc8",
+    "rpc": "http://127.0.0.1:18545",
+    "owner": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "operator": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    "factory": "0x1291Be112d480055DaFd8a610b7d1e203891C274",
+    "vaultFactory": "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154",
+    "accountPolicy": "0x2203a619deefc167ac023b3c9d8c0194a48482f2dc894106ab94de7c64912833"
+  },
+  "startBlock": "135",
+  "steps": {
+    "create-base-account": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x1291Be112d480055DaFd8a610b7d1e203891C274",
+        "method": "createAccount",
+        "dataHash": "0xd221fe4e8ab4b2485ac84dad3cf20931a06678aa35fa892940a49359bfeafe12"
+      },
+      "hash": "0x43a78995383eb0939f3af530ef1fba2bb6527e8a54425c1d79dffac30e369702",
+      "nonce": 0,
+      "gasLimit": "4132124",
+      "gasPrice": "1000000034",
+      "block": "136",
+      "blockHash": "0x5eb60bd621cde77dc90e90cc6840ea90752397b0a060af5d9f214dead76266cd",
+      "gasUsed": "3051738",
+      "status": "success"
+    },
+    "create-vault-account": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154",
+        "method": "createAccount",
+        "dataHash": "0xd221fe4e8ab4b2485ac84dad3cf20931a06678aa35fa892940a49359bfeafe12"
+      },
+      "hash": "0x639929c6cebf80c71f7969310478cbedba5863fef59ef40f677884026913e7e9",
+      "nonce": 1,
+      "gasLimit": "5801726",
+      "gasPrice": "1000000031",
+      "block": "137",
+      "blockHash": "0x65a009820aa8c85da7e4e512e01cc4a3c855d6d5c5f90448d4ef8ebe2d09597b",
+      "gasUsed": "4284450",
+      "status": "success"
+    },
+    "fund-vault": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
+        "method": "mint",
+        "dataHash": "0x928a287fa7791e50a6dfc63ef13f679c2b904d24ea1275b4ad79da9d154fc991"
+      },
+      "hash": "0x62683511b4d66d09d47f5149d05cc9c01a00c01a0be2a527b43209c534aac829",
+      "nonce": 2,
+      "gasLimit": "97951",
+      "gasPrice": "1000000029",
+      "block": "138",
+      "blockHash": "0x5062642f03f668f799651d2c86aa7b39466e58eb76df49e09521a1490a20e552",
+      "gasUsed": "50963",
+      "status": "success"
+    },
+    "set-vault-limits": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x55C9DCD6128e7d7e7e136d78e533C01F0cB2ef77",
+        "method": "setVaultDepositLimits",
+        "dataHash": "0x1add58ca17b17ca0c66f091153ef5622eb5b560b142f7b5a8633242159ddb6a4"
+      },
+      "hash": "0xbe234bddbd9603bd2648fa36377ae85d3980dc03f7c00565d87b3a7f8a60bcb9",
+      "nonce": 3,
+      "gasLimit": "121063",
+      "gasPrice": "1000000026",
+      "block": "139",
+      "blockHash": "0x37066ca532b2447b79c429af034f23f90813779f75a6b3272bfde69ac08dc229",
+      "gasUsed": "68297",
+      "status": "success"
+    },
+    "deposit": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x55C9DCD6128e7d7e7e136d78e533C01F0cB2ef77",
+        "method": "depositToVault",
+        "dataHash": "0xbf4e625d8fcb3c49e9770ec165d6d96c04e2420f704f9302ef8d54a5b9063dac"
+      },
+      "hash": "0x8798ddb84b4368d48568b9ff23ca3501be5faff570beb96d461a24dd07815521",
+      "nonce": 4,
+      "gasLimit": "285927",
+      "gasPrice": "1000000023",
+      "block": "140",
+      "blockHash": "0x3da69f5e6a7c293ed452be3c13872774da7ff86f25bc689e1792daca5290f770",
+      "gasUsed": "151808",
+      "status": "success"
+    },
+    "withdraw": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x55C9DCD6128e7d7e7e136d78e533C01F0cB2ef77",
+        "method": "withdrawFromVault",
+        "dataHash": "0x5b262db942f3af1a30b8c8457cb6cbfe00aa9bdb31496a55e84e900dd3478a4b"
+      },
+      "hash": "0xa98165e9cbd710137717f617926f8e5081b48f048d2359c12dbf31d24a54a8ad",
+      "nonce": 5,
+      "gasLimit": "167075",
+      "gasPrice": "1000000021",
+      "block": "141",
+      "blockHash": "0x315d4b337a935b0ce1d29240e9c3f3004ffc7a5d54a2d0ccbda4e5299dee0773",
+      "gasUsed": "80720",
+      "status": "success"
+    },
+    "redeem": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x55C9DCD6128e7d7e7e136d78e533C01F0cB2ef77",
+        "method": "redeemFromVault",
+        "dataHash": "0xc2c12cc7621d7e7aa2fbbf0ae11669f42c512a88f486e9ee98b5e4312c227071"
+      },
+      "hash": "0x5d30c22b247ae8df857dcee1205530d96be33e271a23612f1239b7e53a700cb9",
+      "nonce": 6,
+      "gasLimit": "162620",
+      "gasPrice": "1000000019",
+      "block": "142",
+      "blockHash": "0x69d993dc8fcedbfcc98580bcf155172b5ab8fb4e2c852085d8a46c4cf77395a2",
+      "gasUsed": "77824",
+      "status": "success"
+    },
+    "fund-collateral": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "method": "mint",
+        "dataHash": "0x8309fe83017bba974d23a3388e1028cdbdbd037aea5839762da10733139550f5"
+      },
+      "hash": "0xa7d0e281a00ee7790718ede5756bc326110c08a53edfd8c4a19851867c79d51d",
+      "nonce": 7,
+      "gasLimit": "97999",
+      "gasPrice": "1000000017",
+      "block": "143",
+      "blockHash": "0x6f5bbc43fde5ac61e51557ed39f5b0341c1dd8c9b22163bda3481a209f0f40d2",
+      "gasUsed": "50999",
+      "status": "success"
+    },
+    "supply": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x94B9874aC5605713CcAc00ca8E832B37e15c1399",
+        "method": "supply",
+        "dataHash": "0x5fcd7f9c3f20af72592834016fdc70c80be28fb82f3b2abc9cd64431f591a6fe"
+      },
+      "hash": "0x66b9aaaef1c4f31834966c953e436ebef82d573bdb16f5246ceb2846059ab73c",
+      "nonce": 8,
+      "gasLimit": "707314",
+      "gasPrice": "1000000015",
+      "block": "144",
+      "blockHash": "0x1bc451ddff0c3ff078248d3085eb5d12e2bbb38541bbf7ed086ac46f095a7b5e",
+      "gasUsed": "458387",
+      "status": "success"
+    },
+    "fund-swap": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+        "method": "mint",
+        "dataHash": "0x8309fe83017bba974d23a3388e1028cdbdbd037aea5839762da10733139550f5"
+      },
+      "hash": "0x2592a7e72e24fbddbe178193fba2cdf33be42bab70d7516575a1f5a4b07c63c3",
+      "nonce": 9,
+      "gasLimit": "97999",
+      "gasPrice": "1000000014",
+      "block": "145",
+      "blockHash": "0x5ee78bc1a8d320f3fc1d45f2341eb7c28c6f901edeefa7b1ea390dba2c8f8475",
+      "gasUsed": "50999",
+      "status": "success"
+    },
+    "grant-swap": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x94B9874aC5605713CcAc00ca8E832B37e15c1399",
+        "method": "setGrant",
+        "dataHash": "0xd2d4740b273e7a479234f02d8e2eb070aff20cf145594cd29b80cad0eb654bb3"
+      },
+      "hash": "0xc2ddb43fdc8414fdeb0a2570fb78a700deebb51ec75ede029b6c1c65934bafe5",
+      "nonce": 10,
+      "gasLimit": "250798",
+      "gasPrice": "1000000013",
+      "block": "146",
+      "blockHash": "0x57859eab82cc5bf406ca7a4bb9df20542ae62ae57fab4e56e665f50741a1bc52",
+      "gasUsed": "165598",
+      "status": "success"
+    },
+    "operator-swap": {
+      "intent": {
+        "from": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+        "to": "0x94B9874aC5605713CcAc00ca8E832B37e15c1399",
+        "method": "swapExactIn",
+        "dataHash": "0xd5f4d2ebbc7cf444d0e9cd3cd78040dbbe5faab746ef9f1616309e5a5f1552a6"
+      },
+      "hash": "0x395c5899ce430d0647f500c13556de807febb42506b50c88c5ce055574873c77",
+      "nonce": 0,
+      "gasLimit": "472594",
+      "gasPrice": "1000000012",
+      "block": "147",
+      "blockHash": "0x2d9130a73492a32e8c87e796076c5136390813ab0f4df60157c4d7990f03d3b5",
+      "gasUsed": "263808",
+      "status": "success"
+    },
+    "revoke-all": {
+      "intent": {
+        "from": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "to": "0x94B9874aC5605713CcAc00ca8E832B37e15c1399",
+        "method": "revokeAllOperators",
+        "dataHash": "0x9ac9a702ff5b016588c3a8e0aea81291ff2a24ae8577f420b17cf8199c91257c"
+      },
+      "hash": "0xfb273954e934daec1e6040a6d3482500b394d68d15e26f9bec6227cceb04958f",
+      "nonce": 11,
+      "gasLimit": "89982",
+      "gasPrice": "1000000011",
+      "block": "148",
+      "blockHash": "0x5e4f58626a2cd4b93d5b712b26dfa9af0313cf4b09816a54afdb8609be68e632",
+      "gasUsed": "44986",
+      "status": "success"
+    }
+  },
+  "observations": {
+    "lending": {
+      "marketFactory": "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
+      "controller": "0x7357f955700586aAA8Cfad1271354a1cCC353126",
+      "book": "0xD4eF5bFBe5925B905BD3EC0921bFe28b04ac61aE",
+      "collateral": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "registry": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "originalM4Controller": "0x05242D4AC717Cdf38C36AF290F2b0DA99AA82c67"
+    },
+    "browserOwnersUncreatedAtStart": [
+      "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+      "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+      "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+      "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720"
+    ],
+    "deposit": {
+      "assets": "10000000",
+      "shares": "10000000",
+      "positionAfter": [
+        "10000000",
+        "10000000",
+        "10000000",
+        "10000000"
+      ],
+      "idleAssetsAfter": "2000000",
+      "allowanceAfter": "0"
+    },
+    "withdraw": {
+      "assets": "2000000",
+      "shares": "2000000",
+      "positionAfter": [
+        "8000000",
+        "8000000",
+        "8000000",
+        "8000000"
+      ],
+      "idleAssetsAfter": "4000000",
+      "allowanceAfter": "0"
+    },
+    "redeem": {
+      "assets": "4000000",
+      "shares": "4000000",
+      "positionAfter": [
+        "4000000",
+        "4000000",
+        "4000000",
+        "4000000"
+      ],
+      "idleAssetsAfter": "8000000",
+      "allowanceAfter": "0"
+    },
+    "supply": {
+      "amount": "1000000000000000000",
+      "sharesBefore": "0",
+      "sharesAfter": "1000000000000000000",
+      "debtRaw": "0",
+      "allowanceAfter": "0"
+    },
+    "swap": {
+      "recipient": "0x94B9874aC5605713CcAc00ca8E832B37e15c1399",
+      "amountIn": "250000000000000000",
+      "minOut": "19800000",
+      "actualOut": "19990000",
+      "remaining": "1750000000000000000",
+      "allowanceToAdapterAfter": "0",
+      "allowanceToRouterAfter": "0",
+      "ownerGrantExpiry": "1795801049",
+      "executionQuoteAtGrant": [
+        "20000000",
+        "19000000",
+        "1795714663"
+      ]
+    },
+    "browserReadiness": {
+      "block": "148",
+      "wallets": [
+        "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+        "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+        "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+        "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+        "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720"
+      ],
+      "baseAccounts": 0,
+      "vaultAccounts": 0
+    },
+    "revoke": {
+      "epoch": "1",
+      "remaining": "0",
+      "operatorCount": "0",
+      "afterStop": {
+        "kind": "eth_call at revoke block",
+        "block": "148",
+        "method": "swapExactIn",
+        "error": "OperatorNotAuthorized",
+        "selector": "0x2e430953"
+      }
+    }
+  },
+  "accounts": {
+    "base": "0x94B9874aC5605713CcAc00ca8E832B37e15c1399",
+    "vault": "0x55C9DCD6128e7d7e7e136d78e533C01F0cB2ef77"
+  }
+}
