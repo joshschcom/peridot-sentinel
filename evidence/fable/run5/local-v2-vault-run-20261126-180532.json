@@ -1,0 +1,101 @@
+{
+  "label": "LOCAL development chain (unforked Anvil 31337). Mock tokens, fixed simulated prices, inventory-backed mock venue, mock ERC-4626 vault, development reference processor. Not public transactions.",
+  "driver": "Playwright Chromium + injected test EIP-1193 provider forwarding to Anvil's unlocked account; no private key",
+  "rpc": "http://127.0.0.1:18545",
+  "chainId": 31337,
+  "nodeInstanceId": "0xb5c6d66bb5f479feeedb14b148e63b526d74c86b029e3c71727ffd7509961552",
+  "runId": "run-20261126-180532",
+  "owner": "0x976ea74026e726554db657fa54763abd0c3a0aa9",
+  "ownerIndex": 6,
+  "operator": "0x14dc79964da2c08b23698b3d3cc7ca32193d9955",
+  "operatorIndex": 7,
+  "startBlock": 150,
+  "endBlock": 156,
+  "result": "FAILED: ASSERTION FAILED: the operator's swap reverted",
+  "appTransactions": [
+    {
+      "label": "create v2 account",
+      "sender": "app (owner wallet)",
+      "hash": "0x8be0bdabace3c0618d83a739d495ba08e2de3036d9275001ef18cafbd6e4db7d",
+      "to": "0x1291be112d480055dafd8a610b7d1e203891c274",
+      "selector": "0xfe8ca4af",
+      "block": "151",
+      "gasUsed": "3051738",
+      "gasLimit": "4132124",
+      "asserted": "accountOf(owner) = 0x411615ed323044f3181a7a274D62f52c542B8617, owner() = wallet, adapters, controller and policy as in the manifest"
+    },
+    {
+      "label": "mint 1 mWOKB to the account",
+      "sender": "app (owner wallet)",
+      "hash": "0x1567bb9559e59402672f6ceb6ed4895a14c15718fd5c40f62701f13e38e09d17",
+      "to": "0x67d269191c92caf3cd7723f116c85e6e9bf55933",
+      "selector": "0x40c10f19",
+      "block": "152",
+      "gasUsed": "51011",
+      "gasLimit": "98015",
+      "asserted": "account mWOKB 0 -> 1000000000000000000"
+    },
+    {
+      "label": "mint 1 mCOL to the account",
+      "sender": "app (owner wallet)",
+      "hash": "0xfe61a5541c7ce503c475e25fb72a598115a57a00ad69ac07fb442d91e2253324",
+      "to": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      "selector": "0x40c10f19",
+      "block": "153",
+      "gasUsed": "51011",
+      "gasLimit": "98015",
+      "asserted": "account mCOL 0 -> 1000000000000000000"
+    },
+    {
+      "label": "supply 1 mCOL through the lending adapter",
+      "sender": "app (owner wallet)",
+      "hash": "0x182caba14f0a8a7a0a578e1994afe644c92faf07bb3c340d764a4c09a4738a72",
+      "to": "0x411615ed323044f3181a7a274d62f52c542b8617",
+      "selector": "0x35403023",
+      "block": "154",
+      "gasUsed": "427535",
+      "gasLimit": "666178",
+      "asserted": "exposure shares 0 -> 1000000000000000000, debt 0, pTokens 0 -> 1000000000000000000, allowance to the book 0"
+    },
+    {
+      "label": "swap-only grant: 1 mWOKB per swap, 2 in total, 1 day",
+      "sender": "app (owner wallet)",
+      "hash": "0x34ce47102d7481dadc62e4ba618156a08556dd98e163c2e1e25cd93edb861c68",
+      "to": "0x411615ed323044f3181a7a274d62f52c542b8617",
+      "selector": "0x9230fb3e",
+      "block": "155",
+      "gasUsed": "165610",
+      "gasLimit": "250814",
+      "asserted": "grants(operator, swap, 5, mWOKB) = (1e18, 2e18, 1795802742); operatorCount 1"
+    }
+  ],
+  "scriptTransactions": [],
+  "walletSent": [
+    {
+      "hash": "0x8be0bdabace3c0618d83a739d495ba08e2de3036d9275001ef18cafbd6e4db7d",
+      "to": "0x1291Be112d480055DaFd8a610b7d1e203891C274",
+      "selector": "0xfe8ca4af"
+    },
+    {
+      "hash": "0x1567bb9559e59402672f6ceb6ed4895a14c15718fd5c40f62701f13e38e09d17",
+      "to": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+      "selector": "0x40c10f19"
+    },
+    {
+      "hash": "0xfe61a5541c7ce503c475e25fb72a598115a57a00ad69ac07fb442d91e2253324",
+      "to": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "selector": "0x40c10f19"
+    },
+    {
+      "hash": "0x182caba14f0a8a7a0a578e1994afe644c92faf07bb3c340d764a4c09a4738a72",
+      "to": "0x411615ed323044f3181a7a274D62f52c542B8617",
+      "selector": "0x35403023"
+    },
+    {
+      "hash": "0x34ce47102d7481dadc62e4ba618156a08556dd98e163c2e1e25cd93edb861c68",
+      "to": "0x411615ed323044f3181a7a274D62f52c542B8617",
+      "selector": "0x9230fb3e"
+    }
+  ],
+  "pageProblems": []
+}

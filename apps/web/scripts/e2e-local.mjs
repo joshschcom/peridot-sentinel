@@ -226,7 +226,7 @@ async function ensureMarket(key, capBps) {
   }
   state = await marketState(controller);
   if (!state.sentinel) {
-    await go("/sentinel");
+    await go("/portfolio");
     await transact(page.locator("main"), page.locator(`[data-testid="create-account-${controller}"]`), `sentinel: create account for market ${key}`, async () => {
       state = await marketState(controller);
       assert(state.sentinel, "no account from the factory");
@@ -439,7 +439,7 @@ try {
     stopIf("borrow");
 
     // 4. Operator grant: repay-only (mask 8), budget 3 mUSD, 7 days from the latest block.
-    const policyPath = `/automate?market=${A.controller}`;
+    const policyPath = `/strategies?market=${A.controller}`;
     const automation = page.locator('[data-testid="automation"]');
     const operatorRow = automation.locator(`li[data-operator="${operator}" i]`);
     const emergency = page.locator('[data-testid="emergency-stop"]');
@@ -550,7 +550,7 @@ try {
 
     // 8. Owner withdrawal of idle funds: always pays the owner.
     A = await marketState(A.controller);
-    await go("/sentinel");
+    await go("/portfolio");
     const card = page.locator(`[data-testid="sentinel-account"][data-market="${A.controller}" i]`);
     await card.locator('[data-testid="withdraw-open"]').click();
     const sheet = page.locator("dialog[open]");
@@ -611,7 +611,7 @@ try {
   }
 
   // Activity: settled PolicyAllowed decisions with their transaction hashes, newest first.
-  await go("/sentinel/activity");
+  await go("/activity");
   await page.locator("li[data-result]").first().waitFor({ timeout: 20000 });
   const activity = await page.locator("li[data-result]").allInnerTexts();
   const blocks = activity.map((text) => Number(/block (\d+)\./.exec(text)?.[1] ?? -1));
@@ -662,7 +662,7 @@ try {
     console.log(`activity view: ${activity.length} on-chain entries, newest first; nothing sent (${sent.length} tx)`);
     assert(sent.length === 0, "the read-only run sent a transaction");
   } else {
-    await go("/sentinel");
+    await go("/portfolio");
     await shot("13-sentinel-overview");
   }
 

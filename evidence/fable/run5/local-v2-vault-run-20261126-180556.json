@@ -1,0 +1,215 @@
+{
+  "label": "LOCAL development chain (unforked Anvil 31337). Mock tokens, fixed simulated prices, inventory-backed mock venue, mock ERC-4626 vault, development reference processor. Not public transactions.",
+  "driver": "Playwright Chromium + injected test EIP-1193 provider forwarding to Anvil's unlocked account; no private key",
+  "rpc": "http://127.0.0.1:18545",
+  "chainId": 31337,
+  "nodeInstanceId": "0xb5c6d66bb5f479feeedb14b148e63b526d74c86b029e3c71727ffd7509961552",
+  "runId": "run-20261126-180556",
+  "owner": "0x976ea74026e726554db657fa54763abd0c3a0aa9",
+  "ownerIndex": 6,
+  "operator": "0x14dc79964da2c08b23698b3d3cc7ca32193d9955",
+  "operatorIndex": 7,
+  "startBlock": 156,
+  "endBlock": 168,
+  "result": "passed",
+  "appTransactions": [
+    {
+      "label": "create v2 account",
+      "skipped": "already exists: 0x411615ed323044f3181a7a274D62f52c542B8617"
+    },
+    {
+      "label": "mint 1 mWOKB to the account",
+      "sender": "app (owner wallet)",
+      "hash": "0xb1d1f8b6bc7d3102def5e9c33dbd1cc075bdcadc3883b9347e5df24691b89f2f",
+      "to": "0x67d269191c92caf3cd7723f116c85e6e9bf55933",
+      "selector": "0x40c10f19",
+      "block": "157",
+      "gasUsed": "33911",
+      "gasLimit": "75215",
+      "asserted": "account mWOKB 1000000000000000000 -> 2000000000000000000"
+    },
+    {
+      "label": "mint 1 mCOL to the account",
+      "sender": "app (owner wallet)",
+      "hash": "0xe69f728e7d2cbfe1d4b730df38fb1a0be750d527a761263051fa871514167e65",
+      "to": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      "selector": "0x40c10f19",
+      "block": "158",
+      "gasUsed": "51011",
+      "gasLimit": "98015",
+      "asserted": "account mCOL 0 -> 1000000000000000000"
+    },
+    {
+      "label": "supply 1 mCOL through the lending adapter",
+      "sender": "app (owner wallet)",
+      "hash": "0x2ce8df3f1a391bfa6f56ad984d1f8de09310efd10c9a8ac60ea14636889d82f6",
+      "to": "0x411615ed323044f3181a7a274d62f52c542b8617",
+      "selector": "0x35403023",
+      "block": "159",
+      "gasUsed": "410435",
+      "gasLimit": "643378",
+      "asserted": "exposure shares 1000000000000000000 -> 2000000000000000000, debt 0, pTokens 1000000000000000000 -> 2000000000000000000, allowance to the book 0"
+    },
+    {
+      "label": "swap-only grant: 1 mWOKB per swap, 2 in total, 1 day",
+      "sender": "app (owner wallet)",
+      "hash": "0x53fb5667865e128d4ddfe077d0a2b5d5d6d7d5c00365681309341592fa23297e",
+      "to": "0x411615ed323044f3181a7a274d62f52c542b8617",
+      "selector": "0x9230fb3e",
+      "block": "160",
+      "gasUsed": "39616",
+      "gasLimit": "82822",
+      "asserted": "grants(operator, swap, 5, mWOKB) = (1e18, 2e18, 1795802759); operatorCount 1"
+    },
+    {
+      "label": "revoke all operators",
+      "sender": "app (owner wallet)",
+      "hash": "0x8971eafb0112000a6109db90df42ee9ed31a3dcec97559c703c5ec73554af573",
+      "to": "0x411615ed323044f3181a7a274d62f52c542b8617",
+      "selector": "0xbad6ac70",
+      "block": "162",
+      "gasUsed": "44986",
+      "gasLimit": "89982",
+      "asserted": "operatorCount 0, grant (0,0,0); the same operator swap now simulates OperatorNotAuthorized"
+    },
+    {
+      "label": "create vault account",
+      "sender": "app (owner wallet)",
+      "hash": "0x637d673328a52495576bf15ffbf39d386692f343fe1232bf527e667fdaee8703",
+      "to": "0x5f3f1dbd7b74c6b46e8c44f98792a1daf8d69154",
+      "selector": "0xfe8ca4af",
+      "block": "163",
+      "gasUsed": "4284450",
+      "gasLimit": "5801726",
+      "asserted": "vault accountOf(owner) = 0xF4c112d5434D3BCEB266F46451BaDd7EdB111d9E, owner() = wallet, adapter and vault as in the manifest"
+    },
+    {
+      "label": "mint 12 mUSDC to the vault account",
+      "sender": "app (owner wallet)",
+      "hash": "0x466d5d86ec4b8dc31a460095c98b1456e31784756f2462055c8e4a233f9e03ee",
+      "to": "0xe6e340d132b5f46d1e472debcd681b2abc16e57e",
+      "selector": "0x40c10f19",
+      "block": "164",
+      "gasUsed": "50963",
+      "gasLimit": "97951",
+      "asserted": "idle mUSDC 0 -> 12000000"
+    },
+    {
+      "label": "set vault deposit limits: cap 1000 mUSDC, floor 1 share per asset",
+      "sender": "app (owner wallet)",
+      "hash": "0x5cff015d786a05dc27b8f185766ae9cdee2e044d513fc24632eddf8c8c60b758",
+      "to": "0xf4c112d5434d3bceb266f46451badd7edb111d9e",
+      "selector": "0xfe9ce651",
+      "block": "165",
+      "gasUsed": "68297",
+      "gasLimit": "121063",
+      "asserted": "maxVaultPositionAssets 1000000000, minVaultSharesPerAssetWad 1000000000000000000"
+    },
+    {
+      "label": "vault deposit 10",
+      "sender": "app (owner wallet)",
+      "hash": "0x271c3687c54ba2749e5abbe29880dc6a30e886374a14b71fa50a55bd2f300688",
+      "to": "0xf4c112d5434d3bceb266f46451badd7edb111d9e",
+      "selector": "0xc00ced42",
+      "block": "166",
+      "gasUsed": "124448",
+      "gasLimit": "240327",
+      "asserted": "assets 10000000 in, shares +10000000 (minimum 9950000, quote 10000000); bound in calldata = bound shown (9950000); allowance to the vault 0"
+    },
+    {
+      "label": "vault withdraw 2",
+      "sender": "app (owner wallet)",
+      "hash": "0x50f4fbf88c8f11d9f42a36a3974e7c2d73c28b71ab8339fe37b5287c1a802142",
+      "to": "0xf4c112d5434d3bceb266f46451badd7edb111d9e",
+      "selector": "0xbcb156aa",
+      "block": "167",
+      "gasUsed": "80720",
+      "gasLimit": "167075",
+      "asserted": "assets 2000000 out, shares -2000000 (maximum 2010000, quote 2000000); bound in calldata = bound shown (2010000); allowance to the vault 0"
+    },
+    {
+      "label": "vault redeem 4",
+      "sender": "app (owner wallet)",
+      "hash": "0xad070c400ecc00d1437dd2c74e9744de21d70be2614596a99e33a524ee053e36",
+      "to": "0xf4c112d5434d3bceb266f46451badd7edb111d9e",
+      "selector": "0x2d5dad63",
+      "block": "168",
+      "gasUsed": "77833",
+      "gasLimit": "162636",
+      "asserted": "shares 4000000 in, assets +4000000 (minimum 3980000, quote 4000000); bound in calldata = bound shown (3980000); allowance to the vault 0"
+    },
+    {
+      "label": "redeem 1 share with a minimum of 10 mUSDC (eth_call as the owner, nothing sent)",
+      "revertsWith": "VaultBounds"
+    }
+  ],
+  "scriptTransactions": [
+    {
+      "label": "operator swap 0.25 mWOKB (sent by this script from the operator account, NOT by the app)",
+      "hash": "0xb72c770b9cf0a55dce801711ab116f45f9c8641669f4365d56f687d68d534db8",
+      "from": "0x14dc79964da2c08b23698b3d3cc7ca32193d9955",
+      "block": "161",
+      "minOut": "19800000",
+      "received": "19990000",
+      "grantRemaining": "1750000000000000000"
+    }
+  ],
+  "walletSent": [
+    {
+      "hash": "0xb1d1f8b6bc7d3102def5e9c33dbd1cc075bdcadc3883b9347e5df24691b89f2f",
+      "to": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+      "selector": "0x40c10f19"
+    },
+    {
+      "hash": "0xe69f728e7d2cbfe1d4b730df38fb1a0be750d527a761263051fa871514167e65",
+      "to": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "selector": "0x40c10f19"
+    },
+    {
+      "hash": "0x2ce8df3f1a391bfa6f56ad984d1f8de09310efd10c9a8ac60ea14636889d82f6",
+      "to": "0x411615ed323044f3181a7a274D62f52c542B8617",
+      "selector": "0x35403023"
+    },
+    {
+      "hash": "0x53fb5667865e128d4ddfe077d0a2b5d5d6d7d5c00365681309341592fa23297e",
+      "to": "0x411615ed323044f3181a7a274D62f52c542B8617",
+      "selector": "0x9230fb3e"
+    },
+    {
+      "hash": "0x8971eafb0112000a6109db90df42ee9ed31a3dcec97559c703c5ec73554af573",
+      "to": "0x411615ed323044f3181a7a274D62f52c542B8617",
+      "selector": "0xbad6ac70"
+    },
+    {
+      "hash": "0x637d673328a52495576bf15ffbf39d386692f343fe1232bf527e667fdaee8703",
+      "to": "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154",
+      "selector": "0xfe8ca4af"
+    },
+    {
+      "hash": "0x466d5d86ec4b8dc31a460095c98b1456e31784756f2462055c8e4a233f9e03ee",
+      "to": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
+      "selector": "0x40c10f19"
+    },
+    {
+      "hash": "0x5cff015d786a05dc27b8f185766ae9cdee2e044d513fc24632eddf8c8c60b758",
+      "to": "0xF4c112d5434D3BCEB266F46451BaDd7EdB111d9E",
+      "selector": "0xfe9ce651"
+    },
+    {
+      "hash": "0x271c3687c54ba2749e5abbe29880dc6a30e886374a14b71fa50a55bd2f300688",
+      "to": "0xF4c112d5434D3BCEB266F46451BaDd7EdB111d9E",
+      "selector": "0xc00ced42"
+    },
+    {
+      "hash": "0x50f4fbf88c8f11d9f42a36a3974e7c2d73c28b71ab8339fe37b5287c1a802142",
+      "to": "0xF4c112d5434D3BCEB266F46451BaDd7EdB111d9E",
+      "selector": "0xbcb156aa"
+    },
+    {
+      "hash": "0xad070c400ecc00d1437dd2c74e9744de21d70be2614596a99e33a524ee053e36",
+      "to": "0xF4c112d5434D3BCEB266F46451BaDd7EdB111d9E",
+      "selector": "0x2d5dad63"
+    }
+  ],
+  "pageProblems": []
+}

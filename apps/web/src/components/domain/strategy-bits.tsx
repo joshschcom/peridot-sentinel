@@ -9,7 +9,8 @@ import { formatDay, shortAddress } from "@/lib/format";
 import { type CheckedStrategy, STRATEGY_AVAILABILITY_LABEL, type Strategy, type StrategyAvailability, matchesDebtProtection, templateFacts } from "@/lib/strategy";
 import { STRATEGY_CONTEXT } from "@/lib/strategy-context";
 import { services } from "@/services";
-import { readV2Account, v2AccountOf } from "@/services/chain/expansion";
+import { V2_OWNER_TARGET, readOwnerV2 } from "@/services/chain/v2-owner";
+import { RUNTIME } from "@/services/runtime";
 import type { Address, LogCoverage } from "@/services/types";
 
 const TONE: Record<StrategyAvailability, Tone> = { available: "success", demonstration: "warning", planned: "outline" };
@@ -115,25 +116,18 @@ export const ACTIVE_STATUS_TONE: Record<ActiveStrategy["status"], Tone> = { acti
 
 const utcDay = (seconds: bigint) => new Date(Number(seconds) * 1000).toISOString().slice(0, 16).replace("T", " ") + " UTC";
 
-/** v2 reads exist only against public testnet (src/services/chain/expansion.ts). */
-const V2_ON = STRATEGY_CONTEXT.testnetLive && STRATEGY_CONTEXT.v2 !== null;
+/** v2 accounts are read on the build's own target chain (testnet, or the local chain with its own deployment). */
+const V2_ON = V2_OWNER_TARGET !== null && RUNTIME.modes.account.source === "chain";
 
 export function useActiveStrategies(): { loading: boolean; unavailable: string | null; strategies: ActiveStrategy[]; v1Partial: { coverage?: LogCoverage; failed: boolean } | null; v2: "off" | "loading" | "error" | "none" | "account"; hasAccount: boolean } {
   const accounts = useAccounts();
   const markets = useMarkets();
   const wallet = useWallet();
-  const owner = wallet.status === "connected" ? (wallet.address as Address) : null;
-  const manifest = STRATEGY_CONTEXT.v2;
-  const v2 = useQuery({
-    queryKey: ["v2-active-strategies", owner],
-    queryFn: async () => {
-      const account = await v2AccountOf(manifest!, owner!);
-      return account ? readV2Account(manifest!, account) : null;
-    },
-    enabled: V2_ON && owner !== null,
-    staleTime: 30_000,
-    retry: 1,
-  });
+  const target = V2_OWNER_TARGET;
+  const owner = wallet.status === "connected" && (!target || wallet.chainId === target.chainId) ? (wallet.address as Address) : null;
+  // Same query key as the owner pages, so a grant signed there is reflected here without a second read.
+  const v2Read = useQuery({ queryKey: ["v2-owner", target?.chainId, owner], queryFn: () => readOwnerV2(target!, owner!), enabled: V2_ON && owner !== null, staleTime: 15_000, retry: 1 });
+  const v2 = { ...v2Read, data: v2Read.data?.base ?? null };
   const chain = services.account.source === "chain";
   const list = accounts.data?.status === "ok" ? accounts.data.value : [];
   const strategies: ActiveStrategy[] = [];
@@ -171,9 +165,9 @@ export function useActiveStrategies(): { loading: boolean; unavailable: string |
       });
     }
   }
-  if (V2_ON && v2.data && manifest) {
+  if (V2_ON && v2.data && target) {
     for (const grant of v2.data.swapGrants) {
-      const token = grant.inputAsset.toLowerCase() === manifest.tokens.wokb.address.toLowerCase() ? manifest.tokens.wokb : manifest.tokens.usdc;
+      const token = grant.inputAsset;
       const shaped = token.symbol === "mWOKB";
       strategies.push({
         id: `v2:${v2.data.account}:${grant.operator}:${grant.inputAsset}`,
@@ -198,11 +192,11 @@ export function useActiveStrategies(): { loading: boolean; unavailable: string |
     }
   }
   return {
-    loading: accounts.isPending || (V2_ON && owner !== null && v2.isPending),
+    loading: accounts.isPending || (V2_ON && owner !== null && v2Read.isPending),
     unavailable: accounts.data?.status === "unavailable" ? accounts.data.reason : null,
     strategies,
     v1Partial,
-    v2: !V2_ON || owner === null ? "off" : v2.isPending ? "loading" : v2.isError ? "error" : v2.data ? "account" : "none",
+    v2: !V2_ON || owner === null ? "off" : v2Read.isPending ? "loading" : v2Read.isError ? "error" : v2.data ? "account" : "none",
     hasAccount: list.length > 0 || Boolean(v2.data),
   };
 }

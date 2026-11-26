@@ -15,6 +15,8 @@ import { Badge, Button, Card, CardHeader, DefinitionRow, EmptyState, Mono, Notic
 import { IconAlert, IconArrowUpRight, IconCheck } from "@/components/ui/icons";
 import { formatAmount, parseAmount } from "@/lib/amount";
 import { TARGET_KIND, explorerAddressUrl, explorerTxUrl, xLayerTestnet } from "@/lib/chains";
+import { V2_OWNER_TARGET, V2_OWNER_TARGET_REASON } from "@/services/chain/v2-owner";
+import { V2OwnerFlows } from "./v2-owner";
 import { EXPANSION, type ExpansionManifest, V2_OP_LABEL, V2_SCOPE_LABEL, V2_SWAP_LABEL, type V2Demo } from "@/lib/expansion";
 import { shortAddress, shortHash } from "@/lib/format";
 import { readV2Account, readVenueQuote, verifyV2Deployment } from "@/services/chain/expansion";
@@ -26,8 +28,29 @@ const utc = (seconds: bigint) => `${new Date(Number(seconds) * 1000).toISOString
 /** v2 reads exist for the public testnet only. */
 export const V2_READS_ON = TARGET_KIND === "testnet" && !FORCE_FIXTURE;
 
+/** The local development chain has its own v2 deployment with owner writes: a different page body, labelled local. */
+function LocalTrade() {
+  return (
+    <div className="space-y-6" data-testid="trade" data-v2={V2_OWNER_TARGET ? "local" : "absent"}>
+      <PageHeader
+        eyebrow="Sentinel v2"
+        title="Trade and vault"
+        description="Your own Sentinel v2 accounts on the local development chain: create them, fund them with test tokens, supply collateral, grant a bounded swap to an operator, revoke everything, and use the vault with a stated bound on every action."
+        actions={<Badge tone="warning" wrap>Local chain · mock venue and vault</Badge>}
+      />
+      {V2_OWNER_TARGET ? <V2OwnerFlows target={V2_OWNER_TARGET} /> : <EmptyState title="Sentinel v2 is not in this build">{V2_OWNER_TARGET_REASON ?? "This build has no local Sentinel v2 manifest."}</EmptyState>}
+    </div>
+  );
+}
+
 export function Trade() {
+  if (TARGET_KIND === "local") return <LocalTrade />;
+  return <TestnetTrade />;
+}
+
+function TestnetTrade() {
   const manifest = EXPANSION.manifest.status === "ok" ? EXPANSION.manifest.value : null;
+  const ownerWrites = V2_OWNER_TARGET !== null && V2_OWNER_TARGET.writes && V2_READS_ON;
   const demo = EXPANSION.demo.status === "ok" ? EXPANSION.demo.value : null;
   return (
     <div className="space-y-6" data-testid="trade" data-v2={manifest ? "deployed" : "absent"}>
@@ -50,11 +73,12 @@ export function Trade() {
       ) : (
         <Live manifest={manifest} demo={demo} />
       )}
-      <Card as="section" data-testid="trade-not-yet">
+      {ownerWrites && V2_OWNER_TARGET ? <V2OwnerFlows target={V2_OWNER_TARGET} /> : null}
+      <Card as="section" data-testid="trade-not-yet" data-owner-writes={String(ownerWrites)}>
         <CardHeader title="Not in this app yet" />
         <ul className="list-disc space-y-1.5 p-5 pl-10 text-sm text-muted sm:p-6 sm:pl-11">
-          <li>Creating a v2 account, granting an operator or swapping from your own wallet here. The contracts are deployed; this app has not sent a v2 transaction on testnet, so it offers none.</li>
-          <li>The ERC-4626 vault account. It is deployed on testnet with a mock vault, and is not integrated in this app.</li>
+          {ownerWrites ? <li>Swapping from your own wallet here. An operator swaps inside a grant; the owner flows above create the account and the grant.</li> : <li>Creating a v2 account, granting an operator or swapping from your own wallet here. The contracts are deployed, and the deployment's own switch for this app is off on testnet, so it offers none. The exact grant transaction of the swap strategy can be reviewed on Strategies.</li>}
+          {ownerWrites && V2_OWNER_TARGET?.vault ? null : <li>The ERC-4626 vault account. It is deployed on testnet with a mock vault, and is switched off for this app there.</li>}
           <li>Quotes from OKX Onchain OS. None is shown anywhere in this app until the provider answers; the figures on this page come from the testnet venue's mock price source.</li>
         </ul>
       </Card>
