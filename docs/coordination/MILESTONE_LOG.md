@@ -1392,3 +1392,40 @@ verification: ["npm --prefix packages/strategy-sdk run check passed strict TypeS
 frontend_actions: ["Use packages/strategy-sdk/index.ts, README.md and the two templates at packages/strategy-sdk/templates/debt-protection-v1.json and restricted-swap-v2.json. Render imported instructions as untrusted plain text. Review existing grants and any account-wide trigger before supplying the matching reviewId acknowledgement. Adoption uses the connected owner's own wallet; importing a template grants no authority.", "These two templates use the base M4 lending and base v2 mock swap profiles, with valueless test assets and the development reference processor. The judge kit has separate accounts, venues and circuits.", "Claude owns the root workspace metadata and checkpoint. If consuming by npm name, include the new private workspace in the root lockfile and verify npm ci. Source imports are available for immediate integration."]
 next_dependency: "Fable can integrate both templates now. A2 may finish the single fork-only LP rehearsal. A4 introduced no financial contract or deployment."
 ```
+
+```yaml
+milestone: M8-lp-lifecycle-fork
+from: astra
+status: fork_verified
+chain_id: 31337
+specialists: ["A2 implemented and rehearsed the Uniswap v3 NFT lifecycle after the D23 handoff", "Astra independently checked the receipts, fee/principal amounts and chain-admission tests", "A1 native/OKX, A4 strategies, A5 judge and A6 security worked separately"]
+manifest: evidence/session7-lp/fork.json
+verification: ["Private fork of 196 block 76931173. The pinned position manager minted NFT 88713 to the account using 81.809388 USDC and 1.000999980035771246 WOKB. Mint used 565759 gas. Both token approvals were zero afterward.", "An independent fork trader swapped 10 WOKB through the genuine pool. Before reducing liquidity, collect delivered 5415238405219 WOKB base units to the account, using 183933 gas. Full removal collected 80.623639 USDC and 1.015433395465150036 WOKB of principal and burned the NFT using 280120 gas.", "18 fork transactions included four deliberate reverts. Post-withdraw idle balances were zero. Two additional chain/venue admission tests passed. All hashes, state reads, minimums and manager events are in the evidence."]
+frontend_actions: ["Keep the LP capability disabled for public deployments and the December 2 cut line. This is a historical, owner-only fork prototype. The demo has no operator grant, execution circuit, automatic rebalancing or UI integration. The observed fees supply no APR estimate."]
+next_dependency: "Any proposed public LP profile requires a separate scope decision, policy and custody review, oracle assumptions and verified UI/contract deployment. See docs/LP_LIFECYCLE.md."
+```
+
+```yaml
+milestone: M8-judge-adoption-rehearsal
+from: astra
+status: implemented
+chain_id: 1952 (private fork only)
+specialists: ["A5 exercised independent wallet adoption, idempotency and teardown", "Astra provided the Studio browser runner, checked the exact factory receipt and verified port shutdown", "A1 native, A2 size/LP, A4 strategy SDK and A6 security"]
+manifest: evidence/session7-judge/scripted-adoption.json
+verification: ["An independent scripted wallet signed program deployment, policy registration and MarketFactory.createMarket. Receipt 0xfe6d20446c688ab60824feefa826a842682c37d9c9c6d8923dd9bc19a80fd074 at fork block 47252210 created controller 0xfa1b92bdA3eDE700a38917238749D1d47990A1C4 for the recorded owner. Setup adopted the exact receipt, verified 46 setup journal receipts, and preserved the three signer nonces and both ready grants on a repeat.", "Astra's Chromium and Firefox processes failed before page load. No browser receipt exists for this fork. Fable's earlier browser-wallet proof was on unforked 31337. The full scripted market → operator → denials → revoke → index rehearsal preceded the public setup."]
+frontend_actions: ["docs/JUDGE_DEMO.md gives the private-fork browser commands and the fixture owner. Label this adoption proof scripted. Both disposable judge forks are stopped; start a fresh fork before rerunning the browser driver."]
+next_dependency: "Real fork-browser evidence requires a host that can launch Playwright. The prepared public kit retains the repay and swap grants."
+```
+
+```yaml
+milestone: M8-session7-report
+from: astra
+status: implemented
+commit: 13fb686
+specialists: ["A1 native CPU 410 harness, witness proposal and offline OKX preparation", "A5 judge setup, fork operations, adoption and receipt verification", "A6 targeted security review and allowance candidate", "A2 factory size and fork-only LP lifecycle", "A4 D23 strategy SDK", "Astra integrated judge MCP, activity, review and evidence; Claude signed the public setup"]
+manifest: docs/coordination/ASTRA_REPORT.md
+verification: ["Native rehearsal 23 parity vectors, 18 financial traces with zero dev-processor calls, 65 fork receipts. Public judge setup 49/49 receipts on both public RPCs, original source preflights green. Targeted review seven new checks including two 64-input fuzz properties and a 768-call invariant. Factory 180 bytes free, separated factory prototype 1198 bytes.", "D23 strict TypeScript and nine tests plus two read-only public plans passed. Offline OKX nine tests; authenticated data unavailable. M8-lp-lifecycle-fork is implemented with FORK-only evidence: 18 mined receipts, four expected reverts, two chain/venue tests. The public LP capability stays disabled."]
+frontend_actions: ["Use the judge guide, strategy SDK and source labels linked in Session 7. UI and screenshot acceptance is owned by Fable/Claude. Public grant expiry is Dec 3 16:50:32 UTC, so use a fresh campaign on demo day if needed."]
+known_limitations: ["Public D8(b) IDs and separate witness authorization are pending. The fork-browser host could not launch Chromium or Firefox; scripted adoption and the earlier local browser evidence are distinct. The security candidate is undeployed, the LP prototype is owner-only and OKX preparation contains synthetic data only."]
+next_dependency: "Claude can checkpoint remaining evidence, prototypes and report from the working tree. LP, OKX and future native witness claims stay scoped to their verified environments."
+```

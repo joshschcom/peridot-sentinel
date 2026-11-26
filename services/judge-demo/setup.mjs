@@ -142,12 +142,14 @@ export async function setup(s,adopt){
     console.error('Reconciled original campaign. Repay ready:',ready.repayReady,'swap ready:',ready.swapReady,'deployer wei:',String(ready.deployerWei))
     return manifestPath
   }
+  if(adopt) assert(s.state.steps['fund-judge']?.status==='success','Run fund before Studio so the judge and fresh policy baseline can be verified')
   await funding(s)
   const p=s.state.plan
   if(p.adoptedA!==undefined)assert.equal(adopt??null,p.adoptedA,'Restart with the original Studio decision')
+  // Validate the independently created market before fixing this campaign's choice or refreshing shared prices.
+  const browser=adopt?await acceptBrowserMarket(s,adopt,p.caps.A):null
   p.adoptedA=adopt??null;s.save()
   await refreshFeeds(s,sharedFeeds(),true)
-  const browser=adopt?await acceptBrowserMarket(s,adopt,p.caps.A):null
   const policies={A:browser?.policy??await marketPolicy(s,'A',p.caps.A),B:await marketPolicy(s,'B',p.caps.B),account:await accountPolicy(s)}
   const markets={A:await makeMarket(s,'A',policies.A,policies.account,browser?.receipt),B:await makeMarket(s,'B',policies.B,policies.account)}
   const v1=binding('SentinelAccount',markets.A.account)

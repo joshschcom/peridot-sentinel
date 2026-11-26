@@ -135,7 +135,20 @@ node services/judge-demo/verify.mjs fork judge-01
 node services/judge-activity/refresh.mjs fork judge-01
 ```
 
-The private 1952 fork rehearsal pinned upstream block **47,252,205**. Setup mined 49 transactions. A repeat submitted zero additional transactions and observed both grants ready. The independent generic MCP client then executed the three typed actions through stdio. Repayment used 224,693 gas, paid 2 mUSD and moved LTV from 4001 to 3876 bps. Swap used 262,198 gas and returned 19.99 jUSDC. The intentional unauthorized borrow used 48,786 gas and left the monitored state unchanged. The separate independent policy checks observed 5800 and 5200 bps. After revocation an idempotent setup observed both grants unavailable. The fork activity snapshot recorded 56 events from blocks 47,252,206–47,252,262. These transactions exist only on the disposable fork. [Fork manifest and journal](../deployments/session7/fork-c3ff76c553e75afa/judge-01/manifest.json) · [Stdio client results](../evidence/session7-judge/fork-mcp.json) · [Fork policy rejections](../deployments/session7/fork-c3ff76c553e75afa/judge-01/policy-denials.json)
+The private 1952 fork rehearsal pinned upstream block **47,252,205**. Setup mined 49 transactions. A repeat submitted zero additional transactions and observed both grants ready. The independent generic MCP client then executed the three typed actions through stdio. Repayment used 224,693 gas, paid 2 mUSD and moved LTV from 4001 to 3876 bps. Swap used 262,198 gas and returned 19.99 jUSDC. The intentional unauthorized borrow used 48,786 gas and left the monitored state unchanged. The separate independent policy checks observed 5800 and 5200 bps. After revocation an idempotent setup observed both grants unavailable. The fork activity snapshot recorded 56 events from blocks 47,252,206–47,252,262. These transactions exist only on the disposable fork. Its market creation used the scripted Studio transaction path. Earlier browser evidence covers the wizard on an unforked local Anvil instance. [Earlier browser Studio wallet evidence](../evidence/fable/local-e2e-first-full-studio-run.json) [Fork manifest and journal](../deployments/session7/fork-c3ff76c553e75afa/judge-01/manifest.json) · [Stdio client results](../evidence/session7-judge/fork-mcp.json) · [Fork policy rejections](../deployments/session7/fork-c3ff76c553e75afa/judge-01/policy-denials.json)
+
+For a browser-driven rehearsal, use a private Anvil on port 19750 and a 1952-target frontend on loopback. On a fresh fork, the following commands prepare a second disposable owner, exercise the actual Studio wizard and adopt the exact market from its receipt. The public address below is an impersonated fixture on the private fork. It needs no key. The default browser origin is `http://127.0.0.1:3220`. Supply another loopback origin through `JUDGE_BROWSER_ORIGIN` when needed. The runner requires a host that can launch Playwright Chromium. It checks an existing browser receipt before reuse and refuses to overwrite evidence from another fork instance. Use a clean checkout for an independent recording.
+
+```sh
+export JUDGE_OWNER=0xcde7e5989D66405234Cc0FAEFe5A2740795Ce824
+node services/judge-demo/run.mjs fork fund studio-join
+PLAYWRIGHT_BROWSERS_PATH=0 node evidence/session7-browser/studio-fork.mjs
+studio_tx=$(node -p "require('./evidence/session7-browser/creation.json').transactions.at(-1).hash")
+node services/judge-demo/run.mjs fork setup studio-join --adopt-market="$studio_tx"
+node services/judge-demo/verify.mjs fork studio-join
+```
+
+Use `studio-join` in the operator, rejection, revocation and activity commands for this walkthrough. Check the actual `MarketCreated` event and the screenshot in `evidence/session7-browser` before attributing the transaction to the browser.
 
 ### Prepared public campaign
 
@@ -165,3 +178,5 @@ The deployer sent **0.006 test OKB** to the judge in `0x808fb23d88fbca6bc4d98254
 The keyless verifier independently matched all 49 public setup intents and receipts on `testrpc.xlayer.tech` and `xlayertestrpc.okx.com`. It verified new circuit and policy identities against the initial funding block, checked all eleven v2 runtime hashes, and observed both grants ready at block **47,253,353**. [Two-host verification and balances](../deployments/session7/1952/judge-01/verified.json)
 
 The first public campaign activity snapshot contains 47 emitted events from blocks **47,252,767–47,253,214**. At that refresh the last 12 blocks awaited confirmation. Later scans can extend the range independently of the historical setup manifest. [Public campaign activity snapshot](../deployments/session7/1952/judge-01/activity.json)
+
+A second private fork verified the *adoption* branch with an independent **scripted wallet**. Three signed transactions published the MARKET template and created market A. The setup adopted the pre-existing creation receipt `0xfe6d20446c688ab60824feefa826a842682c37d9c9c6d8923dd9bc19a80fd074` and reused its exact controller and judge owner. It completed 46 setup transactions; repeating the same adoption left all three signer nonces unchanged. The keyless verifier confirmed both grants were ready. To replay this regression, start a separate private Anvil on port 19752 with the same upstream block and chain ID as the fork command above, then run `node evidence/session7-judge/rehearse-adoption.mjs`. [Scripted wallet receipts and final readback](../evidence/session7-judge/scripted-adoption.json)

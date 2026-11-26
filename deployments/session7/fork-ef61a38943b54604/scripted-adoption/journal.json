@@ -1,0 +1,867 @@
+{
+  "schemaVersion": 1,
+  "chainId": 1952,
+  "campaign": "scripted-adoption",
+  "profile": "private-testnet-fork",
+  "actors": {
+    "deployer": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+    "owner": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+    "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88"
+  },
+  "steps": {
+    "fund-judge": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "dataHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+        "value": "6000000000000000",
+        "expected": "success"
+      },
+      "nonce": 80,
+      "gasLimit": "58000",
+      "gasPrice": "40000001",
+      "hash": "0xe9537f3a57486a582ca5d2e04924b0f62c4f1e88deac61654ec859a690cf7a6d",
+      "blockNumber": "47252206",
+      "blockHash": "0xbcba503a753ebeb1e30ed53a87a21d2a6421b1bfd9a8210539c481a52418f829",
+      "gasUsed": "21000",
+      "status": "success"
+    },
+    "fund-operator": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+        "dataHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+        "value": "100000000000000",
+        "expected": "success"
+      },
+      "nonce": 81,
+      "gasLimit": "58000",
+      "gasPrice": "35002369",
+      "hash": "0x6477f9ea58ee5c612bc1a8319c6c435934b2f0574a500e9945544c15046a6401",
+      "blockNumber": "47252207",
+      "blockHash": "0x4f6625f2e00cd63c0cf57d73f029f37fb8f9b74d3e415dfb60777dcfee6e0fff",
+      "gasUsed": "21000",
+      "status": "success"
+    },
+    "initial-price-mCOL": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x2257293155CF9a52590BA289E599F9Adf297ac57",
+        "dataHash": "0xd5bcb588bd0fcf0d0b166088d1c70d97f6911e7ca6c99478496ef0d99659505a",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 82,
+      "gasLimit": "68654",
+      "gasPrice": "20539509",
+      "hash": "0xa52624a4eee4b0e4f26cde5631b54285d99697a8a867454655f6b561886c2992",
+      "blockNumber": "47252211",
+      "blockHash": "0x70fc0bbaff58eebe18da6f5bee4b1dad6971e8eb70e30212d7d97981410b6c90",
+      "gasUsed": "28990",
+      "status": "success"
+    },
+    "initial-price-mUSD": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x2257293155CF9a52590BA289E599F9Adf297ac57",
+        "dataHash": "0x054980181e47858baa1c28539fc6823df8702ec03c003bf44b15f49de36a9081",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 83,
+      "gasLimit": "68670",
+      "gasPrice": "18048201",
+      "hash": "0x636e37d52552e3a871a0a188d502f09d9e5a3e146b57cf681e4ec7bad4aebe50",
+      "blockNumber": "47252212",
+      "blockHash": "0x44fe1267e44058a8c5ee56affc52f3786c4ca3e21fdf3be5dbe5d066f24b9004",
+      "gasUsed": "29002",
+      "status": "success"
+    },
+    "studio-circuit-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+        "dataHash": "0x37c2c0d2e3a2156da842399d0873c081d11afc2b7a361d82f9277aa7574b09e6",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 3,
+      "gasLimit": "586686",
+      "gasPrice": "15792799",
+      "hash": "0xde17e874ef7e9343fab3f7f473c061511a8981d46bd781ad2cacc1742a53a4a6",
+      "blockNumber": "47252213",
+      "blockHash": "0x8d4f7e9336d7bfaabc512cb8efaf95d774a7259ba143c1a8234229c2e637f77e",
+      "gasUsed": "417514",
+      "status": "success"
+    },
+    "studio-register-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+        "dataHash": "0x6fc4c18a544a26b192edd554f88ca4cd88b5c352d21a5a74e2f2f5e57ad3b3b2",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 4,
+      "gasLimit": "456310",
+      "gasPrice": "13819245",
+      "hash": "0x8fc5d179e8431f7732518e114120317a2faf89c057cde8fd3883558d454197c3",
+      "blockNumber": "47252214",
+      "blockHash": "0x72719cea626d3329a7f077094abe268cba297f772f17103efd667ff88144d470",
+      "gasUsed": "319732",
+      "status": "success"
+    },
+    "account-circuit": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+        "dataHash": "0xd8e9265f52f6bce202f1abc5ac4a2f50f8e28f709232771904bbbd225743a78d",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 84,
+      "gasLimit": "791088",
+      "gasPrice": "12098709",
+      "hash": "0x1aa357f0361eabc608baaa4d8a74a01ff2923ea4f741ed0db8a00564dfbeb869",
+      "blockNumber": "47252215",
+      "blockHash": "0x784bfd1e3084d4c71a9bcd1430b0a78e0ff72fc02400551974c2adfc110a9cec",
+      "gasUsed": "570816",
+      "status": "success"
+    },
+    "register-account": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+        "dataHash": "0x39437b04554c77f5aef064351bf83c75faa7696f67a39b2127069a697b0c1738",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 85,
+      "gasLimit": "438690",
+      "gasPrice": "10590977",
+      "hash": "0x8bc5c10eb6576ba0f246b92ccfedbaa62992756b6ac607a2f15d23955271ec6b",
+      "blockNumber": "47252216",
+      "blockHash": "0x7eb300d9556640e01d597890f1c10b68b7fd697f43a024dd18722266f39de26c",
+      "gasUsed": "306517",
+      "status": "success"
+    },
+    "liquidity-A": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+        "dataHash": "0xec5bc2b52d523e07d6ef41b3e49c6a5c20ffa0774628ec6d1a591dd002e07e22",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 5,
+      "gasLimit": "97967",
+      "gasPrice": "9274303",
+      "hash": "0x73d41d5ccd00269cd8d078ac63685c87b7ef00cc1dec8b5c63feeb893742686d",
+      "blockNumber": "47252217",
+      "blockHash": "0x98acb64105e116fc31e86b3bd01cf127d4dc6771caf24eebc3fbb0a456aa4c53",
+      "gasUsed": "50975",
+      "status": "success"
+    },
+    "approve-A": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+        "dataHash": "0x8e4ca3f37da93e7bd029ec6302ddf4f648336e44ca9c667306e23f3e61785034",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 6,
+      "gasLimit": "91235",
+      "gasPrice": "8118401",
+      "hash": "0x39587274bff53e447a29d9c7f45a0475669727557244d74136b92e5222ed7b97",
+      "blockNumber": "47252218",
+      "blockHash": "0x4989ab6277ffca48f71c6670591a78968f67da82b450e2d1830b2e34a7024ba2",
+      "gasUsed": "45926",
+      "status": "success"
+    },
+    "seed-A": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+        "dataHash": "0xa34297ee25f02969e36f719a288f4d5dddb4e2c98e0d911aa9eb57e90a1de634",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 7,
+      "gasLimit": "483604",
+      "gasPrice": "7104095",
+      "hash": "0x9c127952a35f1f76c20c7d6756da7d1713f9310771977b00b1fb53fb0d31fab0",
+      "blockNumber": "47252219",
+      "blockHash": "0x9b94ad452394120263e319fc74f348dcc0c23dec9efd7ad6b20b70f9b75b9ada",
+      "gasUsed": "320726",
+      "status": "success"
+    },
+    "activate-A": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+        "dataHash": "0x9ef182407859a0d69d767743771a7b2baed48ff5135788fe3c1e15d4fa792406",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 8,
+      "gasLimit": "155127",
+      "gasPrice": "6216473",
+      "hash": "0x2c46088ecb6f2442deb7f2ed6a618436d071f1f444ed2a55f4ef28a4ec7d2ef0",
+      "blockNumber": "47252220",
+      "blockHash": "0x9dcd6f3ff5c989de0cc04a1902d901351c6bc535fd2da8cd86cb72261b13d2fe",
+      "gasUsed": "93845",
+      "status": "success"
+    },
+    "create-v1-A": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x37157221a5fA97d3f3EC1AA2375032d578Db182f",
+        "dataHash": "0xeeceb45255b80660edef7bfaa74b63e6ab907d18eeb5da796089f4ef390361c5",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 9,
+      "gasLimit": "2310223",
+      "gasPrice": "5441789",
+      "hash": "0x9b7110da680327f964e7b21719b06da00b4b9d02d1c10a336f9a50a37c985c19",
+      "blockNumber": "47252221",
+      "blockHash": "0x483046f68e4731716c63fd254684105997292dc45dc298db6ac7dd54bfa803fd",
+      "gasUsed": "1706932",
+      "status": "success"
+    },
+    "collateral-A": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xe1dA369f92596c3c10c353E200c05343C9F19c92",
+        "dataHash": "0x317f1aeab88919b3947a8f6f8d41f0b7772cb1df7b777938459c13c9b699cac2",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 10,
+      "gasLimit": "98031",
+      "gasPrice": "4762175",
+      "hash": "0xa31f9ef6cb9ad8b003776c25108509381f5ea8c2ef82c978888784715e88d67c",
+      "blockNumber": "47252222",
+      "blockHash": "0xb747b1c98326f26c6468ceb3ba927827c98440ad8af124b560dc5ced56c24112",
+      "gasUsed": "51023",
+      "status": "success"
+    },
+    "enter-A": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "dataHash": "0x486a0eafbd99e69978929172de5b0a0e9665981533601bf18db1ee0c33e6e7ff",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 11,
+      "gasLimit": "98075",
+      "gasPrice": "4176581",
+      "hash": "0xa71d3edfc7a749db6677c6e00f7ab9efaca7b88c5ec24adab8535c0d90ffb9ce",
+      "blockNumber": "47252223",
+      "blockHash": "0x43259b1d6a821c07cb9e68921af5445935c046d68f7b7088665c143fea420d40",
+      "gasUsed": "51056",
+      "status": "success"
+    },
+    "supply-A": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "dataHash": "0x8151434870ca7307bbc5f259c4e49d936f5d4ca42451414c4e8c9604300951a0",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 12,
+      "gasLimit": "680794",
+      "gasPrice": "3654763",
+      "hash": "0x626c1e414b68d092f1449dbec8217d9fca98eec4f58d6ef90e5359b5c4515288",
+      "blockNumber": "47252224",
+      "blockHash": "0x4614a369698c9720d2836cbb11a68e65e604162c839b64102f171726d504d46a",
+      "gasUsed": "455341",
+      "status": "success"
+    },
+    "studio-create-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xEB32e6bA03D8B92d6bB0d5283A59263a50674BC0",
+        "dataHash": "0x69d04274d7cf87ea06b521c7248d3fbaa01afdc355a658143b894bb45656912a",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 13,
+      "gasLimit": "4181280",
+      "gasPrice": "3198141",
+      "hash": "0x0686d309d91b1135e7f4090d809e2db9089a95b7e9631df03d911fc1e8055aff",
+      "blockNumber": "47252225",
+      "blockHash": "0x859a174f7a89111dea5917a3fc858586936256b08305baed48bf525020cda672",
+      "gasUsed": "3113460",
+      "status": "success"
+    },
+    "liquidity-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+        "dataHash": "0xec5bc2b52d523e07d6ef41b3e49c6a5c20ffa0774628ec6d1a591dd002e07e22",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 14,
+      "gasLimit": "97967",
+      "gasPrice": "2800109",
+      "hash": "0xf1477c95e0f5df710b1b3f4864c31646067bfd51c86b984eafc133851b24b715",
+      "blockNumber": "47252226",
+      "blockHash": "0xdde28193c563d6ffaf987cdab4f2feab4a03a85bd4626ae18090fe1569f0790d",
+      "gasUsed": "50975",
+      "status": "success"
+    },
+    "approve-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+        "dataHash": "0x0bc756e70c406d38590247cb573ef961137f8fb8b8f1b635b1763ac7686b9258",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 15,
+      "gasLimit": "91235",
+      "gasPrice": "2460475",
+      "hash": "0x5022c88b3106ad4d28fcd663a90baec6f1e2afcd635b90199952e85b282d65af",
+      "blockNumber": "47252227",
+      "blockHash": "0x4c470d6a37cfb65263ce376a99919e207f6a72fdfe4351bc0a2d03ae7a85ebc6",
+      "gasUsed": "45926",
+      "status": "success"
+    },
+    "seed-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+        "dataHash": "0xa34297ee25f02969e36f719a288f4d5dddb4e2c98e0d911aa9eb57e90a1de634",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 16,
+      "gasLimit": "483604",
+      "gasPrice": "2153067",
+      "hash": "0x6a3837c95376c1390809cbc6c57a0e4f0cd1bd1fafc9ff7d5749ef3daa1ad4dd",
+      "blockNumber": "47252228",
+      "blockHash": "0xf74ec5a8718af146221f4628995bfade1a55fcb6f416d9325ba28eccd0e77456",
+      "gasUsed": "320726",
+      "status": "success"
+    },
+    "activate-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+        "dataHash": "0x9ef182407859a0d69d767743771a7b2baed48ff5135788fe3c1e15d4fa792406",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 17,
+      "gasLimit": "155127",
+      "gasPrice": "1884053",
+      "hash": "0x437863c8f64c3ffeeecbc0620dc7240613006ad98c088bdfbfa6d0da30996afc",
+      "blockNumber": "47252229",
+      "blockHash": "0xa8a93349d3d738eaa97566fdbed62a0994228f327bf9d69a47802de3b957632f",
+      "gasUsed": "93845",
+      "status": "success"
+    },
+    "create-v1-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x37157221a5fA97d3f3EC1AA2375032d578Db182f",
+        "dataHash": "0x590fafe5d6767322b236f9d17e070f2ba585df661d36b663608dae1d3cd26b4a",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 18,
+      "gasLimit": "2310239",
+      "gasPrice": "1649267",
+      "hash": "0x1e11a98773dd5db618814672ab83ea2ae2ea253f958ae59943683ca29cc089ed",
+      "blockNumber": "47252230",
+      "blockHash": "0xb8c129fb13b2bbbd18387babea5e264c949a8014a097ca1d6efade7a2c2851a5",
+      "gasUsed": "1706944",
+      "status": "success"
+    },
+    "collateral-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xe1dA369f92596c3c10c353E200c05343C9F19c92",
+        "dataHash": "0xcbd784770631ac1223299d9e9b5fbe19c658f32d5c6c6b40299ba4b41d43b48f",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 19,
+      "gasLimit": "98031",
+      "gasPrice": "1443295",
+      "hash": "0x91de514db75b554c8432e84ad81d3a8fad55dbcb61b5afb66f4e9252620373b0",
+      "blockNumber": "47252231",
+      "blockHash": "0x4e588d3a04764a44c2c436d851431464e7a2b4a13d3036f1717381121a08ecde",
+      "gasUsed": "51023",
+      "status": "success"
+    },
+    "enter-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+        "dataHash": "0x486a0eafbd99e69978929172de5b0a0e9665981533601bf18db1ee0c33e6e7ff",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 20,
+      "gasLimit": "98075",
+      "gasPrice": "1265817",
+      "hash": "0xdd836f95f382a11f3692f90c38e3ac78e307eeb7df530bc45609dae7b1406b68",
+      "blockNumber": "47252232",
+      "blockHash": "0x1d71215667b31726410c5065099f6a62b477c007ff3c5e9a4058a5d9aefce8cb",
+      "gasUsed": "51056",
+      "status": "success"
+    },
+    "supply-B": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+        "dataHash": "0x8151434870ca7307bbc5f259c4e49d936f5d4ca42451414c4e8c9604300951a0",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 21,
+      "gasLimit": "680794",
+      "gasPrice": "1107667",
+      "hash": "0x62f27c96b483e405658fbe450385352f84e26714b4d5e93419fe931359195de4",
+      "blockNumber": "47252233",
+      "blockHash": "0x31f3010be0d97d20a120bf6f18c3fe7e7446a95a53a4fac2587892e10194524e",
+      "gasUsed": "455341",
+      "status": "success"
+    },
+    "borrow-A": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "dataHash": "0xbbc828e3b09a83755a91f44743e5c618e32f2ae4a944802132c8e6f6449119d5",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 22,
+      "gasLimit": "755222",
+      "gasPrice": "969277",
+      "hash": "0xeece0bce44b9da1cc0616e03b3b0d5cbe19fead684d969d62fe88ee49159083a",
+      "blockNumber": "47252234",
+      "blockHash": "0xc44b30fdae305da9c2e2592eef30b94f1c4429b0786bff7e5906bbd8e477ee01",
+      "gasUsed": "530639",
+      "status": "success"
+    },
+    "trigger": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "dataHash": "0x363fb644629de46a4bbd4468a28667c223a3999e6beebde91c9ddc0c9e09b23a",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 23,
+      "gasLimit": "89660",
+      "gasPrice": "848643",
+      "hash": "0xb23d91b64e7db7d80fec855de9cb927594108e6b405d07b0150ba37fc8a362c0",
+      "blockNumber": "47252235",
+      "blockHash": "0xa99c54f7d8af4ada4dbadcae5c27eab783917eaeef3ddd67a2d88b0364522c20",
+      "gasUsed": "44745",
+      "status": "success"
+    },
+    "repay-only": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+        "dataHash": "0x1f5c977302d256af8bc9256fb445277b6d0944ce714ac280a3b017ee4f8b80c9",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 24,
+      "gasLimit": "151798",
+      "gasPrice": "743099",
+      "hash": "0xb7ec1ec28c11d96638df0a5d8962130998353d66337faacd8bb5978d66a40a5b",
+      "blockNumber": "47252236",
+      "blockHash": "0x3dcc11d8b74ec943bef87bb4dcf4f8f5fd404e22c4407eab9ca443d2eb9ebe5a",
+      "gasUsed": "91348",
+      "status": "success"
+    },
+    "deploy-mockWokb": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": null,
+        "dataHash": "0xeeb04229456af636669b9877cba99664deea10dcdd102929cbc1aec48771135d",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 86,
+      "gasLimit": "707206",
+      "gasPrice": "650253",
+      "hash": "0x852b76023676c1bb03185a42f7c3f992c01bfb3cf6461f59da15978b95aeb4b9",
+      "blockNumber": "47252237",
+      "blockHash": "0x3517b4cb40d6abd5b9845af1cd482e8941bd6817c11bdb5cf870345242b73076",
+      "gasUsed": "507904",
+      "status": "success"
+    },
+    "deploy-mockUsdc": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": null,
+        "dataHash": "0x38b430cd0463c168e44cc1fed1b72b17b44861771cc062b84b6bb4fd10bb5592",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 87,
+      "gasLimit": "707206",
+      "gasPrice": "569043",
+      "hash": "0x5cf31608f143aa13e480389b5b2a32e349fa2d4a122e79a20c66d97a71cb0833",
+      "blockNumber": "47252238",
+      "blockHash": "0x72ef73026a1b48996eb0eeeb2e572db9470023f289738ba0690db29ada7cb91d",
+      "gasUsed": "507904",
+      "status": "success"
+    },
+    "deploy-mockOracle": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": null,
+        "dataHash": "0x8fcecf250157bdb6a6ae1a2f0d19c0372bf1e36f79ff9c2c204298f6dda8c24d",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 88,
+      "gasLimit": "338423",
+      "gasPrice": "498257",
+      "hash": "0x01c52d0376526d7fa2bab025f41a1b126427aff518c498b4def48344f8c4ac08",
+      "blockNumber": "47252239",
+      "blockHash": "0xa16c91e4404892f8ef2a205ef6f53b39de392459aef6e6eaadb2cbf775b1be18",
+      "gasUsed": "231317",
+      "status": "success"
+    },
+    "initial-price-jWOKB": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x693704aeb2588b878bba6059eff26B6f3fdf9B68",
+        "dataHash": "0xe29d0cb92055b78f85b252824eb8828d4f589a13527c26a04b6a8450daae1dc4",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 89,
+      "gasLimit": "91486",
+      "gasPrice": "436277",
+      "hash": "0x1e01b7b8a5e548b8b3e83d5d5a64face683110b5c8032ccfa5ae2366016d05b5",
+      "blockNumber": "47252240",
+      "blockHash": "0x363bbaf461cc38d0bb2ab8006e1b43211787ca7ab9009da7ab9698065ee0c84d",
+      "gasUsed": "46114",
+      "status": "success"
+    },
+    "initial-price-jUSDC": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x693704aeb2588b878bba6059eff26B6f3fdf9B68",
+        "dataHash": "0xd9fee3db0b9958d8c4dee93a2a8b9d92b8a91571598f8f50905ae9a933996353",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 90,
+      "gasLimit": "91470",
+      "gasPrice": "381863",
+      "hash": "0xee54b99e4c541e166c01c92d03f0853a5a229f1110c7d6d228e0dd53dc21b34a",
+      "blockNumber": "47252241",
+      "blockHash": "0x637fd30fc8f2e41defd10da5df193b5581d5b81a24efb97cd6cbe385fc41cdbd",
+      "gasUsed": "46102",
+      "status": "success"
+    },
+    "deploy-cpu": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": null,
+        "dataHash": "0xdfd1f4085672516da89a992ea6cef6d358706c4980face4aa2debbbf94f55562",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 91,
+      "gasLimit": "851164",
+      "gasPrice": "334153",
+      "hash": "0x1d54c6abaf976e3837a941bfe60efca757d8ed4eca5b11e0f08eccb35f09d57e",
+      "blockNumber": "47252242",
+      "blockHash": "0x8003cfd2d4119ec36b265eb2dc53e10f637ddccf69a78295415d3be79b9eaec6",
+      "gasUsed": "615873",
+      "status": "success"
+    },
+    "execution-circuit": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x434761C2B806D5E19757909e91F61D22F392B527",
+        "dataHash": "0xce2b3aa6767f54a102bca6c96dd7f37d01b06c2f68c82649cfd13e27238c2df3",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 92,
+      "gasLimit": "551267",
+      "gasPrice": "292403",
+      "hash": "0x2a695173acf4691917c5c455434d636d2492f3ae6afe28c96c66a770fd6b09dc",
+      "blockNumber": "47252243",
+      "blockHash": "0xcd4760324679711d907b7cfabc842dfe846e8c84312fab4f729491f54186914b",
+      "gasUsed": "390950",
+      "status": "success"
+    },
+    "deploy-execution": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": null,
+        "dataHash": "0xfa237f61d62618bd6317f51cb171d5499f45a2dbaa584be7cdf752ddfe3e2665",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 93,
+      "gasLimit": "482922",
+      "gasPrice": "256069",
+      "hash": "0xbb875c87f1f6a5ae679e1adb248b15d451cff084309f53736a344b74a322b469",
+      "blockNumber": "47252244",
+      "blockHash": "0x31de5958c5d5bfa52591bd42ae292372d9ccf783aef5663ab7512e7efb9c102d",
+      "gasUsed": "339691",
+      "status": "success"
+    },
+    "deploy-source": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": null,
+        "dataHash": "0x769cc0ed5a348a24f85412c8c2a3d22f5550c1438a074d7f0136402683815295",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 94,
+      "gasLimit": "252171",
+      "gasPrice": "224181",
+      "hash": "0x6ca79e7b4b0d4c2c9ee1fc44fa3adac2591739dce8a501a28b54a2fe84ea1c77",
+      "blockNumber": "47252245",
+      "blockHash": "0x8315df2674b164149b516294f395c6fdb8f074c909446f17bff7e8b71f38d183",
+      "gasUsed": "166628",
+      "status": "success"
+    },
+    "deploy-venue": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": null,
+        "dataHash": "0x2d7fa189ccf4f6c495627989644729273be19444f68d95ab60c9624a5291e107",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 95,
+      "gasLimit": "865678",
+      "gasPrice": "196251",
+      "hash": "0x1535343ae12802d78710b64510f7d01c44ba0669143c025f159bd7b7ebfcd21b",
+      "blockNumber": "47252246",
+      "blockHash": "0x57c42982dda54d1d8c7de7ec10acfa1d8df2a2b63c83dd7a2856a81c26ae5b8b",
+      "gasUsed": "626758",
+      "status": "success"
+    },
+    "jWOKB-inventory": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x8EcDe41881EFa0730FCDCEb7cb0474F017422d0B",
+        "dataHash": "0x52fc8ce0ff0268e6e4ebe0d2bb7da1ff652eb884791d40f8d07c9902d5822ba4",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 96,
+      "gasLimit": "120815",
+      "gasPrice": "171759",
+      "hash": "0x7879508fc947980115bf10c74fdbda6d7c4bc5cebbe2d5676b315de100b6db40",
+      "blockNumber": "47252247",
+      "blockHash": "0xa77f2a35422e388387d2ac7783a750b92426b5a0986ab16b85825c52b2cc417e",
+      "gasUsed": "68111",
+      "status": "success"
+    },
+    "jUSDC-inventory": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x9667a471EE368Bf1d953fb9a6C762244C86cDA96",
+        "dataHash": "0xf7cbeabbc2069c135248813039f229a7dae909e968581bbfcbde063ed9eb758e",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 97,
+      "gasLimit": "120767",
+      "gasPrice": "150419",
+      "hash": "0xf87b6990d1b631661894f75f1a8506b6784522ec3a5c920f39d83f34766dd8da",
+      "blockNumber": "47252248",
+      "blockHash": "0x8e45b3c89d2ee8c507d7fa00882cc8306406552b75932d58f8930bdb04fe207f",
+      "gasUsed": "68075",
+      "status": "success"
+    },
+    "deploy-swap": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": null,
+        "dataHash": "0x1dbbcbfe27ec7d7a985193b9efac4bf479d08ea4fcca6969996843029e7246d2",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 98,
+      "gasLimit": "1367404",
+      "gasPrice": "131629",
+      "hash": "0x508cdd601558e16ff16297dcc475ce4b24eb48b9f144bf0c078461aee9da1699",
+      "blockNumber": "47252249",
+      "blockHash": "0xe64b4c3f57bcc8d2aca781d575e0e3a4fa149a997a59562b13b3c924d1490c17",
+      "gasUsed": "1003053",
+      "status": "success"
+    },
+    "deploy-lending": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": null,
+        "dataHash": "0xc31ae88ff03c2c64a9a69c24a006b6a29d4438106b10559a73349777ce8fe8b4",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 99,
+      "gasLimit": "608200",
+      "gasPrice": "115187",
+      "hash": "0x6adfe3e7675c9cf40b0dc6732a5ce80e70188a8b4112ce65fdf7975371c64ec6",
+      "blockNumber": "47252250",
+      "blockHash": "0x58a3253a1da7cb01f869f2bbdd2a3b648bbeba82e43a96c827442935fbe1878e",
+      "gasUsed": "433650",
+      "status": "success"
+    },
+    "deploy-factory": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": null,
+        "dataHash": "0x3304378eb7d6baf37f87df5823b01e98cb3d0957da1fd057f5487dbfcb0b9243",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 100,
+      "gasLimit": "5226644",
+      "gasPrice": "100927",
+      "hash": "0x4439569ac718f629f87525d11da551d53192da76a1a731d6b5d0c21e2f89737e",
+      "blockNumber": "47252251",
+      "blockHash": "0xfc4125799744d83bb7d8d1aeffdb652f43ed7f2cb82cb02c94bbc5a5dbd91e10",
+      "gasUsed": "3897483",
+      "status": "success"
+    },
+    "create-v2": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0xAE4BDFE0eda9cD5257FD4b88489D320cbCF2b29E",
+        "dataHash": "0x3a0670ec3c46f697a104f45caabd78fce6e5b4bb62a4aa3a41b45d99c90fef27",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 25,
+      "gasLimit": "4132091",
+      "gasPrice": "88365",
+      "hash": "0xe571e5b4419c97abaaf015ec0b0bbcac619c672958ac7fffe66c3b4a373015a7",
+      "blockNumber": "47252252",
+      "blockHash": "0x14bcb6494a91c66f7aef918fdcd6c654bcdc489fab8cea2e423f04f99b4bd320",
+      "gasUsed": "3051713",
+      "status": "success"
+    },
+    "jWOKB-account": {
+      "intent": {
+        "role": "deployer",
+        "account": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "to": "0x8EcDe41881EFa0730FCDCEb7cb0474F017422d0B",
+        "dataHash": "0x22660832ccf85516faef538a2d329ee08f621c03dd4fe0e73db1877822b3f321",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 101,
+      "gasLimit": "98015",
+      "gasPrice": "77731",
+      "hash": "0xdb347018d9a7c71aa643f0724b11012634f1f51a9b9b776d975d877336f47e45",
+      "blockNumber": "47252253",
+      "blockHash": "0x64da78ea50f00b0d5c356d8f66fe756c0d7480c97dfab8400d962abc5b3f5ef3",
+      "gasUsed": "51011",
+      "status": "success"
+    },
+    "swap-only": {
+      "intent": {
+        "role": "owner",
+        "account": "0xBcC2656A8d8B2ABF9734C01EfC94EcB28B1F81Af",
+        "to": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+        "dataHash": "0x8f889bdf2e6ed4fed1b66fa343005fe88e667da881775394d559c3adc89278be",
+        "value": "0",
+        "expected": "success"
+      },
+      "nonce": 26,
+      "gasLimit": "250814",
+      "gasPrice": "68299",
+      "hash": "0x1cdff9203c9f3f8d302910bf900c836c7e72f16a9d0fcb6a8989380c1cde6275",
+      "blockNumber": "47252254",
+      "blockHash": "0x297b494a4f6740d6708b61fe08345b847b4366d6c65045376c5b0fbc1b55a293",
+      "gasUsed": "165610",
+      "status": "success"
+    }
+  },
+  "plan": {
+    "funding": {
+      "blockNumber": "47252205",
+      "blockHash": "0x96ff48cf2c22f744dd9873f614d86781e34510f592192d65ec4aaf4670838b52",
+      "balances": {
+        "deployer": "198897101304855068",
+        "owner": "0",
+        "operator": "199979643798982190"
+      },
+      "judgeValue": "6000000000000000",
+      "operatorValue": "100000000000000",
+      "gasPriceWei": "40000001",
+      "minimumDeployerBalanceWei": "6740000016000000"
+    },
+    "caps": {
+      "A": 6350,
+      "B": 4850
+    },
+    "adoptedA": "0xfe6d20446c688ab60824feefa826a842682c37d9c9c6d8923dd9bc19a80fd074",
+    "initial-price-mCOL": "1600000000000000000",
+    "initial-price-mUSD": "1000000000000000000",
+    "borrow": "64000000",
+    "expiry": "1796315953",
+    "initial-price-jWOKB": "80000000000000000000",
+    "initial-price-jUSDC": "1000000000000000000"
+  }
+}

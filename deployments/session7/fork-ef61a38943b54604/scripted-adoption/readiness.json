@@ -1,0 +1,40 @@
+{
+  "campaign": "scripted-adoption",
+  "profile": "private-testnet-fork",
+  "blockNumber": "47252254",
+  "blockHash": "0x297b494a4f6740d6708b61fe08345b847b4366d6c65045376c5b0fbc1b55a293",
+  "repayReady": true,
+  "swapReady": true,
+  "current": {
+    "swapGrant": [
+      "1000000000000000000",
+      "2000000000000000000",
+      "1796315953"
+    ],
+    "borrowGrant": [
+      "0",
+      "0",
+      "0"
+    ],
+    "repayGrant": [
+      8,
+      "2000000",
+      "1796315953"
+    ],
+    "idleIn": "3000000000000000000",
+    "idleOut": "0",
+    "operatorOut": "0",
+    "books": [
+      "0",
+      "0"
+    ],
+    "allowance": "0",
+    "venueAllowance": "0",
+    "v1Debt": "64000000",
+    "v1Funds": "64000000",
+    "v1Allowance": "0"
+  },
+  "ownerWei": "5864022318213389",
+  "operatorWei": "200079643798982190",
+  "deployerWei": "192782313967491079"
+}

@@ -14,7 +14,11 @@ export const wad=10n**18n, usd=10n**6n
 export const base=readJson('packages/chain-config/deployments/1952.json')
 export const expansion=readJson('packages/chain-config/expansion/deployments/1952.json')
 export const fixtureJudge=privateKeyToAccount(keccak256(toHex('Peridot Session 7 fork-only judge'))).address
-export const localRpc='http://127.0.0.1:19750'
+export const adoptionFixture=privateKeyToAccount(keccak256(toHex('Peridot judge adoption rehearsal, disposable private-fork signer'))).address
+// The normal rehearsal and optional Studio-adoption regression have dedicated loopback ports.
+const forkPort=process.env.JUDGE_FORK_PORT??'19750'
+assert(['19750','19752'].includes(forkPort),'Use one of the dedicated judge fork ports')
+export const localRpc='http://127.0.0.1:'+forkPort
 const registryOwner=getAddress(deployer)
 const d9=getAddress(operator)
 const maxGasPrice=1_000_000_000n
@@ -40,7 +44,7 @@ export async function open(mode,campaign,phase) {
   assert(['fork','testnet'].includes(mode) && /^[a-z][a-z0-9-]{0,39}$/.test(campaign),'Use fork|testnet and a simple campaign name')
   const live=mode==='testnet'
   const owner=getAddress(live?process.env.JUDGE_OWNER:process.env.JUDGE_OWNER??fixtureJudge)
-  assert(owner!==registryOwner && owner!==d9 && BigInt(owner)!==0n && (!live || owner!==fixtureJudge),'Supply a distinct fresh judge address')
+  assert(owner!==registryOwner && owner!==d9 && BigInt(owner)!==0n && (!live || (owner!==fixtureJudge && owner!==adoptionFixture)),'Supply a distinct fresh judge address')
   const actors={deployer:registryOwner,owner,operator:d9}
   if(live){
     const roles={fund:['deployer'],setup:['deployer','owner'],refresh:['deployer'],'policy-denials':['owner'],revoke:['owner'],verify:[],swap:['operator'],repay:['operator'],'deny-operator':['operator']}

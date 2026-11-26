@@ -1,0 +1,379 @@
+{
+  "label": "FORK only, private Anvil chain 31337. Amounts and fees observed on this historical fork. UI disabled.",
+  "upstream": {
+    "url": "https://rpc.xlayer.tech",
+    "chainId": 196,
+    "block": "76931173",
+    "hash": "0x10908ada4cb486c8d506ba492aca1927e47a5a51e56f19e444f06f46c3acb574"
+  },
+  "bindings": {
+    "manager": "0x315e413A11AB0df498eF83873012430ca36638Ae",
+    "factory": "0x4B2ab38DBF28D31D467aA8993f6c2585981D6804",
+    "pool": "0x9f73888Fb725A3409548BC8d2e42365AC063E148",
+    "router": "0x4f0C28f5926AFDA16bf2506D5D9e57Ea190f9bcA",
+    "usdc": "0xB6CEceAB302E2E4948951eE7843FC24E92933061",
+    "wokb": "0xe538905cf8410324e03A5A23C1c177a474D59b2b"
+  },
+  "official": "https://developers.uniswap.org/docs/protocols/v3/deployments/v3-xlayer-deployments",
+  "receipts": [
+    {
+      "label": "Deploy separate fork LP account",
+      "hash": "0xf7a313262ac6cec60fc7bff83742eb55165bdfe2fdfc30d981db551915064f81",
+      "status": "success",
+      "block": "76931174",
+      "blockHash": "0xb61fc07a82a93837f5f2e5780c18ffc6bc31adb877fe6bccf593ab0af4c50ede",
+      "gas": "1947414",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x663f3ad617193148711d28f5334ee4ed07016602"
+    },
+    {
+      "label": "Wrap owner fork OKB",
+      "hash": "0xf1abb8e300b17c57da18f8b405bfb2f9be66f0af88f85c41708a0479ac175307",
+      "status": "success",
+      "block": "76931175",
+      "blockHash": "0xea9a63a0c0a8e6cb4b2483ba3674dbd636ea645aae37b332bf601035980c993c",
+      "gas": "49054",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+      "created": null
+    },
+    {
+      "label": "Approve Acquire real USDC for owner on fork",
+      "hash": "0x0534caf0044cbefaf3171af573e1fe29de1257aef63ad05f341bbaed0258eb27",
+      "status": "success",
+      "block": "76931176",
+      "blockHash": "0x861b1f2e90c204e824ea00504725c3c059992287c66e68ed512b43b3c57fa4ae",
+      "gas": "46085",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+      "created": null
+    },
+    {
+      "label": "Acquire real USDC for owner on fork",
+      "hash": "0x1023c0deb22eacf91f3d7086348160c33cc1019a8954e9a8f2542362605274c4",
+      "status": "success",
+      "block": "76931177",
+      "blockHash": "0xbfc23e17d759cfb3833e2446a054c5558ce37cec3643fa26366a43d164f9bc79",
+      "gas": "140868",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x4f0c28f5926afda16bf2506d5d9e57ea190f9bca",
+      "created": null
+    },
+    {
+      "label": "Fund LP account with WOKB",
+      "hash": "0x2d84f4dc21c4ea57e7ec02d49e540b8ceb7c5158a808d0e596d5169fa9dbba13",
+      "status": "success",
+      "block": "76931178",
+      "blockHash": "0xb84c9d1befd101095098eddd87bcd313b8dc82dcc21dfc095288c323cbbf38ab",
+      "gas": "51627",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+      "created": null
+    },
+    {
+      "label": "Fund LP account with USDC",
+      "hash": "0xf3db503655c48319304ecbee8a2ec8e1bbeddc50e49b40dc101fea3ef0e3fae9",
+      "status": "success",
+      "block": "76931179",
+      "blockHash": "0xb05452990eef7fed9bf051fc0b7c5d323863d261cb2afdff50498903db5328cc",
+      "gas": "62171",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xb6ceceab302e2e4948951ee7843fc24e92933061",
+      "created": null
+    },
+    {
+      "label": "Mint one fixed range position",
+      "hash": "0x6364f97ec4575a9e24c45aed146666f2067263e55f61ca8deacdf97640770e95",
+      "status": "success",
+      "block": "76931180",
+      "blockHash": "0x0db8b879d3a0861f0d06a13b0d36e63b5263c4ce87fd676e7e2d1ccb2b753d4c",
+      "gas": "565759",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x663f3ad617193148711d28f5334ee4ed07016602",
+      "created": null
+    },
+    {
+      "label": "Second position rejected",
+      "hash": "0x9265b69d39365013bd70cd9fa5f23bcfb1d4edab9e0ee2c6d40b65bc2a8d9b8c",
+      "status": "reverted",
+      "block": "76931181",
+      "blockHash": "0x3041aa00dfeca41a6d479fbf5dc31e224faea7295af694555583ba0b55ebae83",
+      "gas": "46761",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x663f3ad617193148711d28f5334ee4ed07016602",
+      "created": null
+    },
+    {
+      "label": "Foreign caller rejected",
+      "hash": "0x6e53f510e3869242d9d1100845670f8e0eecb429dcc6ab0f3455450df3d9b652",
+      "status": "reverted",
+      "block": "76931182",
+      "blockHash": "0x1a5beb9d1f668095b026ccfe2ed02c92f035f11cca91c6819e7537cec3c464f5",
+      "gas": "21495",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x663f3ad617193148711d28f5334ee4ed07016602",
+      "created": null
+    },
+    {
+      "label": "Foreign withdrawal rejected",
+      "hash": "0x2e64af423676b33f9250d6c07e63c91474d8ce880cb930ea820a48784e7ba5f1",
+      "status": "reverted",
+      "block": "76931183",
+      "blockHash": "0x13add24814089c09105047031777a753f3181f0cb697a23807a3d768698d55f3",
+      "gas": "22430",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x663f3ad617193148711d28f5334ee4ed07016602",
+      "created": null
+    },
+    {
+      "label": "Zero removal floors rejected",
+      "hash": "0xb0bf564c94d654ea119460072b8e1d163c0f80d4a847c761e46116690c58fcc8",
+      "status": "reverted",
+      "block": "76931184",
+      "blockHash": "0x27314e12fc4db80a1a5daba91e838e9e9c9aef47b994928e22037ea9e4ddc8fd",
+      "gas": "98511",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x663f3ad617193148711d28f5334ee4ed07016602",
+      "created": null
+    },
+    {
+      "label": "Wrap independent trader fork OKB",
+      "hash": "0x2b985b94cfacb78f435bfcd29df481c3470158fc69196cecdc113016aeb3830f",
+      "status": "success",
+      "block": "76931185",
+      "blockHash": "0xbcc415fa1b30e2b77785fc9c4a4b65ef1aded28dd9f3bc03ea1b503742532040",
+      "gas": "49054",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+      "created": null
+    },
+    {
+      "label": "Approve Independent trader swaps through approved pool",
+      "hash": "0x61a926fc1a05a146a9c2333c637424e7ed6af33e4261c6e9977bf5ada6c6cdfb",
+      "status": "success",
+      "block": "76931186",
+      "blockHash": "0x55ac3c08075d726850ead5bad2d6d77246d6b14c74f12a4811f3946a2bb12a27",
+      "gas": "46085",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+      "created": null
+    },
+    {
+      "label": "Independent trader swaps through approved pool",
+      "hash": "0x5caca5b7468ddafcd0932fb7d660969c4a8eaf39cf0a8582615ad38591d943f8",
+      "status": "success",
+      "block": "76931187",
+      "blockHash": "0x538d6e07ad9458dba6ff80ad5a27eb3b8e6d0d48fe83deac4cbefc81174c7249",
+      "gas": "136058",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x4f0c28f5926afda16bf2506d5d9e57ea190f9bca",
+      "created": null
+    },
+    {
+      "label": "Collect trading fees before any liquidity removal",
+      "hash": "0x01dea5a97650596cc5a3284952bc73096ea9dd3fba6f025e38d6be7a7df7eaee",
+      "status": "success",
+      "block": "76931188",
+      "blockHash": "0xf35e3371665df186fb8917136371933bb551d4a720708eb3f19f8547e937879f",
+      "gas": "183933",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x663f3ad617193148711d28f5334ee4ed07016602",
+      "created": null
+    },
+    {
+      "label": "Remove full liquidity, collect principal and burn the NFT",
+      "hash": "0x6e5f25e6e2fe31b639b3a1f20684a0e50517963e914b21b7cab0853e6aedc78f",
+      "status": "success",
+      "block": "76931189",
+      "blockHash": "0x67b2a25f15652d34f7ec01625b6b437c8bd2e1c99c3a54ff280303cdaf2b0f86",
+      "gas": "280120",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x663f3ad617193148711d28f5334ee4ed07016602",
+      "created": null
+    },
+    {
+      "label": "Withdraw idle USDC to owner",
+      "hash": "0x19bd3e5504aa57a06aa10c237f71a054a8f3d1188d9116673e484ef5e5586c20",
+      "status": "success",
+      "block": "76931190",
+      "blockHash": "0xd824056aebe29a980f65b3a344307642656a2e079b3bc6b6f5f65cde49ef1e60",
+      "gas": "63415",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x663f3ad617193148711d28f5334ee4ed07016602",
+      "created": null
+    },
+    {
+      "label": "Withdraw idle WOKB to owner",
+      "hash": "0xfa0c99456f18e5dec2fd41f4182feccb398a3185e0a804706c6f2e0fb83a1bc1",
+      "status": "success",
+      "block": "76931191",
+      "blockHash": "0xf3674b86c239e48907643cd788b744279b02b5dc7d6bc52fc64bf10c37059c21",
+      "gas": "52851",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x663f3ad617193148711d28f5334ee4ed07016602",
+      "created": null
+    }
+  ],
+  "pinState": {
+    "managerFactory": "0x4B2ab38DBF28D31D467aA8993f6c2585981D6804",
+    "managerWrappedNative": "0xe538905cf8410324e03A5A23C1c177a474D59b2b",
+    "factoryPool": "0x9f73888Fb725A3409548BC8d2e42365AC063E148",
+    "poolTokens": [
+      "0xB6CEceAB302E2E4948951eE7843FC24E92933061",
+      "0xe538905cf8410324e03A5A23C1c177a474D59b2b"
+    ],
+    "fee": 500,
+    "tickSpacing": 10,
+    "decimals": [
+      6,
+      18
+    ],
+    "liquidity": "211740884568132709",
+    "sqrtPriceX96": "8738144691304111162071889682797446",
+    "tick": 232229,
+    "codeHashes": {
+      "manager": "0xd8339465f5c45afef4319fde20bb35cb5c5e17cf861c73b669d07ca615e3213c",
+      "factory": "0x98cde3564f540d7529feb2c697e2d79b85e3bc864d088ebe09fd5dcfc60a5c0e",
+      "pool": "0x0638025baf2d03329bad2146cc46a54850d42e665b400c64ae59f1637d82186d",
+      "router": "0x83ee2f04768ca84e762b139bf36844bf7efbd75b3c7cc898705169eacb9d5102",
+      "usdc": "0xa259d230afe44e97f1500ce5c06cd2e5bdafb129f25c104d8716470cb4fff0be",
+      "wokb": "0xde187307e119db7066ef4d8d154ba1617313e4c9a410c70378abe475cd2cffd2"
+    }
+  },
+  "actors": {
+    "owner": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    "trader": "0x90F79bf6EB2c4f870365E785982E1f101E93b906"
+  },
+  "account": "0x663F3ad617193148711d28f5334eE4Ed07016602",
+  "accountCreationCodeHash": "0x99bb3e497db9334b99256520882910428c910babf8109ef71a02ac4a6579c1ae",
+  "accountRuntimeHash": "0x862053da76b3881a215254d9bd2e43a663e2c23a5dd9616711b0d6ba7ef7ffce",
+  "bootstrapSwap": {
+    "sender": "0x4f0C28f5926AFDA16bf2506D5D9e57Ea190f9bcA",
+    "recipient": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    "amount0": "-246472799",
+    "amount1": "3000000000000000000",
+    "sqrtPriceX96": "8739266655282789919177990463124973",
+    "liquidity": "211740884568132709",
+    "tick": 232231,
+    "tx": "0x1023c0deb22eacf91f3d7086348160c33cc1019a8954e9a8f2542362605274c4"
+  },
+  "open": {
+    "positionId": "88713",
+    "tickLower": 231630,
+    "tickUpper": 232830,
+    "liquidity": "306209484647958",
+    "limits": {
+      "max0": "81809388",
+      "max1": "1001000000000000000",
+      "min0": "80991295",
+      "min1": "990990000000000000",
+      "deadline": "1795700509"
+    },
+    "tokenOwner": "0x663F3ad617193148711d28f5334eE4Ed07016602",
+    "managerEvent": {
+      "tokenId": "88713",
+      "liquidity": "306209484647958",
+      "amount0": "81809388",
+      "amount1": "1000999980035771246"
+    },
+    "accountEvent": {
+      "id": "88713",
+      "liquidity": "306209484647958",
+      "usdcIn": "81809388",
+      "wokbIn": "1000999980035771246"
+    },
+    "approvals": [
+      "0",
+      "0"
+    ]
+  },
+  "denials": [
+    {
+      "hash": "0x9265b69d39365013bd70cd9fa5f23bcfb1d4edab9e0ee2c6d40b65bc2a8d9b8c",
+      "error": "ClosedOrOccupied"
+    },
+    {
+      "hash": "0x6e53f510e3869242d9d1100845670f8e0eecb429dcc6ab0f3455450df3d9b652",
+      "error": "OwnerOnly"
+    },
+    {
+      "hash": "0x2e64af423676b33f9250d6c07e63c91474d8ce880cb930ea820a48784e7ba5f1",
+      "error": "OwnerOnly"
+    },
+    {
+      "hash": "0xb0bf564c94d654ea119460072b8e1d163c0f80d4a847c761e46116690c58fcc8",
+      "error": "Bounds"
+    }
+  ],
+  "feeGeneratingSwap": {
+    "sender": "0x4f0C28f5926AFDA16bf2506D5D9e57Ea190f9bcA",
+    "recipient": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    "amount0": "-821119640",
+    "amount1": "10000000000000000000",
+    "sqrtPriceX96": "8743001134587339896861983754853894",
+    "liquidity": "212047094052780667",
+    "tick": 232240,
+    "tx": "0x5caca5b7468ddafcd0932fb7d660969c4a8eaf39cf0a8582615ad38591d943f8"
+  },
+  "fees": {
+    "managerEvent": {
+      "tokenId": "88713",
+      "recipient": "0x663F3ad617193148711d28f5334eE4Ed07016602",
+      "amount0": "0",
+      "amount1": "5415238405219"
+    },
+    "accountEvent": {
+      "id": "88713",
+      "usdcFees": "0",
+      "wokbFees": "5415238405219"
+    },
+    "liquidityUnchanged": true
+  },
+  "close": {
+    "preview": [
+      "80623639",
+      "1015433395465150036"
+    ],
+    "managerDecrease": {
+      "tokenId": "88713",
+      "liquidity": "306209484647958",
+      "amount0": "80623639",
+      "amount1": "1015433395465150036"
+    },
+    "managerCollect": {
+      "tokenId": "88713",
+      "recipient": "0x663F3ad617193148711d28f5334eE4Ed07016602",
+      "amount0": "80623639",
+      "amount1": "1015433395465150036"
+    },
+    "nftBurn": {
+      "from": "0x663F3ad617193148711d28f5334eE4Ed07016602",
+      "to": "0x0000000000000000000000000000000000000000",
+      "tokenId": "88713"
+    },
+    "accountEvent": {
+      "id": "88713",
+      "usdcPrincipal": "80623639",
+      "wokbPrincipal": "1015433395465150036",
+      "usdcReceived": "80623639",
+      "wokbReceived": "1015433395465150036"
+    }
+  },
+  "withdrawals": [
+    {
+      "asset": "0xB6CEceAB302E2E4948951eE7843FC24E92933061",
+      "amount": "148814251",
+      "recipient": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "accountBalanceAfter": "0",
+      "allowanceAfter": "0"
+    },
+    {
+      "asset": "0xe538905cf8410324e03A5A23C1c177a474D59b2b",
+      "amount": "2014438830667784009",
+      "recipient": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "accountBalanceAfter": "0",
+      "allowanceAfter": "0"
+    }
+  ]
+}
