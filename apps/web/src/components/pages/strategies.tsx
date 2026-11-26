@@ -1,15 +1,18 @@
 "use client";
 /**
- * Automate: how software may act for a Sentinel account.
+ * Strategies (DECISIONS D23): what software may do for your accounts, and how you start and stop it. This page
+ * absorbed the former Automate page; /automate redirects here.
  *
- * Three modes, each labelled with what this build can actually do (DECISIONS D12, D13, D15):
- *   rule-based            LIVE. The auto-repay trigger and a repay-only operator, enforced by the account contract.
- *   bring your own agent  Sentinel Connect (MCP). Shown as "In development" until the MCP flow is verified on testnet.
+ *   active     the authorisations your accounts hold right now, read from the chain;
+ *   create     adopt a template through the strategy SDK: review the exact owner transactions, then sign them;
+ *   import     untrusted JSON, validated by the SDK, displayed as plain text, never an authority;
+ *   stop       per-grant revocation (in the review card) and the account-wide emergency stop;
+ *   rules      the same v1 settings field by field (trigger, operator, budget, expiry).
+ *
+ * Three execution modes, each labelled with what this build can actually do (DECISIONS D12, D13, D15, D23):
+ *   rule-based            the auto-repay trigger and a repay-only operator, enforced by the account contract;
+ *   bring your own agent  Sentinel Connect (MCP): agent-directed, on testnet, only while the recorded run is in the build;
  *   Peridot-hosted AI     PLANNED. No hosted model runs anywhere in this build.
- *
- * The strategy form only has live inputs for fields the v1 account contract stores: permission mask, cumulative
- * budget, expiry and the trigger. Everything else is listed as planned and has no input that could be mistaken
- * for a setting.
  */
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -18,6 +21,9 @@ import { LogCoverageText, coverageRanges } from "@/components/domain/log-coverag
 import { marketTitle, tokenAmount } from "@/components/domain/market-bits";
 import { SourceTag } from "@/components/domain/policy-card";
 import { TxFeedback } from "@/components/domain/tx-feedback";
+import { ActiveStrategies } from "./strategy-active";
+import { StrategyBuilder } from "./strategy-builder";
+import { V2EmergencyStop } from "./v2-stop";
 import { Badge, Button, ButtonLink, Card, CardHeader, EmptyState, ExampleTag, Mono, PageHeader, Skeleton, type Tone } from "@/components/ui/core";
 import { IconAlert, IconBot, IconConnect, IconLock, IconShield } from "@/components/ui/icons";
 import { useChainTx } from "@/hooks/use-chain-tx";
@@ -25,7 +31,7 @@ import { useAccounts, useMarket, useMarkets } from "@/hooks/use-data";
 import { useWriteGate } from "@/hooks/use-wallet";
 import { formatAmount, formatBps } from "@/lib/amount";
 import { AVAILABILITY_LABEL, type Availability } from "@/lib/brand";
-import { WRITE_CHAIN_ID, explorerTxUrl } from "@/lib/chains";
+import { TARGET_KIND, WRITE_CHAIN_ID, explorerTxUrl } from "@/lib/chains";
 import { CONNECT, CONNECT_STATUS_LABEL, connectVerified } from "@/lib/connect";
 import { formatDay, shortAddress, shortHash } from "@/lib/format";
 import { Op } from "@/lib/policy";
@@ -53,7 +59,7 @@ function AvailabilityBadge({ status, label }: { status: Availability; label?: st
   );
 }
 
-export function Automate() {
+export function Strategies() {
   const accounts = useAccounts();
   const markets = useMarkets();
   const chain = services.account.source === "chain";
@@ -75,24 +81,57 @@ export function Automate() {
   const ruleBased: Availability = chain ? "live" : "development";
 
   return (
-    <div className="space-y-6" data-testid="automate">
+    <div className="space-y-6" data-testid="automate" data-page="strategies">
       <PageHeader
-        eyebrow="Sentinel"
-        title="Automate"
-        description="Let software act for your Sentinel account, inside limits the account contract enforces: which operations, how much in total, and until when. You stay the owner, and you can stop everything at once."
-        actions={<SourceTag source={services.account.source} />}
+        eyebrow="Personal"
+        title="Strategies"
+        description="A strategy lets software act for your account inside limits the account contract enforces: which operation, how much in total, and until when. You adopt it by signing the grant yourself, and you can stop everything at once."
+        actions={
+          <>
+            <SourceTag source={services.account.source} />
+            <ButtonLink href="/discover" variant="secondary">
+              Discover strategies
+            </ButtonLink>
+            <ButtonLink href="#create" data-testid="create-strategy">
+              Create a strategy
+            </ButtonLink>
+          </>
+        }
       />
+      <nav aria-label="On this page" className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0" data-testid="strategies-sections">
+        <ul className="flex gap-1.5 text-sm whitespace-nowrap">
+          {[
+            ["#active", "Active"],
+            ["#create", "Create"],
+            ["#import", "Import"],
+            ["#stop", "Stop"],
+            ["#rules", "Rules, field by field"],
+            ["#modes", "Execution modes"],
+          ].map(([href, text]) => (
+            <li key={href}>
+              <a href={href} className="inline-flex h-9 items-center rounded-full border border-line px-3.5 font-medium text-muted hover:border-line-strong hover:text-fg">
+                {text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
+      <ActiveStrategies />
+      <StrategyBuilder />
+
+      <h2 id="modes" className="scroll-mt-28 pt-2 text-lg font-semibold tracking-tight">Execution modes</h2>
       <ul className="grid gap-3 lg:grid-cols-3" data-testid="automation-modes">
         <Mode
           id="rule-based"
           icon={<IconShield size={18} />}
           name="Rule-based"
           status={ruleBased}
+          statusLabel={chain ? (TARGET_KIND === "testnet" ? "Available on testnet" : "Available on the local chain") : undefined}
           statusNote={chain ? null : "Example data in this build"}
           body="You set a loan-to-value trigger. An operator you authorise may then repay debt from the account's own idle funds, up to a budget and until an expiry."
           href="#rules"
-          cta="Set rules"
+          cta="Set the rules"
         />
         <Mode
           id="connect"
@@ -107,6 +146,10 @@ export function Automate() {
         />
         <Mode id="hosted" icon={<IconBot size={18} />} name="Peridot-hosted AI" status={HOSTED_AVAILABILITY} body="An agent run by Peridot that proposes actions for your account. Not built: no hosted model runs in this app, and nothing here calls one." />
       </ul>
+
+      <h2 id="stop" className="scroll-mt-28 pt-2 text-lg font-semibold tracking-tight">Stop and rules</h2>
+      <p className="-mt-3 max-w-2xl text-sm text-muted">The emergency stop ends automation on a whole account. To remove one operator's grant only, use Revoke in the review card above, or the operator list below.</p>
+      <V2EmergencyStop />
 
       {accounts.isPending ? (
         <Skeleton className="h-96" data-loading />
@@ -127,10 +170,10 @@ export function Automate() {
           <AccountAutomation key={account.marketId} account={account} />
         </>
       ) : accounts.data?.status === "unavailable" ? (
-        <EmptyState title="Account data unavailable">{accounts.data.reason}</EmptyState>
+        <EmptyState title={chain && accounts.data.reason.startsWith("Connect a wallet") ? "Connect a wallet to manage an account" : "Account data unavailable"}>{accounts.data.reason}</EmptyState>
       ) : (
-        <EmptyState title="No Sentinel account yet" action={<ButtonLink href="/sentinel">Create an account</ButtonLink>}>
-          Automation is set per Sentinel account. Create one from the overview first.
+        <EmptyState title="No Sentinel account yet" action={<ButtonLink href="/portfolio#accounts">Create an account</ButtonLink>} data-testid="strategies-no-account">
+          A strategy acts on a Sentinel account you own. Create one from Portfolio first; it holds your position and enforces your policy.
         </EmptyState>
       )}
 
@@ -148,7 +191,7 @@ export function Automate() {
         <p className="max-w-2xl text-sm text-muted">What the chain confirms for this account. When an automation service is connected to this deployment, its reports (checked, simulated, submitted) are listed separately, and a report alone is never shown as confirmed.</p>
         {account ? <AccountRepays account={account} market={markets.data?.status === "ok" ? (markets.data.value.find((entry) => entry.id === account.marketId) ?? null) : null} /> : null}
         <KeeperPanel />
-        <ButtonLink href="/sentinel/activity" variant="secondary" size="sm">
+        <ButtonLink href="/activity" variant="secondary" size="sm">
           All account activity
         </ButtonLink>
       </section>
@@ -186,8 +229,8 @@ function AccountAutomation({ account }: { account: SentinelAccount }) {
       <Card as="section" id="rules" className="scroll-mt-28" data-mode="rule-based">
         <CardHeader
           eyebrow="Mode 1 · Rule-based"
-          title="Strategy"
-          description="A strategy is the set of limits an operator works inside. Fields marked Live are stored and enforced by your account contract. Fields marked Planned have no effect and cannot be set."
+          title="Rules, field by field"
+          description="The same settings a debt-protection strategy uses, one field at a time. Fields marked Live are stored and enforced by your account contract. Fields marked Planned have no effect and cannot be set."
           action={chain ? <AvailabilityBadge status="live" /> : <ExampleTag />}
         />
         {m ? <StrategyOutline account={account} market={m} /> : <Skeleton className="m-5 h-40" />}
@@ -212,7 +255,7 @@ function StrategyOutline({ account, market }: { account: SentinelAccount; market
       status: "live",
       now: account.autoRepayTriggerBps > 0 ? `Repay debt from idle funds when loan-to-value reaches ${formatBps(account.autoRepayTriggerBps)}` : "None set: auto-repay is disabled",
       enforced: "autoRepayTriggerBps on the account. autoRepay() reverts with TriggerNotMet below it.",
-      planned: "Other objectives (earning on idle funds, rebalancing, swaps) need adapters that are not deployed.",
+      planned: "A bounded swap grant exists only on a Sentinel v2 account (testnet, mock venue). Earning on idle funds and rebalancing are not built.",
     },
     {
       field: "Capital budget",
@@ -231,7 +274,7 @@ function StrategyOutline({ account, market }: { account: SentinelAccount; market
       status: "planned",
       now: `Fixed: this account's Peridot lending market (${marketTitle(market)})`,
       enforced: "A v1 account is bound to one market controller, so there is nothing to choose.",
-      planned: "Choosing among protocols arrives with the adapter-based account (v2), which is not deployed.",
+      planned: "Choosing among adapters belongs to the Sentinel v2 account. On testnet it has a lending adapter and one mock swap route; this app reads it and does not write to it.",
     },
     {
       field: "Risk limits",
@@ -243,7 +286,7 @@ function StrategyOutline({ account, market }: { account: SentinelAccount; market
         </>
       ),
       enforced: "The trigger, plus your account policy circuit and the market policy circuit on every risk-increasing action.",
-      planned: "Slippage and per-transaction limits belong to swap and vault adapters, which are not deployed.",
+      planned: "Per-swap limits and the 1% price limit belong to a v2 swap grant and its execution circuit, not to a v1 account.",
     },
     {
       field: "Expiry",
@@ -277,7 +320,7 @@ function StrategyOutline({ account, market }: { account: SentinelAccount; market
  * gap the copy says "found", never "every", and the owner can add an address by hand. After the transactions are
  * mined the chain is read again (with retries) and only that read is reported as the outcome.
  */
-function EmergencyStop({ account }: { account: SentinelAccount }) {
+export function EmergencyStop({ account }: { account: SentinelAccount }) {
   const gate = useWriteGate("account");
   const chain = services.account.source === "chain";
   const tx = useChainTx();

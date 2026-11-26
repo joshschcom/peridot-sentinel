@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Automate } from "@/components/pages/automate";
+import { Strategies } from "@/components/pages/strategies";
 
-export const metadata: Metadata = { title: "Automate" };
+export const metadata: Metadata = { title: "Strategies" };
 
-export default function AutomatePage() {
-  return <Automate />;
+export default function StrategiesPage() {
+  return <Strategies />;
 }

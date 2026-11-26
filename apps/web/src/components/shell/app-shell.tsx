@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { type ReactNode, Suspense, useState } from "react";
 import { cx } from "@/components/ui/core";
-import { IconBorrow, IconBot, IconCircuit, IconConnect, IconEarn, IconInfo, IconMore, IconShield, IconStudio, IconTrade } from "@/components/ui/icons";
+import { IconActivity, IconBorrow, IconCircuit, IconConnect, IconDiscover, IconEarn, IconInfo, IconMore, IconPortfolio, IconShield, IconStrategy, IconStudio, IconTrade } from "@/components/ui/icons";
 import { Sheet } from "@/components/ui/sheet";
 import { AVAILABILITY_LABEL, type Availability } from "@/lib/brand";
 import { connectVerified } from "@/lib/connect";
@@ -14,9 +14,10 @@ import { ThemeToggle } from "./theme-toggle";
 import { WalletButton } from "./wallet-button";
 
 /**
- * Navigation labels follow the Peridot Sentinel product areas (DECISIONS D11); the routes are unchanged.
- * An item is a link only if something real is behind it in this build. "Trade" links to the read-only v2 page when
- * the build holds the public v2 manifest, and is a planned non-link otherwise. Earn and Borrow are two views of the same markets (`?view=`).
+ * Strategy-first navigation (DECISIONS D23): three groups. Personal is what a user owns and runs, Finance is the
+ * instruments, Builders is where products and policies are made. An item is a link only if something real is behind
+ * it in this build. "Trade" links to the read-only v2 page when the build holds the public v2 manifest, and is a
+ * planned non-link otherwise. Earn and Borrow are two views of the same markets (`?view=`).
  */
 interface NavItem {
   key: string;
@@ -30,33 +31,43 @@ interface NavItem {
 
 const under = (pathname: string, root: string) => pathname === root || pathname.startsWith(`${root}/`);
 
-const PRIMARY: NavItem[] = [
-  { key: "overview", label: "Overview", icon: IconShield, href: "/sentinel", active: (pathname) => under(pathname, "/sentinel") },
+const PERSONAL: NavItem[] = [
+  // The account policy page belongs to an account shown on Portfolio.
+  { key: "portfolio", label: "Portfolio", icon: IconPortfolio, href: "/portfolio", active: (pathname) => under(pathname, "/portfolio") || under(pathname, "/sentinel") },
+  { key: "strategies", label: "Strategies", icon: IconStrategy, href: "/strategies", active: (pathname) => under(pathname, "/strategies") },
+  { key: "discover", label: "Discover", icon: IconDiscover, href: "/discover", active: (pathname) => under(pathname, "/discover") },
+  { key: "activity", label: "Activity", icon: IconActivity, href: "/activity", active: (pathname) => under(pathname, "/activity") },
+];
+
+const FINANCE: NavItem[] = [
   { key: "earn", label: "Earn", icon: IconEarn, href: "/markets?view=earn", active: (pathname, view) => under(pathname, "/markets") && view !== "borrow" },
   { key: "borrow", label: "Borrow", icon: IconBorrow, href: "/markets?view=borrow", active: (pathname, view) => under(pathname, "/markets") && view === "borrow" },
   // v2 is deployed on testnet with a mock venue. The page is read-only, so the entry keeps an "In development" chip.
   // Without a v2 manifest in the build it stays a planned, non-link entry.
   EXPANSION.manifest.status === "ok" ? { key: "trade", label: "Trade", icon: IconTrade, href: "/trade", status: "development", active: (pathname) => under(pathname, "/trade") } : { key: "trade", label: "Trade", icon: IconTrade, status: "planned", active: () => false },
-  { key: "automate", label: "Automate", icon: IconBot, href: "/automate", active: (pathname) => under(pathname, "/automate") },
-  { key: "studio", label: "Studio", icon: IconStudio, href: "/studio", active: (pathname) => under(pathname, "/studio") },
 ];
 
-const SECONDARY: NavItem[] = [
+const BUILDERS: NavItem[] = [
+  { key: "studio", label: "Studio", icon: IconStudio, href: "/studio", active: (pathname) => under(pathname, "/studio") },
   { key: "circuits", label: "Circuits", icon: IconCircuit, href: "/circuits", active: (pathname) => under(pathname, "/circuits") },
   // Shown without a status chip only while the build holds the verified testnet run (src/lib/connect.ts).
   { key: "connect", label: "Connect", icon: IconConnect, href: "/connect", ...(connectVerified() ? {} : { status: "development" as const }), active: (pathname) => under(pathname, "/connect") },
-  { key: "about", label: "About and status", icon: IconInfo, href: "/", active: () => false },
 ];
 
-/** Phone tab bar: the four areas used most, plus "More" for everything else. */
-const TAB_KEYS = ["overview", "earn", "borrow", "automate"];
+const ABOUT: NavItem = { key: "about", label: "About and evidence", icon: IconInfo, href: "/", active: () => false };
+
+export const NAV_GROUPS: ReadonlyArray<{ key: string; label: string; items: NavItem[] }> = [
+  { key: "personal", label: "Personal", items: PERSONAL },
+  { key: "finance", label: "Finance", items: FINANCE },
+  { key: "builders", label: "Builders", items: BUILDERS },
+];
 
 function StatusChip({ status }: { status: Exclude<Availability, "live"> }) {
   return <span className="ml-auto shrink-0 rounded-full border border-line px-2 py-0.5 text-[0.6875rem] leading-4 font-medium text-faint">{AVAILABILITY_LABEL[status]}</span>;
 }
 
 function RailItem({ item, active, onNavigate }: { item: NavItem; active: boolean; onNavigate?: () => void }) {
-  const className = cx("flex h-11 items-center gap-3 rounded-control px-3 text-[0.9375rem] font-medium transition-colors", active ? "bg-raised text-fg" : item.href ? "text-muted hover:bg-raised hover:text-fg" : "cursor-default text-faint");
+  const className = cx("flex h-10 items-center gap-3 rounded-control px-3 text-[0.9375rem] font-medium transition-colors", active ? "bg-raised text-fg" : item.href ? "text-muted hover:bg-raised hover:text-fg" : "cursor-default text-faint");
   if (!item.href) {
     return (
       <span className={className} aria-disabled="true" data-nav={item.key} data-nav-status={item.status}>
@@ -75,35 +86,45 @@ function RailItem({ item, active, onNavigate }: { item: NavItem; active: boolean
   );
 }
 
-function RailNav({ view }: { view: string | null }) {
+function NavGroups({ groups, view, onNavigate }: { groups: typeof NAV_GROUPS; view: string | null; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
     <>
-      <nav aria-label="Primary" className="mt-8 flex flex-col gap-1">
-        {PRIMARY.map((item) => (
-          <RailItem key={item.key} item={item} active={item.active(pathname, view)} />
-        ))}
-      </nav>
-      <nav aria-label="More" className="mt-6 flex flex-col gap-1 border-t border-line pt-4">
-        {SECONDARY.map((item) => (
-          <RailItem key={item.key} item={item} active={item.active(pathname, view)} />
-        ))}
-      </nav>
+      {groups.map((group) => (
+        <nav key={group.key} aria-label={group.label} className="flex flex-col gap-0.5" data-nav-group={group.key}>
+          <h2 className="eyebrow px-3 pb-1.5">{group.label}</h2>
+          {group.items.map((item) => (
+            <RailItem key={item.key} item={item} active={item.active(pathname, view)} onNavigate={onNavigate} />
+          ))}
+        </nav>
+      ))}
     </>
   );
 }
 
+function RailNav({ view }: { view: string | null }) {
+  const pathname = usePathname();
+  return (
+    <div className="mt-7 flex flex-col gap-5">
+      <NavGroups groups={NAV_GROUPS} view={view} />
+      <div className="border-t border-line pt-3">
+        <RailItem item={ABOUT} active={ABOUT.active(pathname, view)} />
+      </div>
+    </div>
+  );
+}
+
+/** Phone tab bar: the Personal group, plus "More" for Finance, Builders and the evidence page. */
 function TabBar({ view }: { view: string | null }) {
   const pathname = usePathname();
   const [more, setMore] = useState(false);
-  const tabs = PRIMARY.filter((item) => TAB_KEYS.includes(item.key));
-  const rest = [...PRIMARY.filter((item) => !TAB_KEYS.includes(item.key)), ...SECONDARY];
-  const restActive = rest.some((item) => item.active(pathname, view));
+  const rest = NAV_GROUPS.filter((group) => group.key !== "personal");
+  const restActive = rest.some((group) => group.items.some((item) => item.active(pathname, view)));
   return (
     <>
-      <nav aria-label="Primary" className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg lg:hidden">
+      <nav aria-label="Personal" className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg lg:hidden" data-testid="tab-bar">
         <ul className="mx-auto grid max-w-xl grid-cols-5">
-          {tabs.map((item) => {
+          {PERSONAL.map((item) => {
             const active = item.active(pathname, view);
             return (
               <li key={item.key}>
@@ -123,10 +144,11 @@ function TabBar({ view }: { view: string | null }) {
         </ul>
       </nav>
       <Sheet open={more} onClose={() => setMore(false)} title="More">
-        <div className="flex flex-col gap-1" data-testid="more-nav">
-          {rest.map((item) => (
-            <RailItem key={item.key} item={item} active={item.active(pathname, view)} onNavigate={() => setMore(false)} />
-          ))}
+        <div className="flex flex-col gap-5" data-testid="more-nav">
+          <NavGroups groups={rest} view={view} onNavigate={() => setMore(false)} />
+          <div className="border-t border-line pt-3">
+            <RailItem item={ABOUT} active={false} onNavigate={() => setMore(false)} />
+          </div>
         </div>
       </Sheet>
     </>

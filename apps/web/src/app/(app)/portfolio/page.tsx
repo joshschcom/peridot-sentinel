@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { SentinelOverview } from "@/components/pages/sentinel-overview";
+import { PortfolioHome } from "@/components/pages/sentinel-overview";
 
-export const metadata: Metadata = { title: "Sentinel" };
+export const metadata: Metadata = { title: "Portfolio" };
 
-export default function SentinelPage() {
-  return <SentinelOverview />;
+export default function PortfolioPage() {
+  return <PortfolioHome />;
 }

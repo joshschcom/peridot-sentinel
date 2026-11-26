@@ -1,20 +1,21 @@
 "use client";
-import { SubNav } from "@/components/shell/app-shell";
 import { SourceTag } from "@/components/domain/policy-card";
 import { PageHeader } from "@/components/ui/core";
 import { services } from "@/services";
 
-export function SentinelHeader({ title, description }: { title: string; description: string }) {
+/** Header of the pages that show a Sentinel account. Portfolio and Activity are navigation entries of their own. */
+export function SentinelHeader({ title, description, eyebrow = "Sentinel account", actions }: { title: string; description: string; eyebrow?: string; actions?: React.ReactNode }) {
   return (
-    <div className="space-y-5">
-      <PageHeader eyebrow="Sentinel account" title={title} description={description} actions={<SourceTag source={services.account.source} />} />
-      <SubNav
-        items={[
-          { href: "/sentinel", label: "Portfolio" },
-          { href: "/sentinel/policy", label: "Policy" },
-          { href: "/sentinel/activity", label: "Activity" },
-        ]}
-      />
-    </div>
+    <PageHeader
+      eyebrow={eyebrow}
+      title={title}
+      description={description}
+      actions={
+        <>
+          <SourceTag source={services.account.source} />
+          {actions}
+        </>
+      }
+    />
   );
 }

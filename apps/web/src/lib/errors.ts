@@ -145,6 +145,12 @@ const TABLE: Record<string, Entry> = {
     title: "Account already exists",
     message: "You already have a Sentinel account for this market. Each owner has one account per market.",
   },
+  ReviewMismatch: {
+    category: "wallet",
+    title: "This is not the transaction you reviewed",
+    message: "The transaction, or the connected wallet, no longer matches the plan that was shown. Nothing was sent.",
+    hint: "Build the review again and check it before signing.",
+  },
   UserRejectedRequestError: {
     category: "wallet",
     title: "Request rejected in wallet",

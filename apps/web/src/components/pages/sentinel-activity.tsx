@@ -51,7 +51,7 @@ export function SentinelActivity() {
 
   return (
     <div className="space-y-6">
-      <SentinelHeader title="Activity" description="Everything your account and its operator attempted: what was allowed, what was stopped, by which rule, and how we know." />
+      <SentinelHeader title="Activity" eyebrow="Personal" description="Everything your account and its operator attempted: what was allowed, what was stopped, by which rule, and how we know." />
 
       <div role="group" aria-label="Filter activity" className="flex gap-2">
         {(["all", "allowed", "rejected"] as const).map((option) => (

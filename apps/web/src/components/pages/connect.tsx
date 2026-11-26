@@ -366,7 +366,7 @@ function LiveGrant({ run }: { run: ConnectTranscript }) {
             <Button size="sm" variant="secondary" onClick={() => void live.refetch()} disabled={live.isFetching} data-testid="connect-grant-refresh">
               {live.isFetching ? "Reading…" : "Read again"}
             </Button>
-            <ButtonLink href="/automate" size="sm" variant="secondary">
+            <ButtonLink href="/strategies" size="sm" variant="secondary">
               Owner controls and emergency stop
             </ButtonLink>
             <span>
@@ -522,8 +522,8 @@ function HowToConnect({ llm }: { llm: LlmSession | null }) {
         <OnboardStep n={4} title="To let it execute: a bounded, expiring operator, granted by the owner">
           <p>
             Execution needs two things from two different people. The account's <span className="text-fg">owner</span> grants an operator address on chain: which operation, how much in total, until when. For a v1 account that is done in this app, on{" "}
-            <Link href="/automate#rules" className="text-fg underline underline-offset-4">
-              Automate
+            <Link href="/strategies#rules" className="text-fg underline underline-offset-4">
+              Strategies
             </Link>
             , with the owner's wallet. The <span className="text-fg">person running the MCP server</span> starts it with that operator's key in the server's environment:
           </p>
@@ -577,8 +577,8 @@ function HowToConnect({ llm }: { llm: LlmSession | null }) {
         <OnboardStep n={onboarding.v2Objective.text ? 7 : 6} title="Stopping it">
           <p>
             The owner can end an agent's authority at any moment, on chain, without the agent's cooperation. For a v1 account: the{" "}
-            <Link href="/automate" className="text-fg underline underline-offset-4" data-testid="connect-stop-link">
-              emergency stop on Automate
+            <Link href="/strategies" className="text-fg underline underline-offset-4" data-testid="connect-stop-link">
+              emergency stop on Strategies
             </Link>{" "}
             revokes the operators and clears the trigger. A v2 account has one call that revokes every operator at once
             {demo?.emergencyRevoke ? (

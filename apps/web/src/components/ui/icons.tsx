@@ -161,3 +161,27 @@ export function PeridotMark({ size = 24 }: { size?: number }) {
     </svg>
   );
 }
+export const IconPortfolio = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 3a9 9 0 1 0 9 9h-9V3Z" />
+    <path d="M15.5 3.7A9 9 0 0 1 20.3 8.5h-4.8V3.7Z" />
+  </Svg>
+);
+export const IconStrategy = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="6" cy="18" r="2.5" />
+    <circle cx="18" cy="6" r="2.5" />
+    <path d="M6 15.5V13a4.5 4.5 0 0 1 4.5-4.5h5" />
+  </Svg>
+);
+export const IconDiscover = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" />
+  </Svg>
+);
+export const IconActivity = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3 12h4l2.5-7 5 14 2.5-7h4" />
+  </Svg>
+);

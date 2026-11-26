@@ -32,7 +32,7 @@ export function SentinelPolicy() {
   };
   return (
     <div className="space-y-6">
-      <SentinelHeader title="Policy" description="Your personal rules, compiled into a circuit and enforced by the account contract. Only you can change them." />
+      <SentinelHeader title="Account policy" eyebrow="Portfolio · Sentinel account" description="Your personal rules, compiled into a circuit and enforced by the account contract. Only you can change them." actions={<ButtonLink href="/portfolio" variant="secondary" size="sm">Back to Portfolio</ButtonLink>} />
       {accounts.isPending ? (
         <Skeleton className="h-96" data-loading />
       ) : account ? (
@@ -54,7 +54,7 @@ export function SentinelPolicy() {
       ) : accounts.data?.status === "unavailable" ? (
         <EmptyState title="Account data unavailable">{accounts.data.reason}</EmptyState>
       ) : (
-        <EmptyState title="No Sentinel account yet">Create an account from the overview first. A policy is attached when the account is created.</EmptyState>
+        <EmptyState title="No Sentinel account yet">Create an account from Portfolio first. A policy is attached when the account is created.</EmptyState>
       )}
     </div>
   );
@@ -195,14 +195,14 @@ function Editor({ account }: { account: SentinelAccount }) {
         </Card>
 
         <Card as="section" id="automation" className="scroll-mt-28">
-          <CardHeader eyebrow="Automation" title="Operators and auto-repay" description="Who may act for this account, with what budget and until when. Managed in Automate, revocable at any time." action={chain ? null : <ExampleTag />} />
+          <CardHeader eyebrow="Automation" title="Operators and auto-repay" description="Who may act for this account, with what budget and until when. Managed in Strategies, revocable at any time." action={chain ? null : <ExampleTag />} />
           <div className="space-y-4 p-5 sm:p-6" data-testid="automation-summary">
             <dl className="divide-y divide-line">
               <DefinitionRow label="Auto-repay trigger">{account.autoRepayTriggerBps > 0 ? `≥ ${formatBps(account.autoRepayTriggerBps)} loan-to-value` : "Disabled"}</DefinitionRow>
               <DefinitionRow label="Authorised operators">{account.operators.filter((entry) => !entry.revoked).length}</DefinitionRow>
             </dl>
-            <ButtonLink href={`/automate?market=${account.marketId}`} variant="secondary" data-testid="open-automate">
-              Manage in Automate
+            <ButtonLink href={`/strategies?market=${account.marketId}`} variant="secondary" data-testid="open-automate">
+              Manage in Strategies
             </ButtonLink>
           </div>
         </Card>

@@ -45,13 +45,20 @@ export type TargetKind = "testnet" | "local";
 export const TARGET_KIND: TargetKind = process.env.NEXT_PUBLIC_PERIDOT_TARGET === "local" ? "local" : "testnet";
 export const WRITE_CHAIN = TARGET_KIND === "local" ? localDevChain : xLayerTestnet;
 export const WRITE_CHAIN_ID: number = WRITE_CHAIN.id;
-export const TARGET_LABEL = TARGET_KIND === "local" ? "Local development chain" : "Testnet";
+/**
+ * A testnet-target build pointed at a PRIVATE FORK of chain 1952 (a loopback Anvil with `--chain-id 1952`), used only
+ * to accept wallet signing against the real testnet state without a funded key. Set by NEXT_PUBLIC_PERIDOT_FORK=1
+ * through next.config.ts. Such a build is labelled "Private fork of 1952" everywhere, offers no faucet, and never
+ * produces a testnet explorer link: nothing that happens on a fork exists on the public chain.
+ */
+export const IS_PRIVATE_FORK: boolean = TARGET_KIND === "testnet" && process.env.NEXT_PUBLIC_PERIDOT_FORK === "1";
+export const TARGET_LABEL = TARGET_KIND === "local" ? "Local development chain" : IS_PRIVATE_FORK ? "Private fork of 1952" : "Testnet";
 /** Phone header: the full label does not fit next to a connected wallet at 360 px. */
-export const TARGET_LABEL_SHORT = TARGET_KIND === "local" ? "Local" : "Testnet";
-export const TARGET_DETAIL = TARGET_KIND === "local" ? "Anvil · 31337" : "X Layer · 1952";
+export const TARGET_LABEL_SHORT = TARGET_KIND === "local" ? "Local" : IS_PRIVATE_FORK ? "Fork" : "Testnet";
+export const TARGET_DETAIL = TARGET_KIND === "local" ? "Anvil · 31337" : IS_PRIVATE_FORK ? "Anvil fork · not public" : "X Layer · 1952";
 export const READ_ONLY_CHAIN_ID = xLayerMainnet.id;
 /** Test OKB for network fees on X Layer testnet. Local chains have pre-funded accounts. */
-export const FAUCET_URL: string | null = TARGET_KIND === "testnet" ? "https://web3.okx.com/xlayer/faucet/xlayerfaucet" : null;
+export const FAUCET_URL: string | null = TARGET_KIND === "testnet" && !IS_PRIVATE_FORK ? "https://web3.okx.com/xlayer/faucet/xlayerfaucet" : null;
 
 const positiveInt = (value: string | undefined, fallback: number): number => (value && /^[1-9]\d{0,8}$/.test(value) ? Number(value) : fallback);
 /**
@@ -89,7 +96,8 @@ export function explorerAddressUrl(chainId: number, address: string): string | n
 }
 
 function explorerRoot(chainId: number): string | null {
-  if (chainId === xLayerTestnet.id) return xLayerTestnet.blockExplorers.default.url;
+  // On a private fork the app's own "testnet" hashes do not exist on the public chain: no link at all.
+  if (chainId === xLayerTestnet.id) return IS_PRIVATE_FORK ? null : xLayerTestnet.blockExplorers.default.url;
   if (chainId === xLayerMainnet.id) return xLayerMainnet.blockExplorers.default.url;
   return null;
 }

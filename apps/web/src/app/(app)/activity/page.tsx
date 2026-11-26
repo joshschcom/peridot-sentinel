@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { SentinelActivity } from "@/components/pages/sentinel-activity";
 
-export const metadata: Metadata = { title: "Sentinel activity" };
+export const metadata: Metadata = { title: "Activity" };
 
-export default function SentinelActivityPage() {
+export default function ActivityPage() {
   return <SentinelActivity />;
 }

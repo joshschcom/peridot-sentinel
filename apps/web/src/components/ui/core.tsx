@@ -130,7 +130,7 @@ export function DefinitionRow({ label, children, mono = false, stack = false }: 
   );
 }
 
-export function Notice({ tone = "neutral", icon, title, children, className }: { tone?: "neutral" | "warning" | "danger" | "success"; icon?: ReactNode; title?: ReactNode; children?: ReactNode; className?: string }) {
+export function Notice({ tone = "neutral", icon, title, children, className, ...rest }: { tone?: "neutral" | "warning" | "danger" | "success"; icon?: ReactNode; title?: ReactNode; children?: ReactNode; className?: string } & Omit<ComponentProps<"div">, "title" | "children" | "className">) {
   const toneClass = {
     neutral: "border-line bg-subtle text-fg",
     warning: "border-warning bg-warning-soft text-fg",
@@ -139,7 +139,7 @@ export function Notice({ tone = "neutral", icon, title, children, className }: {
   }[tone];
   const iconClass = { neutral: "text-muted", warning: "text-warning", danger: "text-danger", success: "text-success" }[tone];
   return (
-    <div className={cx("flex gap-3 rounded-control border p-3.5 text-sm", toneClass, className)}>
+    <div className={cx("flex gap-3 rounded-control border p-3.5 text-sm", toneClass, className)} {...rest}>
       {icon ? <div className={cx("mt-0.5 shrink-0", iconClass)}>{icon}</div> : null}
       <div className="min-w-0">
         {title ? <div className="font-medium">{title}</div> : null}
@@ -153,9 +153,9 @@ export function Skeleton({ className }: { className?: string }) {
   return <div aria-hidden="true" className={cx("animate-pulse rounded-control bg-raised", className)} />;
 }
 
-export function EmptyState({ title, children, action }: { title: ReactNode; children?: ReactNode; action?: ReactNode }) {
+export function EmptyState({ title, children, action, ...rest }: { title: ReactNode; children?: ReactNode; action?: ReactNode } & Omit<ComponentProps<"div">, "title" | "children">) {
   return (
-    <div className="flex flex-col items-center rounded-card border border-dashed border-line-strong px-6 py-12 text-center">
+    <div className="flex flex-col items-center rounded-card border border-dashed border-line-strong px-6 py-12 text-center" {...rest}>
       <h3 className="text-base font-semibold">{title}</h3>
       {children ? <p className="mt-1.5 max-w-md text-sm text-muted">{children}</p> : null}
       {action ? <div className="mt-5">{action}</div> : null}
