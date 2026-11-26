@@ -6,11 +6,14 @@ import { ButtonLink, Mono } from "@/components/ui/core";
 import { IconArrowRight, IconArrowUpRight, IconCheck } from "@/components/ui/icons";
 import { TARGET_KIND, explorerTxUrl, xLayerMainnet, xLayerTestnet } from "@/lib/chains";
 import { BRAND } from "@/lib/brand";
+import { CONNECT, CONNECT_STATUS_LABEL, connectVerified } from "@/lib/connect";
 import { EVIDENCE } from "@/lib/evidence";
+import { EXPANSION, V2_SWAP_LABEL } from "@/lib/expansion";
+import { TAPEOUT } from "@/lib/tapeout";
 import { shortAddress, shortHash } from "@/lib/format";
 import { RUNTIME } from "@/services/runtime";
 
-// Only areas with something real behind them in this build. Trade is planned and is not linked.
+// Only areas with something real behind them in this build. Trade (read-only testnet evidence) is reached from the status section.
 const NAV = [
   { href: "/sentinel", label: "Overview" },
   { href: "/markets?view=earn", label: "Earn" },
@@ -18,6 +21,7 @@ const NAV = [
   { href: "/automate", label: "Automate" },
   { href: "/studio", label: "Studio" },
   { href: "/circuits", label: "Circuits" },
+  ...(connectVerified() ? [{ href: "/connect", label: "Connect" }] : []),
 ];
 
 export default function LandingPage() {
@@ -63,7 +67,7 @@ export default function LandingPage() {
               {BRAND.positioning}
             </p>
             <p className="mt-3 max-w-xl text-base text-muted sm:text-lg">
-              A smart account that holds your position and lets software act for you only inside the policy, budget and expiry you set. Today that is rule-based automation on isolated lending markets, on X Layer testnet.
+              A smart account that holds your position and lets software act for you only inside the policy, budget and expiry you set. Today, on X Layer testnet: rule-based automation on isolated lending markets, and your own agent over MCP with one restricted operation.
             </p>
             <div className="mt-9 flex flex-col gap-3 xs:flex-row">
               <ButtonLink href="/sentinel" size="lg">
@@ -231,6 +235,8 @@ function StatusList() {
   const deployed = RUNTIME.manifest.state === "deployed" && TARGET_KIND === "testnet";
   const testnetRepay = EVIDENCE.testnetAutoRepay;
   const testnetRepayUrl = testnetRepay.status === "ok" ? explorerTxUrl(testnetRepay.value.chainId, testnetRepay.value.hash) : null;
+  const connectTxUrl = CONNECT.transcript.status === "ok" ? explorerTxUrl(CONNECT.transcript.value.chainId, CONNECT.transcript.value.step5.hash) : null;
+  const publishedCircuits = TAPEOUT.status === "ok" ? TAPEOUT.value.circuits.filter((circuit) => circuit.publication.state === "published").length : 0;
   const rows: Array<{ tone: StatusTone; label: string; title: string; body: React.ReactNode }> = [
     sample.status === "ok"
       ? {
@@ -274,6 +280,55 @@ function StatusList() {
           ),
         }
       : { tone: "pending", label: "Not deployed", title: "X Layer testnet deployment", body: "No Peridot contract is deployed on chain 1952 yet. The app shows clearly labelled example data and keeps writes disabled." },
+    // Sentinel Connect: listed only while the build holds the recorded public testnet run.
+    ...(connectVerified() && CONNECT.transcript.status === "ok" && connectTxUrl
+      ? [
+          {
+            tone: "done" as const,
+            label: CONNECT_STATUS_LABEL,
+            title: "Sentinel Connect: an external agent executed one restricted operation",
+            body: (
+              <>
+                A scripted MCP client, in its own process, read the account, simulated, and repaid debt under a repay-only grant:{" "}
+                <a href={connectTxUrl} target="_blank" rel="noreferrer" className="font-medium text-fg underline underline-offset-4">
+                  transaction {shortHash(CONNECT.transcript.value.step5.hash)}
+                </a>
+                . Its attempt to borrow was refused by the account contract in a simulation. Agent-directed: it acts when called, and watches nothing on its own.{" "}
+                <Link href="/connect" className="font-medium text-fg underline underline-offset-4">
+                  How it works
+                </Link>
+              </>
+            ),
+          },
+        ]
+      : []),
+    // Sentinel v2: listed only with the public manifest and the recorded operator swap.
+    ...(TARGET_KIND === "testnet" && EXPANSION.manifest.status === "ok" && EXPANSION.demo.status === "ok" && EXPANSION.demo.value.operatorSwap
+      ? [
+          {
+            tone: "done" as const,
+            label: "Testnet · mock venue",
+            title: "Sentinel v2: an operator swapped inside a typed, budgeted grant",
+            body: (
+              <>
+                {V2_SWAP_LABEL}. On testnet a 101 bps swap was mined and reverted by the execution policy, and a 100 bps swap by the operator settled to the account.{" "}
+                <Link href="/trade" className="font-medium text-fg underline underline-offset-4">
+                  See the receipts
+                </Link>
+              </>
+            ),
+          },
+        ]
+      : []),
+    {
+      tone: publishedCircuits > 0 ? ("done" as const) : ("pending" as const),
+      label: publishedCircuits > 0 ? "Public mainnet" : "Not yet published",
+      title: "Peridot's own circuits on the TapeOut processor",
+      body:
+        publishedCircuits > 0
+          ? `${publishedCircuits} of Peridot's policy circuits are published on X Layer mainnet and can be evaluated read-only from the Circuits page. That is evidence of the circuits, not enforcement: no mainnet account or market is bound to them.`
+          : "Peridot's three policy circuits have been rehearsed on a mainnet fork and are not published on X Layer mainnet yet. The Circuits page evaluates each one natively, read-only, once it is.",
+    },
     { tone: "none", label: "None", title: "Mainnet funds", body: "No Peridot contract holds funds on X Layer mainnet. Nothing here has been audited." },
   ];
   const toneClass: Record<StatusTone, string> = {
@@ -286,7 +341,7 @@ function StatusList() {
     <ul className="divide-y divide-line rounded-3xl border border-line bg-surface">
       {rows.map((row) => (
         <li key={row.title} className="p-5 sm:p-6">
-          <span className={`inline-flex h-6 items-center rounded-full px-2.5 text-xs font-medium ${toneClass[row.tone]}`}>{row.label}</span>
+          <span className={`inline-flex min-h-6 items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${toneClass[row.tone]}`}>{row.label}</span>
           <h3 className="mt-3 text-base font-semibold tracking-tight">{row.title}</h3>
           <p className="mt-1.5 text-sm text-muted">{row.body}</p>
         </li>
