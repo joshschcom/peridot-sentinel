@@ -149,9 +149,10 @@ export async function readiness(s,m,atBlock){
   const [price,freshDebt]=await read(s,m4.TestnetOracle,'price',[m4.MockDebt.address],at)
   const [quoteIn,freshIn]=await read(s,b.mockOracle,'price',[b.mockWokb.address],at)
   const [quoteOut,freshOut]=await read(s,b.mockOracle,'price',[b.mockUsdc.address],at)
-  const trigger=await read(s,v1,'autoRepayTriggerBps',[],at),ltv=await read(s,binding('IsolatedController',m.markets.A.controller),'currentLtvBps',[v1.address],at)
+  const trigger=await read(s,v1,'autoRepayTriggerBps',[],at)
+  const ltv=freshCol && freshDebt?await read(s,binding('IsolatedController',m.markets.A.controller),'currentLtvBps',[v1.address],at):null
   const repayReady=fresh && obs.repayGrant[0]===8 && obs.repayGrant[1]===2n*usd && obs.repayGrant[2]===BigInt(grants.repay.expiry) &&
-    obs.v1Funds>=2n*usd && obs.v1Debt>=2n*usd && trigger>0 && ltv>=BigInt(trigger) && freshCol && freshDebt && raw>0n && price>0n
+    obs.v1Funds>=2n*usd && obs.v1Debt>=2n*usd && trigger>0 && ltv!==null && ltv>=BigInt(trigger) && freshCol && freshDebt && raw>0n && price>0n
   const swapReady=fresh && obs.swapGrant[0]===wad && obs.swapGrant[1]===2n*wad && obs.swapGrant[2]===expiry &&
     obs.idleIn>=wad/4n && freshIn && freshOut && quoteIn===80n*wad && quoteOut===wad
   return {campaign:m.campaign,profile:s.profile,blockNumber:at,blockHash:head.hash,repayReady,swapReady,current:obs,
@@ -163,14 +164,8 @@ export async function execute(s,m){
   let proof
   if(s.phase==='policy-denials') proof=await policyDenials(s,m)
   else if(s.phase==='revoke'){
-    const a=await call(s,'revoke-repay','owner',v1,'revokeOperator',[m.operator])
-    const t=await call(s,'clear-trigger','owner',v1,'setAutoRepayTrigger',[0])
-    const b=await call(s,'revoke-swap','owner',boxes.account,'revokeAllOperators')
-    equal(await read(s,v1,'operators',[m.operator],b.blockNumber),[0,0n,0n])
-    assert.equal(await read(s,v1,'autoRepayTriggerBps',[],b.blockNumber),0)
-    assert.equal(await read(s,boxes.account,'operatorCount',[],b.blockNumber),0n)
-    equal(await read(s,boxes.account,'grants',[m.operator,boxes.swap.address,5,boxes.mockWokb.address],b.blockNumber),[0n,0n,0n])
-    proof={profile:s.profile,campaign:s.campaign,chainId:1952,owner:m.owner,repayRevoked:a.transactionHash,triggerCleared:t.transactionHash,allV2Revoked:b.transactionHash,block:String(b.blockNumber),operators:0}
+    const {revoke}=await import('./revocation.mjs')
+    proof=await revoke(s,m,boxes)
   }else proof=await operatorStep(s,m,boxes,v1)
   const path=s.dir+'/'+s.phase+'.json'
   writeJson(path,proof)

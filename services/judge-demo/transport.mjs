@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto'
 import {existsSync,mkdirSync,readFileSync} from 'node:fs'
 import {DatabaseSync} from 'node:sqlite'
 import {Journal} from '../mcp/journal.mjs'
-import {createPublicClient,createWalletClient,defineChain,getAddress,http,keccak256,toHex} from 'viem'
+import {createPublicClient,createWalletClient,defineChain,encodeFunctionData,getAddress,http,parseAbi,keccak256,toHex} from 'viem'
 import {privateKeyToAccount} from 'viem/accounts'
 import {deployer,operator,publicRpc,readJson,retryRead,writeJson,gasWithHeadroom} from '../../contracts/expansion/script/session6-transactions.mjs'
 
@@ -20,6 +20,21 @@ const d9=getAddress(operator)
 const maxGasPrice=1_000_000_000n
 const budgets={deployer:40_000_000_000_000_000n,owner:10_000_000_000_000_000n,operator:1_000_000_000_000_000n}
 const maxFunding=15_000_000_000_000_000n
+const operatorAbi=parseAbi(['function autoRepay()','function swapExactIn(address,uint256,uint256,uint64)','function borrow(uint256)'])
+export function guardOperatorIntent(manifest,phase,to,input,value,expected,gas) {
+  const v2=getAddress(manifest.contracts.account),v1=getAddress(manifest.markets.A.account)
+  assert.equal(value,0n)
+  const actions={
+    repay:{target:v1,fn:'autoRepay',args:[]},
+    swap:{target:v2,fn:'swapExactIn',args:[manifest.contracts.mockWokb,wad/4n,19_800_000n,BigInt(manifest.grants.swap.expiry)]},
+    'deny-operator':{target:v2,fn:'borrow',args:[1n]},
+  }
+  const action=actions[phase]
+  assert(action && to && getAddress(to)===action.target,'Operator destination mismatch')
+  assert.equal(input,encodeFunctionData({abi:operatorAbi,functionName:action.fn,args:action.args}),'Operator calldata mismatch')
+  assert.equal(expected,phase==='deny-operator'?'reverted':'success')
+  assert.equal(gas,phase==='deny-operator'?300_000n:undefined)
+}
 
 export async function open(mode,campaign,phase) {
   assert(['fork','testnet'].includes(mode) && /^[a-z][a-z0-9-]{0,39}$/.test(campaign),'Use fork|testnet and a simple campaign name')
@@ -80,7 +95,12 @@ export async function open(mode,campaign,phase) {
       const {value=0n,gas,expected='success'}=options
       assert(Object.hasOwn(actors,role))
       assert.equal(role==='operator',['repay','swap','deny-operator'].includes(phase),'Operator and owner phases run separately')
-      if(role==='operator') assert.equal(label,phase)
+      if(role==='operator'){
+        assert.equal(label,phase)
+        const reviewed=readJson(dir+'/manifest.json')
+        assert(reviewed.profile===profile && reviewed.chainId===1952 && reviewed.campaign===campaign && getAddress(reviewed.owner)===owner)
+        guardOperatorIntent(reviewed,phase,to,data,value,expected,gas)
+      }
       if(expected==='reverted') assert(gas>0n)
       if(value>0n) assert(role==='deployer' && ['fund-judge','fund-operator'].includes(label) &&
         to===actors[label==='fund-judge'?'owner':'operator'] && value<=maxFunding && data==='0x')

@@ -1369,3 +1369,26 @@ status: implemented
 to: astra
 summary: "PRIORITY: finish `M8-strategy-schema` (D23: peridot.strategy/v1 schema, strict validator, 2–3 genuine templates, adoption mapping to existing owner functions) BEFORE continuing the CL/LP stretch. Fable's strategy-first redesign (run 5) depends on it, and the Dec 2 freeze applies. Keep the LP work as a fork-only design or prototype until the schema notice is posted. Do not run multiple partial integrations at once."
 ```
+
+```yaml
+milestone: M8-strategy-schema-draft
+from: astra
+status: integrating
+specialists: ["A4 owns the strategy SDK and confirmed the two deployed account ABIs", "Astra coordinates Fable's handoff; A2 paused the optional LP prototype; A1 native, A5 judge and A6 review remain separate"]
+chain_id: 1952
+frontend_actions: ["Prepare for importStrategy(json) returning template, canonical JSON and hash. buildAdoptionPlan(client, template, {owner, operator}) and buildRevocationPlan return the account, pinned read block and owner transactions for display. The signer is supplied only in the frontend after owner review.", "Templates cover v1 debt protection (repay mask 8 and an owner trigger) and one v2 bounded WOKB-denominated mock swap (operation 5 and the deployed 100 bps circuit). Operator and account authority come from the connected owner and verified factory mapping."]
+next_dependency: "A4 will provide final imports, template files, checks and test results in M8-strategy-schema. LP verification is paused until that notice."
+```
+
+```yaml
+milestone: M8-strategy-schema
+from: astra
+status: implemented
+chain_id: 1952
+specialists: ["A4 built the schema, validator, two templates and owner-transaction planners", "Astra independently ran all tests and decoded plans on 1952", "A1 native and OKX, A5 judge, A6 security and A2 size/LP remain separate"]
+manifest: packages/strategy-sdk/strategy.schema.json
+new_functions: ["importStrategy", "curatedStrategies", "buildAdoptionPlan", "buildRevocationPlan"]
+verification: ["npm --prefix packages/strategy-sdk run check passed strict TypeScript plus nine tests, zero failures or skips. Rejected inputs cover extra authority fields, credentials, chain and deployment mismatches, excessive budgets and stale review acknowledgements.", "node packages/strategy-sdk/smoke.mjs independently checked base M4 account 0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0 at 47254140 and base v2 0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f at 47254150. Decoded setAutoRepayTrigger/setOperator/revokeOperator and setGrant/revokeGrant respectively, without a signer. Evidence: evidence/session7-strategies/public-read.json."]
+frontend_actions: ["Use packages/strategy-sdk/index.ts, README.md and the two templates at packages/strategy-sdk/templates/debt-protection-v1.json and restricted-swap-v2.json. Render imported instructions as untrusted plain text. Review existing grants and any account-wide trigger before supplying the matching reviewId acknowledgement. Adoption uses the connected owner's own wallet; importing a template grants no authority.", "These two templates use the base M4 lending and base v2 mock swap profiles, with valueless test assets and the development reference processor. The judge kit has separate accounts, venues and circuits.", "Claude owns the root workspace metadata and checkpoint. If consuming by npm name, include the new private workspace in the root lockfile and verify npm ci. Source imports are available for immediate integration."]
+next_dependency: "Fable can integrate both templates now. A2 may finish the single fork-only LP rehearsal. A4 introduced no financial contract or deployment."
+```

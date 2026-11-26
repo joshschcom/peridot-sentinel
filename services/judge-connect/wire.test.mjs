@@ -36,3 +36,27 @@ test('generic client can discover the stdio catalog without any wallet', async (
     assert(denied.isError)
   } finally { await client.close() }
 })
+test('a separate host discovers tools through a private one-client socket', async () => {
+  const {spawn} = await import('node:child_process')
+  const {once} = await import('node:events')
+  const {createInterface} = await import('node:readline')
+  const {statSync} = await import('node:fs')
+  const {dirname} = await import('node:path')
+  const signer = spawn(process.execPath, ['services/judge-connect/listen.mjs', 'fork', 'fixture'], {
+    env: {PATH:process.env.PATH, JUDGE_CONNECT_EXECUTE:'0'}, stdio:['ignore','pipe','inherit'],
+  })
+  const ended = once(signer, 'exit')
+  const lines = createInterface({input:signer.stdout})
+  const client = new Client({name:'isolated-host-test',version:'1'})
+  try {
+    const [socket] = await once(lines, 'line')
+    assert.equal(statSync(dirname(socket)).mode & 0o077, 0)
+    await client.connect(new StdioClientTransport({command:process.execPath,args:['services/judge-connect/bridge.mjs'],env:{JUDGE_MCP_SOCKET:socket}}))
+    assert.deepEqual((await client.listTools()).tools.map(t=>t.name),catalog.map(t=>t.name))
+  } finally {
+    await client.close()
+    lines.close()
+    if (signer.exitCode === null) signer.kill('SIGTERM')
+    await ended
+  }
+})

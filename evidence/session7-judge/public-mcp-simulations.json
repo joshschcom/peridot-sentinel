@@ -1,0 +1,171 @@
+{
+  "profile": "testnet",
+  "campaign": "judge-01",
+  "tools": [
+    "judge_read",
+    "judge_propose",
+    "judge_execute",
+    "judge_receipt"
+  ],
+  "before": {
+    "block": {
+      "number": "47253224",
+      "hash": "0x3accd655baee962970addfac08a1deccb48a35f73d9d849750a73ef86f6ad1a8",
+      "timestamp": "1795712061"
+    },
+    "result": {
+      "chainId": 1952,
+      "profile": "public-testnet",
+      "campaign": "judge-01",
+      "owner": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+      "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+      "repayAccount": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "swapAccount": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+      "repayGrant": [
+        8,
+        "2000000",
+        "1796316632"
+      ],
+      "swapGrant": [
+        "1000000000000000000",
+        "2000000000000000000",
+        "1796316632"
+      ],
+      "operatorCount": "1",
+      "book": [
+        "0",
+        "0"
+      ],
+      "idleInputRaw": "3000000000000000000",
+      "idleOutputRaw": "0"
+    }
+  },
+  "operations": [
+    {
+      "operation": "swap",
+      "proposal": {
+        "status": "proposed",
+        "proposalId": "0xa8d749fd0d213b3515167f08788d5cb7480b1271aaaf24b8e8ab69d688d4c4b8",
+        "intent": {
+          "operation": "swap",
+          "mode": "testnet",
+          "campaign": "judge-01",
+          "owner": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "target": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+          "data": "0xe3f2275c0000000000000000000000008ecde41881efa0730fcdceb7cb0474f017422d0b00000000000000000000000000000000000000000000000003782dace9d9000000000000000000000000000000000000000000000000000000000000012e1fc0000000000000000000000000000000000000000000000000000000006b119dd8",
+          "valueWei": "0",
+          "blockHash": "0x8081d8dcaee1ff5c666a58d05f4ba0725d966c7a0969f5e23fe03e3c84067ee9"
+        },
+        "simulation": {
+          "block": {
+            "number": "47253237",
+            "hash": "0x8081d8dcaee1ff5c666a58d05f4ba0725d966c7a0969f5e23fe03e3c84067ee9",
+            "timestamp": "1795712074"
+          },
+          "result": {
+            "status": "simulated-success",
+            "target": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+            "resultRaw": "19990000",
+            "dataHash": "0x1e0d21bd11e05ed5ecba1f8ff8da3d9300205149f2ef85ce35415b91b9538f75"
+          }
+        }
+      }
+    },
+    {
+      "operation": "repay",
+      "proposal": {
+        "status": "proposed",
+        "proposalId": "0xdcffd6821a510961b41dcee06c15cf9be00269cf95336997a0b803483528af03",
+        "intent": {
+          "operation": "repay",
+          "mode": "testnet",
+          "campaign": "judge-01",
+          "owner": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "target": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+          "data": "0x59b632ce",
+          "valueWei": "0",
+          "blockHash": "0xc3d88be764a68b9b8497dd300b5855d4469bd2bb347954b294e36c18e212af9e"
+        },
+        "simulation": {
+          "block": {
+            "number": "47253251",
+            "hash": "0xc3d88be764a68b9b8497dd300b5855d4469bd2bb347954b294e36c18e212af9e",
+            "timestamp": "1795712088"
+          },
+          "result": {
+            "status": "simulated-success",
+            "target": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+            "resultRaw": "2000000",
+            "dataHash": "0xb332dd5f99cf432a19b38f8fcb42116f031bc70e5c3f052b518be828bc80edca"
+          }
+        }
+      }
+    },
+    {
+      "operation": "deny-operator",
+      "proposal": {
+        "status": "proposed",
+        "proposalId": "0xc6bb2601f3cef79427076c2892bf6c5f45a357abbf46782f0dc95de0723cbb39",
+        "intent": {
+          "operation": "deny-operator",
+          "mode": "testnet",
+          "campaign": "judge-01",
+          "owner": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+          "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+          "target": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+          "data": "0xc5ebeaec0000000000000000000000000000000000000000000000000000000000000001",
+          "valueWei": "0",
+          "blockHash": "0xba84605d1f59b21e6db304958e8e5f8c9ba912d336fe69a1546368602195bea2"
+        },
+        "simulation": {
+          "block": {
+            "number": "47253266",
+            "hash": "0xba84605d1f59b21e6db304958e8e5f8c9ba912d336fe69a1546368602195bea2",
+            "timestamp": "1795712103"
+          },
+          "result": {
+            "status": "simulated-rejection",
+            "method": "eth_call",
+            "revertData": "0x2e430953",
+            "error": "OperatorNotAuthorized"
+          }
+        }
+      }
+    }
+  ],
+  "after": {
+    "block": {
+      "number": "47253281",
+      "hash": "0xfcb9ac982dacdbd1e7afe5747f6865a68993e2a5eeb45faa9ace3698a61fb163",
+      "timestamp": "1795712118"
+    },
+    "result": {
+      "chainId": 1952,
+      "profile": "public-testnet",
+      "campaign": "judge-01",
+      "owner": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+      "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+      "repayAccount": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "swapAccount": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+      "repayGrant": [
+        8,
+        "2000000",
+        "1796316632"
+      ],
+      "swapGrant": [
+        "1000000000000000000",
+        "2000000000000000000",
+        "1796316632"
+      ],
+      "operatorCount": "1",
+      "book": [
+        "0",
+        "0"
+      ],
+      "idleInputRaw": "3000000000000000000",
+      "idleOutputRaw": "0"
+    }
+  }
+}

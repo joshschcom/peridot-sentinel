@@ -1,0 +1,50 @@
+{
+  "schema": "peridot.strategy/v1",
+  "chainId": 1952,
+  "profile": "restricted-swap-v2",
+  "executionMode": "external-agent",
+  "deployment": {
+    "accountVersion": "v2",
+    "sourceCommit": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",
+    "factory": "0xbdd270a685596452557c8342ca3d39b1133ba7a0",
+    "adapter": "single-pool-swap-v2",
+    "target": "0xf2e6d955158fe77252713d982f9d376f467e7cd3"
+  },
+  "allowedOperations": [
+    "SWAP_EXACT_IN"
+  ],
+  "allowedAssets": [
+    {
+      "symbol": "mWOKB",
+      "address": "0x3a5f909912c4adbee8776264e6b9fad130321b26",
+      "decimals": 18
+    },
+    {
+      "symbol": "mUSDC",
+      "address": "0x3a6cb8bedc251c37dc8258a27575127990a67e95",
+      "decimals": 6
+    }
+  ],
+  "policy": {
+    "kind": "EXECUTION",
+    "schemaVersion": "sentinel-execution-swap-v1",
+    "templateVersion": 1,
+    "mode": "development-reference",
+    "enforcer": "0xc72a18670c185f6a5e39dfbf10c27f025aa96d9c",
+    "processor": "0x6d75932b8bb080a3e04b6c9c6218bdf3b321f9b1",
+    "circuitId": "1",
+    "netlistHash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b"
+  },
+  "name": "Restricted agent swap",
+  "description": "Allow bounded mWOKB to mUSDC swaps through the inventory funded testnet venue.",
+  "objective": "Give the operator a limited allowance for one approved trading route.",
+  "agentInstructions": "Review the live testnet quote and simulate each swap. Deliver output to the account.",
+  "expirySeconds": 86400,
+  "risk": {
+    "maxSlippageBps": 100
+  },
+  "budget": {
+    "perCallRaw": "500000000000000000",
+    "cumulativeRaw": "1000000000000000000"
+  }
+}

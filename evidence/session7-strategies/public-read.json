@@ -1,0 +1,30 @@
+{
+  "mode": "unsigned read-only X Layer testnet plan review",
+  "chainId": 1952,
+  "command": "node packages/strategy-sdk/smoke.mjs",
+  "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+  "plans": [
+    {
+      "profile": "debt-protection-v1",
+      "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+      "block": "47254140",
+      "blockHash": "0xc15216bb7ebf3a2633901869458bafd02070e52b872a48d8c06fb01369449da6",
+      "priorTriggerBps": 4500,
+      "priorGrant": {"mask": 8, "remainingRaw": "0", "expiry": "1796305268"},
+      "replacementReviewRequired": true,
+      "adopt": ["setAutoRepayTrigger", "setOperator"],
+      "stop": ["revokeOperator"]
+    },
+    {
+      "profile": "restricted-swap-v2",
+      "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+      "block": "47254150",
+      "blockHash": "0xa3d9a05b05e8df9265a1dc5ac31ca31f4e583062631d116c3593b7412d29b9e3",
+      "priorGrant": {"perCallRaw": "0", "remainingRaw": "0", "expiry": "0"},
+      "replacementReviewRequired": false,
+      "adopt": ["setGrant"],
+      "stop": ["revokeGrant"]
+    }
+  ]
+}

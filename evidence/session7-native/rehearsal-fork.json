@@ -1,0 +1,1909 @@
+{
+  "chainId": 31337,
+  "label": "FORK of 196, circuits fabricated locally on real CPU 410",
+  "upstream": {
+    "rpc": "https://rpc.xlayer.tech",
+    "chainId": 196,
+    "block": "76931874",
+    "hash": "0x69209f9c7d765066eef82ee9bb53ba50eaea6d29ee33ff521908d2c81f0da16b",
+    "timestamp": "1795700910"
+  },
+  "publicCircuitIds": null,
+  "bindings": {
+    "factory": "0x1f09DAeFA827f02CBb40967cc91b259763760761",
+    "cpuIndex": 410,
+    "cpu": "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5",
+    "components": "0x3896076BE165d6a7eC2a70CCF6876673fE245007",
+    "beacon": "0xf70d1ed4f62CF3780157B0b421b7E2F45bD0991C",
+    "beaconImpl": "0x977f217887E085D298Cb3819cDAD5A0ee35F29B2",
+    "beaconOwner": "0x0000000000000000000000000000000000000000",
+    "factoryImpl": "0x000000000000000000000000336e9f0f4c3fee7c8c803377e4dea00293f4ae2a",
+    "factoryOwner": "0xB3D85b42A045c1A88D800CAD0F55d2566a4D3138",
+    "sealed": false,
+    "codeHashes": {
+      "0x1f09DAeFA827f02CBb40967cc91b259763760761": "0x5cddc08137fc81eb8ba1d37902e77553152c2f639b6bf6f601ecb094e2cae5c8",
+      "0x336e9F0F4c3fEe7C8c803377e4DEA00293f4ae2a": "0x8310648246b9825d2861cd4a5a980eed1d3b7165b2aed247b1c55abe049b7f60",
+      "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5": "0x8c799a18cd8e0d5f5f3c0cec4fbc145e2daf79f70c2b131c09d0f380921db545",
+      "0xf70d1ed4f62CF3780157B0b421b7E2F45bD0991C": "0xc7cc9854e1465f48d6d8d6d220c04efa6509939832930be4b04ee7fe86575362",
+      "0x977f217887E085D298Cb3819cDAD5A0ee35F29B2": "0x7a15c353205e5245f40f5f5524542a982a4bb3b9a28476e4f10845163f941b30",
+      "0x3896076BE165d6a7eC2a70CCF6876673fE245007": "0xbd8d1d3ea1dcf084b7f25f47a0bb2c71a1405d66b0088610f3a5fe5c7034d983",
+      "0x420000000000000000000000000000000000000F": "0xfa8c9db6c6cab7108dea276f4cd09d575674eb0852c0fa3187e59e98ef977998",
+      "0x4Ff345b18a2bF894F8627F41501FBf30d5C5e7BE": "0xbd6f524cdc4268b6bd1bb6f77a8821faeea9c52ee9e0afa0b6d948ce82c966c2"
+    }
+  },
+  "contracts": {
+    "Witness": {
+      "type": "NativeCircuitWitness",
+      "address": "0x6e989C01a3e3A94C973A62280a72EC335598490e",
+      "runtimeHash": "0x0f40126f9e1a29b644a7c59e652ce7f69801ee6f468b3e1a61309634982d150b"
+    },
+    "Parity control only": {
+      "type": "DevelopmentReferenceProcessor",
+      "address": "0xF6168876932289D073567f347121A267095f3DD6",
+      "runtimeHash": "0x517d307fe4b14e4ff7b5b6a471683050078abadab2a5a74c985303a2516f54de"
+    },
+    "Registry": {
+      "type": "PolicyRegistry",
+      "address": "0x94B75AA39bEC4cB15e7B9593C315aF203B7B847f",
+      "runtimeHash": "0xafc1fe0972622812119fa572eba1abe839e36ef7065953e7d8536b7af31e5d61"
+    },
+    "Lending policy adapter": {
+      "type": "TapeOutPolicyAdapter",
+      "address": "0x13D69Cf7d6CE4218F646B759Dcf334D82c023d8e",
+      "runtimeHash": "0xff0108c3fd923c0ba65a7d180aca7bfbe44c5ebc26f02fab91fd96e94a9ac8fe"
+    },
+    "Execution policy adapter": {
+      "type": "ExecutionPolicy",
+      "address": "0x558785b76e29e5b9f8Bf428936480B49d71F3d76",
+      "runtimeHash": "0x12ccefe6756dd1efc306a6cb36087fcad808f315e9c036e61a5fe171d0dc813d"
+    },
+    "Native financial policy": {
+      "type": "NativeFinancialPolicy",
+      "address": "0x71550ac84Ba7599220eAEf5C756b847cB4486606",
+      "runtimeHash": "0x435f2887bdf00b23e341fbc06fa91fde05dd2aa7c8db41d7e48970ccdb551248"
+    },
+    "Mock collateral": {
+      "type": "TestnetToken",
+      "address": "0x36B22905A1211A55E0d62eF46720172e2b0f24BD",
+      "runtimeHash": "0x607ad62d751e0292f17a3e6877b289b73e8b7498273df14dac1b9540dee7881b"
+    },
+    "Mock USD": {
+      "type": "TestnetToken",
+      "address": "0xE8BBb5F22E6b3d6CD9157B8FD2b59C076e57a9Fc",
+      "runtimeHash": "0x708bccc84cad71b9869bbe839a229a6715abef2a0e5054b04c43e73905b11f0f"
+    },
+    "Mock price fixture": {
+      "type": "TestnetOracle",
+      "address": "0x050499eBdbBBc1216011dE07A48b5182c983Ae74",
+      "runtimeHash": "0x3e6419ae57acc5d5c5a340809d68d1bb72a20092ed931a922195e0430841d9ef"
+    },
+    "Demo interest model": {
+      "type": "DemoRateModel",
+      "address": "0x029A31eDd4C791C99387B318cbc352EA4D3f64bf",
+      "runtimeHash": "0xea750e811ab6cdaaa1c2c2d04c8e5f72761209020b3ba6da81a4832e075db6d9"
+    },
+    "Book prototype": {
+      "type": "MarketPToken",
+      "address": "0xf764adBB39386BC744d533649D1EE3c86b0D6fD1",
+      "runtimeHash": "0x8098dffb13dfd0553f4e381a90d09ef2c5c56d91b03bd1e12b27c4370a097905"
+    },
+    "Market factory": {
+      "type": "MarketFactory",
+      "address": "0x17A7428596776A82b9E2D11fd7c523e8e1BA92B1",
+      "runtimeHash": "0x67d00fca557d4f77ce9c0a22a36bf7a1c14f3434949826cd5a96d27873750383"
+    },
+    "Peridot adapter": {
+      "type": "PeridotLendingAdapter",
+      "address": "0x9726Fc549AcaA0791d8c170843a031ec1D2f8a68",
+      "runtimeHash": "0x6ee388c0d814a6e8d4ff9885c36e6f98f26088589c07592ec212bb65664928c0"
+    },
+    "Mock inventory venue": {
+      "type": "TestnetInventoryVenue",
+      "address": "0xfF524Cfa30Beb84Ae86032705184015C9Ea6b903",
+      "runtimeHash": "0xe03dad34a72334372534a2779134044bc6d698b5677ac673094574ebe3a4859f"
+    },
+    "Mock quote source": {
+      "type": "TestnetSwapQuoteSource",
+      "address": "0x95AF2694e3359a8DF8294E7A3ad66E68F7066dB9",
+      "runtimeHash": "0xed1a0228fd888fbff76113fb6c0e6e1c74cda0434c00cb259487717ba04fe3cd"
+    },
+    "Swap adapter": {
+      "type": "SinglePoolSwapAdapter",
+      "address": "0x2348f027Dc1C4884a457cfA92472Bd5Ed67E3a70",
+      "runtimeHash": "0x408a333544a18194b61d3ffbaa1182fb96476cba4ab5a6d3e986bec489a555ca"
+    },
+    "V2 factory": {
+      "type": "SentinelAccountFactoryV2",
+      "address": "0x0D9FA77DeAB0Cce9E49aa552b8c15E70fFf473b3",
+      "runtimeHash": "0x710dfe68a0d60b31e893cfbe183aba009c0156c07486034403b68e4a93a4da04"
+    }
+  },
+  "receipts": [
+    {
+      "label": "FORK mint 209 NAND components",
+      "hash": "0xc5962234f796f60575029f6a73e3a75933154d2597ed76b3cba6f09cb202dd83",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x3896076be165d6a7ec2a70ccf6876673fe245007",
+      "created": null,
+      "status": "success",
+      "block": "76931875",
+      "blockHash": "0x1760f73ffd22873e1e0662189ae6b9b4a6c5ae25b7be52d28d37b263ea9e9962",
+      "gasUsed": "83599"
+    },
+    {
+      "label": "FORK fabricate MARKET",
+      "hash": "0xa17c45884c497e9c6418ed7eea90787ccd1a4c78ef660af189bf390a16bf237d",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+      "created": null,
+      "status": "success",
+      "block": "76931876",
+      "blockHash": "0x03f81d6e982c640c3a148e5c9650c4e62ec393a9ce47edd4cb910008f3e55c97",
+      "gasUsed": "402065"
+    },
+    {
+      "label": "FORK fabricate ACCOUNT",
+      "hash": "0x03983273c54580e8c1836f73e1fda8c2800fac9aa15064d46970f981c7620102",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+      "created": null,
+      "status": "success",
+      "block": "76931877",
+      "blockHash": "0x5d19c350f964de32b2d7406f37d4e72ed9b668ac0a01f660a6d424fe86b02b9d",
+      "gasUsed": "453116"
+    },
+    {
+      "label": "FORK fabricate EXECUTION",
+      "hash": "0x22abf55a511bb3753a6098ddeb02b1a86f54e929ddaed1176f78d30ce9ff6e4e",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+      "created": null,
+      "status": "success",
+      "block": "76931878",
+      "blockHash": "0xe9cf4f2e98d98c7a03031fc19acdf1ff9eb755905bebb9041f0cf039ea256ecf",
+      "gasUsed": "368806"
+    },
+    {
+      "label": "Deploy Witness",
+      "hash": "0x7b75ea84ee35a050e3773b00bcc576601f1cd08af27a47a059a6c7950329f779",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x6e989c01a3e3a94c973a62280a72ec335598490e",
+      "status": "success",
+      "block": "76931879",
+      "blockHash": "0x651172552c74fe618bdfaff2d39f166ffb7788bdae99ec0894ef2af41aea3b9b",
+      "gasUsed": "477432"
+    },
+    {
+      "label": "Deploy Parity control only",
+      "hash": "0x1921b74bea7c0b9e01b807eba2d950d68a57954ba0c676f1505b5a91ce486224",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0xf6168876932289d073567f347121a267095f3dd6",
+      "status": "success",
+      "block": "76931880",
+      "blockHash": "0xc323f0e0b1b949e9c21c3a5fb9863287b8c8e84a12fe96bdc330626237155deb",
+      "gasUsed": "615898"
+    },
+    {
+      "label": "Deploy Registry",
+      "hash": "0x21a1ac927f06a7b566aaa833079b9b66c7473b9e1e824f360ad43c45450a3c5c",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x94b75aa39bec4cb15e7b9593c315af203b7b847f",
+      "status": "success",
+      "block": "76931881",
+      "blockHash": "0x0edf78e5a6f3762b59cdf8a308e8e5a3b14a8cf490a216dfca87fd10ae18a74b",
+      "gasUsed": "1223230"
+    },
+    {
+      "label": "Deploy Lending policy adapter",
+      "hash": "0xa2f234b38a327f2d41d48fb52f7ddddd1e8afacd4d3ed38bfdfff5ca5a4f6154",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x13d69cf7d6ce4218f646b759dcf334d82c023d8e",
+      "status": "success",
+      "block": "76931882",
+      "blockHash": "0x9ba86bebda849c1e6afb0ca9bfa833d1107fc952bb0b30d4122cf7b6a3c32a23",
+      "gasUsed": "299141"
+    },
+    {
+      "label": "Register only native CPU as trusted",
+      "hash": "0x65dd80fb106a020709d9526b99f77998dc4457804851073672c217fe3ea06641",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x94b75aa39bec4cb15e7b9593c315af203b7b847f",
+      "created": null,
+      "status": "success",
+      "block": "76931883",
+      "blockHash": "0x1e38802dc1088830f6d14457badbf4595d802f3f17e7f7330350daf6586d4cb0",
+      "gasUsed": "48374"
+    },
+    {
+      "label": "Add parity control MARKET",
+      "hash": "0xbad250e39939e81bfb09256a437959baf32f8ac46a3633f15828196b208e0a0a",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xf6168876932289d073567f347121a267095f3dd6",
+      "created": null,
+      "status": "success",
+      "block": "76931884",
+      "blockHash": "0x35e47f913945a4e4344715fe981b5acaca00eff9b7185f8fd554d38a98d7e8a4",
+      "gasUsed": "416645"
+    },
+    {
+      "label": "Register native MARKET",
+      "hash": "0x03da5cb04f399583306059771ad92169ce660c218f6e4989fddded53de737eac",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x94b75aa39bec4cb15e7b9593c315af203b7b847f",
+      "created": null,
+      "status": "success",
+      "block": "76931885",
+      "blockHash": "0x4e5debc30063134d4f504e789dbbf3aed31ebf30d4fb6583c470407294a89969",
+      "gasUsed": "267081"
+    },
+    {
+      "label": "Add parity control ACCOUNT",
+      "hash": "0x44ffde8ac8dd44ef33eb571a62f969b883a20b6848c48b292f87c512bab611d4",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xf6168876932289d073567f347121a267095f3dd6",
+      "created": null,
+      "status": "success",
+      "block": "76931886",
+      "blockHash": "0x8617b0fad6e4506b4fefe80256d39c57e625d7b25bbfec02fca68e6773f84834",
+      "gasUsed": "570816"
+    },
+    {
+      "label": "Register native ACCOUNT",
+      "hash": "0x9c864acd8a0f20d7ed900167ce9fc68c8a3f7d32c01e3aff24f7fdadc83d0823",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x94b75aa39bec4cb15e7b9593c315af203b7b847f",
+      "created": null,
+      "status": "success",
+      "block": "76931887",
+      "blockHash": "0xbb97745ac39f34d54689969fadf3d1066365fdca008046ed1a3be453777182ca",
+      "gasUsed": "280282"
+    },
+    {
+      "label": "Add parity control EXECUTION",
+      "hash": "0x3f40fbf21832d52101c926f1f2c993ba06c20186b249871e06de1da861759fc2",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xf6168876932289d073567f347121a267095f3dd6",
+      "created": null,
+      "status": "success",
+      "block": "76931888",
+      "blockHash": "0x4b7b9f5a3e9da0c255a017249d2d2f1c25d17d44bb14d6a0db98a84f484e9ebe",
+      "gasUsed": "390950"
+    },
+    {
+      "label": "Deploy Execution policy adapter",
+      "hash": "0x8c0784d17297f8dfa085aa90c173a34ee301fb08ec47298de97e8bd2903efcbe",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x558785b76e29e5b9f8bf428936480b49d71f3d76",
+      "status": "success",
+      "block": "76931889",
+      "blockHash": "0xb7b2083f3472f3d698e5bd30a923b6c45982de5120ac75e9179eee0bca11f430",
+      "gasUsed": "328346"
+    },
+    {
+      "label": "Deploy Native financial policy",
+      "hash": "0x6e7bca7f8e9f3932077c01f2a1e4073ae27f7e3b5c1d1d82b4fdca25825a7e84",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x71550ac84ba7599220eaef5c756b847cb4486606",
+      "status": "success",
+      "block": "76931890",
+      "blockHash": "0x4e64e3229b3ec5b35795e59451b978d02766cb9329207c340ca6a6224a75eba0",
+      "gasUsed": "400678"
+    },
+    {
+      "label": "Deploy Mock collateral",
+      "hash": "0x6417689837c5971fd19182d079ce3b25751569ec465ae7d38aa5bd4a396edee1",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x36b22905a1211a55e0d62ef46720172e2b0f24bd",
+      "status": "success",
+      "block": "76931891",
+      "blockHash": "0xb9e86679b6ed5566efd53bb304957c03b4be669d3522b15a704f422f45fef621",
+      "gasUsed": "507917"
+    },
+    {
+      "label": "Deploy Mock USD",
+      "hash": "0xa7338633f0fd60ea27557db67438a3dcc51a217de3b57a2b865e1422618b0e94",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0xe8bbb5f22e6b3d6cd9157b8fd2b59c076e57a9fc",
+      "status": "success",
+      "block": "76931892",
+      "blockHash": "0x6af45571ac3055257a336f6b4a03af02c7dab75c7ca5645884dda13c1e9906db",
+      "gasUsed": "507833"
+    },
+    {
+      "label": "Deploy Mock price fixture",
+      "hash": "0x0e57acca92e705a1af4bb3c6d28825b55261dee8c864f9e61bdcf0e00f75cef4",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x050499ebdbbbc1216011de07a48b5182c983ae74",
+      "status": "success",
+      "block": "76931893",
+      "blockHash": "0x70173345261dbd977dcaa5e37f881151da15e68ba2fd0987a0d3f02288920525",
+      "gasUsed": "231342"
+    },
+    {
+      "label": "Set fixture collateral quote",
+      "hash": "0x00982f89287995f4a631aab22be180e00cd8159d8949f49b21807705ceed2652",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x050499ebdbbbc1216011de07a48b5182c983ae74",
+      "created": null,
+      "status": "success",
+      "block": "76931894",
+      "blockHash": "0xebb9477231b11a7dd9a0205640c184a8b620007cb271a332cacd3e0e5a027dbc",
+      "gasUsed": "46102"
+    },
+    {
+      "label": "Set fixture debt quote",
+      "hash": "0x4aaa6ca4865ae52163fb44f71c44939f38f35948f984aabc99660f804c6e0a2a",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x050499ebdbbbc1216011de07a48b5182c983ae74",
+      "created": null,
+      "status": "success",
+      "block": "76931895",
+      "blockHash": "0xa2666c02866b63a048510d7b938826956f285245cc6cdd999b569c34dfe6febd",
+      "gasUsed": "46102"
+    },
+    {
+      "label": "Deploy Demo interest model",
+      "hash": "0xcc7bf79294b3878a77459442edceea3172e2d4443477f89095f06bc36fb9ff00",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x029a31edd4c791c99387b318cbc352ea4d3f64bf",
+      "status": "success",
+      "block": "76931896",
+      "blockHash": "0xd69eee2f75c820b6ac2c655592d4686dbdce22e99735e8fd6fe19c9b7d1101f7",
+      "gasUsed": "312417"
+    },
+    {
+      "label": "Deploy Book prototype",
+      "hash": "0x48bfd9f6731680c94a6774acdda35811590d8c70a1bd5d882c370f5b7890302d",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0xf764adbb39386bc744d533649d1ee3c86b0d6fd1",
+      "status": "success",
+      "block": "76931897",
+      "blockHash": "0x3bc520cf67a4f7bf8a5a375a647efc1d9b9dea95b0fd68701fe4d3c9b4c68509",
+      "gasUsed": "4968511"
+    },
+    {
+      "label": "Deploy Market factory",
+      "hash": "0x5db498caae89eb8774286e21cdb9580a48fdf33886bbc1cb717f488b6cc751a4",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x17a7428596776a82b9e2d11fd7c523e8e1ba92b1",
+      "status": "success",
+      "block": "76931898",
+      "blockHash": "0x4fd5bd38297a1725bab7dcd3937ed0d7c40cea17d5aa67b9c4d2ed2dd4ffdbda",
+      "gasUsed": "3215376"
+    },
+    {
+      "label": "Create isolated native-policy market",
+      "hash": "0x596afd857b7cd6bfecaf6da9675d0173332e0881aa3786425b33f6f4a20f4f88",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x17a7428596776a82b9e2d11fd7c523e8e1ba92b1",
+      "created": null,
+      "status": "success",
+      "block": "76931899",
+      "blockHash": "0x368dd577f0b8b8bce4955150dbb96d102a042f2fc42ca00aa6dadbf57c204d1e",
+      "gasUsed": "3130585"
+    },
+    {
+      "label": "Deploy Peridot adapter",
+      "hash": "0xccc02f27ecd251561ce1706181f7fbf37895eda8067489d79e1ab2a180c006f6",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x9726fc549acaa0791d8c170843a031ec1d2f8a68",
+      "status": "success",
+      "block": "76931900",
+      "blockHash": "0xd4fcb2e9a1a9d291589110afc67d5dc63e59660b8d6f8e9c5a8db8ac58fbf69f",
+      "gasUsed": "433687"
+    },
+    {
+      "label": "Deploy Mock inventory venue",
+      "hash": "0x7f95663185a4d22239d04a487db428a7410458b9bb92737847e0d80c06dad360",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0xff524cfa30beb84ae86032705184015c9ea6b903",
+      "status": "success",
+      "block": "76931901",
+      "blockHash": "0x92003dc074fdb993c78add12d3c79de354fb4f91da3425e11bb8af9e88b031df",
+      "gasUsed": "626771"
+    },
+    {
+      "label": "Deploy Mock quote source",
+      "hash": "0xba6fe3ece97b0f0759f297aad28c524e95b2b9bdd93229ae77707e57af6c1ce3",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x95af2694e3359a8df8294e7a3ad66e68f7066db9",
+      "status": "success",
+      "block": "76931902",
+      "blockHash": "0x0de4d036d9b2bc4251cbd3c743ec0c935aac9e23d3e42bbdfcec08cef7c1d19d",
+      "gasUsed": "166653"
+    },
+    {
+      "label": "Deploy Swap adapter",
+      "hash": "0x6fa45d0bda5d65798dce613957296f18a66e4c77141fe8b97190433abd613a6a",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x2348f027dc1c4884a457cfa92472bd5ed67e3a70",
+      "status": "success",
+      "block": "76931903",
+      "blockHash": "0x2fea9afbeeb8be9716ea71443056e90df8ed80ac5de98e54d42cd694434ed1fa",
+      "gasUsed": "1003053"
+    },
+    {
+      "label": "Deploy V2 factory",
+      "hash": "0xe61c0e7132926b9a21a9cb3e39b9b5713ab3907f87e4638da160c5b98303e147",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": null,
+      "created": "0x0d9fa77deab0cce9e49aa552b8c15e70fff473b3",
+      "status": "success",
+      "block": "76931904",
+      "blockHash": "0x26b4f568c67c47f0e8b75bcd952f37c40645df5d0983aca11168421617e1fb04",
+      "gasUsed": "3897508"
+    },
+    {
+      "label": "Create native v2 account",
+      "hash": "0x771636013ccc61c0a7554906f3f5b03ae4f19b67e7b971348a70e5946f0917a8",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x0d9fa77deab0cce9e49aa552b8c15e70fff473b3",
+      "created": null,
+      "status": "success",
+      "block": "76931905",
+      "blockHash": "0x5f09896ac9b57f4f2c05cef9cd8ae6e0ad58f026d3006d6144a828e337168b8c",
+      "gasUsed": "3051726"
+    },
+    {
+      "label": "Supply mock USD inventory",
+      "hash": "0xe254b85fec25d13da338d91703ca24e9bc0ced743d6f889c752d892bc9fcad23",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xe8bbb5f22e6b3d6cd9157b8fd2b59c076e57a9fc",
+      "created": null,
+      "status": "success",
+      "block": "76931906",
+      "blockHash": "0xe51f9d33408b812c4c206ca7050a920a929c487c443b2f48c4204c76f41dfaac",
+      "gasUsed": "68063"
+    },
+    {
+      "label": "Approve lending seed",
+      "hash": "0xcde2230b9a86e1a41dd1a0fd0f67916c3816bf4cab74dc5e98785588b6ae6a9b",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xe8bbb5f22e6b3d6cd9157b8fd2b59c076e57a9fc",
+      "created": null,
+      "status": "success",
+      "block": "76931907",
+      "blockHash": "0xf617f79f064314e33785689c5bafd08f513aebdbc530bbdfc860936567a8cd7b",
+      "gasUsed": "45926"
+    },
+    {
+      "label": "Seed debt book",
+      "hash": "0x6b3189b4b52bea7a4b1387cfafaa8d0ab688a66198cfff6c8d1e3b0ccfaf987a",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xfa256b29f0bca9a151f4dbbfe66b44cf1fda6d44",
+      "created": null,
+      "status": "success",
+      "block": "76931908",
+      "blockHash": "0x894e1cb3af0bcac5aced57589aa5800273770a983a83ddaae0af88eed51a3a20",
+      "gasUsed": "435284"
+    },
+    {
+      "label": "Activate fork market",
+      "hash": "0xea6794c192aa20b3077d4c6ad645221f92fe5ba4887388c0fc9e2725e99d4c40",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x6967dcf9464dbf1c979fc0e046f99c3356ede9c8",
+      "created": null,
+      "status": "success",
+      "block": "76931909",
+      "blockHash": "0x11692b14843d64fd23c2914ded09f99d3a76b2a05c3f5d21240db8ac9be3bcc5",
+      "gasUsed": "93845"
+    },
+    {
+      "label": "Fund mock swap venue",
+      "hash": "0x6e2e6e472b49e00444c246b534103528eae2d8c85c2c1d2cc4cc9cf5564c9f8d",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xe8bbb5f22e6b3d6cd9157b8fd2b59c076e57a9fc",
+      "created": null,
+      "status": "success",
+      "block": "76931910",
+      "blockHash": "0x87a43d563844a7d00db1c05104132c9c1e1abc6ad7d9c6bb2f9df41b9953d6d6",
+      "gasUsed": "50975"
+    },
+    {
+      "label": "Fund account with mock collateral",
+      "hash": "0x75545524a2d61a319bdcdbaf7fc7afe0fad4d4a39e3fce31a25cbbfd29657014",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x36b22905a1211a55e0d62ef46720172e2b0f24bd",
+      "created": null,
+      "status": "success",
+      "block": "76931911",
+      "blockHash": "0xa9798af85529a0f25069e5ce187e9335e49e7470d91a4af1223678f155efad6c",
+      "gasUsed": "68123"
+    },
+    {
+      "label": "Enter v2 collateral",
+      "hash": "0x08d17cd6156bfa0c7570d4f014ecb9b50e8ca161197a09448d4d1611f795be2d",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "success",
+      "block": "76931912",
+      "blockHash": "0x59bae6e3437504a57bddab14a9c33ce463616b525c1f133e0d503add3969db1b",
+      "gasUsed": "58940"
+    },
+    {
+      "label": "Supply 100 mock collateral through v2",
+      "hash": "0x309d145097e09c64191b5e51ffbc6f9079358b06727023d1391385b54d6546ac",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "success",
+      "block": "76931913",
+      "blockHash": "0xd3b88dd692e4de1ecc357d8b00d74897886182552b6f9a22e927c99ad528735b",
+      "gasUsed": "724488"
+    },
+    {
+      "label": "Fund direct borrower",
+      "hash": "0xe22c5443bbb3e63354fee6600236c48a157d13b58bc190d624eac9b76db1cf85",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x36b22905a1211a55e0d62ef46720172e2b0f24bd",
+      "created": null,
+      "status": "success",
+      "block": "76931914",
+      "blockHash": "0x0215ad6b146d32ab25f76d6ac05f2ea3c8a710c7b4ae99db2cbe4274a7fed4d8",
+      "gasUsed": "51011"
+    },
+    {
+      "label": "Approve direct collateral book",
+      "hash": "0x4f3e33340e6ea23ff30d7967326a0b938124a80450359b0e1b7c590ec68c2824",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x36b22905a1211a55e0d62ef46720172e2b0f24bd",
+      "created": null,
+      "status": "success",
+      "block": "76931915",
+      "blockHash": "0x980a54323a21d0084d3b1af3d3f2cf29a4b157a3658f841db48cfce30bbfda6d",
+      "gasUsed": "45974"
+    },
+    {
+      "label": "Supply direct collateral",
+      "hash": "0x2481d5993931c288a9d7e1205d440ba1721af1af24113d3b8cb5e466011f1827",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xfeeda4f1f15bcfa669177b5cb4e81da22e913675",
+      "created": null,
+      "status": "success",
+      "block": "76931916",
+      "blockHash": "0x65f5c0b7f2711923105bf13eedd1e734449aafd4119381ec212dc71d459e222b",
+      "gasUsed": "397902"
+    },
+    {
+      "label": "Enter direct collateral",
+      "hash": "0x84216abd532f4c6e684b9d1b2adae2ceb536015d89321e0503035752735f1329",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x6967dcf9464dbf1c979fc0e046f99c3356ede9c8",
+      "created": null,
+      "status": "success",
+      "block": "76931917",
+      "blockHash": "0x948e4240aa457f9a2032a03fc3eb8086c2a5a4b074f4b581831cb9da8bfdd2bb",
+      "gasUsed": "47414"
+    },
+    {
+      "label": "Bound swap authority",
+      "hash": "0x1a44f35423d5f46a74a7b16dfbc032cf745249379f35296a3e10370e4f7dea95",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "success",
+      "block": "76931918",
+      "blockHash": "0x5d63cda6abfe1e39f77db0c09a23db6b65fef11a025bf920f2adb692d86bcd80",
+      "gasUsed": "165610"
+    },
+    {
+      "label": "ACCOUNT 5501 bps denied",
+      "hash": "0xe8683dc8a16c45c2f4113072555d8acb854abf702a015e6be3341027554994b5",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "reverted",
+      "block": "76931919",
+      "blockHash": "0x2a3d6a781635dfa8b19244bdf7e325afeaec3d182880e193e379f1e3f5c5ed64",
+      "gasUsed": "435534"
+    },
+    {
+      "label": "ACCOUNT 5500 bps accepted by ACCOUNT and MARKET",
+      "hash": "0x2bef00caebb62e32355b35fd14de2defb911e9d47a6eb5f74b6380d57c941ca3",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "success",
+      "block": "76931920",
+      "blockHash": "0x4ca87b301f12a732c7cfc640791baa6a583b705ea8788580e80e71e4113d83c4",
+      "gasUsed": "796290"
+    },
+    {
+      "label": "MARKET 6501 bps direct borrow denied",
+      "hash": "0xf622c40e5bfec779be3b3e8eb24c68d8edcf2fea396193ed7f2becdfd4157149",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xfa256b29f0bca9a151f4dbbfe66b44cf1fda6d44",
+      "created": null,
+      "status": "reverted",
+      "block": "76931921",
+      "blockHash": "0x4429fae6f71164cc5fae18d5607c35bfeb8274bbfe76d1ab77b6cd48708e127b",
+      "gasUsed": "367761"
+    },
+    {
+      "label": "MARKET 6500 bps direct borrow accepted",
+      "hash": "0x071749bf264a76f2cd0ddd047e45f682ff06ef86fdb3fd16a8ce2cb786a4a9ec",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xfa256b29f0bca9a151f4dbbfe66b44cf1fda6d44",
+      "created": null,
+      "status": "success",
+      "block": "76931922",
+      "blockHash": "0x8fdd4608142447beafcba973caa23cbebc1f94882e7766f3a81443a761ab26fe",
+      "gasUsed": "480767"
+    },
+    {
+      "label": "EXECUTION 101 bps denied",
+      "hash": "0x464efc7201fde869c5078847dd26c00861940c6b85632b74264f4bead9047fb4",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "reverted",
+      "block": "76931923",
+      "blockHash": "0x4080d6d46d56b5f0dd98c1489348989a71a4724a004e46a74a07e1fad8e375dc",
+      "gasUsed": "258293"
+    },
+    {
+      "label": "EXECUTION 100 bps accepted",
+      "hash": "0x607170d0c5431433b82cfefba0a5698f0c46b12a8e6f63508827950b0f4bb492",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "success",
+      "block": "76931924",
+      "blockHash": "0x9b13a9efc5d358c14edaa758a8c4be4eee7cefd26d04b72120dd8905ed760e44",
+      "gasUsed": "350388"
+    },
+    {
+      "label": "Reduce v2 debt for failure-control cases",
+      "hash": "0xe39def79dea6780aeb1f3eb04428f0390a648b1313749cc1dc362d6277e13cca",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "success",
+      "block": "76931925",
+      "blockHash": "0xf14b90613990c071b1fa0b89e2f65ce4fb4843a04851b43a32e590e272ad98ac",
+      "gasUsed": "152015"
+    },
+    {
+      "label": "Approve direct repayment",
+      "hash": "0x1722185a5b3fe32c6874b1e6d0bf1f0329e9a063eb241a2a1c238d992df2a0ad",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xe8bbb5f22e6b3d6cd9157b8fd2b59c076e57a9fc",
+      "created": null,
+      "status": "success",
+      "block": "76931926",
+      "blockHash": "0x17b7b403771a0bd1a29648358234f8c413c72c693e02172b374f3fbf069ae3f2",
+      "gasUsed": "45926"
+    },
+    {
+      "label": "Reduce direct debt for failure-control cases",
+      "hash": "0xc1917ac74c74b7aeb5d6a07a5f80c3261bf6748005fcfb2c628fec66d8544cf5",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xfa256b29f0bca9a151f4dbbfe66b44cf1fda6d44",
+      "created": null,
+      "status": "success",
+      "block": "76931927",
+      "blockHash": "0x708e0975854530931a109116d9ceff5b97ea45c686c6c7c49793181b0027bc18",
+      "gasUsed": "119802"
+    },
+    {
+      "label": "Healthy native control for outage scenarios",
+      "hash": "0xf249b51a6c17688ec379a286ea4d36c13b8a9b10112a890196cc03b54fd77047",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "success",
+      "block": "76931928",
+      "blockHash": "0xba519ed7e9faede5a9f60ad8d0939c996e75497e23187a0da36b627edc43a9c9",
+      "gasUsed": "693077"
+    },
+    {
+      "label": "Fail closed on v2 borrow: unavailable native CPU",
+      "hash": "0xde13ee317a7a7950b7247f419e819f1e8f4ce4d28b8b66a3d342ddb233f48e26",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "reverted",
+      "block": "76931929",
+      "blockHash": "0x68bdc4ace4eacfd278e4ce07cd76891a600a2cd82607a3c7d18c90c97f002f89",
+      "gasUsed": "184640"
+    },
+    {
+      "label": "Fail closed on direct borrow: unavailable native CPU",
+      "hash": "0xc796cf4a72d92f1600e978b6e600d716bb2c7be372fcf63f84ab07145e6cf387",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xfa256b29f0bca9a151f4dbbfe66b44cf1fda6d44",
+      "created": null,
+      "status": "reverted",
+      "block": "76931930",
+      "blockHash": "0xb4fd51106f1ee5fe44dd242d481a94963ffc2adefff937df7ea4267e03d792b0",
+      "gasUsed": "171030"
+    },
+    {
+      "label": "Fail closed on v2 swap: unavailable native CPU",
+      "hash": "0x0f10a2a46f4536e82a030f5d1d236b48f9e75cd1d2d2e3ac8d5a55558fca97c7",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "reverted",
+      "block": "76931931",
+      "blockHash": "0xafa70b8435847c667aa78a21f67ffc6a50ad4786658ae3a07a81335f443cb542",
+      "gasUsed": "89539"
+    },
+    {
+      "label": "Owner repay while native CPU unavailable",
+      "hash": "0x1700ebf01cc0c3cd5c24819f5d36a34605ecedb5b4d95a3d3b2d7746447b42f8",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "success",
+      "block": "76931932",
+      "blockHash": "0xa2426faa2a214ef8324266f09ead955561ef644fc17878afa5ae02f70aa9fc99",
+      "gasUsed": "152015"
+    },
+    {
+      "label": "Fail closed on v2 borrow: malformed backend runtime (one raw byte)",
+      "hash": "0x55c4789491f0e89e0f8c7eaea464b86dcc5a2f72492c039c063809bc76a83da9",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "reverted",
+      "block": "76931933",
+      "blockHash": "0x4ed98ae1f729ba46d55ebb45f56bf076226c7bc5de42da21c26f51e9085231d7",
+      "gasUsed": "189892"
+    },
+    {
+      "label": "Fail closed on direct borrow: malformed backend runtime (one raw byte)",
+      "hash": "0xfea084fc64227239cd879297efa26d5519aefd696a09dbae07828fe08bad87db",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xfa256b29f0bca9a151f4dbbfe66b44cf1fda6d44",
+      "created": null,
+      "status": "reverted",
+      "block": "76931934",
+      "blockHash": "0x2247fd353eaf4fb5a9ba6341a8d5c81625ffcfeb5f6c1db516251b6dacb49dad",
+      "gasUsed": "176282"
+    },
+    {
+      "label": "Fail closed on v2 swap: malformed backend runtime (one raw byte)",
+      "hash": "0x22b44ab7e440f92c20e4466661019d8db42183271e91defe3aae71f6afde3576",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "reverted",
+      "block": "76931935",
+      "blockHash": "0xd06306f0f0e1db60d10835f407a1749d744e87887ffea890e203ee8952156161",
+      "gasUsed": "94791"
+    },
+    {
+      "label": "Fail closed on v2 borrow: changed proxy runtime",
+      "hash": "0x7ce77b2c5068af6ba021d26f27589407b0dbd27a7930048f448f747168b65491",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "reverted",
+      "block": "76931936",
+      "blockHash": "0x82a70f3ce145219a751589650744c53b07655e468073675121b309e77b000940",
+      "gasUsed": "187440"
+    },
+    {
+      "label": "Fail closed on direct borrow: changed proxy runtime",
+      "hash": "0xae2d3116d827dab6d16e4ff4e15e4aa7b95dedae1abbe63c0bb5dd1de3e3ff7c",
+      "from": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+      "to": "0xfa256b29f0bca9a151f4dbbfe66b44cf1fda6d44",
+      "created": null,
+      "status": "reverted",
+      "block": "76931937",
+      "blockHash": "0xea5a0d4a1b37e983a9099b0bf88338f3936c62ba9a6340cefd428669bdf51f61",
+      "gasUsed": "173830"
+    },
+    {
+      "label": "Fail closed on v2 swap: changed proxy runtime",
+      "hash": "0xb249ece912c8b7464591e1f3bad03befdc2608d70e251468b1dceb997375e676",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "reverted",
+      "block": "76931938",
+      "blockHash": "0x6fea7fbed3e26f6bc5efacf4921fc78da61014bf1408f2795d1407cc00ab3ac3",
+      "gasUsed": "89539"
+    },
+    {
+      "label": "Native swap resumes after fork fault restoration",
+      "hash": "0xa66d77701858252c4fef388ee332067e9194c39a3b3047cb49550a19778fc05b",
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x9b9a8c106a41f002fa3047cb740d2b2b83643541",
+      "created": null,
+      "status": "success",
+      "block": "76931939",
+      "blockHash": "0xa60079d70b28f2d29555d31f352a2a7aa0d658c01a7df3f8917d74a50d1da6cf",
+      "gasUsed": "336708"
+    }
+  ],
+  "programs": [
+    {
+      "kind": "MARKET",
+      "schema": "lending-v1",
+      "id": "2",
+      "netlistHash": "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+      "dimensions": [
+        20,
+        1,
+        0,
+        63
+      ],
+      "publication": "fork-only",
+      "fabricationHash": "0xa17c45884c497e9c6418ed7eea90787ccd1a4c78ef660af189bf390a16bf237d",
+      "publisher": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "devId": "1",
+      "vectors": [
+        {
+          "inputs": "0x722c0b",
+          "native": "0x01",
+          "dev": "0x01",
+          "gasEstimate": "196761"
+        },
+        {
+          "inputs": "0x922c0b",
+          "native": "0x01",
+          "dev": "0x01",
+          "gasEstimate": "196626"
+        },
+        {
+          "inputs": "0xb22c0b",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "196492"
+        },
+        {
+          "inputs": "0x822c0b",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "196203"
+        },
+        {
+          "inputs": "0x922c03",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "196203"
+        },
+        {
+          "inputs": "0x992c03",
+          "native": "0x01",
+          "dev": "0x01",
+          "gasEstimate": "196607"
+        }
+      ],
+      "policyId": "0xbf865f9fb6bbd004716009731404b87a1a0a2fc1266501e97d0cabce5221ec58"
+    },
+    {
+      "kind": "ACCOUNT",
+      "schema": "lending-v1",
+      "id": "3",
+      "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+      "dimensions": [
+        20,
+        1,
+        0,
+        87
+      ],
+      "publication": "fork-only",
+      "fabricationHash": "0x03983273c54580e8c1836f73e1fda8c2800fac9aa15064d46970f981c7620102",
+      "publisher": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "devId": "2",
+      "vectors": [
+        {
+          "inputs": "0x72af0a",
+          "native": "0x01",
+          "dev": "0x01",
+          "gasEstimate": "251955"
+        },
+        {
+          "inputs": "0x92af0a",
+          "native": "0x01",
+          "dev": "0x01",
+          "gasEstimate": "251820"
+        },
+        {
+          "inputs": "0xb2af0a",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "251685"
+        },
+        {
+          "inputs": "0x82af0a",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "251396"
+        },
+        {
+          "inputs": "0x92af02",
+          "native": "0x01",
+          "dev": "0x01",
+          "gasEstimate": "251665"
+        },
+        {
+          "inputs": "0x99af02",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "251531"
+        }
+      ],
+      "policyId": "0xd5a33becc70dc385d418a97f163d1b409ba44a0f04e03a777c317d9c0042f8a9"
+    },
+    {
+      "kind": "EXECUTION",
+      "schema": "sentinel-execution-swap-v1",
+      "id": "4",
+      "netlistHash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b",
+      "dimensions": [
+        20,
+        1,
+        0,
+        59
+      ],
+      "publication": "fork-only",
+      "fabricationHash": "0x22abf55a511bb3753a6098ddeb02b1a86f54e929ddaed1176f78d30ce9ff6e4e",
+      "publisher": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "devId": "3",
+      "vectors": [
+        {
+          "inputs": "0xf50000",
+          "native": "0x01",
+          "dev": "0x01",
+          "gasEstimate": "186992"
+        },
+        {
+          "inputs": "0xf56300",
+          "native": "0x01",
+          "dev": "0x01",
+          "gasEstimate": "187602"
+        },
+        {
+          "inputs": "0xf56400",
+          "native": "0x01",
+          "dev": "0x01",
+          "gasEstimate": "187467"
+        },
+        {
+          "inputs": "0xf56500",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "187333"
+        },
+        {
+          "inputs": "0xf5f401",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "187615"
+        },
+        {
+          "inputs": "0xe50000",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "186568"
+        },
+        {
+          "inputs": "0xd50000",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "186568"
+        },
+        {
+          "inputs": "0xb50000",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "186568"
+        },
+        {
+          "inputs": "0x750000",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "186568"
+        },
+        {
+          "inputs": "0xf50004",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "186870"
+        },
+        {
+          "inputs": "0xf40000",
+          "native": "0x00",
+          "dev": "0x00",
+          "gasEstimate": "186568"
+        }
+      ]
+    }
+  ],
+  "wiring": {
+    "owner": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    "operator": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    "account": "0x9b9a8c106A41F002fA3047cB740d2b2b83643541",
+    "controller": "0x6967dCf9464dBf1c979Fc0e046F99c3356eDE9c8",
+    "collateralBook": "0xfEEda4F1f15bCfa669177b5cB4E81dA22e913675",
+    "debtBook": "0xfA256b29F0Bca9A151f4dbbFe66B44cF1fdA6D44",
+    "trustedNativeCpu": "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5",
+    "untrustedReference": "0xF6168876932289D073567f347121A267095f3DD6",
+    "assetAndSwapSource": "Fork-only mock tokens and priced inventory. The enforcement processor is the genuine forked CPU."
+  },
+  "operations": [
+    {
+      "label": "ACCOUNT 5501 bps denied",
+      "hash": "0xe8683dc8a16c45c2f4113072555d8acb854abf702a015e6be3341027554994b5",
+      "status": "reverted",
+      "block": "76931919",
+      "gas": "435534",
+      "topLevelError": "AccountPolicyRejected(bytes32,uint8)",
+      "revertBytes": "0xbbe80a23d5a33becc70dc385d418a97f163d1b409ba44a0f04e03a777c317d9c0042f8a90000000000000000000000000000000000000000000000000000000000000001",
+      "native": [
+        {
+          "id": "3",
+          "inputs": "0xb2af0a",
+          "decision": "0x00",
+          "gasUsed": "219606"
+        }
+      ],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "0",
+        "directDebt": "0",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "0",
+        "directUsd": "0",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "0",
+        "directDebt": "0",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "0",
+        "directUsd": "0",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "ACCOUNT 5500 bps accepted by ACCOUNT and MARKET",
+      "hash": "0x2bef00caebb62e32355b35fd14de2defb911e9d47a6eb5f74b6380d57c941ca3",
+      "status": "success",
+      "block": "76931920",
+      "gas": "796290",
+      "topLevelError": null,
+      "revertBytes": null,
+      "native": [
+        {
+          "id": "3",
+          "inputs": "0x92af0a",
+          "decision": "0x01",
+          "gasUsed": "219738"
+        },
+        {
+          "id": "2",
+          "inputs": "0x92af0a",
+          "decision": "0x01",
+          "gasUsed": "165673"
+        }
+      ],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "0",
+        "directDebt": "0",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "0",
+        "directUsd": "0",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "55000000",
+        "directDebt": "0",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "55000000",
+        "directUsd": "0",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "MARKET 6501 bps direct borrow denied",
+      "hash": "0xf622c40e5bfec779be3b3e8eb24c68d8edcf2fea396193ed7f2becdfd4157149",
+      "status": "reverted",
+      "block": "76931921",
+      "gas": "367761",
+      "topLevelError": "MarketPolicyRejected(bytes32,uint8)",
+      "revertBytes": "0x3aad5358bf865f9fb6bbd004716009731404b87a1a0a2fc1266501e97d0cabce5221ec580000000000000000000000000000000000000000000000000000000000000001",
+      "native": [
+        {
+          "id": "2",
+          "inputs": "0xb22c0b",
+          "decision": "0x00",
+          "gasUsed": "165275"
+        }
+      ],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "55000000",
+        "directDebt": "0",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "55000000",
+        "directUsd": "0",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "55000000",
+        "directDebt": "0",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "55000000",
+        "directUsd": "0",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "MARKET 6500 bps direct borrow accepted",
+      "hash": "0x071749bf264a76f2cd0ddd047e45f682ff06ef86fdb3fd16a8ce2cb786a4a9ec",
+      "status": "success",
+      "block": "76931922",
+      "gas": "480767",
+      "topLevelError": null,
+      "revertBytes": null,
+      "native": [
+        {
+          "id": "2",
+          "inputs": "0x922c0b",
+          "decision": "0x01",
+          "gasUsed": "165407"
+        }
+      ],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "55000000",
+        "directDebt": "0",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "55000000",
+        "directUsd": "0",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "55000000",
+        "directDebt": "65000000",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "55000000",
+        "directUsd": "65000000",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "EXECUTION 101 bps denied",
+      "hash": "0x464efc7201fde869c5078847dd26c00861940c6b85632b74264f4bead9047fb4",
+      "status": "reverted",
+      "block": "76931923",
+      "gas": "258293",
+      "topLevelError": "ExecutionPolicyDenied()",
+      "revertBytes": "0x84a6f8c3",
+      "native": [
+        {
+          "id": "4",
+          "inputs": "0xf56500",
+          "decision": "0x00",
+          "gasUsed": "156271"
+        }
+      ],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "55000000",
+        "directDebt": "65000000",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "55000000",
+        "directUsd": "65000000",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "55000000",
+        "directDebt": "65000000",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "55000000",
+        "directUsd": "65000000",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "EXECUTION 100 bps accepted",
+      "hash": "0x607170d0c5431433b82cfefba0a5698f0c46b12a8e6f63508827950b0f4bb492",
+      "status": "success",
+      "block": "76931924",
+      "gas": "350388",
+      "topLevelError": null,
+      "revertBytes": null,
+      "native": [
+        {
+          "id": "4",
+          "inputs": "0xf56400",
+          "decision": "0x01",
+          "gasUsed": "156403"
+        }
+      ],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "55000000",
+        "directDebt": "65000000",
+        "accountCollateral": "10000000000000000000",
+        "accountUsd": "55000000",
+        "directUsd": "65000000",
+        "grant": [
+          "1000000000000000000",
+          "3000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "55000000",
+        "directDebt": "65000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "55999500",
+        "directUsd": "65000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Healthy native control for outage scenarios",
+      "hash": "0xf249b51a6c17688ec379a286ea4d36c13b8a9b10112a890196cc03b54fd77047",
+      "status": "success",
+      "block": "76931928",
+      "gas": "693077",
+      "topLevelError": null,
+      "revertBytes": null,
+      "native": [
+        {
+          "id": "3",
+          "inputs": "0x927d0a",
+          "decision": "0x01",
+          "gasUsed": "219719"
+        },
+        {
+          "id": "2",
+          "inputs": "0x927d0a",
+          "decision": "0x01",
+          "gasUsed": "165673"
+        }
+      ],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "51000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "51999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Fail closed on v2 borrow: unavailable native CPU",
+      "hash": "0xde13ee317a7a7950b7247f419e819f1e8f4ce4d28b8b66a3d342ddb233f48e26",
+      "status": "reverted",
+      "block": "76931929",
+      "gas": "184640",
+      "topLevelError": "IdentityMismatch()",
+      "revertBytes": "0xb2f0dc1f",
+      "native": [],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "51000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "51999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "51000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "51999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Fail closed on direct borrow: unavailable native CPU",
+      "hash": "0xc796cf4a72d92f1600e978b6e600d716bb2c7be372fcf63f84ab07145e6cf387",
+      "status": "reverted",
+      "block": "76931930",
+      "gas": "171030",
+      "topLevelError": "IdentityMismatch()",
+      "revertBytes": "0xb2f0dc1f",
+      "native": [],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "51000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "51999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "51000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "51999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Fail closed on v2 swap: unavailable native CPU",
+      "hash": "0x0f10a2a46f4536e82a030f5d1d236b48f9e75cd1d2d2e3ac8d5a55558fca97c7",
+      "status": "reverted",
+      "block": "76931931",
+      "gas": "89539",
+      "topLevelError": "IdentityMismatch()",
+      "revertBytes": "0xb2f0dc1f",
+      "native": [],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "51000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "51999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "51000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "51999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Owner repay while native CPU unavailable",
+      "hash": "0x1700ebf01cc0c3cd5c24819f5d36a34605ecedb5b4d95a3d3b2d7746447b42f8",
+      "status": "success",
+      "block": "76931932",
+      "gas": "152015",
+      "topLevelError": null,
+      "revertBytes": null,
+      "native": [],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "51000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "51999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Fail closed on v2 borrow: malformed backend runtime (one raw byte)",
+      "hash": "0x55c4789491f0e89e0f8c7eaea464b86dcc5a2f72492c039c063809bc76a83da9",
+      "status": "reverted",
+      "block": "76931933",
+      "gas": "189892",
+      "topLevelError": "IdentityMismatch()",
+      "revertBytes": "0xb2f0dc1f",
+      "native": [],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Fail closed on direct borrow: malformed backend runtime (one raw byte)",
+      "hash": "0xfea084fc64227239cd879297efa26d5519aefd696a09dbae07828fe08bad87db",
+      "status": "reverted",
+      "block": "76931934",
+      "gas": "176282",
+      "topLevelError": "IdentityMismatch()",
+      "revertBytes": "0xb2f0dc1f",
+      "native": [],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Fail closed on v2 swap: malformed backend runtime (one raw byte)",
+      "hash": "0x22b44ab7e440f92c20e4466661019d8db42183271e91defe3aae71f6afde3576",
+      "status": "reverted",
+      "block": "76931935",
+      "gas": "94791",
+      "topLevelError": "IdentityMismatch()",
+      "revertBytes": "0xb2f0dc1f",
+      "native": [],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Fail closed on v2 borrow: changed proxy runtime",
+      "hash": "0x7ce77b2c5068af6ba021d26f27589407b0dbd27a7930048f448f747168b65491",
+      "status": "reverted",
+      "block": "76931936",
+      "gas": "187440",
+      "topLevelError": "IdentityMismatch()",
+      "revertBytes": "0xb2f0dc1f",
+      "native": [],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Fail closed on direct borrow: changed proxy runtime",
+      "hash": "0xae2d3116d827dab6d16e4ff4e15e4aa7b95dedae1abbe63c0bb5dd1de3e3ff7c",
+      "status": "reverted",
+      "block": "76931937",
+      "gas": "173830",
+      "topLevelError": "IdentityMismatch()",
+      "revertBytes": "0xb2f0dc1f",
+      "native": [],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Fail closed on v2 swap: changed proxy runtime",
+      "hash": "0xb249ece912c8b7464591e1f3bad03befdc2608d70e251468b1dceb997375e676",
+      "status": "reverted",
+      "block": "76931938",
+      "gas": "89539",
+      "topLevelError": "IdentityMismatch()",
+      "revertBytes": "0xb2f0dc1f",
+      "native": [],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    },
+    {
+      "label": "Native swap resumes after fork fault restoration",
+      "hash": "0xa66d77701858252c4fef388ee332067e9194c39a3b3047cb49550a19778fc05b",
+      "status": "success",
+      "block": "76931939",
+      "gas": "336708",
+      "topLevelError": null,
+      "revertBytes": null,
+      "native": [
+        {
+          "id": "4",
+          "inputs": "0xf56400",
+          "decision": "0x01",
+          "gasUsed": "156403"
+        }
+      ],
+      "referenceCalls": 0,
+      "before": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "9000000000000000000",
+        "accountUsd": "50999500",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "2000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      },
+      "after": {
+        "accountDebt": "50000000",
+        "directDebt": "60000000",
+        "accountCollateral": "8000000000000000000",
+        "accountUsd": "51999000",
+        "directUsd": "60000000",
+        "grant": [
+          "1000000000000000000",
+          "1000000000000000000",
+          "1795787310"
+        ],
+        "accountAllowance": "0",
+        "adapterAllowance": "0"
+      }
+    }
+  ],
+  "injectedFaults": [
+    {
+      "label": "unavailable native CPU",
+      "target": "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5",
+      "bytes": "0x",
+      "expectedHash": "0x8c799a18cd8e0d5f5f3c0cec4fbc145e2daf79f70c2b131c09d0f380921db545",
+      "actualHash": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+      "scope": "private Anvil state only"
+    },
+    {
+      "label": "malformed backend runtime (one raw byte)",
+      "target": "0x977f217887E085D298Cb3819cDAD5A0ee35F29B2",
+      "bytes": "0x600160005360016000f3",
+      "expectedHash": "0x7a15c353205e5245f40f5f5524542a982a4bb3b9a28476e4f10845163f941b30",
+      "actualHash": "0x67d9fa62dfd3ac175f5ffed16431df369766ff2b5a485550da805608bea04d31",
+      "scope": "private Anvil state only"
+    },
+    {
+      "label": "changed proxy runtime",
+      "target": "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5",
+      "bytes": "0x00",
+      "expectedHash": "0x8c799a18cd8e0d5f5f3c0cec4fbc145e2daf79f70c2b131c09d0f380921db545",
+      "actualHash": "0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a",
+      "scope": "private Anvil state only"
+    }
+  ],
+  "responseTest": {
+    "label": "Foundry simulation on the completed private fork, no transaction",
+    "faults": [
+      "reverted eval",
+      "one raw return byte",
+      "nonbinary decision 2",
+      "trailing ABI word"
+    ],
+    "paths": [
+      "v2 borrow",
+      "direct book borrow",
+      "v2 swap"
+    ],
+    "passed": 12
+  },
+  "witnessProposal": {
+    "status": "FORK illustration with provisional IDs; rerun --published before requesting authorization",
+    "transaction": {
+      "chainId": 196,
+      "type": "0x2",
+      "to": null,
+      "value": "0x0",
+      "data": "0x60e0806040523461098857606081610fe3803803809161001f828561098d565b83398101031261098857805190604060208201519101519160c44614158061097c575b61027a577f8c799a18cd8e0d5f5f3c0cec4fbc145e2daf79f70c2b131c09d0f380921db545600080516020610fc38339815191523f1480159061093d575b80156108fe575b801561087f575b61027a57604051635f5a364f60e01b8152600080516020610fc38339815191526004820152602081602481731f09daefa827f02cbb40967cc91b2597637607615afa9081156103b957600091610844575b501580156107b3575b61027a5760405163084d60f160e01b815260048101829052608081602481600080516020610fc38339815191525afa80156103b957600091828091819361074c575b5063ffffffff166014148015939061073a575b50821561072a575b508115610718575b50801561060d575b61027a5760405163084d60f160e01b815260048101839052608081602481600080516020610fc38339815191525afa80156103b95760009182809181936105a6575b5063ffffffff1660141480159390610594575b508215610584575b508115610572575b508015610467575b61027a5760405163084d60f160e01b815260048101849052608081602481600080516020610fc38339815191525afa80156103b95760009182809181936103f9575b5063ffffffff16601414801593906103e7575b5082156103d7575b5081156103c5575b50801561028b575b61027a5760805260a05260c05260405161056c90816109f7823960805181818160b501526102e5015260a0518181816101e7015261026f015260c05181818161020f01526102aa0152f35b63b2f0dc1f60e01b60005260046000fd5b50604051631fe25f2b60e11b815260048101849052929190600084602481600080516020610fc38339815191525afa9384156103b9576000946102eb575b50909192806020600080516020610fa38339815191529251910120141561022f565b3d8086833e6102fa818361098d565b8101906020818303126103b5578051906001600160401b0382116103b157019481601f870112156103ae5785516001600160401b03811161039a576040519261034d601f8301601f19166020018561098d565b8184526020828901011161039657815b81811061038157508201602001529350600080516020610fa38339815191526102c9565b80602080928a0101518282870101520161035d565b5080fd5b634e487b7160e01b82526041600452602482fd5b80fd5b8680fd5b8580fd5b6040513d6000823e3d90fd5b603b915063ffffffff16141538610227565b63ffffffff16151591503861021f565b63ffffffff1660011415925038610217565b93509150506080823d60801161045f575b816104176080938361098d565b810103126103ae5750610429816109e5565b610435602083016109e5565b90601463ffffffff610455606061044e604088016109e5565b96016109e5565b9394929150610204565b3d915061040a565b50604051631fe25f2b60e11b815260048101839052929190600084602481600080516020610fc38339815191525afa9384156103b9576000946104c7575b50909192806020600080516020610f83833981519152925191012014156101c2565b3d8086833e6104d6818361098d565b8101906020818303126103b5578051906001600160401b0382116103b157019481601f870112156103ae5785516001600160401b03811161039a5760405192610529601f8301601f19166020018561098d565b8184526020828901011161039657815b81811061055d57508201602001529350600080516020610f838339815191526104a5565b80602080928a01015182828701015201610539565b6057915063ffffffff161415386101ba565b63ffffffff1615159150386101b2565b63ffffffff16600114159250386101aa565b93509150506080823d608011610605575b816105c46080938361098d565b810103126103ae57506105d6816109e5565b6105e2602083016109e5565b90601463ffffffff6105fb606061044e604088016109e5565b9394929150610197565b3d91506105b7565b50604051631fe25f2b60e11b815260048101829052929190600084602481600080516020610fc38339815191525afa9384156103b95760009461066d575b50909192806020600080516020610f6383398151915292519101201415610155565b3d8086833e61067c818361098d565b8101906020818303126103b5578051906001600160401b0382116103b157019481601f870112156103ae5785516001600160401b03811161039a57604051926106cf601f8301601f19166020018561098d565b8184526020828901011161039657815b81811061070357508201602001529350600080516020610f6383398151915261064b565b80602080928a010151828287010152016106df565b603f915063ffffffff1614153861014d565b63ffffffff161515915038610145565b63ffffffff166001141592503861013d565b93509150506080823d6080116107ab575b8161076a6080938361098d565b810103126103ae575061077c816109e5565b610788602083016109e5565b90601463ffffffff6107a1606061044e604088016109e5565b939492915061012a565b3d915061075d565b50604051634bc7cbbd60e01b815261019a6004820152602081602481731f09daefa827f02cbb40967cc91b2597637607615afa80156103b957600080516020610fc383398151915291600091610815575b506001600160a01b031614156100e8565b610837915060203d60201161083d575b61082f818361098d565b8101906109c6565b38610804565b503d610825565b6020813d602011610877575b8161085d6020938361098d565b8101031261039657519081151582036103ae5750386100df565b3d9150610850565b50604051635c60da1b60e01b815260208160048173f70d1ed4f62cf3780157b0b421b7e2f45bd0991c5afa80156103b95773977f217887e085d298cb3819cdad5a0ee35f29b2916000916108df575b506001600160a01b0316141561008e565b6108f8915060203d60201161083d5761082f818361098d565b386108ce565b507f7a15c353205e5245f40f5f5524542a982a4bb3b9a28476e4f10845163f941b3073977f217887e085d298cb3819cdad5a0ee35f29b23f1415610087565b507fc7cc9854e1465f48d6d8d6d220c04efa6509939832930be4b04ee7fe8657536273f70d1ed4f62cf3780157b0b421b7e2f45bd0991c3f1415610080565b50617a69461415610042565b600080fd5b601f909101601f19168101906001600160401b038211908210176109b057604052565b634e487b7160e01b600052604160045260246000fd5b9081602091031261098857516001600160a01b03811681036109885790565b519063ffffffff821682036109885756fe6080604052600436101561001257600080fd5b60003560e01c8063488971ef1461033757806354e36546146103085780636ed71ede146102cd57806376ce2dad146102925780639cfd7cff146102575763c6e6ba4b1461005e57600080fd5b346102525760403660031901126102525760043560ff8116809103610252576024356001600160e81b0319811691908281036102525760028211908115610244575b50610233576100ad61038a565b806101de57507f0000000000000000000000000000000000000000000000000000000000000000905b604051906020820152600381526100ee602382610352565b6040519060208201926349a6837560e11b845260248301526040604483015280519081606484015260005b8281106101c85784604060608661014d608482896000838284010152601f801991011681010301601f198101835282610352565b8251938491519073423446eefaa885b804c7bd9b0bdd130ce2ee00b56216e360fa60016020840151146020845114169060603d141616910151901580156101b0575b6101a0576020906040519015158152f35b62f0074160e41b60005260046000fd5b50801515801561018f5750600160f81b81141561018f565b8060208092840101516084828701015201610119565b60010361020d577f00000000000000000000000000000000000000000000000000000000000000005b906100d6565b7f0000000000000000000000000000000000000000000000000000000000000000610207565b63271a26f160e01b60005260046000fd5b600f915060021a11386100a0565b600080fd5b346102525760003660031901126102525760206040517f00000000000000000000000000000000000000000000000000000000000000008152f35b346102525760003660031901126102525760206040517f00000000000000000000000000000000000000000000000000000000000000008152f35b346102525760003660031901126102525760206040517f00000000000000000000000000000000000000000000000000000000000000008152f35b3461025257600036600319011261025257602060405173423446eefaa885b804c7bd9b0bdd130ce2ee00b58152f35b346102525760003660031901126102525761035061038a565b005b90601f8019910116810190811067ffffffffffffffff82111761037457604052565b634e487b7160e01b600052604160045260246000fd5b7f8c799a18cd8e0d5f5f3c0cec4fbc145e2daf79f70c2b131c09d0f380921db54573423446eefaa885b804c7bd9b0bdd130ce2ee00b53f148015906104f7575b80156104b8575b80156103ef575b6103de57565b63b2f0dc1f60e01b60005260046000fd5b50604051635c60da1b60e01b815260208160048173f70d1ed4f62cf3780157b0b421b7e2f45bd0991c5afa9081156104ac5760009161044f575b506001600160a01b031673977f217887e085d298cb3819cdad5a0ee35f29b214156103d8565b6020813d6020116104a4575b8161046860209383610352565b810103126104a05751906001600160a01b038216820361049d575073977f217887e085d298cb3819cdad5a0ee35f29b2610429565b80fd5b5080fd5b3d915061045b565b6040513d6000823e3d90fd5b507f7a15c353205e5245f40f5f5524542a982a4bb3b9a28476e4f10845163f941b3073977f217887e085d298cb3819cdad5a0ee35f29b23f14156103d1565b507fc7cc9854e1465f48d6d8d6d220c04efa6509939832930be4b04ee7fe8657536273f70d1ed4f62cf3780157b0b421b7e2f45bd0991c3f14156103ca56fea2646970667358221220fcc225f5d2e04687853364870b0d9b2cb4031614914363647adba77e6afba9a764736f6c634300081a0033e845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c097dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b000000000000000000000000423446eefaa885b804c7bd9b0bdd130ce2ee00b5000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000004",
+      "gas": "0x99066",
+      "maxFeePerGas": "0x2faf080",
+      "maxPriorityFeePerGas": "0x1",
+      "accessList": []
+    },
+    "creationDataHash": "0x5eb78b03e30a2efa99a643ce5752f485e801c5a937d72aae35686d4b4d2c2d53",
+    "constructorIds": [
+      "2",
+      "3",
+      "4"
+    ],
+    "observedGas": "477432",
+    "feeObservationBlock": "76931874",
+    "baseFeeWei": "20000000",
+    "l1UpperWei": "0",
+    "operatorUpperWei": "0",
+    "totalUpperWei": "31339500000000",
+    "totalUpperOKB": "0.0000313395",
+    "verificationCalls": [
+      {
+        "kind": "MARKET",
+        "schema": "lending-v1",
+        "inputs": "0x922c0b",
+        "calldata": "0xc6e6ba4b0000000000000000000000000000000000000000000000000000000000000000922c0b0000000000000000000000000000000000000000000000000000000000",
+        "output": "0x01"
+      },
+      {
+        "kind": "ACCOUNT",
+        "schema": "lending-v1",
+        "inputs": "0x92af0a",
+        "calldata": "0xc6e6ba4b000000000000000000000000000000000000000000000000000000000000000192af0a0000000000000000000000000000000000000000000000000000000000",
+        "output": "0x01"
+      },
+      {
+        "kind": "EXECUTION",
+        "schema": "sentinel-execution-swap-v1",
+        "inputs": "0xf56300",
+        "calldata": "0xc6e6ba4b0000000000000000000000000000000000000000000000000000000000000002f563000000000000000000000000000000000000000000000000000000000000",
+        "output": "0x01"
+      }
+    ],
+    "nonce": "Sender selects next unused nonce. Each verification is an eth_call to the resulting CREATE receipt address."
+  }
+}

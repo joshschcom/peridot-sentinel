@@ -20,10 +20,17 @@ export async function funding(s) {
     const balances=Object.fromEntries(await Promise.all(Object.entries(s.actors).map(async ([k,a])=>[k,String(await s.balance(a,b.number))])))
     assert(await s.client.getCode({address:owner,blockNumber:b.number})===undefined,'Judge must be an EOA')
     assert.equal(await s.client.getTransactionCount({address:owner,blockNumber:b.number}),0,'Use a fresh judge wallet for a new campaign')
-    assert(BigInt(balances.deployer)>=40_000_000_000_000_000n,'Deployer needs 0.04 test OKB for gas and judge top-ups; ask Claude for faucet funds')
     const topup=(amount,floor,minimum)=>String(BigInt(amount)+minimum>floor?minimum:floor-BigInt(amount))
-    plan.funding={blockNumber:String(b.number),blockHash:b.hash,balances,judgeValue:topup(balances.owner,6_000_000_000_000_000n,100_000_000_000_000n),
-      operatorValue:topup(balances.operator,1_000_000_000_000_000n,100_000_000_000_000n)}
+    // The 49-step fork setup used 9,977,949 deployer gas and 17,137,139 judge gas.
+    // Round above the summed padded transaction limits and reserve separate walkthrough capacity.
+    const gasPrice=s.live?await retryRead(()=>s.client.getGasPrice()):(b.baseFeePerGas??20_000_000n)*2n+1n
+    const floor=(baseFloor,gasUnits)=>baseFloor>gasUnits*gasPrice?baseFloor:gasUnits*gasPrice
+    const judgeValue=topup(balances.owner,floor(6_000_000_000_000_000n,30_000_000n),100_000_000_000_000n)
+    const operatorValue=topup(balances.operator,floor(1_000_000_000_000_000n,2_000_000n),100_000_000_000_000n)
+    assert(BigInt(judgeValue)<=15_000_000_000_000_000n && BigInt(operatorValue)<=15_000_000_000_000_000n,'Gas estimate exceeds demo transfer ceilings')
+    const required=BigInt(judgeValue)+BigInt(operatorValue)+16_000_000n*gasPrice
+    assert(BigInt(balances.deployer)>=required,'Deployer needs '+required+' wei for funding and padded gas; ask Claude for testnet faucet funds')
+    plan.funding={blockNumber:String(b.number),blockHash:b.hash,balances,judgeValue,operatorValue,gasPriceWei:String(gasPrice),minimumDeployerBalanceWei:String(required)}
     plan.caps={}
     for(const [id,list] of Object.entries(tiers)){
       for(const cap of list){

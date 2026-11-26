@@ -1,0 +1,148 @@
+{
+  "basePin": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",
+  "vaultPin": "a48f203a802f15d34502f56e2ec0c0a2b74d1434",
+  "compiler": "0.8.26+commit.8a97fa7a",
+  "forge": "forge Version: 1.7.1-Homebrew",
+  "optimizerRuns": 200,
+  "viaIR": true,
+  "evm": "paris",
+  "baseline": {
+    "SentinelAccountFactoryV2": {
+      "runtimeBytes": 17853,
+      "runtimeHeadroom": 6723,
+      "creationBytes": 18313,
+      "constructorArgumentBytes": 96,
+      "initcodeBytes": 18409,
+      "initcodeHeadroom": 30743,
+      "creationHash": "0x58431b3f9462870043e8cef658c1c1b6e9aa6fbd8f3c0e9f9418e211663eee88"
+    },
+    "SentinelAccountV2": {
+      "runtimeBytes": 14502,
+      "runtimeHeadroom": 10074,
+      "creationBytes": 16590,
+      "constructorArgumentBytes": 160,
+      "initcodeBytes": 16750,
+      "initcodeHeadroom": 32402,
+      "creationHash": "0x28235c26ff2a1424c6353ae03202794557a0afcb487d117cab8e3a5cb7c91aa1"
+    },
+    "VaultSentinelAccountFactoryV2": {
+      "runtimeBytes": 24396,
+      "runtimeHeadroom": 180,
+      "creationBytes": 24835,
+      "constructorArgumentBytes": 128,
+      "initcodeBytes": 24963,
+      "initcodeHeadroom": 24189,
+      "creationHash": "0x2994d6073592573818fe266db35a4b7edc52318ae6e710739bd3ae07ee19119f"
+    },
+    "VaultSentinelAccountV2": {
+      "runtimeBytes": 20584,
+      "runtimeHeadroom": 3992,
+      "creationBytes": 23548,
+      "constructorArgumentBytes": 192,
+      "initcodeBytes": 23740,
+      "initcodeHeadroom": 25412,
+      "creationHash": "0x378369f8c7ef3872c99102d2f34d79893cac256ceb88401806f618379f727c1f"
+    }
+  },
+  "childCreationCodeOffset": 795,
+  "optimizerRuns1": {
+    "VaultSentinelAccountFactoryV2": {
+      "runtimeBytes": 24347,
+      "runtimeHeadroom": 229,
+      "creationBytes": 24786,
+      "constructorArgumentBytes": 128,
+      "initcodeBytes": 24914,
+      "initcodeHeadroom": 24238,
+      "creationHash": "0x07bd66d9fbd6e5f73df1bcee6d72c8cd176c6c7d42ca56bba92c790398c4f34e"
+    },
+    "VaultSentinelAccountV2": {
+      "runtimeBytes": 20546,
+      "runtimeHeadroom": 4030,
+      "creationBytes": 23510,
+      "constructorArgumentBytes": 192,
+      "initcodeBytes": 23702,
+      "initcodeHeadroom": 25450,
+      "creationHash": "0x5d15642f5331c36b8e4aea46b993d8824af76133a7b389b7823c95692ff7ad87"
+    }
+  },
+  "splitPrototype": {
+    "factory": {
+      "runtimeBytes": 1198,
+      "runtimeHeadroom": 23378,
+      "creationBytes": 25876,
+      "constructorArgumentBytes": 128,
+      "initcodeBytes": 26004,
+      "initcodeHeadroom": 23148,
+      "creationHash": "0xcfb9d14ad6675294357e6062f0a918fa831c23226d86bb1261296675dbe26968"
+    },
+    "fragmentRuntimeBytes": [
+      11775,
+      11775
+    ]
+  },
+  "testnetReadOnly": [
+    {
+      "rpc": "https://testrpc.xlayer.tech",
+      "block": "47249530",
+      "blockHash": "0x9f4add659dac92df0cef602932390a5a497202343ebde522948f1d1615eefe95",
+      "contracts": {
+        "SentinelAccountFactoryV2": {
+          "address": "0xbdd270a685596452557c8342ca3d39b1133ba7a0",
+          "codeBytes": 17853,
+          "keccak256": "0xd9344580014d46f7e9ad0821131116bccf1e5bb841cbecaeb420d4dfb74e74c1"
+        },
+        "SentinelAccountV2": {
+          "address": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+          "codeBytes": 14502,
+          "keccak256": "0xe0bee7e9dbe18b504c1bb877a24a09daa7e90fec76f192f35ceb6d1e5749b907"
+        },
+        "VaultSentinelAccountFactoryV2": {
+          "address": "0x8e8279b8532124bd727AfF4622e8d3711f01E874",
+          "codeBytes": 24396,
+          "keccak256": "0x381dee86394ed4e1736487e53f8e21578bd812a57185ac8c9f5fe803a91808a2"
+        },
+        "VaultSentinelAccountV2": {
+          "address": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+          "codeBytes": 20584,
+          "keccak256": "0xeefd8e868fcc3ebe867abdd7dd1e231b19a8e0165740fa8d56b976b81aed0e57"
+        }
+      }
+    },
+    {
+      "rpc": "https://xlayertestrpc.okx.com",
+      "block": "47249530",
+      "blockHash": "0x9f4add659dac92df0cef602932390a5a497202343ebde522948f1d1615eefe95",
+      "contracts": {
+        "SentinelAccountFactoryV2": {
+          "address": "0xbdd270a685596452557c8342ca3d39b1133ba7a0",
+          "codeBytes": 17853,
+          "keccak256": "0xd9344580014d46f7e9ad0821131116bccf1e5bb841cbecaeb420d4dfb74e74c1"
+        },
+        "SentinelAccountV2": {
+          "address": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+          "codeBytes": 14502,
+          "keccak256": "0xe0bee7e9dbe18b504c1bb877a24a09daa7e90fec76f192f35ceb6d1e5749b907"
+        },
+        "VaultSentinelAccountFactoryV2": {
+          "address": "0x8e8279b8532124bd727AfF4622e8d3711f01E874",
+          "codeBytes": 24396,
+          "keccak256": "0x381dee86394ed4e1736487e53f8e21578bd812a57185ac8c9f5fe803a91808a2"
+        },
+        "VaultSentinelAccountV2": {
+          "address": "0xa167627CD59445dD9792d0F3d8D465C2bC41E574",
+          "codeBytes": 20584,
+          "keccak256": "0xeefd8e868fcc3ebe867abdd7dd1e231b19a8e0165740fa8d56b976b81aed0e57"
+        }
+      }
+    }
+  ],
+  "forkTest": {
+    "chainId": 1952,
+    "block": "47249530",
+    "test": "testSameRuntimeFreshStorageAndUniqueRegistration",
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "wholeTestGas": "9838393"
+  }
+}

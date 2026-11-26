@@ -1,7 +1,7 @@
 // Separate historical activity for a judge campaign. Never overwrites the M4/public app snapshot.
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import { pathToFileURL } from 'node:url'
@@ -71,6 +71,7 @@ export async function refresh(p) {
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
   const p = await openProfile(process.argv[2], process.argv[3])
+  mkdirSync('.research', {recursive: true})
   const lock = new DatabaseSync(resolve('.research', 'judge-activity-' + p.mode + '-' + p.campaign + '.sqlite'))
   try {
     lock.exec('BEGIN IMMEDIATE')

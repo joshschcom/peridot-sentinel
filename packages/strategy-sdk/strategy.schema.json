@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Peridot Sentinel strategy template v1",
+  "description": "1952 public testnet. The SDK additionally enforces bigint budget ceilings and relationships, sensitive-text rejection and duplicate-key rejection.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "chainId",
+        "profile",
+        "executionMode",
+        "deployment",
+        "allowedOperations",
+        "allowedAssets",
+        "policy",
+        "name",
+        "description",
+        "objective",
+        "agentInstructions",
+        "expirySeconds",
+        "risk",
+        "budget"
+      ],
+      "properties": {
+        "schema": {
+          "const": "peridot.strategy/v1"
+        },
+        "chainId": {
+          "const": 1952
+        },
+        "profile": {
+          "const": "debt-protection-v1"
+        },
+        "executionMode": {
+          "const": "rule-based"
+        },
+        "deployment": {
+          "const": {
+            "accountVersion": "v1",
+            "sourceCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+            "factory": "0x37157221a5fA97d3f3EC1AA2375032d578Db182f",
+            "adapter": "isolated-controller-v1",
+            "target": "0xEB9FCDe8C3502BcBb9dfF2A031AC9402baE7a951"
+          }
+        },
+        "allowedOperations": {
+          "const": [
+            "AUTO_REPAY"
+          ]
+        },
+        "allowedAssets": {
+          "const": [
+            {
+              "symbol": "mUSD",
+              "address": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+              "decimals": 6
+            }
+          ]
+        },
+        "policy": {
+          "const": {
+            "kind": "ACCOUNT",
+            "schemaVersion": 1,
+            "templateVersion": 0,
+            "mode": "development-reference",
+            "enforcer": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+            "processor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+            "circuitId": "2",
+            "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+            "policyId": "0x0cd3ed21613f573d3c5232f9f521f84db52523b2f0fc4715233446129fc025f3"
+          }
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[A-Za-z0-9 .,!?()'/%:;-]+$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 320,
+          "pattern": "^[A-Za-z0-9 .,!?()'/%:;-]+$"
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "^[A-Za-z0-9 .,!?()'/%:;-]+$"
+        },
+        "agentInstructions": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": "^[A-Za-z0-9 .,!?()'/%:;-]+$"
+        },
+        "expirySeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 604800
+        },
+        "risk": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "triggerLtvBps"
+          ],
+          "properties": {
+            "triggerLtvBps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "cumulativeRaw"
+          ],
+          "properties": {
+            "cumulativeRaw": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,6}$"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "chainId",
+        "profile",
+        "executionMode",
+        "deployment",
+        "allowedOperations",
+        "allowedAssets",
+        "policy",
+        "name",
+        "description",
+        "objective",
+        "agentInstructions",
+        "expirySeconds",
+        "risk",
+        "budget"
+      ],
+      "properties": {
+        "schema": {
+          "const": "peridot.strategy/v1"
+        },
+        "chainId": {
+          "const": 1952
+        },
+        "profile": {
+          "const": "restricted-swap-v2"
+        },
+        "executionMode": {
+          "const": "external-agent"
+        },
+        "deployment": {
+          "const": {
+            "accountVersion": "v2",
+            "sourceCommit": "81fb45770d3bc36ae9006fbd60e72a5475c3ded4",
+            "factory": "0xbdd270a685596452557c8342ca3d39b1133ba7a0",
+            "adapter": "single-pool-swap-v2",
+            "target": "0xf2e6d955158fe77252713d982f9d376f467e7cd3"
+          }
+        },
+        "allowedOperations": {
+          "const": [
+            "SWAP_EXACT_IN"
+          ]
+        },
+        "allowedAssets": {
+          "const": [
+            {
+              "symbol": "mWOKB",
+              "address": "0x3a5f909912c4adbee8776264e6b9fad130321b26",
+              "decimals": 18
+            },
+            {
+              "symbol": "mUSDC",
+              "address": "0x3a6cb8bedc251c37dc8258a27575127990a67e95",
+              "decimals": 6
+            }
+          ]
+        },
+        "policy": {
+          "const": {
+            "kind": "EXECUTION",
+            "schemaVersion": "sentinel-execution-swap-v1",
+            "templateVersion": 1,
+            "mode": "development-reference",
+            "enforcer": "0xc72a18670c185f6a5e39dfbf10c27f025aa96d9c",
+            "processor": "0x6d75932b8bb080a3e04b6c9c6218bdf3b321f9b1",
+            "circuitId": "1",
+            "netlistHash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b"
+          }
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[A-Za-z0-9 .,!?()'/%:;-]+$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 320,
+          "pattern": "^[A-Za-z0-9 .,!?()'/%:;-]+$"
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "^[A-Za-z0-9 .,!?()'/%:;-]+$"
+        },
+        "agentInstructions": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "pattern": "^[A-Za-z0-9 .,!?()'/%:;-]+$"
+        },
+        "expirySeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 604800
+        },
+        "risk": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "maxSlippageBps"
+          ],
+          "properties": {
+            "maxSlippageBps": {
+              "const": 100
+            }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "perCallRaw",
+            "cumulativeRaw"
+          ],
+          "properties": {
+            "perCallRaw": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$"
+            },
+            "cumulativeRaw": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

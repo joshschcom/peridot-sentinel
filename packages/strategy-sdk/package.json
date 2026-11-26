@@ -1,0 +1,19 @@
+{
+  "name": "@peridot/strategy-sdk",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./schema": "./strategy.schema.json",
+    "./templates/*": "./templates/*.json"
+  },
+  "scripts": {
+    "check": "tsc --project tsconfig.json && node --test test.mjs"
+  },
+  "dependencies": {
+    "@peridot/chain-config": "1.0.0",
+    "@scure/bip39": "1.6.0",
+    "viem": "2.58.6"
+  }
+}

@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import {execFileSync} from 'node:child_process'
 import {renameSync,writeFileSync} from 'node:fs'
-import {formatEther,getAddress,encodeFunctionData,keccak256,parseAbi,size,toHex,zeroHash} from 'viem'
+import {formatEther,getAddress,encodeFunctionData,keccak256,size,toHex,zeroHash} from 'viem'
 import {abi as sponsor,mainnet,packet,stringify,verifyBindings,verifyCalls} from '../../../../evidence/session6-d8b/checks.mjs'
 import {receiptEvent} from '../../../../docs/coordination/D8b-postpublish.mjs'
 import {artifact,config,cpu,inputMode,loggedEvent,programs,withFork} from './fork.mjs'
@@ -22,6 +22,8 @@ await withFork(pin,async ctx=>{
     upstream:{rpc:'https://rpc.xlayer.tech',chainId:196,block:pin.number,hash:source.hash,timestamp:source.timestamp},
     publicCircuitIds:pin.published?config.circuits.map(c=>c.publishedId):null,bindings,contracts,receipts,programs:[]}
   const programIds=[]
+  let publisher,previousReceipt
+  if(pin.published)assert((await mainnet.getBlock({blockTag:'finalized'})).number>=pin.number,'Publication block is not finalized')
   if(!pin.published)await send('FORK mint 209 NAND components',{to:calls[0].to,data:calls[0].data,value:BigInt(calls[0].value)})
   for(const [i,c] of config.circuits.entries()){
     const tx=calls[i+1]
@@ -29,10 +31,16 @@ await withFork(pin,async ctx=>{
       await send('FORK fabricate '+c.kind,{to:tx.to,data:tx.data,value:BigInt(tx.value)})
     assert.equal(receipt.status,'success')
     assert.equal(getAddress(receipt.to),cpu)
-    let id=receiptEvent(receipt,receipt.from,c.gates)
+    const id=receiptEvent(receipt,receipt.from,c.gates)
+    if(publisher)assert.equal(getAddress(receipt.from),publisher)
+    publisher=getAddress(receipt.from)
+    if(previousReceipt)assert(receipt.blockNumber>previousReceipt.blockNumber ||
+      (receipt.blockNumber===previousReceipt.blockNumber && receipt.transactionIndex>previousReceipt.transactionIndex))
+    previousReceipt=receipt
     if(pin.published){
       assert.equal(id,BigInt(c.publishedId))
       assert(receipt.blockNumber<=pin.number)
+      if(i===2)assert.equal(receipt.blockNumber,pin.number)
       assert.equal(receipt.blockHash,(await mainnet.getBlock({blockNumber:receipt.blockNumber})).hash)
       const publishedTx=await mainnet.getTransaction({hash:c.publicReceipt})
       assert.equal(publishedTx.input,tx.data)
@@ -46,7 +54,7 @@ await withFork(pin,async ctx=>{
     assert.equal(keccak256(netlist),c.netlistHash)
     assert.deepEqual(dims,[20,1,0,c.gates])
     d.programs.push({kind:c.kind,schema:c.schema,id,netlistHash:c.netlistHash,dimensions:dims,publication:pin.published?'public-196':'fork-only',
-      fabricationHash:receipt.transactionHash})
+      fabricationHash:receipt.transactionHash,publisher})
   }
   const witness=await deploy('Witness','NativeCircuitWitness',programIds,true)
   const dev=await deploy('Parity control only','DevelopmentReferenceProcessor')
@@ -74,6 +82,8 @@ await withFork(pin,async ctx=>{
     assert.equal(getAddress(entry.processor),cpu)
     assert.equal(entry.circuitId,p.id)
     assert.equal(entry.processorCodeHash,bindings.codeHashes[cpu])
+    assert.equal(entry.netlistHash,p.netlistHash)
+    assert.equal(entry.gateCount,p.dimensions[3])
     assert.equal(entry.schemaVersion,1)
     assert.equal(entry.templateVersion,0)
     assert.equal(entry.configHash,programs[i].configHash)
@@ -83,9 +93,10 @@ await withFork(pin,async ctx=>{
   await financialChecks(ctx,{d,guard,registry,witness,dev})
   // This test allows a malformed response at the same proxy/implementation code hashes.
   // The Foundry VM forks our local node; it never broadcasts and cannot reach a public wallet.
-  execFileSync('forge',['script','--root','contracts/expansion','--offline','test/native7/NativeResponseProof.sol:NativeResponseProof',
+  execFileSync('forge',['script','--offline','test/native7/NativeResponseProof.sol:NativeResponseProof',
+    '--evm-version','cancun','--out','../../.research/session7-native-return-test/out','--cache-path','../../.research/session7-native-return-test/cache',
     '--fork-url','http://127.0.0.1:19710','--no-storage-caching'],{
-    env:{...process.env,NATIVE7_FORK_ACCOUNT:d.wiring.account},stdio:'inherit'})
+    cwd:'contracts/expansion',env:{...process.env,NATIVE7_FORK_ACCOUNT:d.wiring.account},stdio:'inherit'})
   d.responseTest={label:'Foundry simulation on the completed private fork, no transaction',
     faults:['reverted eval','one raw return byte','nonbinary decision 2','trailing ABI word'],paths:['v2 borrow','direct book borrow','v2 swap'],passed:12}
 

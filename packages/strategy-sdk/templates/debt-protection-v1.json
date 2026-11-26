@@ -1,0 +1,45 @@
+{
+  "schema": "peridot.strategy/v1",
+  "chainId": 1952,
+  "profile": "debt-protection-v1",
+  "executionMode": "rule-based",
+  "deployment": {
+    "accountVersion": "v1",
+    "sourceCommit": "39c0a548d7522a6b3113d25daeb002effcfebf53",
+    "factory": "0x37157221a5fA97d3f3EC1AA2375032d578Db182f",
+    "adapter": "isolated-controller-v1",
+    "target": "0xEB9FCDe8C3502BcBb9dfF2A031AC9402baE7a951"
+  },
+  "allowedOperations": [
+    "AUTO_REPAY"
+  ],
+  "allowedAssets": [
+    {
+      "symbol": "mUSD",
+      "address": "0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9",
+      "decimals": 6
+    }
+  ],
+  "policy": {
+    "kind": "ACCOUNT",
+    "schemaVersion": 1,
+    "templateVersion": 0,
+    "mode": "development-reference",
+    "enforcer": "0x681A4aEA609E9c85a88EC07Eb3B2cD5FcA5De9aC",
+    "processor": "0x092B330B842388B1bC6adeaC5EAe39B3bef51701",
+    "circuitId": "2",
+    "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+    "policyId": "0x0cd3ed21613f573d3c5232f9f521f84db52523b2f0fc4715233446129fc025f3"
+  },
+  "name": "Debt protection",
+  "description": "Repay testnet debt from idle mUSD when the account reaches its trigger.",
+  "objective": "Reduce debt when the position reaches the chosen loan to value ratio.",
+  "agentInstructions": "Simulate repayment before submission. Check the receipt and remaining budget.",
+  "expirySeconds": 86400,
+  "risk": {
+    "triggerLtvBps": 5000
+  },
+  "budget": {
+    "cumulativeRaw": "2000000"
+  }
+}
