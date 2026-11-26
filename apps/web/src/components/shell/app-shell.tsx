@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { cx } from "@/components/ui/core";
 import { IconCircuit, IconMarkets, IconShield, IconStudio } from "@/components/ui/icons";
 import { Brand } from "./brand";
-import { DeploymentBanner, FixtureBanner, NetworkPill, WrongNetworkBanner } from "./status";
+import { DeploymentBanner, FixtureBanner, GasBanner, NetworkPill, WrongNetworkBanner } from "./status";
 import { ThemeToggle } from "./theme-toggle";
 import { WalletButton } from "./wallet-button";
 
@@ -31,6 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <FixtureBanner />
         <DeploymentBanner />
         <WrongNetworkBanner />
+        <GasBanner />
         <header className="border-b border-line bg-bg lg:hidden">
           <div className="flex h-14 items-center justify-between gap-2 px-4 sm:px-6">
             <Brand compact />

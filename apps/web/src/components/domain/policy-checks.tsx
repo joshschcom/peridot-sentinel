@@ -98,7 +98,7 @@ export function RejectionCallout({ error, marketId, simulated }: { error: Friend
         </div>
       </div>
       <Advanced label="Raw error" className="mt-3 border-line-strong bg-bg">
-        <pre className="overflow-x-auto font-mono text-xs whitespace-pre-wrap">{rawErrorText(error.raw)}</pre>
+        <pre className="overflow-x-auto font-mono text-xs break-all whitespace-pre-wrap">{rawErrorText(error.raw)}</pre>
       </Advanced>
     </div>
   );

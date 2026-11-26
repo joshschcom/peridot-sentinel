@@ -413,7 +413,7 @@ function ProbeResults({ probes }: { probes: { operator: string; results: Operato
         <span className="text-sm font-medium">
           What <Mono>{shortAddress(probes.operator)}</Mono> can do right now
         </span>
-        <Badge tone="outline">Simulation as the operator · nothing sent</Badge>
+        <Badge wrap tone="outline">Simulation as the operator · nothing sent</Badge>
       </div>
       <ul className="divide-y divide-line">
         {probes.results.map((probe) => {
@@ -431,7 +431,7 @@ function ProbeResults({ probes }: { probes: { operator: string; results: Operato
               </p>
               {probe.error ? (
                 <Advanced label="Raw error" className="mt-2">
-                  <pre className="overflow-x-auto font-mono text-xs whitespace-pre-wrap">{rawErrorText(probe.error)}</pre>
+                  <pre className="overflow-x-auto font-mono text-xs break-all whitespace-pre-wrap">{rawErrorText(probe.error)}</pre>
                 </Advanced>
               ) : null}
             </li>

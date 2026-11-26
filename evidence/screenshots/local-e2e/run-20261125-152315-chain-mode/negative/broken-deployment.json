@@ -1,0 +1,16 @@
+{
+  "mode": "broken-deployment",
+  "case": null,
+  "base": "http://127.0.0.1:3212",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": false,
+  "failures": [
+    "/circuits @390: horizontal overflow 12px with the banner"
+  ],
+  "notes": [
+    {
+      "bannerText": "Live data unavailable. The deployment on Local development chain could not be verified, so nothing is read from it and transactions are blocked. No bytecode at 1 manifest address(es), e.g. 0x00000000000000000000000000000000000dEaD1. Check again"
+    }
+  ]
+}

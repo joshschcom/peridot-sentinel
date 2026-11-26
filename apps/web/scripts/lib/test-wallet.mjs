@@ -3,6 +3,8 @@
 // Options:
 //   walletChainId  the chain the "wallet" reports at first (hex). Differs from the node's chain for the wrong-network test.
 //   readOnly       refuse eth_sendTransaction (used by the read-only check scripts).
+//   watchOnly      a wallet that only REPORTS an address and a chain: nothing is forwarded anywhere, and every
+//                  signing or sending method is refused. Used to look at public testnet data for a public address.
 // It reports every send and every switch through window.__recordTx / window.__recordSwitch.
 export const LOOPBACK_RPC = /^http:\/\/(127\.0\.0\.1|localhost):\d+$/;
 
@@ -14,8 +16,9 @@ export async function jsonRpc(url, method, params = []) {
 }
 
 /** Returns { sent, switches } arrays that fill up as the page uses the wallet. */
-export async function installTestWallet(context, { rpcUrl, account, walletChainId, readOnly = false }) {
-  if (!LOOPBACK_RPC.test(rpcUrl)) throw new Error("The test wallet only forwards to a loopback RPC");
+export async function installTestWallet(context, { rpcUrl = null, account, walletChainId, readOnly = false, watchOnly = false }) {
+  if (watchOnly) readOnly = true;
+  else if (!LOOPBACK_RPC.test(rpcUrl ?? "")) throw new Error("The test wallet only forwards to a loopback RPC");
   const sent = [];
   const switches = [];
   const refused = [];
@@ -23,7 +26,7 @@ export async function installTestWallet(context, { rpcUrl, account, walletChainI
   await context.exposeBinding("__recordSwitch", (_source, chainId) => switches.push(chainId));
   await context.exposeBinding("__recordRefused", (_source, tx) => refused.push(tx));
   await context.addInitScript(
-    ({ rpcUrl, account, walletChainId, readOnly }) => {
+    ({ rpcUrl, account, walletChainId, readOnly, watchOnly }) => {
       let id = 0;
       let current = walletChainId;
       const call = async (method, params) => {
@@ -58,13 +61,17 @@ export async function installTestWallet(context, { rpcUrl, account, walletChainI
             window.__recordTx({ hash, to: tx.to, selector: (tx.data ?? "0x").slice(0, 10) });
             return hash;
           }
+          if (watchOnly) {
+            window.__recordRefused({ method });
+            throw Object.assign(new Error(`This watch-only test wallet does not support ${method}`), { code: 4200 });
+          }
           return call(method, params);
         },
         on: (event, handler) => void (listeners[event] ??= []).push(handler),
         removeListener: (event, handler) => void (listeners[event] = (listeners[event] ?? []).filter((entry) => entry !== handler)),
       };
     },
-    { rpcUrl, account, walletChainId, readOnly },
+    { rpcUrl, account, walletChainId, readOnly, watchOnly },
   );
   return { sent, switches, refused };
 }

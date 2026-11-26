@@ -41,8 +41,12 @@ export const TARGET_KIND: TargetKind = process.env.NEXT_PUBLIC_PERIDOT_TARGET ==
 export const WRITE_CHAIN = TARGET_KIND === "local" ? localDevChain : xLayerTestnet;
 export const WRITE_CHAIN_ID: number = WRITE_CHAIN.id;
 export const TARGET_LABEL = TARGET_KIND === "local" ? "Local development chain" : "Testnet";
+/** Phone header: the full label does not fit next to a connected wallet at 360 px. */
+export const TARGET_LABEL_SHORT = TARGET_KIND === "local" ? "Local" : "Testnet";
 export const TARGET_DETAIL = TARGET_KIND === "local" ? "Anvil · 31337" : "X Layer · 1952";
 export const READ_ONLY_CHAIN_ID = xLayerMainnet.id;
+/** Test OKB for network fees on X Layer testnet. Local chains have pre-funded accounts. */
+export const FAUCET_URL: string | null = TARGET_KIND === "testnet" ? "https://web3.okx.com/xlayer/faucet/xlayerfaucet" : null;
 
 const positiveInt = (value: string | undefined, fallback: number): number => (value && /^[1-9]\d{0,8}$/.test(value) ? Number(value) : fallback);
 /**

@@ -69,8 +69,9 @@ const TONE: Record<Tone, string> = {
   warning: "bg-warning-soft text-warning",
 };
 
-export function Badge({ tone = "neutral", className, children }: { tone?: Tone; className?: string; children: ReactNode }) {
-  return <span className={cx("inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-xs font-medium whitespace-nowrap", TONE[tone], className)}>{children}</span>;
+/** `wrap`: for labels that can be longer than a phone column (state sentences, provenance labels). */
+export function Badge({ tone = "neutral", className, children, wrap = false }: { tone?: Tone; className?: string; children: ReactNode; wrap?: boolean }) {
+  return <span className={cx("inline-flex items-center gap-1 px-2.5 text-xs font-medium", wrap ? "min-h-6 max-w-full rounded-xl py-0.5 text-left" : "h-6 rounded-full whitespace-nowrap", TONE[tone], className)}>{children}</span>;
 }
 
 /** Marks a number or record as example data. Rendered next to every fixture-backed figure group. */

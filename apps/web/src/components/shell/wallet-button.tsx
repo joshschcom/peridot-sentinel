@@ -34,7 +34,10 @@ export function WalletButton() {
       <>
         <button type="button" onClick={() => setOpen(true)} className="inline-flex h-10 items-center gap-2 rounded-full border border-line-strong pr-3.5 pl-3 text-sm font-medium hover:bg-raised" data-testid="wallet-connected">
           <span className={`size-2 rounded-full ${wrong ? "bg-danger" : "bg-success"}`} aria-hidden="true" />
-          <span className="num font-mono text-[0.8125rem]">{shortAddress(wallet.address)}</span>
+          <span className="num font-mono text-[0.8125rem]">
+            <span className="sm:hidden">…{wallet.address.slice(-4)}</span>
+            <span className="hidden sm:inline">{shortAddress(wallet.address)}</span>
+          </span>
         </button>
         <Sheet open={open} onClose={() => setOpen(false)} title="Wallet">
           <dl className="divide-y divide-line text-sm">

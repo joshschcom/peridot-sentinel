@@ -67,7 +67,7 @@ export function PolicyIdentity({ record, open = false }: { record: PolicyRecord;
           <Line label="Processor">
             <Mono>{record.registration.value.processor}</Mono> · circuit #{record.registration.value.circuitId.toString()}
             <div className="mt-1">
-              <Badge tone={record.registration.value.processorKind === "official" ? "success" : "warning"}>{PROCESSOR_LABEL[record.registration.value.processorKind]}</Badge>
+              <Badge wrap tone={record.registration.value.processorKind === "official" ? "success" : "warning"}>{PROCESSOR_LABEL[record.registration.value.processorKind]}</Badge>
             </div>
           </Line>
         </>
@@ -93,7 +93,7 @@ function Line({ label, children }: { label: string; children: React.ReactNode })
 }
 
 export function SourceTag({ source }: { source: "fixture" | "chain" }) {
-  return source === "fixture" ? <ExampleTag /> : <Badge tone={TARGET_KIND === "local" ? "warning" : "success"}>{TARGET_KIND === "local" ? "Local chain" : "Live"}</Badge>;
+  return source === "fixture" ? <ExampleTag /> : <Badge tone={TARGET_KIND === "local" ? "warning" : "success"}>{TARGET_KIND === "local" ? "Local chain" : "Testnet · live"}</Badge>;
 }
 
 /** Cap as text, or a dash when the policy's rules are not known. Never shows a placeholder number. */

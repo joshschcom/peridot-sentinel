@@ -1,21 +1,24 @@
 "use client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getBalance } from "wagmi/actions";
 import { useState } from "react";
 import { Button, cx } from "@/components/ui/core";
 import { IconAlert, IconInfo } from "@/components/ui/icons";
 import { Sheet } from "@/components/ui/sheet";
 import { useDeploymentCheck, useWallet } from "@/hooks/use-wallet";
-import { TARGET_DETAIL, TARGET_KIND, TARGET_LABEL, WRITE_CHAIN, WRITE_CHAIN_ID, chainName } from "@/lib/chains";
+import { FAUCET_URL, TARGET_DETAIL, TARGET_KIND, TARGET_LABEL, TARGET_LABEL_SHORT, WRITE_CHAIN, WRITE_CHAIN_ID, chainName } from "@/lib/chains";
 import { mapContractError } from "@/lib/errors";
 import { RUNTIME, services } from "@/services";
 import { resetDeploymentCheck } from "@/services/chain/client";
+import { wagmiConfig } from "@/services/chain/wagmi";
 
 /** Persistent network label. This build only ever targets X Layer testnet for writes. */
 export function NetworkPill({ className }: { className?: string }) {
   return (
     <span className={cx("inline-flex h-8 items-center gap-2 rounded-full border border-line-strong px-3 text-xs font-medium whitespace-nowrap", className)} title={`${WRITE_CHAIN.name}, chain ${WRITE_CHAIN_ID}. Test tokens only.`} data-testid="network-pill">
       <span className="size-1.5 rounded-full bg-warning" aria-hidden="true" />
-      {TARGET_LABEL}
+      <span className="sm:hidden">{TARGET_LABEL_SHORT}</span>
+      <span className="hidden sm:inline">{TARGET_LABEL}</span>
       <span className="num hidden text-faint sm:inline">{TARGET_DETAIL}</span>
     </span>
   );
@@ -107,6 +110,34 @@ export function DeploymentBanner() {
         <Button size="sm" variant="secondary" onClick={retry} disabled={busy || check.isFetching}>
           {busy || check.isFetching ? "Checking…" : "Check again"}
         </Button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Chain mode: a connected wallet on the right network with no native token cannot pay a network fee, so every write
+ * would fail in the wallet. Say so up front, with the faucet on testnet. Reads are unaffected.
+ */
+export function GasBanner() {
+  const wallet = useWallet();
+  const address = wallet.status === "connected" && wallet.chainId === WRITE_CHAIN_ID ? wallet.address : null;
+  const enabled = address !== null && !RUNTIME.fixture && services.wallet.source === "chain";
+  const balance = useQuery({ queryKey: ["native-balance", address], queryFn: () => getBalance(wagmiConfig, { address: address!, chainId: WRITE_CHAIN.id }), enabled, staleTime: 30_000, retry: 2 });
+  if (!enabled || !balance.data || balance.data.value > 0n) return null;
+  const symbol = WRITE_CHAIN.nativeCurrency.symbol;
+  return (
+    <div role="status" data-testid="gas-banner" className="border-b border-warning bg-warning-soft">
+      <div className="mx-auto flex max-w-[100rem] flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 text-sm sm:px-6">
+        <IconInfo size={18} className="shrink-0 text-warning" />
+        <p className="min-w-0 flex-1">
+          <span className="font-medium">Your wallet has no test {symbol}.</span> Transactions need a little {symbol} for the network fee, so they cannot be sent yet. You can still look around.
+        </p>
+        {FAUCET_URL ? (
+          <a href={FAUCET_URL} target="_blank" rel="noreferrer" className="font-medium underline underline-offset-4">
+            Get test {symbol} from the faucet
+          </a>
+        ) : null}
       </div>
     </div>
   );

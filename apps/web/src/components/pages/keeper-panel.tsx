@@ -159,7 +159,7 @@ function Row({ group, token, receipt, example }: { group: KeeperGroup; token: To
     <li className="p-4 sm:p-5" data-keeper-state={item.state} data-sent={String(view.sent)} data-confirmed={receipt?.found ? receipt.status : receipt ? "not-found" : "none"}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <div className="flex flex-wrap items-center gap-1.5">
-          <Badge tone={TONE[view.tone]}>{view.label}</Badge>
+          <Badge wrap tone={TONE[view.tone]}>{view.label}</Badge>
           <Badge tone="outline">Keeper report</Badge>
           {example ? <ExampleTag /> : null}
         </div>
@@ -233,7 +233,7 @@ function ChainRepays({ events, complete, fromBlock, token, reported }: { events:
             <li key={event.hash} className="text-sm" data-chain-repay={event.hash}>
               <div className="flex flex-wrap items-center gap-1.5">
                 <Badge tone="success">Mined</Badge>
-                <Badge tone="outline">{reported.has(event.hash.toLowerCase()) ? "Also in the keeper's reports" : "Not in the keeper's recent reports"}</Badge>
+                <Badge wrap tone="outline">{reported.has(event.hash.toLowerCase()) ? "Also in the keeper's reports" : "Not in the keeper's recent reports"}</Badge>
               </div>
               <p className="num mt-1.5 text-muted">
                 Repaid {token ? tokenAmount(event.amount, token) : `${event.amount.toString()} raw units`}, loan-to-value {formatBps(event.ltvBeforeBps)} → {formatBps(event.ltvAfterBps)}, block {event.blockNumber.toString()}, operator <Mono>{shortAddress(event.operator)}</Mono>.

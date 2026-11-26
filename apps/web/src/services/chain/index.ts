@@ -7,6 +7,7 @@
 import { type Maybe, ok, unavailable } from "../../lib/maybe.ts";
 import { OP_LABEL, type OpId } from "../../lib/policy.ts";
 import { formatBps } from "../../lib/amount.ts";
+import { retryRead } from "../../lib/retry.ts";
 import { TEMPLATES } from "../fixture/data.ts";
 import type { AccountService, ActivityEntry, ActivityFeed, ActivityService, Address, MarketService, PolicyService, SentinelAccount } from "../types.ts";
 import { ABI, client, manifest, scanLogs, verifyDeployment } from "./client.ts";
@@ -22,7 +23,8 @@ async function guarded<T>(read: () => Promise<T>): Promise<Maybe<T>> {
   const check = await verifyDeployment();
   if (!check.ok) return unavailable(`Deployment could not be verified: ${check.reason}`);
   try {
-    return ok(await read());
+    // One bounded retry round for transient RPC failures (reads only).
+    return ok(await retryRead(read, { attempts: 3, baseDelayMs: 500 }));
   } catch (error) {
     return unavailable(error instanceof Error ? error.message.split("\n")[0]! : "On-chain read failed");
   }

@@ -9,6 +9,7 @@ import { getConnection, simulateContract, waitForTransactionReceipt, writeContra
 import type { TxResult, TxState, TxStep } from "../../components/domain/tx-feedback.tsx";
 import { WRITE_CHAIN } from "../../lib/chains.ts";
 import { mapContractError } from "../../lib/errors.ts";
+import { retryRead } from "../../lib/retry.ts";
 import { ok, unavailable } from "../../lib/maybe.ts";
 import type { Address } from "../types.ts";
 import { verifyDeployment } from "./client.ts";
@@ -74,7 +75,10 @@ export async function runPlan(plan: TxPlanStep[], successSummary: string, onStat
         statuses[index] = "skipped";
         continue;
       }
-      const simulation = await simulateContract(wagmiConfig, { account: wallet, chainId: WRITE_CHAIN.id, address: call.address, abi: call.abi as never, functionName: call.functionName as never, args: call.args as never });
+      const simulate = () => simulateContract(wagmiConfig, { account: wallet, chainId: WRITE_CHAIN.id, address: call.address, abi: call.abi as never, functionName: call.functionName as never, args: call.args as never });
+      // Right after a step of this plan was mined, a lagging RPC backend may not see it yet (for example the approval
+      // a supply depends on). Only the SIMULATION, which is a read, is asked again. A write is never re-sent.
+      const simulation = receipts.length > 0 ? await retryRead(simulate, { attempts: 4, baseDelayMs: 700 }) : await simulate();
       if (call.returnsCode && typeof simulation.result === "bigint" && simulation.result !== 0n) return fail(index, { name: "MarketOperationFailed", args: [simulation.result] });
       const hash = await writeContract(wagmiConfig, simulation.request as never);
       hashes.push(hash);

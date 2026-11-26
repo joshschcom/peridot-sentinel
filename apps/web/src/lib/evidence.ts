@@ -158,6 +158,7 @@ function parseForkSettlement(): Maybe<ForkSettlement> {
   });
 }
 
+export const TESTNET_LABEL = "X Layer testnet 1952: a real public testnet transaction. Mock tokens, owner-set mock price feed, development reference processor (not TapeOut)";
 export const LOCAL_LABEL = "Local development chain (Anvil 31337) with the development reference processor — not TapeOut, not a public transaction";
 
 export interface LocalAutoRepay {
@@ -204,8 +205,51 @@ function parseLocalAutoRepay(): Maybe<LocalAutoRepay> {
   });
 }
 
+export interface TestnetAutoRepay {
+  file: string;
+  label: string;
+  chainId: 1952;
+  account: string;
+  operator: string;
+  hash: string;
+  block: string;
+  gasUsed: string;
+  amountRaw: bigint;
+  decimals: number;
+  ltvBeforeBps: number;
+  ltvAfterBps: number;
+}
+
+/** A real public X Layer testnet transaction recorded by the orchestrator. The only auto-repay that may be explorer-linked. */
+function parseTestnetAutoRepay(): Maybe<TestnetAutoRepay> {
+  const source = RAW_EVIDENCE.testnetAutoRepay;
+  const root = rec(source.json);
+  const outcome = rec(root?.keeperOutcome);
+  const hash = str(root?.txHash);
+  const amount = str(outcome?.amountRaw);
+  const account = str(root?.sentinelAccount);
+  if (!source.file || !root || !outcome || root.chainId !== 1952 || root.status !== "0x1" || !hash || !/^0x[0-9a-fA-F]{64}$/.test(hash) || !account || !amount || !/^\d+$/.test(amount) || typeof outcome.decimals !== "number" || typeof outcome.ltvBeforeBps !== "number" || typeof outcome.ltvAfterBps !== "number") {
+    return unavailable("Testnet auto-repay evidence is not available in this build");
+  }
+  return ok({
+    file: source.file,
+    label: str(root.label) ?? "X Layer testnet 1952",
+    chainId: 1952,
+    account,
+    operator: str(root.operator) ?? "?",
+    hash,
+    block: String(root.block ?? "?"),
+    gasUsed: String(root.gasUsed ?? "?"),
+    amountRaw: BigInt(amount),
+    decimals: outcome.decimals,
+    ltvBeforeBps: outcome.ltvBeforeBps,
+    ltvAfterBps: outcome.ltvAfterBps,
+  });
+}
+
 export const EVIDENCE = {
   localAutoRepay: parseLocalAutoRepay(),
+  testnetAutoRepay: parseTestnetAutoRepay(),
   publicSample: parsePublicSample(),
   forkPolicies: parseForkPolicies(),
   forkSettlement: parseForkSettlement(),

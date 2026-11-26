@@ -20,6 +20,7 @@ import type { Abi, PublicClient } from "viem";
 import { getPublicClient } from "wagmi/actions";
 import { LOG_MAX_PAGES, LOG_PAGE_BLOCKS, WRITE_CHAIN } from "../../lib/chains.ts";
 import { fetchLogPages, scanWindow } from "../../lib/log-pages.ts";
+import { retryRead } from "../../lib/retry.ts";
 import type { DeploymentManifest } from "../../lib/manifest.ts";
 import { STUDIO_MARKET_ROOT } from "../../lib/policy.ts";
 import { RUNTIME } from "../runtime.ts";
@@ -121,12 +122,12 @@ export async function scanLogs<L extends { blockNumber: bigint }>(key: string, f
   const cached = logCache.get(key);
   if (cached && cached.to <= latest && cached.to + 1n >= window.from) {
     const resume = cached.to - cached.from >= REORG_OVERLAP ? cached.to - REORG_OVERLAP + 1n : cached.from;
-    const fresh = await fetchLogPages(fetchPage, resume, latest, options);
+    const fresh = await fetchLogPages((from, to) => retryRead(() => fetchPage(from, to), { attempts: 3 }), resume, latest, options);
     const next: CachedScan = { from: cached.from, to: latest, logs: [...cached.logs.filter((log) => log.blockNumber < resume), ...fresh] };
     logCache.set(key, next);
     return { logs: next.logs as L[], fromBlock: next.from, toBlock: latest, complete: next.from <= deployment };
   }
-  const logs = await fetchLogPages(fetchPage, window.from, window.to, options);
+  const logs = await fetchLogPages((from, to) => retryRead(() => fetchPage(from, to), { attempts: 3 }), window.from, window.to, options);
   logCache.set(key, { from: window.from, to: latest, logs });
   return { logs, fromBlock: window.from, toBlock: latest, complete: window.complete };
 }
@@ -149,15 +150,18 @@ export function verifyDeployment(): Promise<DeploymentCheck> {
     try {
       const m = manifest();
       const rpc = client();
-      const chainId = await rpc.getChainId();
+      const chainId = await retryRead(() => rpc.getChainId());
       if (chainId !== m.chainId) return { ok: false, reason: `RPC reports chain ${chainId}, manifest is for ${m.chainId}` };
       const addresses = [...Object.values(m.contracts), ...m.markets.flatMap((market) => Object.values(market).filter((value): value is Address => typeof value === "string" && /^0x[0-9a-fA-F]{40}$/.test(value)))];
-      const codes = await Promise.all(addresses.map((address) => rpc.getCode({ address })));
+      // Empty bytecode from one backend is not proof of absence on a load-balanced RPC: ask again, with backoff,
+      // before calling it a mismatch. A genuinely missing contract is still reported after the last attempt.
+      const hasCode = (code: string | undefined) => code !== undefined && code !== "0x";
+      const codes = await Promise.all(addresses.map((address) => retryRead(() => rpc.getCode({ address }), { accept: hasCode })));
       const missing = addresses.filter((_, index) => !codes[index] || codes[index] === "0x");
       if (missing.length) return { ok: false, reason: `No bytecode at ${missing.length} manifest address(es), e.g. ${missing[0]}` };
       const manifestRoot = m.capabilities.studioMarketTemplateRoot;
       if (!manifestRoot) return { ok: false, reason: "Manifest does not publish capabilities.studioMarketTemplateRoot" };
-      const onChainRoot = await rpc.readContract({ address: contract("PolicyRegistry"), abi: ABI.registry, functionName: "MARKET_TEMPLATE_ROOT" });
+      const onChainRoot = await retryRead(() => rpc.readContract({ address: contract("PolicyRegistry"), abi: ABI.registry, functionName: "MARKET_TEMPLATE_ROOT" }));
       const sdk = STUDIO_MARKET_ROOT.toLowerCase();
       if (manifestRoot.toLowerCase() !== sdk || onChainRoot.toLowerCase() !== sdk) return { ok: false, reason: "Template root mismatch between the compiler, the manifest and the deployed registry" };
       return { ok: true, chainId, contracts: addresses.length, root: onChainRoot };

@@ -1,5 +1,6 @@
 "use client";
 import { useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { tokenAmount } from "@/components/domain/market-bits";
 import { Advanced, Badge, Button, Card, CardHeader, EmptyState, ExampleTag, Mono, Skeleton, type Tone, cx } from "@/components/ui/core";
@@ -8,10 +9,11 @@ import { useActivity } from "@/hooks/use-data";
 import { formatAmount, formatBps } from "@/lib/amount";
 import { LOG_PAGE_BLOCKS, WRITE_CHAIN_ID, explorerTxUrl } from "@/lib/chains";
 import { type ErrorCategory, mapContractError, rawErrorText } from "@/lib/errors";
-import { EVIDENCE, FORK_LABEL, LOCAL_LABEL } from "@/lib/evidence";
+import { EVIDENCE, FORK_LABEL, LOCAL_LABEL, TESTNET_LABEL } from "@/lib/evidence";
 import { formatTime, shortHash } from "@/lib/format";
 import { services } from "@/services";
 import { extendLogWindow } from "@/services/chain/client";
+import { verifyKeeperReceipts } from "@/services/chain/reads";
 import type { ActivityEntry, ActivityEvidence } from "@/services/types";
 import { KeeperPanel } from "./keeper-panel";
 import { SentinelHeader } from "./sentinel-common";
@@ -134,7 +136,7 @@ function Entry({ entry, fixture }: { entry: ActivityEntry; fixture: boolean }) {
         </div>
         {error ? (
           <Advanced label="Raw error" className="mt-3">
-            <pre className="overflow-x-auto font-mono text-xs whitespace-pre-wrap">{rawErrorText(error.raw)}</pre>
+            <pre className="overflow-x-auto font-mono text-xs break-all whitespace-pre-wrap">{rawErrorText(error.raw)}</pre>
           </Advanced>
         ) : null}
       </div>
@@ -146,11 +148,44 @@ function Entry({ entry, fixture }: { entry: ActivityEntry; fixture: boolean }) {
 function RecordedEvidence() {
   const local = EVIDENCE.localAutoRepay;
   const fork = EVIDENCE.forkSettlement;
-  if (local.status !== "ok" && fork.status !== "ok") return null;
+  const testnet = EVIDENCE.testnetAutoRepay;
+  // On the testnet build the page re-reads this receipt from the public RPC instead of only quoting the record.
+  const rereadable = testnet.status === "ok" && services.activity.source === "chain" && WRITE_CHAIN_ID === testnet.value.chainId;
+  const reread = useQuery({
+    queryKey: ["evidence", "testnet-auto-repay"],
+    queryFn: async () => (testnet.status === "ok" ? ((await verifyKeeperReceipts(testnet.value.account as `0x${string}`, [testnet.value.hash as `0x${string}`]))[testnet.value.hash.toLowerCase()] ?? null) : null),
+    enabled: rereadable,
+    staleTime: 60_000,
+  });
+  if (local.status !== "ok" && fork.status !== "ok" && testnet.status !== "ok") return null;
   return (
     <Card as="section">
-      <CardHeader eyebrow="Not example data" title="Recorded receipts from development environments" description="Real contract executions, recorded in this repository. They did not happen on a public network, so there is no explorer link." />
+      <CardHeader eyebrow="Not example data" title="Recorded receipts" description="Real contract executions, recorded in this repository. Only the public testnet transaction has an explorer link; local and fork receipts did not happen on a public network." />
       <ul className="divide-y divide-line">
+        {testnet.status === "ok" ? (
+          <Receipt
+            testid="testnet-auto-repay"
+            badge={{ label: "Allowed", tone: "success" }}
+            title={`Auto-repay on X Layer testnet · ${formatAmount(testnet.value.amountRaw, testnet.value.decimals)} test debt tokens`}
+            detail={`AutoRepayExecuted: loan-to-value ${formatBps(testnet.value.ltvBeforeBps)} → ${formatBps(testnet.value.ltvAfterBps)} (${testnet.value.ltvBeforeBps} → ${testnet.value.ltvAfterBps} bps). Sent by a separate repay-only operator after a labelled mock price move, from the Sentinel account's own idle funds.`}
+            hash={testnet.value.hash}
+            url={explorerTxUrl(testnet.value.chainId, testnet.value.hash)}
+            meta={`block ${testnet.value.block} · gas ${Number(testnet.value.gasUsed).toLocaleString("en-US")} · ${testnet.value.file}`}
+            label={TESTNET_LABEL}
+            live={
+              !rereadable ? null : reread.isPending ? (
+                <span className="text-faint">Reading the receipt from the testnet RPC…</span>
+              ) : reread.data?.found ? (
+                <span className={reread.data.status === "success" ? "text-success" : "text-danger"} data-testid="testnet-receipt-reread" data-status={reread.data.status}>
+                  Re-read from the testnet RPC just now: {reread.data.status}, block {reread.data.blockNumber.toString()}
+                  {reread.data.autoRepay ? `, AutoRepayExecuted ${formatAmount(reread.data.autoRepay.amount, testnet.value.decimals)}, loan-to-value ${formatBps(reread.data.autoRepay.ltvBeforeBps)} → ${formatBps(reread.data.autoRepay.ltvAfterBps)}` : ""}.
+                </span>
+              ) : (
+                <span className="text-warning">The receipt could not be re-read from the RPC right now. The recorded values above are from the repository.</span>
+              )
+            }
+          />
+        ) : null}
         {local.status === "ok" ? (
           <Receipt
             badge={{ label: "Allowed", tone: "success" }}
@@ -194,9 +229,9 @@ function RecordedEvidence() {
   );
 }
 
-function Receipt({ badge, title, detail, hash, meta, label }: { badge: { label: string; tone: Tone }; title: string; detail: string; hash: string; meta: string; label: string }) {
+function Receipt({ badge, title, detail, hash, meta, label, url, live, testid }: { badge: { label: string; tone: Tone }; title: string; detail: string; hash: string; meta: string; label: string; url?: string | null; live?: React.ReactNode; testid?: string }) {
   return (
-    <li className="p-4 sm:p-5">
+    <li className="p-4 sm:p-5" data-testid={testid}>
       <div className="flex flex-wrap items-center gap-1.5">
         <Badge tone={badge.tone}>{badge.label}</Badge>
       </div>
@@ -208,6 +243,12 @@ function Receipt({ badge, title, detail, hash, meta, label }: { badge: { label: 
         <br />
         {meta}
       </p>
+      {url ? (
+        <a href={url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm font-medium underline underline-offset-4" data-testid="explorer-link">
+          View on the X Layer testnet explorer <IconArrowUpRight size={13} />
+        </a>
+      ) : null}
+      {live ? <p className="mt-2 text-xs">{live}</p> : null}
     </li>
   );
 }

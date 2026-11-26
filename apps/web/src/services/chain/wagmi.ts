@@ -11,7 +11,7 @@ export const wagmiConfig = createConfig({
   chains: TARGET_KIND === "local" ? [localDevChain, xLayerTestnet, xLayerMainnet] : [xLayerTestnet, xLayerMainnet, localDevChain],
   connectors: [injected()],
   transports: {
-    [xLayerTestnet.id]: http(xLayerTestnet.rpcUrls.default.http[0]),
+    [xLayerTestnet.id]: http(xLayerTestnet.rpcUrls.default.http[0], { retryCount: 4, retryDelay: 300, timeout: 20_000 }),
     [xLayerMainnet.id]: http(),
     [localDevChain.id]: http(),
   },

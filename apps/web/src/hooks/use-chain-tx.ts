@@ -2,6 +2,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import type { TxState } from "@/components/domain/tx-feedback";
+import { TARGET_KIND } from "@/lib/chains";
 import { invalidateChainCaches } from "@/services/chain/reads";
 import { type TxPlanStep, type TxRun, runPlan } from "@/services/chain/tx";
 
@@ -16,6 +17,8 @@ export function useChainTx() {
       const result = await runPlan(plan, successSummary, setState);
       invalidateChainCaches();
       await queryClient.invalidateQueries();
+      // On a public RPC the first refresh can be answered by a backend that has not seen the new block yet.
+      if (TARGET_KIND !== "local" && result.hashes.length > 0) window.setTimeout(() => void queryClient.invalidateQueries(), 4000);
       return result;
     },
     [queryClient],
