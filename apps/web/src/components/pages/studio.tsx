@@ -7,7 +7,10 @@ import { IconAlert, IconArrowRight, IconCheck, IconChevronRight, IconLock, IconM
 import { TxFeedback } from "@/components/domain/tx-feedback";
 import { useChainTx } from "@/hooks/use-chain-tx";
 import { useMarket, useMarkets } from "@/hooks/use-data";
-import { WRITE_CHAIN_ID } from "@/lib/chains";
+import { StrategyBadge } from "@/components/domain/strategy-bits";
+import { STRATEGY_CONTEXT } from "@/lib/strategy-context";
+import { TARGET_KIND, WRITE_CHAIN_ID } from "@/lib/chains";
+import { CURATED } from "@/lib/strategy";
 import { activatePlan } from "@/services/chain/plans";
 import { useWriteGate } from "@/hooks/use-wallet";
 import { formatBps } from "@/lib/amount";
@@ -15,24 +18,81 @@ import { formatDay, shortAddress } from "@/lib/format";
 import { services } from "@/services";
 import type { Market } from "@/services/types";
 
+/**
+ * Studio: the creator workspace (DECISIONS D23). Four kinds of product, each labelled with what this build can do:
+ * strategies (the SDK's templates, functional), lending markets (the create flow, functional), policy circuits
+ * (the Circuits page) and managed vaults (roadmap only; not the ERC-4626 adapter of a v2 account).
+ */
 export function StudioHome() {
   const markets = useMarkets();
   const owned = markets.data?.status === "ok" ? markets.data.value.filter((market) => market.ownedByViewer) : null;
+  const strategyStatus = CURATED.length === 0 ? "planned" : STRATEGY_CONTEXT.testnetLive ? "available" : "demonstration";
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="studio-home">
       <PageHeader
+        eyebrow="Builders"
         title="Studio"
-        description="Launch and manage isolated markets. You choose the limits and the policy circuit; the protocol's safety checks always stay on."
-        actions={
-          <>
-            <SourceTag source={services.market.source} />
-            <ButtonLink href="/studio/create">
-              Create a market <IconArrowRight size={16} />
-            </ButtonLink>
-          </>
-        }
+        description="Build financial products others can use: a strategy template, a lending market with its own rules, a policy circuit. What you publish is data and contracts; nobody who uses it hands you their keys."
+        actions={<SourceTag source={services.market.source} />}
       />
 
+      <ul className="grid gap-4 md:grid-cols-2" data-testid="studio-workspace">
+        <Workspace
+          id="strategies"
+          title="Strategies"
+          badge={<StrategyBadge status={strategyStatus} />}
+          body="Start from a curated template, set its budget, trigger and lifetime, and export it as canonical JSON with a content hash. Anyone can import it; importing grants nothing, and each owner signs their own grant."
+          facts={[`${CURATED.length} curated template${CURATED.length === 1 ? "" : "s"} in this build`, "Bound to contracts deployed on X Layer testnet", "No keys, grants or accounts inside a template"]}
+          actions={
+            <>
+              <ButtonLink href="/strategies#create" data-testid="studio-create-strategy">
+                Create a strategy <IconArrowRight size={16} />
+              </ButtonLink>
+              <ButtonLink href="/strategies#import" variant="secondary">
+                Import
+              </ButtonLink>
+            </>
+          }
+        />
+        <Workspace
+          id="markets"
+          title="Programmable lending markets"
+          badge={<Badge tone={services.market.source === "chain" ? "success" : "warning"}>{services.market.source === "chain" ? (TARGET_KIND === "testnet" ? "Available on testnet" : "Available on the local chain") : "Example data"}</Badge>}
+          body="Launch an isolated lending market: you choose the limits and the policy circuit that guards every borrow. The protocol's own safety checks always stay on, and one market's losses never touch another."
+          facts={["Create, seed liquidity, activate", "Policy circuit compiled and registered in the flow", owned === null ? "Connect a wallet to see your markets" : `${owned.length} market${owned.length === 1 ? "" : "s"} created by this wallet`]}
+          actions={
+            <>
+              <ButtonLink href="/studio/create" data-testid="studio-create-market">
+                Create a market <IconArrowRight size={16} />
+              </ButtonLink>
+              <ButtonLink href="#markets" variant="secondary">
+                Your markets
+              </ButtonLink>
+            </>
+          }
+        />
+        <Workspace
+          id="circuits"
+          title="Reusable circuits"
+          badge={<Badge tone="outline">Library</Badge>}
+          body="Policies compile to small stateless NAND circuits with a deterministic hash. Browse the circuits in use, their gates and inputs, and evaluate the published ones read-only on X Layer mainnet."
+          facts={["Market, account and execution policies", "On testnet they run on a development reference processor, not TapeOut"]}
+          actions={
+            <ButtonLink href="/circuits" variant="secondary">
+              Open Circuits <IconArrowRight size={16} />
+            </ButtonLink>
+          }
+        />
+        <Workspace
+          id="vaults"
+          title="Managed vaults"
+          badge={<StrategyBadge status="planned" label="Roadmap" />}
+          body="A pooled product run by a creator under a published policy. It is not built: there is no contract, no deposit and nothing to try. It is also not the ERC-4626 adapter of a Sentinel v2 account, which only lets an account you own deposit into an existing vault."
+          facts={["No contract exists for it", "Nothing on this page can create one"]}
+        />
+      </ul>
+
+      <h2 id="markets" className="scroll-mt-28 pt-2 text-lg font-semibold tracking-tight">Lending markets</h2>
       <ol className="grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-3">
         {[
           ["Create", "One transaction. The market starts inactive, with immutable limits."],
@@ -76,6 +136,27 @@ export function StudioHome() {
         </ul>
       )}
     </div>
+  );
+}
+
+function Workspace({ id, title, badge, body, facts, actions }: { id: string; title: string; badge: React.ReactNode; body: string; facts: string[]; actions?: React.ReactNode }) {
+  return (
+    <Card as="li" className="flex flex-col p-5 sm:p-6" data-workspace={id}>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+        {badge}
+      </div>
+      <p className="mt-2 text-sm text-muted">{body}</p>
+      <ul className="mt-4 flex-1 space-y-1.5 text-[0.8125rem] text-muted">
+        {facts.map((fact) => (
+          <li key={fact} className="flex gap-2">
+            <span aria-hidden="true" className="text-faint">·</span>
+            {fact}
+          </li>
+        ))}
+      </ul>
+      {actions ? <div className="mt-5 flex flex-wrap gap-2">{actions}</div> : null}
+    </Card>
   );
 }
 

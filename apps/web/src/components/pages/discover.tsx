@@ -6,7 +6,8 @@
  * A label is derived from what this build lets a user do with the template (src/lib/strategy.ts), never typed in.
  */
 import { useState } from "react";
-import { STRATEGY_CONTEXT, StrategyBadge, TemplateFacts, TemplateIdentity, TemplateText } from "@/components/domain/strategy-bits";
+import { StrategyBadge, TemplateFacts, TemplateIdentity, TemplateText } from "@/components/domain/strategy-bits";
+import { STRATEGY_CONTEXT } from "@/lib/strategy-context";
 import { Advanced, Badge, Button, ButtonLink, Card, PageHeader } from "@/components/ui/core";
 import { IconArrowRight, IconArrowUpRight } from "@/components/ui/icons";
 import { explorerTxUrl } from "@/lib/chains";

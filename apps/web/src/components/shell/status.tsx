@@ -15,7 +15,7 @@ import { wagmiConfig } from "@/services/chain/wagmi";
 /** Persistent network label. This build only ever targets X Layer testnet for writes. */
 export function NetworkPill({ className }: { className?: string }) {
   return (
-    <span className={cx("inline-flex h-8 items-center gap-2 rounded-full border border-line-strong px-3 text-xs font-medium whitespace-nowrap", className)} data-testid="network-pill" title={`${WRITE_CHAIN.name}, chain ${WRITE_CHAIN_ID}. Test tokens only.`} data-testid="network-pill">
+    <span className={cx("inline-flex h-8 items-center gap-2 rounded-full border border-line-strong px-3 text-xs font-medium whitespace-nowrap", className)} title={`${WRITE_CHAIN.name}, chain ${WRITE_CHAIN_ID}. Test tokens only.`} data-testid="network-pill">
       <span className="size-1.5 rounded-full bg-warning" aria-hidden="true" />
       <span className="sm:hidden">{TARGET_LABEL_SHORT}</span>
       <span className="hidden sm:inline">{TARGET_LABEL}</span>

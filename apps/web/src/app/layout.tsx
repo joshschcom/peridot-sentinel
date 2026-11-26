@@ -6,8 +6,8 @@ import { BRAND } from "@/lib/brand";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: `${BRAND.name} — ${BRAND.tagline}`, template: `%s · ${BRAND.name}` },
-  description: `${BRAND.positioning} Smart accounts that hold your position and only act within the policy you set, with isolated lending markets on X Layer. Experimental testnet build with test tokens.`,
+  title: { default: `${BRAND.name} — ${BRAND.positioning}`, template: `%s · ${BRAND.name}` },
+  description: `${BRAND.name}: ${BRAND.positioning.toLowerCase()}. ${BRAND.supporting} Experimental software on X Layer testnet with test tokens; not audited, not a financial product.`,
   applicationName: BRAND.name,
 };
 

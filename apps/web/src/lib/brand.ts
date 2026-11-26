@@ -4,7 +4,10 @@ export const BRAND = {
   wordmark: "sentinel.",
   byline: "By Peridot",
   tagline: "Your money. Your rules. Your intelligence.",
-  positioning: "The Financial Operating System for the Agent Economy.",
+  /** Strategy-first positioning (DECISIONS D23). The tagline above is unchanged. */
+  positioning: "Your automated DeFi portfolio",
+  headline: "Put your portfolio on autopilot.",
+  supporting: "Discover investment strategies, connect your own AI or create financial products for others. You define the rules. Sentinel enforces them.",
 } as const;
 
 /**

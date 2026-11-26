@@ -5,13 +5,11 @@ import { Advanced, Badge, type Tone } from "@/components/ui/core";
 import { useAccounts, useMarkets } from "@/hooks/use-data";
 import { useWallet } from "@/hooks/use-wallet";
 import { formatAmount, formatBps } from "@/lib/amount";
-import { IS_PRIVATE_FORK, TARGET_KIND } from "@/lib/chains";
-import { EXPANSION } from "@/lib/expansion";
 import { formatDay, shortAddress } from "@/lib/format";
-import { type AvailabilityContext, type CheckedStrategy, STRATEGY_AVAILABILITY_LABEL, type Strategy, type StrategyAvailability, matchesDebtProtection, templateFacts } from "@/lib/strategy";
-import { RUNTIME, services } from "@/services";
+import { type CheckedStrategy, STRATEGY_AVAILABILITY_LABEL, type Strategy, type StrategyAvailability, matchesDebtProtection, templateFacts } from "@/lib/strategy";
+import { STRATEGY_CONTEXT } from "@/lib/strategy-context";
+import { services } from "@/services";
 import { readV2Account, v2AccountOf } from "@/services/chain/expansion";
-import { FORCE_FIXTURE } from "@/services/runtime";
 import type { Address, LogCoverage } from "@/services/types";
 
 const TONE: Record<StrategyAvailability, Tone> = { available: "success", demonstration: "warning", planned: "outline" };
@@ -23,15 +21,6 @@ export function StrategyBadge({ status, label }: { status: StrategyAvailability;
     </Badge>
   );
 }
-
-/** What this build can do with testnet strategy templates. One object, so every page derives the same labels. */
-export const STRATEGY_CONTEXT: AvailabilityContext = {
-  testnetLive: TARGET_KIND === "testnet" && !FORCE_FIXTURE && RUNTIME.modes.account.source === "chain",
-  v1: TARGET_KIND === "testnet" && RUNTIME.manifest.state === "deployed" ? RUNTIME.manifest.manifest : null,
-  // A private-fork build exists to accept wallet signing against testnet state without touching the public chain,
-  // so the v2 write switch is treated as on there, and only there. On public testnet the manifest's flag decides.
-  v2: EXPANSION.manifest.status === "ok" ? (IS_PRIVATE_FORK ? { ...EXPANSION.manifest.value, uiEnabled: true } : EXPANSION.manifest.value) : null,
-};
 
 /**
  * Free text of a template (name, description, objective, instructions). It may come from a file a stranger wrote, so

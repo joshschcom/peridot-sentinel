@@ -11,7 +11,8 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { isAddress } from "viem";
-import { StrategyBadge, STRATEGY_CONTEXT, TemplateFacts, TemplateIdentity, TemplateText } from "@/components/domain/strategy-bits";
+import { StrategyBadge, TemplateFacts, TemplateIdentity, TemplateText } from "@/components/domain/strategy-bits";
+import { STRATEGY_CONTEXT } from "@/lib/strategy-context";
 import { TxFeedback } from "@/components/domain/tx-feedback";
 import { Advanced, Button, Card, CardHeader, Mono, Notice, cx } from "@/components/ui/core";
 import { IconAlert, IconLock, IconShield } from "@/components/ui/icons";
