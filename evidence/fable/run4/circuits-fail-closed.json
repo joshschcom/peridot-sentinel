@@ -1,0 +1,32 @@
+{
+  "mode": "circuits-fail-closed",
+  "onlyPaths": null,
+  "case": null,
+  "base": "http://127.0.0.1:3210",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": true,
+  "failures": [],
+  "notes": [
+    {
+      "market": {
+        "state": "refused",
+        "output": "",
+        "block": "76939399",
+        "text": "Not evaluated: the publication could not be verified The configured publication transaction was not sent to the configured processor. Checked at block 76,939,399. The circuit is evaluated only after its receipt, its event, its dimensions and its netlist hash a"
+      },
+      "account": {
+        "state": "refused",
+        "output": "",
+        "block": "76939399",
+        "text": "Not evaluated: the publication could not be verified The public RPC has no receipt for the configured publication transaction. Checked at block 76,939,399. The circuit is evaluated only after its receipt, its event, its dimensions and its netlist hash all matc"
+      },
+      "afterInputChange": {
+        "state": "refused",
+        "output": "",
+        "block": "76939403",
+        "text": "Not evaluated: the publication could not be verified The configured publication transaction was not sent to the configured processor. Checked at block 76,939,403. The circuit is evaluated only after its receipt, its event, its dimensions and its netlist hash a"
+      }
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 "use client";
 /**
- * Native TapeOut evidence: evaluates a circuit that is published on X Layer mainnet, live, from this browser.
- * Read-only eth_calls through the public RPC. Until Peridot's own circuits are published on mainnet, the example
- * is the existing public circuit recorded in evidence/a1/mainnet-reads.json, and it is labelled as not Peridot's.
+ * Native TapeOut evidence, THIRD-PARTY example: evaluates a circuit somebody else published on X Layer mainnet, live,
+ * from this browser. Read-only eth_calls through the public RPC. The circuit is the existing public one recorded in
+ * evidence/a1/mainnet-reads.json and is always labelled as not Peridot's. Peridot's own circuits are in native-eval.tsx.
  */
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -13,16 +13,6 @@ import { explorerAddressUrl, xLayerMainnet } from "@/lib/chains";
 import { EVIDENCE } from "@/lib/evidence";
 import { evalLive, readLiveCircuit } from "@/services/chain/mainnet-eval";
 import type { Address } from "@/services/types";
-
-/**
- * Peridot's own circuits (DECISIONS D16). `id` stays null until a circuit is actually published on chain 196; a
- * simulated ID from a fork must never be written here.
- */
-const PERIDOT_MAINNET_CIRCUITS: Array<{ name: string; id: string | null }> = [
-  { name: "Market Policy V1", id: null },
-  { name: "Sentinel Policy V1", id: null },
-  { name: "Expanded Sentinel Policy V2 (execution)", id: null },
-];
 
 const hexByte = (value: number): Hex => `0x${value.toString(16).padStart(2, "0")}`;
 
@@ -62,9 +52,9 @@ export function LiveMainnetEval() {
   return (
     <Card as="section" data-testid="live-mainnet-eval" data-state={live.isPending ? "loading" : live.isError ? "error" : "ok"}>
       <CardHeader
-        eyebrow="Live · X Layer mainnet (chain 196)"
-        title="Evaluate a published TapeOut circuit now"
-        description="Your browser asks the TapeOut processor on X Layer mainnet to evaluate a circuit, through the public RPC. These are read-only calls: no wallet, no transaction, no cost."
+        eyebrow="Third-party circuit · X Layer mainnet (chain 196)"
+        title="Processor connectivity example: a circuit that is not Peridot's"
+        description="Your browser asks a TapeOut processor on X Layer mainnet to evaluate a circuit somebody else published, through the public RPC. Read-only calls: no wallet, no transaction, no cost. It shows that native evaluation works from this page; it says nothing about Peridot's policies."
         action={<Badge tone={live.isError ? "danger" : data ? "success" : "neutral"}>{live.isError ? "Unavailable" : data ? "Live read" : "Reading…"}</Badge>}
       />
       {live.isPending ? (
@@ -164,20 +154,8 @@ export function LiveMainnetEval() {
           )}
 
           <Notice title="This is not a Peridot circuit">
-            It is a circuit that already existed on the official TapeOut deployment, used here to show a real evaluation on mainnet. The fork evidence further down is a simulation and stays labelled as one: circuit IDs from a fork are never looked up on mainnet.
+            It is a third-party circuit that already existed on the official TapeOut deployment, on a different processor from the one Peridot's circuits are configured for. Peridot's own circuits are listed above, each with its publication state.
           </Notice>
-          <div data-testid="peridot-mainnet-circuits">
-            <h3 className="text-sm font-medium">Peridot circuits on X Layer mainnet</h3>
-            <ul className="mt-2 divide-y divide-line rounded-control border border-line text-sm">
-              {PERIDOT_MAINNET_CIRCUITS.map((circuit) => (
-                <li key={circuit.name} className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5" data-published={String(circuit.id !== null)}>
-                  <span>{circuit.name}</span>
-                  <Badge tone="outline">{circuit.id === null ? "Not published · no mainnet ID" : `Circuit #${circuit.id}`}</Badge>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-2 text-xs text-faint">None of these has been published on mainnet. Each will be evaluated here, like the example above, once its publication transaction exists and its netlist hash has been checked.</p>
-          </div>
           <div className="flex flex-wrap items-center gap-3 text-xs text-faint">
             <Button size="sm" variant="secondary" onClick={() => void live.refetch()} disabled={live.isFetching} data-testid="live-refresh">
               {live.isFetching ? "Reading…" : "Read again"}

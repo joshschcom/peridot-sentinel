@@ -18,6 +18,12 @@
 //                       receipt re-read from the RPC with its explorer link, and the faucet notice. Two watch-only
 //                       wallets: an address with nothing on testnet, and the demo owner's PUBLIC address (no key).
 //
+//   circuits-fail-closed  DEFAULT-target server started with PERIDOT_TAPEOUT_MANIFEST pointing at a TEST copy of the
+//                       TapeOut circuit configuration (written by `PREPARE=<file> ... circuits-fail-closed`). The copy
+//                       claims IDs that are NOT Peridot's publications. Against real chain 196 the page must refuse
+//                       to evaluate them: a receipt that is not a fabrication on the processor, a receipt that does
+//                       not exist, and an ID without a receipt. Read-only; nothing here is a Peridot circuit.
+//
 // The wallet is the read-only test provider: it refuses eth_sendTransaction. Tampered manifests live in a temp
 // directory; packages/chain-config is never touched. Loopback RPC, chain 31337, accounts #3-#9 only.
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -156,6 +162,51 @@ if (mode === "wrong-network") {
     }
     await context.close();
   }
+} else if (mode === "circuits-fail-closed") {
+  const { readFileSync } = await import("node:fs");
+  const real = JSON.parse(readFileSync(new URL("../../../packages/chain-config/expansion/tapeout-196.json", import.meta.url), "utf8"));
+  // Public CPU-creation transaction of CPU 410 (docs/coordination/D8b-v2-three-circuits.md): a real, successful
+  // mainnet receipt that is NOT a circuit fabrication and was not sent to the processor.
+  const NOT_A_FABRICATION = "0x49f3a5997dc717ca398af2ec23681c18d0644723970d1bc80b27078b435c2f9e";
+  const test = structuredClone(real);
+  Object.assign(test.circuits[0], { publishedId: "1", publicReceipt: NOT_A_FABRICATION }); // third-party circuit #1, wrong receipt
+  Object.assign(test.circuits[1], { publishedId: "2", publicReceipt: `0x${"ab".repeat(32)}` }); // a receipt that does not exist
+  Object.assign(test.circuits[2], { publishedId: "3", publicReceipt: null }); // an ID without a receipt
+  if (process.env.PREPARE) {
+    writeFileSync(resolve(process.env.PREPARE), JSON.stringify(test, null, 2));
+    console.log(`wrote the test configuration to ${resolve(process.env.PREPARE)}`);
+    await browser.close();
+    process.exit(0);
+  }
+  const { context, page, errors, status } = await open("/circuits", { walletChainId: "0x7a0", watch: account, connect: false });
+  expect(status === 200 && errors.length === 0, `HTTP ${status}, page errors: ${errors.join(" | ")}`);
+  const card = page.locator('[data-testid="peridot-mainnet-circuits"]');
+  expect((await card.getAttribute("data-published")) === "2" && (await card.getAttribute("data-total")) === "3", `the test configuration is not the one being served (published=${await card.getAttribute("data-published")})`);
+  const panel = (kind) => card.locator(`[data-circuit="${kind}"]`);
+  const result = (kind) => panel(kind).locator('[data-testid="native-result"]');
+  const settled = (kind) => page.waitForFunction((k) => !["loading", null].includes(document.querySelector(`[data-circuit="${k}"] [data-testid="native-result"]`)?.getAttribute("data-state") ?? null), kind, { timeout: 90_000 }).catch(() => {});
+  await settled("MARKET");
+  await settled("ACCOUNT");
+  const read = async (kind) => ({ state: await result(kind).getAttribute("data-state"), output: await result(kind).getAttribute("data-output"), block: await result(kind).getAttribute("data-block"), text: (await result(kind).innerText()).replace(/\s+/g, " ").slice(0, 260) });
+  const market = await read("MARKET");
+  const accountPanel = await read("ACCOUNT");
+  expect(market.state === "refused" && market.output === "" && /not sent to the configured processor/.test(market.text), `MARKET with a non-fabrication receipt: ${JSON.stringify(market)}`);
+  expect(accountPanel.state === "refused" && accountPanel.output === "" && /no receipt for the configured publication transaction/.test(accountPanel.text), `ACCOUNT with a receipt that does not exist: ${JSON.stringify(accountPanel)}`);
+  expect((await panel("EXECUTION").getAttribute("data-publication")) === "incomplete" && (await panel("EXECUTION").locator('[data-testid="native-eval"]').count()) === 0 && /Not yet published/.test(await panel("EXECUTION").innerText()) && /without its publication receipt/.test(await panel("EXECUTION").innerText()), "EXECUTION with an ID but no receipt is not shown as not published");
+  expect(!/The circuit answers (allow|deny)/.test(await card.innerText()), "a decision is shown for a circuit whose publication could not be verified");
+  // Changing an input re-pins a block and still refuses; an input that cannot be encoded is its own state.
+  await panel("MARKET").locator('[data-testid="native-ltv"]').fill("6501");
+  await page.waitForTimeout(600);
+  await settled("MARKET");
+  const again = await read("MARKET");
+  expect(again.state === "refused" && BigInt(again.block || "0") >= BigInt(market.block || "0") && again.output === "", `after changing the input: ${JSON.stringify(again)}`);
+  await panel("MARKET").locator('[data-testid="native-ltv"]').fill("16384");
+  await page.waitForTimeout(400);
+  expect((await result("MARKET").getAttribute("data-state")) === "bad-input" && /cannot be encoded/.test(await result("MARKET").innerText()), "an out-of-range LTV is not shown as an input error");
+  expect(/Evidence, not enforcement/.test(await card.innerText()) && /Native evaluation \(read-only\)/.test(await card.innerText()), "the native evaluation is not worded as read-only evidence");
+  notes.push({ market, account: accountPanel, afterInputChange: again });
+  await shot(page, "circuits-fail-closed-1440");
+  await context.close();
 } else if (mode === "testnet-live") {
   const { readFileSync } = await import("node:fs");
   // The expected links come from the app's own configuration, so this check cannot drift from it. The root itself is
@@ -424,6 +475,18 @@ if (mode === "wrong-network") {
           await shot(page, `testnet-${who.name}-activity-${width}`);
         }
         if (path === "/circuits") {
+          // Peridot's own circuits: published exactly as the single configuration file says, and never called enforcement.
+          const tapeout = JSON.parse(readFileSync(new URL("../../../packages/chain-config/expansion/tapeout-196.json", import.meta.url), "utf8"));
+          const configured = tapeout.circuits.filter((circuit) => circuit.publishedId !== null && circuit.publicReceipt !== null).length;
+          const own = page.locator('[data-testid="peridot-mainnet-circuits"]');
+          const ownText = (await own.innerText()).replace(/\s+/g, " ");
+          const states = await own.locator("[data-circuit]").evaluateAll((nodes) => nodes.map((node) => `${node.dataset.circuit}:${node.dataset.publication}:${node.dataset.circuitId}`));
+          notes.push({ wallet: who.name, width, peridotCircuits: states, configuredPublished: configured });
+          expect((await own.getAttribute("data-published")) === String(configured) && states.length === 3, `${tag}: Peridot circuits shown as ${JSON.stringify(states)} but the configuration publishes ${configured}`);
+          expect((await own.locator('[data-testid="native-eval"]').count()) === configured && (await own.locator('[data-testid="not-published"]').count()) === 3 - configured, `${tag}: evaluation panels do not match the published circuits`);
+          expect(/Native evaluation \(read-only\)/.test(ownText) && /Evidence, not enforcement/.test(ownText) && !/enforced on mainnet/i.test(ownText), `${tag}: the native evaluation is not worded as read-only evidence`);
+          expect((await own.locator('[data-testid="peridot-processor"]').getAttribute("href")) === `https://www.okx.com/web3/explorer/xlayer/address/${tapeout.processor}`, `${tag}: Peridot's processor link is wrong`);
+          expect(/Third-party circuit/.test(await page.locator('[data-testid="live-mainnet-eval"]').innerText()) && /not a Peridot circuit/i.test(await page.locator('[data-testid="live-mainnet-eval"]').innerText()), `${tag}: the third-party example is not labelled as third-party`);
           // Native TapeOut evidence: a real circuit on X Layer MAINNET, evaluated read-only from this browser.
           const card = page.locator('[data-testid="live-mainnet-eval"]');
           await card.locator('[data-testid="live-result"]').waitFor({ timeout: 45_000 }).catch(() => {});

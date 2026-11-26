@@ -1,5 +1,6 @@
 "use client";
 import { LiveMainnetEval } from "./live-eval";
+import { PeridotMainnetCircuits } from "./native-eval";
 import { PolicyIdentity, PolicyRules, SourceTag, capText } from "@/components/domain/policy-card";
 import { Badge, Card, CardHeader, DefinitionRow, ExampleTag, Mono, PageHeader, Skeleton } from "@/components/ui/core";
 import { IconArrowUpRight, IconCheck, IconX } from "@/components/ui/icons";
@@ -83,9 +84,10 @@ export function Circuits() {
       <section className="space-y-4">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Evidence</h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted">Three separate environments. Only the first is publicly verifiable. None of this is example data.</p>
+          <p className="mt-1 max-w-2xl text-sm text-muted">Each block below names its environment: Peridot's own circuits on public mainnet (once published), a third-party circuit on public mainnet, a mainnet fork, and the local development chain. Only the public mainnet reads are publicly verifiable. None of this is example data, and none of it is enforcement on mainnet.</p>
         </div>
 
+        <PeridotMainnetCircuits />
         <LiveMainnetEval />
         <Card as="article">
           <CardHeader eyebrow="1 · Public X Layer mainnet · recorded" title={PUBLIC_READ_LABEL} description="A circuit that already existed on the official TapeOut deployment. Read with eth_call only: no transaction was sent." action={<Badge tone="success">Public</Badge>} />
