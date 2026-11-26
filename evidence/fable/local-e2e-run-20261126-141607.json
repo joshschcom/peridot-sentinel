@@ -1,0 +1,313 @@
+{
+  "label": "Local development chain (unforked Anvil 31337) with the development reference processor. Not TapeOut, not a public transaction: these hashes exist only on this local node and must never be linked to an explorer.",
+  "driver": "apps/web/scripts/e2e-local.mjs: real browser (Playwright Chromium), the app's own wagmi wallet path, test-only injected EIP-1193 provider forwarding to Anvil's unlocked account",
+  "rpc": "http://127.0.0.1:18545",
+  "chainId": 31337,
+  "nodeInstanceId": "0xb5c6d66bb5f479feeedb14b148e63b526d74c86b029e3c71727ffd7509961552",
+  "manifestCommit": "ac9b26ae146d08d89db9548660697f255f574276",
+  "runId": "run-20261126-141607",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "accountIndex": 4,
+  "operator": "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc",
+  "operatorIndex": 5,
+  "startBlock": 81,
+  "endBlock": 89,
+  "markets": {
+    "A": {
+      "controller": "0x72D1fE35eB1aEb7437eEeCa567A93F67dD76A9dA",
+      "policyCapBps": 6500,
+      "sentinel": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51"
+    },
+    "B": {
+      "controller": "0xc72500B2CA87DF8f964662A6bd3E4D94fA6Cf90d",
+      "policyCapBps": 5000,
+      "sentinel": "0x1881d02D05a44713a69d6eDDE3e7167792A636d6"
+    },
+    "accountPolicyCapBps": 5500
+  },
+  "steps": [
+    {
+      "label": "rate display check (read-only)",
+      "txs": [],
+      "shown": "3.99% APR",
+      "ratePerBlock": "1268391678",
+      "blocksPerYear": "31536000",
+      "expectedBps": "399"
+    },
+    {
+      "label": "sentinel A: borrow 1.6 mUSD to 60% LTV, eth_call simulation only (nothing sent)",
+      "txs": [],
+      "shown": {
+        "rejection": "account-policy",
+        "checks": {
+          "account-policy": {
+            "status": "fail",
+            "basis": "simulation",
+            "text": "Fails Your Sentinel policy Set by you The circuit denied this operation in the simulation. Loan-to-value after: 60%, cap 55%."
+          },
+          "protocol": {
+            "status": "unknown",
+            "basis": "none",
+            "text": "? Not evaluated Protocol safety limits Always enforced Not reached: your Sentinel policy already rejected the operation."
+          },
+          "market-policy": {
+            "status": "pass",
+            "basis": "local-preview",
+            "text": "Passes Market policyLocal preview Set by the market owner Would allow. Not reached on chain, because your Sentinel policy rejected first. Local preview (reference evaluator) of the same circuit on the same inputs: allow. Loan-to-value after: 60%, cap 65%. A separate eth_call of the deployed circuit on these inputs returns allow."
+          }
+        },
+        "otherLayer": {
+          "layer": "market-policy",
+          "verdict": "allow",
+          "basis": "local-preview",
+          "text": "The market's policy circuit would allow this operation. Only your own Sentinel rule stops it. Local preview of the same circuit on the same inputs. It was not reached on chain."
+        },
+        "submitDisabled": true
+      },
+      "onChain": {
+        "previewPolicy": {
+          "applies": true,
+          "oracleFresh": true,
+          "postLtvBps": 6000,
+          "cashOk": true
+        },
+        "entrypointRevert": "AccountPolicyRejected",
+        "accountCircuit": "AccountPolicyRejected",
+        "marketCircuit": "allow"
+      }
+    },
+    {
+      "label": "sentinel B: borrow 4.32 mUSD to 52% LTV, eth_call simulation only (nothing sent)",
+      "txs": [],
+      "shown": {
+        "rejection": "market-policy",
+        "checks": {
+          "account-policy": {
+            "status": "pass",
+            "basis": "simulation",
+            "text": "Passes Your Sentinel policy Set by you Allowed in the simulation: this circuit ran inside the same eth_call and passed. Loan-to-value after: 52%, cap 55%."
+          },
+          "protocol": {
+            "status": "pass",
+            "basis": "simulation",
+            "text": "Passes Protocol safety limits Always enforced Loan-to-value after: 52%, borrowing limit 70%, liquidation at 80%."
+          },
+          "market-policy": {
+            "status": "fail",
+            "basis": "simulation",
+            "text": "Fails Market policy Set by the market owner The circuit denied this operation in the simulation. Loan-to-value after: 52%, cap 50%."
+          }
+        },
+        "otherLayer": {
+          "layer": "account-policy",
+          "verdict": "allow",
+          "basis": "simulation",
+          "text": "Your Sentinel policy allows this operation. Only the market's rule stops it. It ran and passed inside the same simulation, before the market was asked."
+        },
+        "submitDisabled": true
+      },
+      "onChain": {
+        "previewPolicy": {
+          "applies": true,
+          "oracleFresh": true,
+          "postLtvBps": 5200,
+          "cashOk": true
+        },
+        "entrypointRevert": "MarketPolicyRejected",
+        "accountCircuit": "allow",
+        "marketCircuit": "MarketPolicyRejected"
+      }
+    },
+    {
+      "label": "sentinel A: emergency stop to clear automation left by an earlier run (normalisation)",
+      "txs": [
+        "0x5b101d6949eb31e1aeb81b9378e897e0a6aae705348c2edf4f761eb969406942",
+        "0x03f8de962cb5704fdb06ba9a07189fc11389649c74f48cfd68cd34c5178dffd2"
+      ],
+      "asserted": "2 tx: revokeOperator (OperatorRevoked emitted), setAutoRepayTrigger(0) from 4500; operators(operator) cleared, autoRepayTriggerBps() == 0, autoRepay() as the operator reverts OperatorNotAuthorized"
+    },
+    {
+      "label": "sentinel A: setOperator (repay-only mask 8, budget 3 mUSD, 7 days)",
+      "txs": [
+        "0x896541db08bbe5c3fa2e2c41c746cc464a62169c614d170555269c73ddf74c5a"
+      ],
+      "asserted": "operators(0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc) = mask 8, remaining 3 mUSD, expiry 1796307375 (block time 1795702576)"
+    },
+    {
+      "label": "sentinel A: operator limits, eth_call simulations as the operator (nothing sent)",
+      "txs": [],
+      "shown": {
+        "withdraw": {
+          "outcome": "reverts",
+          "error": "OwnerOnly",
+          "text": "Withdraw funds Cannot withdraw(mUSD, 1): Reverts with OwnerOnly(). Owner only. Raw error"
+        },
+        "set-policy": {
+          "outcome": "reverts",
+          "error": "OwnerOnly",
+          "text": "Change or remove your policy Cannot setPolicy(0x0): Reverts with OwnerOnly(). Owner only. Raw error"
+        },
+        "set-operator": {
+          "outcome": "reverts",
+          "error": "OwnerOnly",
+          "text": "Give itself more permissions Cannot setOperator(self, borrow+repay, max, never): Reverts with OwnerOnly(). Owner only. Raw error"
+        },
+        "auto-repay": {
+          "outcome": "reverts",
+          "error": "TriggerNotMet",
+          "text": "Repay debt from the account's idle funds Not now autoRepay(): Reverts with TriggerNotMet(). Auto-repay trigger not met. Raw error"
+        }
+      },
+      "onChain": {
+        "withdraw": "OwnerOnly",
+        "setPolicy": "OwnerOnly",
+        "ownerWithdraw": null,
+        "autoRepay": "TriggerNotMet"
+      }
+    },
+    {
+      "label": "sentinel A: setAutoRepayTrigger",
+      "txs": [
+        "0x62b5339bdc148829745f3cedc3d71aa9350436e667418a921e035459406cd3c5"
+      ],
+      "asserted": "autoRepayTriggerBps() == 4500"
+    },
+    {
+      "label": "sentinel A: repay 2 mUSD from idle account funds (owner)",
+      "txs": [
+        "0x57bdaf8082ac2408ff2e526e10dd2525f63c81369a643f5c741a7edc96e32400"
+      ],
+      "asserted": "debt 8 -> 6 mUSD, idle 7 -> 5 mUSD, no PolicyAllowed event"
+    },
+    {
+      "label": "sentinel A: withdraw 1 mUSD of idle funds to the owner",
+      "txs": [
+        "0x4cd0bb8d031874616df5c7f70b11ff1568ff7200488d8d0c8cac485c16b84ac0"
+      ],
+      "asserted": "Withdrawn(asset mUSD, owner = wallet, 1 mUSD); account idle 4 mUSD, wallet +1 mUSD"
+    },
+    {
+      "label": "sentinel A: emergency stop (revokeOperator, then setAutoRepayTrigger(0))",
+      "txs": [
+        "0x4b0f21a42d738875acf0b964f9d96084b6319192906aac6358600908939b380c",
+        "0xe240436185b7dfaf416d82909bd06e6a685a8d024057a8bf40006708c89ef908"
+      ],
+      "asserted": "2 tx: revokeOperator (OperatorRevoked emitted), setAutoRepayTrigger(0) from 4500; operators(operator) cleared, autoRepayTriggerBps() == 0, autoRepay() as the operator reverts OperatorNotAuthorized"
+    },
+    {
+      "label": "wallet B: direct borrow 8.32 mUSD, eth_call simulation only (nothing sent)",
+      "txs": [],
+      "shown": {
+        "rejection": "market-policy",
+        "accountRow": 0
+      },
+      "onChain": {
+        "entrypointRevert": "MarketPolicyRejected"
+      }
+    },
+    {
+      "label": "keeper reports panel (read-only)",
+      "txs": [],
+      "keeper": {
+        "panel": "ok",
+        "route": {
+          "badLimit": 400,
+          "post": 405,
+          "state": "ok",
+          "items": 5
+        },
+        "execute": false,
+        "account": "0x32467b43BFa67273FC7dDda0999Ee9A12F2AaA08",
+        "operator": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "rows": [
+          {
+            "state": "simulated",
+            "sent": "false",
+            "confirmed": "none"
+          }
+        ],
+        "rowTexts": [
+          "Simulated · not sent Keeper report 26 Nov, 14:16 UTC · 50 identical checks since 26 Nov, 14:04 UTC The keeper simulated an auto-repay and it would succeed. Nothing was sent in this step. Amount 20 mUSD · loan-to-value 50% · trigger 45% · estimated fee 0.000316 ETH"
+        ],
+        "statesReportedByKeeper": [
+          "simulated"
+        ],
+        "autoRepayEventsOnChain": 0
+      }
+    },
+    {
+      "label": "activity view",
+      "txs": [],
+      "entries": 13
+    }
+  ],
+  "receipts": [
+    {
+      "hash": "0x5b101d6949eb31e1aeb81b9378e897e0a6aae705348c2edf4f761eb969406942",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0xfad8b32a",
+      "block": 82,
+      "status": "success",
+      "gasUsed": 30683
+    },
+    {
+      "hash": "0x03f8de962cb5704fdb06ba9a07189fc11389649c74f48cfd68cd34c5178dffd2",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0x8411e769",
+      "block": 83,
+      "status": "success",
+      "gasUsed": 22821
+    },
+    {
+      "hash": "0x896541db08bbe5c3fa2e2c41c746cc464a62169c614d170555269c73ddf74c5a",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0xaf590078",
+      "block": 84,
+      "status": "success",
+      "gasUsed": 91348
+    },
+    {
+      "hash": "0x62b5339bdc148829745f3cedc3d71aa9350436e667418a921e035459406cd3c5",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0x8411e769",
+      "block": 85,
+      "status": "success",
+      "gasUsed": 44745
+    },
+    {
+      "hash": "0x57bdaf8082ac2408ff2e526e10dd2525f63c81369a643f5c741a7edc96e32400",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0x371fd8e6",
+      "block": 86,
+      "status": "success",
+      "gasUsed": 135071
+    },
+    {
+      "hash": "0x4cd0bb8d031874616df5c7f70b11ff1568ff7200488d8d0c8cac485c16b84ac0",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0xf3fef3a3",
+      "block": 87,
+      "status": "success",
+      "gasUsed": 39712
+    },
+    {
+      "hash": "0x4b0f21a42d738875acf0b964f9d96084b6319192906aac6358600908939b380c",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0xfad8b32a",
+      "block": 88,
+      "status": "success",
+      "gasUsed": 30683
+    },
+    {
+      "hash": "0xe240436185b7dfaf416d82909bd06e6a685a8d024057a8bf40006708c89ef908",
+      "to": "0x4AE5AF759E17599107c1C688bfaCF6131C376D51",
+      "selector": "0x8411e769",
+      "block": 89,
+      "status": "success",
+      "gasUsed": 22821
+    }
+  ],
+  "activityEntriesShown": 13,
+  "stoppedAfter": null,
+  "pageProblems": []
+}

@@ -352,8 +352,10 @@ try {
     const blocksPerYear = await read(await read(debt0, MarketPTokenAbi, "interestRateModel"), DemoRateModelAbi, "blocksPerYear");
     const expectedBps = (perBlock * blocksPerYear * 10000n) / WAD;
     const expectedText = `${(Number(expectedBps) / 100).toFixed(2).replace(/\.?0+$/, "")}% APR`;
-    await go("/markets");
-    const shownRate = (await page.locator("main li").first().locator("dd").nth(2).innerText()).trim();
+    await go("/markets?view=borrow");
+    assert((await page.locator("h1").innerText()) === "Borrow", "the Borrow view of the markets list did not open");
+    // Read the cell by its label, not its position: the Earn and Borrow views order their columns differently.
+    const shownRate = (await page.locator("main li").first().locator("dl > div").filter({ hasText: "Borrow rate" }).locator("dd").innerText()).trim();
     console.log(`market #0 borrow rate: shown "${shownRate}", on-chain ${perBlock} x ${blocksPerYear} blocks/yr = ${expectedBps} bps ("${expectedText}")`);
     assert(shownRate === expectedText, `Displayed borrow rate ${shownRate} does not match the on-chain rate ${expectedText}`);
     steps.push({ label: "rate display check (read-only)", txs: [], shown: shownRate, ratePerBlock: perBlock.toString(), blocksPerYear: blocksPerYear.toString(), expectedBps: expectedBps.toString() });
@@ -415,10 +417,45 @@ try {
     stopIf("borrow");
 
     // 4. Operator grant: repay-only (mask 8), budget 3 mUSD, 7 days from the latest block.
-    const policyPath = `/sentinel/policy?market=${A.controller}`;
+    const policyPath = `/automate?market=${A.controller}`;
     const automation = page.locator('[data-testid="automation"]');
     const operatorRow = automation.locator(`li[data-operator="${operator}" i]`);
+    const emergency = page.locator('[data-testid="emergency-stop"]');
+    const automationState = async () => {
+      const [[mask, remaining], trigger] = await Promise.all([read(A.sentinel, SentinelAccountAbi, "operators", [operator]), read(A.sentinel, SentinelAccountAbi, "autoRepayTriggerBps")]);
+      return { mask, remaining, trigger };
+    };
+    /** Clicks "Stop all automation" and checks the chain: no grant, no trigger, and the operator is locked out. */
+    const emergencyStop = async (label) => {
+      const before = await automationState();
+      const expectedTxs = (before.mask !== 0 ? 1 : 0) + (before.trigger !== 0 ? 1 : 0);
+      await go(policyPath);
+      // The operator row comes from a log scan; the stop button must count it before it is pressed.
+      if (before.mask !== 0) await page.waitForFunction(() => Number(document.querySelector('[data-testid="emergency-stop"]')?.getAttribute("data-operators") ?? 0) >= 1, null, { timeout: 30000 });
+      await transact(emergency, emergency.locator('[data-testid="emergency-stop-submit"]'), label, async (txs) => {
+        const after = await automationState();
+        assert(txs.length === expectedTxs, `emergency stop sent ${txs.length} transaction(s), expected ${expectedTxs} (grant mask ${before.mask}, trigger ${before.trigger})`);
+        assert(after.mask === 0 && after.remaining === 0n && after.trigger === 0, `after the emergency stop: mask ${after.mask}, remaining ${after.remaining}, trigger ${after.trigger}`);
+        const receipts = await Promise.all(txs.map((hash) => chain.getTransactionReceipt({ hash })));
+        const revoked = receipts.flatMap((receipt) => parseEventLogs({ abi: SentinelAccountAbi, eventName: "OperatorRevoked", logs: receipt.logs }));
+        if (before.mask !== 0) assert(revoked.length === 1 && same(revoked[0].args.operator, operator), "OperatorRevoked was not emitted for the operator");
+        const locked = await revertName(operator, A.sentinel, SentinelAccountAbi, "autoRepay", []);
+        assert(locked === "OperatorNotAuthorized", `autoRepay() as the operator after the stop: ${locked}`);
+        return `${txs.length} tx: ${before.mask !== 0 ? "revokeOperator (OperatorRevoked emitted)" : "no grant to revoke"}, ${before.trigger !== 0 ? `setAutoRepayTrigger(0) from ${before.trigger}` : "trigger already 0"}; operators(operator) cleared, autoRepayTriggerBps() == 0, autoRepay() as the operator reverts OperatorNotAuthorized`;
+      });
+    };
+    // Re-runs: an earlier run (or one that stopped half-way) may have left a grant or a trigger behind. Start every
+    // run from the same automation state, through the product's own emergency stop, and record that it happened.
+    {
+      const left = await automationState();
+      if (left.mask !== 0 || left.trigger !== 0) {
+        console.log(`leftover automation on Sentinel A (mask ${left.mask}, trigger ${left.trigger}): clearing it with the emergency stop first`);
+        await emergencyStop("sentinel A: emergency stop to clear automation left by an earlier run (normalisation)");
+        A = await marketState(A.controller);
+      }
+    }
     await go(policyPath);
+    assert((await emergency.locator('[data-testid="emergency-stop-submit"]').isDisabled()) && /Nothing to stop/.test(await emergency.innerText()), "the emergency stop should have nothing to stop before a grant exists");
     await page.locator("#operator-address").fill(operator);
     await automation.getByLabel(/Auto-repay from idle funds/).setChecked(true);
     await automation.getByLabel(/Borrow into the account/).setChecked(false);
@@ -450,7 +487,11 @@ try {
       console.log(`operator checks: app withdraw ${probes.withdraw?.outcome}/${probes.withdraw?.error}, setPolicy ${probes["set-policy"]?.error}, setOperator ${probes["set-operator"]?.error}, autoRepay ${probes["auto-repay"]?.outcome}/${probes["auto-repay"]?.error} | chain: operator withdraw ${independent.withdraw}, owner withdraw ${independent.ownerWithdraw ?? "would succeed"}`);
       assert(sent.length === before, "a transaction was sent during the operator checks");
       for (const id of ["withdraw", "set-policy", "set-operator"]) assert(probes[id]?.outcome === "reverts" && probes[id]?.error === "OwnerOnly", `operator check "${id}" is ${JSON.stringify(probes[id])}, expected an OwnerOnly revert`);
-      assert(probes["auto-repay"]?.outcome === "reverts" && probes["auto-repay"]?.error === "TriggerNotMet", `autoRepay check is ${JSON.stringify(probes["auto-repay"])}, expected TriggerNotMet while the trigger is unset or not reached`);
+      // The app's verdict must equal an independent eth_call as the operator, whatever the account's state is.
+      // Every run starts with the trigger cleared (see the normalisation above), so that verdict is TriggerNotMet.
+      independent.autoRepay = await revertName(operator, A.sentinel, SentinelAccountAbi, "autoRepay", []);
+      assert(independent.autoRepay === null ? probes["auto-repay"]?.outcome !== "reverts" : probes["auto-repay"]?.outcome === "reverts" && probes["auto-repay"]?.error === independent.autoRepay, `autoRepay check in the app is ${JSON.stringify(probes["auto-repay"])}, the chain says ${independent.autoRepay ?? "it would succeed"}`);
+      assert(independent.autoRepay === "TriggerNotMet", `autoRepay as the operator should revert TriggerNotMet while the trigger is cleared, got ${independent.autoRepay}`);
       assert(independent.withdraw === "OwnerOnly" && independent.setPolicy === "OwnerOnly", `independent eth_call as the operator: ${JSON.stringify(independent)}`);
       assert(independent.ownerWithdraw === null, `the same withdraw as the owner should succeed, got ${independent.ownerWithdraw}`);
     }
@@ -502,19 +543,15 @@ try {
     await shot("10-sentinel-withdraw-to-owner");
     await sheet.getByRole("button", { name: "Close" }).click();
 
-    // 9. Revoke the operator.
+    // 9. Emergency stop: one control revokes the operator and clears the trigger (two transactions, in that order).
     await go(policyPath);
     await operatorRow.waitFor({ timeout: 20000 });
-    await transact(automation, operatorRow.locator('[data-testid="operator-revoke"]'), "sentinel A: revokeOperator", async (txs) => {
-      const [mask, remaining] = await read(A.sentinel, SentinelAccountAbi, "operators", [operator]);
-      const receipt = await chain.getTransactionReceipt({ hash: txs.at(-1) });
-      const revoked = parseEventLogs({ abi: SentinelAccountAbi, eventName: "OperatorRevoked", logs: receipt.logs }).at(0);
-      assert(mask === 0 && remaining === 0n && revoked && same(revoked.args.operator, operator), `grant after revoke: mask ${mask}, remaining ${remaining}`);
-      assert((await revertName(operator, A.sentinel, SentinelAccountAbi, "autoRepay", [])) === "OperatorNotAuthorized", "a revoked operator can still call autoRepay");
-      return "operators(operator) cleared, OperatorRevoked emitted, autoRepay() as the operator now reverts OperatorNotAuthorized";
-    });
+    assert((await emergency.getAttribute("data-operators")) === "1" && Number(await emergency.getAttribute("data-trigger")) > 0, "the emergency stop does not show the active operator and trigger");
+    await shot("11a-emergency-stop-armed");
+    await emergencyStop("sentinel A: emergency stop (revokeOperator, then setAutoRepayTrigger(0))");
     await automation.locator('[data-testid="no-operator"]').waitFor({ timeout: 20000 });
-    await shot("11-operator-revoked");
+    await page.waitForFunction(() => /Nothing to stop/.test(document.querySelector('[data-testid="emergency-stop"]')?.textContent ?? ""), null, { timeout: 20000 });
+    await shot("11-emergency-stop-done-operator-revoked-trigger-cleared");
     stopIf("owner-writes");
 
     // 10. Market B: the same account policy allows a smaller borrow that the 50% market also allows.
