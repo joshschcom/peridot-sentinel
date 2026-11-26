@@ -212,3 +212,24 @@ Astra session: resume with `codex exec resume <id>`. The ID is recorded below af
 - Latest commit is `3cb36c5`. The report is `reports/M7-v2-connect-llm.md`.
 - Fable run 4 is still running.
 - Waiting on the founder for: Vercel, OKX credentials, D8(b) signing on Nov 28, and organizer answers.
+
+## Update: Astra s7 and Fable r4 complete; Astra s8 and Fable r5 (strategy-first) running
+- **Astra session 7** (`ab54ec6`):
+  - native enforcement verified on a fork (zero dev-processor calls; fail-closed);
+  - security review, one Low finding (candidate fix not deployed);
+  - size analysis (split factory);
+  - judge-01 live on 1952 (49 txs, setup run by Claude);
+  - strategy SDK (`peridot.strategy/v1`);
+  - LP lifecycle fork-only and disabled;
+  - OKX prep blocked on credentials.
+- **Fable run 4** (`f582dfa`, pushed):
+  - Connect available, with onboarding;
+  - native eval ready for the public IDs;
+  - v2 read-only: Trade, positions, mined rejections, activity snapshot;
+  - hosting files and checks;
+  - 74/74 unit tests, plus local hosted and chain checks.
+  - The vault UI is not built: no owner wallet was available.
+- **Running:**
+  - Astra session 8: v2 and vault on the shared local node for browser write acceptance, the MCP tool catalogue, and judge-01 loader data.
+  - Fable run 5: the D23 strategy-first redesign (landing, nav groups, Portfolio, Strategies, Discover, Studio, judge-01 wiring, local write acceptance).
+- **Founder:** Vercel, OKX credentials, D8(b) on Nov 28, organizer.
