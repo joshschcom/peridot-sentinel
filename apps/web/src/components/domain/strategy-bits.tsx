@@ -15,9 +15,14 @@ import type { Address, LogCoverage } from "@/services/types";
 
 const TONE: Record<StrategyAvailability, Tone> = { available: "success", demonstration: "warning", planned: "outline" };
 
+/**
+ * "Available on testnet" and "Planned" must never be mistaken for one another: available is a filled green pill with
+ * a solid dot, planned is a dashed outline with a hollow dot (shape and border, not colour alone).
+ */
 export function StrategyBadge({ status, label }: { status: StrategyAvailability; label?: string }) {
   return (
-    <Badge tone={TONE[status]} wrap>
+    <Badge tone={TONE[status]} wrap className={status === "planned" ? "border-dashed" : undefined}>
+      <span aria-hidden="true" className={status === "planned" ? "size-1.5 shrink-0 rounded-full border border-current" : "size-1.5 shrink-0 rounded-full bg-current"} />
       <span data-strategy-availability={status}>{label ?? STRATEGY_AVAILABILITY_LABEL[status]}</span>
     </Badge>
   );

@@ -30,6 +30,7 @@ import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { chromium } from "playwright";
 import { connectWallet, installTestWallet, jsonRpc } from "./lib/test-wallet.mjs";
+import { disclosureProblems, hasDisclosures } from "./lib/disclosures.mjs";
 
 const mode = process.argv[2];
 const BASE = process.env.BASE_URL ?? "http://127.0.0.1:3212";
@@ -324,6 +325,8 @@ if (mode === "wrong-network") {
         page.setDefaultTimeout(2500);
         const ms = Date.now() - started;
         loads.total++;
+        // D24: the benefit-led copy keeps every disclosure, in one line that is visible without opening anything.
+        if (hasDisclosures(path)) expect((await disclosureProblems(page)).length === 0, `${tag}: disclosures: ${(await disclosureProblems(page)).join("; ")}`);
         if (ms > loads.slowest.ms) loads.slowest = { ms, tag };
         expect(status === 200, `${tag}: HTTP ${status}`);
         expect((await page.locator('[data-testid="fixture-banner"]').count()) === 0, `${tag}: fixture banner on a deployed testnet target`);
@@ -731,10 +734,32 @@ if (mode === "wrong-network") {
           for (const card of cards) expect((card.adopt === null || card.adopt === `/strategies?template=${card.profile}#create`) && (card.canSign === "true" ? /^Adopt/.test(card.adoptText ?? "") : card.adopt === null || /^Review the transaction/.test(card.adoptText ?? "")), `${tag}: the adopt link of ${card.profile} does not follow its availability: ${JSON.stringify(card)}`);
           const v2Card = cards.find((card) => card.availability === "demonstration");
           expect(v2Manifest.uiEnabled === true || (v2Card !== undefined && v2Card.canSign === "false"), `${tag}: with the v2 switch off, no template is shown as a demonstration that cannot be signed here`);
-          expect(/No returns, yields, TVL, user counts or creator earnings are shown/.test(main), `${tag}: Discover does not state that it shows no metrics`);
-          const claims = main.replace(/No returns, yields, TVL, user counts or creator earnings are shown here, because there are none\./, "");
+          expect(/Performance figures are not shown, because none exist yet/.test(main), `${tag}: Discover does not state that it shows no metrics`);
+          const claims = main;
           expect(!/\bAPY\b|\bTVL\b/.test(claims) && !/\d[\d.,]*\s*%\s*(APR|yield|return)/i.test(claims) && !/\d[\d,]*\+?\s+(users|adopters|depositors)\b/i.test(claims), `${tag}: Discover shows a performance, TVL or user figure`);
           expect((await page.locator('[data-testid="discover-planned"] li').count()) >= 1 && /Not available yet/i.test(main), `${tag}: planned items are not listed apart`);
+          // D24: "Available on testnet" and "Planned" cannot be mistaken for one another. The planned band holds no
+          // card that can be adopted, no link and no button; its border is dashed and every badge in it says Planned;
+          // no badge outside it does; and the band over the cards says "Available on testnet" only if each can be signed.
+          const bands = await page.evaluate(() => {
+            const planned = document.querySelector('[data-testid="discover-planned"]');
+            const available = document.querySelector('[data-testid="discover-available"]');
+            const badge = (node) => node.getAttribute("data-strategy-availability");
+            return {
+              plannedControls: planned.querySelectorAll('a, button, [data-testid="discover-card"]').length,
+              plannedBorder: getComputedStyle(planned).borderTopStyle,
+              plannedItemBorders: [...planned.querySelectorAll("li")].map((item) => getComputedStyle(item).borderTopStyle),
+              plannedBadges: [...planned.querySelectorAll("[data-strategy-availability]")].map(badge),
+              plannedBadgeBorders: [...planned.querySelectorAll("[data-strategy-availability]")].map((node) => getComputedStyle(node.parentElement).borderTopStyle),
+              availableBadges: [...available.querySelectorAll("[data-strategy-availability]")].map(badge),
+              availableBadgeBorders: [...available.querySelectorAll("[data-strategy-availability]")].map((node) => getComputedStyle(node.parentElement).borderTopStyle),
+              availableHeading: available.querySelector("h2").innerText.replace(/\s+/g, " "),
+              allAvailable: available.dataset.allAvailable,
+              plannedAfterAvailable: Boolean(available.compareDocumentPosition(planned) & Node.DOCUMENT_POSITION_FOLLOWING),
+            };
+          });
+          expect(bands.plannedControls === 0 && bands.plannedBorder === "dashed" && bands.plannedItemBorders.every((style) => style === "dashed") && bands.plannedBadges.length >= 1 && bands.plannedBadges.every((status) => status === "planned") && bands.plannedBadgeBorders.every((style) => style === "dashed"), `${tag}: the planned band is not visibly apart (dashed, Planned badges only, no control): ${JSON.stringify(bands)}`);
+          expect(bands.availableBadges.length === cards.length && !bands.availableBadges.includes("planned") && bands.availableBadgeBorders.every((style) => style !== "dashed") && bands.plannedAfterAvailable && /^Available on testnet/.test(bands.availableHeading) === (bands.allAvailable === "true") && (bands.allAvailable === "true") === cards.every((card) => card.availability === "available"), `${tag}: the band over the template cards does not follow their availability, or carries a Planned badge: ${JSON.stringify(bands)}`);
           // Inspecting a template shows its details without asking the wallet for anything.
           await page.locator('[data-testid="discover-inspect"]').first().click();
           expect((await page.locator('[data-testid="discover-details"]').count()) === 1 && (await overflow(page)) <= 0, `${tag}: the template details do not open, or overflow (${await overflow(page)}px)`);

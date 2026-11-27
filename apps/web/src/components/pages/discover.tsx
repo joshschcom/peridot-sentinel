@@ -6,8 +6,9 @@
  * A label is derived from what this build lets a user do with the template (src/lib/strategy.ts), never typed in.
  */
 import { useState } from "react";
+import { Disclosures } from "@/components/domain/disclosures";
 import { StrategyBadge, TemplateFacts, TemplateIdentity, TemplateText } from "@/components/domain/strategy-bits";
-import { STRATEGY_CONTEXT, VAULT_UI_ON } from "@/lib/strategy-context";
+import { PLANNED_STRATEGIES, STRATEGY_CONTEXT } from "@/lib/strategy-context";
 import { Advanced, Badge, Button, ButtonLink, Card, PageHeader } from "@/components/ui/core";
 import { IconArrowRight, IconArrowUpRight } from "@/components/ui/icons";
 import { explorerTxUrl } from "@/lib/chains";
@@ -16,70 +17,71 @@ import { EXPANSION } from "@/lib/expansion";
 import { shortHash } from "@/lib/format";
 import { CURATED, type CheckedStrategy, STRATEGY_AVAILABILITY_LABEL, modeLabel, templateAvailability, templateFacts } from "@/lib/strategy";
 
-/** Roadmap entries. They have no template, no parameters and no action: nothing here can be adopted. */
-const PLANNED = [
-  {
-    name: "Vault strategies",
-    body: VAULT_UI_ON
-      ? "An ERC-4626 vault adapter is deployed on testnet with a mock vault. An owner can deposit, withdraw and redeem from their own vault account on Trade. It has no strategy template: this app cannot give an operator a vault job."
-      : "An ERC-4626 vault adapter is deployed on testnet with a mock vault and has been exercised by the contracts team. It has no strategy template and this app does not offer it.",
-  },
-  { name: "Liquidity position lifecycle", body: "Opening, collecting and closing a concentrated-liquidity position exists as a prototype on a mainnet fork only. Nothing is deployed for it." },
-  { name: "Peridot-hosted AI", body: "A strategy run by a model that Peridot operates. No hosted model exists; the two modes that work are rules and your own agent." },
-] as const;
-
 export function Discover() {
+  // The heading over the cards is derived like every label on them: it says "available" only when each can be signed here.
+  const allAvailable = CURATED.length > 0 && CURATED.every((entry) => templateAvailability(entry.template, STRATEGY_CONTEXT).status === "available");
   return (
     <div className="space-y-6" data-testid="discover">
       <PageHeader
         eyebrow="Personal"
         title="Discover"
-        description="Strategy templates you can inspect and adopt. Each one is bound to contracts that are deployed on X Layer testnet, and adopting it means you sign the grant yourself."
+        description="Discover reusable financial strategies. See exactly what each one may do, set your own limits, and adopt it while keeping control of your account."
         actions={
           <ButtonLink href="/strategies#import" variant="secondary">
-            Import a template
+            Adopt a shared strategy
           </ButtonLink>
         }
       />
-      <p className="max-w-3xl rounded-control border border-line bg-subtle p-3.5 text-sm text-muted" data-testid="discover-no-metrics">
-        No returns, yields, TVL, user counts or creator earnings are shown here, because there are none. These strategies move valueless test tokens on a test network. What you can check instead is exactly what each one permits.
-      </p>
+      <Disclosures className="max-w-4xl" />
 
-      {CURATED.length === 0 ? <p className="text-sm text-muted">The curated templates are not available in this build.</p> : null}
-      <ul className="grid gap-4 lg:grid-cols-2">
-        {CURATED.map((entry) => (
-          <TemplateCard key={entry.hash} entry={entry} />
-        ))}
-      </ul>
+      <section aria-labelledby="discover-available" className="space-y-3" data-testid="discover-available" data-all-available={String(allAvailable)}>
+        <div>
+          <h2 id="discover-available" className="flex flex-wrap items-center gap-2.5 text-lg font-semibold tracking-tight">
+            {allAvailable ? "Available on testnet" : "Strategies in this build"}
+            <span className="num rounded-full bg-raised px-2 py-0.5 text-xs font-medium text-muted">{CURATED.length}</span>
+          </h2>
+          <p className="mt-1 max-w-3xl text-sm text-muted" data-testid="discover-no-metrics">
+            {allAvailable ? "Adopt these today with your own wallet. " : ""}Performance figures are not shown, because none exist yet. What you can check instead is exactly what each strategy may do.
+          </p>
+        </div>
+        {CURATED.length === 0 ? <p className="text-sm text-muted">The curated strategies are not available in this build.</p> : null}
+        <ul className="grid gap-4 lg:grid-cols-2">
+          {CURATED.map((entry) => (
+            <TemplateCard key={entry.hash} entry={entry} />
+          ))}
+        </ul>
+      </section>
 
       <section aria-labelledby="discover-labels" className="rounded-card border border-line p-5 sm:p-6">
         <h2 id="discover-labels" className="text-base font-semibold tracking-tight">What the labels mean</h2>
         <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-3">
           <div>
             <dt><StrategyBadge status="available" /></dt>
-            <dd className="mt-2 text-muted">You can review the exact transactions and sign them with your own wallet in this app, on X Layer testnet.</dd>
+            <dd className="mt-2 text-muted">Review exactly what you approve and sign it with your own wallet, on X Layer testnet.</dd>
           </div>
           <div>
             <dt><StrategyBadge status="demonstration" /></dt>
-            <dd className="mt-2 text-muted">The template is genuine and has run on testnet, but this app does not let you sign it. Where possible you can still review the transaction.</dd>
+            <dd className="mt-2 text-muted">Genuine and already run on testnet, but this build does not let you sign it. Where possible you can still review it.</dd>
           </div>
           <div>
             <dt><StrategyBadge status="planned" /></dt>
-            <dd className="mt-2 text-muted">On the roadmap. No template, nothing to adopt.</dd>
+            <dd className="mt-2 text-muted">On the roadmap. Nothing to adopt yet, and no date is promised.</dd>
           </div>
         </dl>
       </section>
 
-      <section aria-labelledby="discover-planned" data-testid="discover-planned">
-        <h2 id="discover-planned" className="text-base font-semibold tracking-tight">Not available yet</h2>
-        <ul className="mt-3 grid gap-3 md:grid-cols-3">
-          {PLANNED.map((item) => (
+      {/* Future categories: a separate band, dashed and muted, with no button anywhere in it. */}
+      <section aria-labelledby="discover-planned" className="rounded-card border border-dashed border-line-strong bg-subtle p-5 sm:p-6" data-testid="discover-planned">
+        <h2 id="discover-planned" className="flex flex-wrap items-center gap-2.5 text-lg font-semibold tracking-tight text-muted">
+          Planned
+          <span className="text-sm font-normal">Not available yet. Nothing in this section can be adopted.</span>
+        </h2>
+        <ul className="mt-4 grid gap-3 md:grid-cols-3">
+          {PLANNED_STRATEGIES.map((item) => (
             <li key={item.name} className="rounded-card border border-dashed border-line-strong p-5" data-planned={item.name}>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-medium">{item.name}</h3>
-                <StrategyBadge status="planned" />
-              </div>
-              <p className="mt-2 text-sm text-muted">{item.body}</p>
+              <StrategyBadge status="planned" />
+              <h3 className="mt-3 font-medium text-muted">{item.name}</h3>
+              <p className="mt-1.5 text-sm text-muted">{item.body}</p>
             </li>
           ))}
         </ul>
@@ -125,7 +127,7 @@ function TemplateCard({ entry }: { entry: CheckedStrategy }) {
             </div>
           ))}
         </dl>
-        <p className="text-xs text-faint">Budget and lifetime are the template's suggestions. You can lower them before you sign. Test tokens, mock prices{template.profile === "restricted-swap-v2" ? ", mock swap venue" : ""}.</p>
+        <p className="text-xs text-faint">Budget and time limit are suggestions: set your own before you sign. Test tokens, mock prices{template.profile === "restricted-swap-v2" ? ", mock swap venue" : ""}.</p>
         {availability.reason ? <p className="text-[0.8125rem] text-warning" data-testid="discover-reason">{availability.reason}</p> : null}
         {proof ? (
           <p className="text-[0.8125rem] text-muted" data-testid="discover-recorded">
@@ -137,7 +139,7 @@ function TemplateCard({ entry }: { entry: CheckedStrategy }) {
             ) : (
               <span className="font-mono">{shortHash(proof.hash)}</span>
             )}
-            . That is not a result for you.
+            . Shown as proof that it works, not as a result to expect.
           </p>
         ) : null}
         {open ? (

@@ -17,6 +17,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSy
 import { join, resolve } from "node:path";
 import { chromium } from "playwright";
 import { connectWallet, installTestWallet } from "./lib/test-wallet.mjs";
+import { disclosureProblems, hasDisclosures } from "./lib/disclosures.mjs";
 
 const BASE = (process.env.BASE_URL ?? "http://127.0.0.1:3220").replace(/\/$/, "");
 const OUT = process.env.OUT ? resolve(process.env.OUT) : null;
@@ -133,6 +134,7 @@ for (const [width, scheme] of [[1440, "light"], [390, "dark"]]) {
     expect([...hosts].every((host) => ALLOWED_HOSTS.has(host)), `${tag}: contacted ${[...hosts].filter((host) => !ALLOWED_HOSTS.has(host)).join(", ")}`);
     expect(errors.length === 0, `${tag}: page errors: ${errors.join(" | ")}`);
     expect((await overflow(page)) <= 0, `${tag}: horizontal overflow ${await overflow(page)}px`);
+    if (hasDisclosures(path)) expect((await disclosureProblems(page)).length === 0, `${tag}: disclosures: ${(await disclosureProblems(page)).join("; ")}`);
     expect((await page.locator('[data-testid="fixture-banner"]').count()) === 0 && (await page.locator('[data-testid="deployment-banner"]').count()) === 0, `${tag}: a fixture or deployment banner is shown on the live testnet build`);
     if (path !== "/") {
       // Testnet chain selection: the wallet is on 1952, so there is no network warning and the pill says Testnet.
@@ -176,7 +178,7 @@ for (const [width, scheme] of [[1440, "light"], [390, "dark"]]) {
     if (path === "/discover") {
       const cards = await page.locator('[data-testid="discover-card"]').evaluateAll((nodes) => nodes.map((node) => `${node.dataset.profile}:${node.dataset.availability}:${node.dataset.canSign}`));
       notes[`discover@${width}`] = cards;
-      expect(cards.length === 2 && /No returns, yields, TVL, user counts or creator earnings are shown/.test(main), `${tag}: Discover does not list the two curated templates with the no-metrics statement: ${JSON.stringify(cards)}`);
+      expect(cards.length === 2 && /Performance figures are not shown, because none exist yet/.test(main), `${tag}: Discover does not list the two curated templates with the no-metrics statement: ${JSON.stringify(cards)}`);
     }
     if (path === "/strategies") {
       // Browsing never offers an enabled signature: the sign button exists only inside a review the user asked for.

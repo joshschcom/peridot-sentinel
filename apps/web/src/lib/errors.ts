@@ -289,6 +289,29 @@ const TABLE: Record<string, Entry> = {
     title: "Operation blocked while another is running",
     message: "The swap adapter refuses a call that re-enters it during a swap.",
   },
+  // Strategy registry (packages/chain-config/expansion/abi/StrategyRegistry.json). This app does not call the
+  // registry: no public deployment exists. The names are mapped so that the ABI coverage test stays total.
+  EmptyIdentity: {
+    category: "protocol",
+    title: "Publication is missing an identity",
+    message: "The strategy registry needs a series, an adapter version and a policy key for every publication.",
+  },
+  InvalidJsonLength: {
+    category: "protocol",
+    title: "Strategy text has the wrong size",
+    message: "The strategy registry only stores a strategy whose text is within its size limit.",
+  },
+  UnexpectedVersion: {
+    category: "protocol",
+    title: "Version is not the next one",
+    message: "The strategy registry only accepts the version that follows the latest published one. Versions are immutable.",
+    hint: "Read the latest version again and publish the next one.",
+  },
+  MissingVersion: {
+    category: "protocol",
+    title: "No such published version",
+    message: "The strategy registry has no publication for that creator, series and version.",
+  },
   VaultCapacity: {
     category: "protocol",
     title: "Vault limit reached",

@@ -53,7 +53,7 @@ export function StrategyBuilder() {
   return (
     <div className="space-y-6" data-testid="strategy-builder" data-choice={choice}>
       <Card as="section" id="create" className="scroll-mt-28">
-        <CardHeader eyebrow="Create" title="Create a strategy from a template" description="A template describes what an operator may do on your account: one operation, one asset, a budget and a lifetime. Adopting it means you, the owner, sign the grant yourself. Until you do, nothing has any authority." />
+        <CardHeader eyebrow="Create" title="Create a strategy" description="Pick a strategy, set your limits, and review exactly what you approve. Nothing can act on your account until you sign, and what you sign is one operation, one asset, a budget and a time limit." />
         <div className="space-y-5 p-5 sm:p-6">
           <div role="radiogroup" aria-label="Template" className="grid gap-2 sm:grid-cols-2">
             {CURATED.map((entry) => {
@@ -72,8 +72,8 @@ export function StrategyBuilder() {
             {imported ? (
               <button type="button" role="radio" aria-checked={choice === "imported"} onClick={() => setChoice("imported")} className={cx("rounded-control border p-4 text-left sm:col-span-2", choice === "imported" ? "border-fg" : "border-line hover:border-line-strong")} data-testid="template-option-imported">
                 <span className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-medium">Imported template</span>
-                  <span className="text-xs text-warning">Untrusted content · passed validation · grants nothing</span>
+                  <span className="font-medium">Shared strategy</span>
+                  <span className="text-xs text-warning">Written by someone else · checked · cannot act until you sign</span>
                 </span>
                 <span className="mt-1.5 block font-mono text-xs break-all text-muted">{imported.hash}</span>
               </button>
@@ -523,13 +523,13 @@ function ExportPanel({ strategy }: { strategy: CheckedStrategy }) {
   };
   return (
     <details className="group rounded-control border border-line" id="export" data-testid="strategy-export">
-      <summary className="flex min-h-11 items-center justify-between gap-3 px-3.5 text-sm font-medium text-muted hover:text-fg">Export this strategy as JSON</summary>
+      <summary className="flex min-h-11 items-center justify-between gap-3 px-3.5 text-sm font-medium text-muted hover:text-fg">Share this strategy</summary>
       <div className="space-y-3 border-t border-line p-3.5 text-sm">
-        <p className="text-muted">The canonical text of the template with the values above, and its hash. It contains no key, no account, no operator and no grant: whoever imports it still has to review and sign their own.</p>
+        <p className="text-muted">Share it with anyone as a small file. It holds the strategy and the values above, and nothing else: no key, no account, no operator and no grant. Whoever adopts it reviews and signs for their own account.</p>
         <pre className="max-h-64 overflow-auto rounded-control bg-subtle p-3 font-mono text-xs break-all whitespace-pre-wrap" data-testid="strategy-export-json">{strategy.canonical}</pre>
         <p className="font-mono text-xs break-all" data-testid="strategy-export-hash">{strategy.hash}</p>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="secondary" onClick={() => void copy("json")}>{copied === "json" ? "Copied" : "Copy JSON"}</Button>
+          <Button size="sm" variant="secondary" onClick={() => void copy("json")}>{copied === "json" ? "Copied" : "Copy strategy"}</Button>
           <Button size="sm" variant="secondary" onClick={() => void copy("hash")}>{copied === "hash" ? "Copied" : "Copy hash"}</Button>
           <Button size="sm" variant="secondary" onClick={download} data-testid="strategy-export-download" title={exportFileName(strategy)}>Download file</Button>
         </div>
@@ -571,10 +571,10 @@ function ImportCard({ onImported, current }: { onImported: (strategy: CheckedStr
   };
   return (
     <Card as="section" id="import" className="scroll-mt-28" data-testid="strategy-import">
-      <CardHeader eyebrow="Import" title="Import a strategy" description="Paste a template or choose a file. It is checked in your browser against the deployed contracts' profiles and nothing is uploaded. An imported template is untrusted text: it is displayed, never executed, and it cannot grant anything." />
+      <CardHeader eyebrow="Adopt" title="Adopt a strategy someone shared" description="Paste a shared strategy or choose its file. You stay in control: you choose the operator, set the limits and sign. It is checked in your browser and nothing is uploaded. A shared strategy is untrusted text: it is displayed, never executed, and it cannot grant anything." />
       <div className="space-y-4 p-5 sm:p-6">
         <label className="block text-sm">
-          <span className="font-medium">Template JSON</span>
+          <span className="font-medium">Shared strategy (JSON)</span>
           <textarea value={text} onChange={(event) => setText(event.target.value)} rows={5} spellCheck={false} autoComplete="off" maxLength={IMPORT_LIMIT * 2} placeholder='{"schema":"peridot.strategy/v1", …}' className="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-bg p-3 font-mono text-xs outline-none focus:border-fg" data-testid="strategy-import-text" />
         </label>
         <div className="flex flex-wrap items-center gap-3">
@@ -613,7 +613,7 @@ function ImportCard({ onImported, current }: { onImported: (strategy: CheckedStr
         ) : null}
         {current ? (
           <Notice icon={<IconShield size={18} />} title="Loaded for review. No authority was granted." data-testid="strategy-imported" data-hash={current.hash}>
-            The template passed validation and is selected above as "Imported template". Its text is shown exactly as written. Review the transactions before you sign anything; the hash below lets you compare it with what the author published.
+            The strategy passed the checks and is selected above as "Shared strategy". Its text is shown exactly as written. Review the transactions before you sign anything; the hash below lets you compare it with what the author published.
             <span className="mt-1 block font-mono text-xs break-all">{current.hash}</span>
           </Notice>
         ) : null}

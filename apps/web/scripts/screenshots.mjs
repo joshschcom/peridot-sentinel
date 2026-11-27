@@ -13,6 +13,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { connectWallet, installTestWallet, jsonRpc } from "./lib/test-wallet.mjs";
+import { disclosureProblems, hasDisclosures } from "./lib/disclosures.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const BASE = process.env.BASE_URL ?? "http://127.0.0.1:3210";
@@ -126,6 +127,7 @@ for (const path of ALL_ROUTES) {
     const overflow = await measure();
     if (status !== 200) failures.push(`${path} @${width}: HTTP ${status}`);
     if (overflow > 0) failures.push(`${path} @${width}: horizontal overflow ${overflow}px`);
+    if (hasDisclosures(path)) for (const problem of await disclosureProblems(page)) failures.push(`${path} @${width}: disclosures: ${problem}`);
     // Open every disclosure (raw errors, circuit identity, full hashes): long strings must wrap, not widen the page.
     await page.evaluate(() => document.querySelectorAll("details").forEach((node) => (node.open = true)));
     await page.waitForTimeout(100);

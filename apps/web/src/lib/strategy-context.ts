@@ -28,3 +28,13 @@ export const V2_OWNER_PARSED = FORCE_FIXTURE
   : parseV2OwnerTarget(TARGET_KIND === "local" ? 31337 : 1952, RAW_CONFIG.expansion.byChain[chainKey], RAW_CONFIG.vault.byChain[chainKey], { base: `${RAW_CONFIG.expansion.dir}/${chainKey}.json`, vault: `${RAW_CONFIG.vault.dir}/vault-${chainKey}.json` });
 /** Does this build offer the owner's vault account (deposit, withdraw, redeem into the mock ERC-4626 vault)? */
 export const VAULT_UI_ON: boolean = V2_OWNER_PARSED?.status === "ok" && V2_OWNER_PARSED.value.vault !== null && (TARGET_KIND === "local" || STRATEGY_CONTEXT.testnetLive);
+
+/**
+ * Future strategy categories. They have no template, no parameters and no action: nothing here can be adopted, and
+ * every surface shows them apart from what is available (dashed outline, "Planned").
+ */
+export const PLANNED_STRATEGIES = [
+  { name: "Vault strategies", body: `Strategies that move funds in and out of a vault for you. ${VAULT_UI_ON ? "Today you can use the testnet vault yourself on Trade; handing that job to a strategy is planned." : "The vault itself is not offered in this build."}` },
+  { name: "Liquidity positions", body: "Strategies that open, manage and close a liquidity position. A prototype exists; nothing is deployed for it." },
+  { name: "Peridot-hosted AI", body: "An AI operated by Peridot that runs a strategy for you. Not built. Today you can use rules, or connect your own AI." },
+] as const;

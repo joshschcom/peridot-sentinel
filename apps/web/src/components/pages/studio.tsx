@@ -32,7 +32,7 @@ export function StudioHome() {
       <PageHeader
         eyebrow="Builders"
         title="Studio"
-        description="Build financial products others can use: a strategy template, a lending market with its own rules, a policy circuit. What you publish is data and contracts; nobody who uses it hands you their keys."
+        description="Create and share your own strategies, launch a lending market with your own rules, or reuse a policy circuit. Whoever uses what you build keeps their keys and their account."
         actions={<SourceTag source={services.market.source} />}
       />
 
@@ -41,15 +41,15 @@ export function StudioHome() {
           id="strategies"
           title="Strategies"
           badge={<StrategyBadge status={strategyStatus} />}
-          body="Start from a curated template, set its budget, trigger and lifetime, and export it as canonical JSON with a content hash. Anyone can import it; importing grants nothing, and each owner signs their own grant."
-          facts={[`${CURATED.length} curated template${CURATED.length === 1 ? "" : "s"} in this build`, "Bound to contracts deployed on X Layer testnet", "No keys, grants or accounts inside a template"]}
+          body="Create and share your own strategies. Start from a ready-made one, set its budget, trigger and time limit, and share it as a small file. Anyone can adopt it, and each owner reviews and signs for their own account."
+          facts={[`${CURATED.length} ready-made strateg${CURATED.length === 1 ? "y" : "ies"} to start from`, "Runs on contracts deployed on X Layer testnet", "A shared strategy holds no keys, grants or accounts"]}
           actions={
             <>
               <ButtonLink href="/strategies#create" data-testid="studio-create-strategy">
                 Create a strategy <IconArrowRight size={16} />
               </ButtonLink>
               <ButtonLink href="/strategies#import" variant="secondary">
-                Import
+                Adopt a shared one
               </ButtonLink>
             </>
           }
@@ -86,9 +86,10 @@ export function StudioHome() {
         <Workspace
           id="vaults"
           title="Managed vaults"
-          badge={<StrategyBadge status="planned" label="Roadmap" />}
-          body="A pooled product run by a creator under a published policy. It is not built: there is no contract, no deposit and nothing to try. It is also not the ERC-4626 adapter of a Sentinel v2 account, which only lets an account you own deposit into an existing vault."
-          facts={["No contract exists for it", "Nothing on this page can create one"]}
+          planned
+          badge={<StrategyBadge status="planned" />}
+          body="A pooled product run by a creator under a published policy. On the roadmap and not built: there is no contract, no deposit and nothing to try. It is also not the ERC-4626 adapter of a Sentinel v2 account, which only lets an account you own deposit into an existing vault."
+          facts={["Roadmap: no contract exists for it", "Nothing on this page can create one"]}
         />
       </ul>
 
@@ -139,11 +140,12 @@ export function StudioHome() {
   );
 }
 
-function Workspace({ id, title, badge, body, facts, actions }: { id: string; title: string; badge: React.ReactNode; body: string; facts: string[]; actions?: React.ReactNode }) {
+/** `planned`: a future product. Dashed, muted and without actions, so it cannot be taken for something available. */
+function Workspace({ id, title, badge, body, facts, actions, planned = false }: { id: string; title: string; badge: React.ReactNode; body: string; facts: string[]; actions?: React.ReactNode; planned?: boolean }) {
   return (
-    <Card as="li" className="flex flex-col p-5 sm:p-6" data-workspace={id}>
+    <Card as="li" className={`flex flex-col p-5 sm:p-6 ${planned ? "border-dashed border-line-strong bg-subtle" : ""}`} data-workspace={id} data-planned={planned ? "true" : undefined}>
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+        <h2 className={`text-lg font-semibold tracking-tight ${planned ? "text-muted" : ""}`}>{title}</h2>
         {badge}
       </div>
       <p className="mt-2 text-sm text-muted">{body}</p>

@@ -11,6 +11,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { type ReactNode, useState } from "react";
+import { Disclosures } from "@/components/domain/disclosures";
 import { Badge, Button, ButtonLink, Card, CardHeader, DefinitionRow, Mono, Notice, PageHeader, Skeleton } from "@/components/ui/core";
 import { IconAlert, IconArrowUpRight, IconCheck, IconX } from "@/components/ui/icons";
 import { formatAmount, formatBps } from "@/lib/amount";
@@ -53,10 +54,11 @@ export function Connect() {
     <div className="space-y-6" data-testid="connect" data-connect={verified ? "available" : "unavailable"}>
       <PageHeader
         eyebrow="Sentinel Connect"
-        title="Bring your own agent"
-        description="A local MCP server gives an agent you run typed tools for a Sentinel account: read, simulate, and one restricted execution under the operator authorisation the owner granted. This is agent-directed execution: the server acts only when your agent calls a tool. It does not watch the account on its own."
+        title="Connect your AI"
+        description="Connect your preferred compatible AI to your Sentinel account. Any MCP-compatible model you run can read the account, test an action first, and carry out the one operation you approved. It acts only when your AI asks: nothing watches the account in the background."
         actions={<Badge tone={verified ? "success" : "warning"}>{verified ? CONNECT_STATUS_LABEL : "In development"}</Badge>}
       />
+      <Disclosures />
       <Notice title="Testnet only" data-testid="connect-scope">
         {CONNECT_SCOPE_LABEL}. The recorded runs used an external MCP client in a separate process: a scripted client, and one session directed by a language model. Neither is a model hosted by Peridot: no hosted AI exists in this app, and nothing monitors an account between sessions.
       </Notice>
@@ -530,8 +532,8 @@ function HowToConnect({ llm }: { llm: LlmSession | null }) {
     <Card as="section" id="onboarding" className="scroll-mt-28" data-testid="connect-how">
       <CardHeader
         eyebrow="Onboarding"
-        title="Connect your own LLM"
-        description="Sentinel Connect is an MCP server you run next to an LLM runtime you also run, such as Claude Code or any other MCP client. They talk over stdio on your machine. There is no hosted AI: Peridot runs no model, and this website is not part of the connection."
+        title="Set up your AI in a few steps"
+        description="Works with Claude Code and any other MCP client. Sentinel Connect runs on your machine next to your AI, so your keys and your prompts stay with you. There is no hosted AI: Peridot runs no model, and this website is not part of the connection."
       />
       <ol className="divide-y divide-line px-5 sm:px-6">
         <OnboardStep n={1} title="Prepare a checkout (Node 22.13 or later)">

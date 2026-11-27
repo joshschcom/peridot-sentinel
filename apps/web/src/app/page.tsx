@@ -3,8 +3,9 @@ import { HeroPreview } from "@/components/landing/hero-preview";
 import { Brand } from "@/components/shell/brand";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { ButtonLink, Mono } from "@/components/ui/core";
+import { Disclosures } from "@/components/domain/disclosures";
 import { StrategyBadge } from "@/components/domain/strategy-bits";
-import { STRATEGY_CONTEXT, VAULT_UI_ON } from "@/lib/strategy-context";
+import { PLANNED_STRATEGIES, STRATEGY_CONTEXT, VAULT_UI_ON } from "@/lib/strategy-context";
 import { IconArrowRight, IconArrowUpRight, IconCheck, IconMinus } from "@/components/ui/icons";
 import { CURATED, modeLabel, templateAvailability, templateFacts } from "@/lib/strategy";
 import { TARGET_KIND, explorerTxUrl, xLayerMainnet, xLayerTestnet } from "@/lib/chains";
@@ -92,7 +93,12 @@ export default function LandingPage() {
             <p className="mt-7 text-base font-medium tracking-tight" data-testid="tagline">
               {BRAND.tagline}
             </p>
-            <p className="mt-2 max-w-md text-[0.8125rem] text-faint">Experimental software. Not audited. Nothing on this site is an offer, a yield promise or financial advice.</p>
+            <p className="mt-2 max-w-md text-[0.8125rem] text-faint">
+              Experimental software. Not audited. Nothing on this site is an offer, a yield promise or financial advice.{" "}
+              <a href="#availability" className="underline underline-offset-4 hover:text-fg">
+                What testnet means
+              </a>
+            </p>
           </div>
           <div className="min-w-0">
             <HeroPreview />
@@ -105,9 +111,9 @@ export default function LandingPage() {
             <p className="eyebrow">Strategies are the product</p>
             <h2 className="headline mt-3 max-w-3xl">Lending, borrowing and swaps are the instruments. A strategy is what plays them.</h2>
             <div className="mt-10 grid gap-4 lg:grid-cols-3" data-testid="pillars">
-              <Pillar name="Automate" pitch="Give a rule or your own agent a bounded job on your account: one operation, a budget, an expiry." points={["The account contract enforces every limit", "An operator can never withdraw", "One emergency stop ends it all"]} href="/strategies" cta="Open Strategies" />
-              <Pillar name="Discover" pitch="Start from a template instead of a blank page. Inspect exactly what it permits before you adopt it." points={["Curated, genuine templates only", "Bound to contracts deployed on testnet", "No invented returns, TVL or user counts"]} href="/discover" cta="Explore strategies" />
-              <Pillar name="Build" pitch="Make products for others: a strategy template, a lending market with its own rules, a policy circuit." points={["Export a strategy as JSON with a content hash", "Launch an isolated lending market", "Importing never grants authority"]} href="/studio" cta="Open Studio" />
+              <Pillar name="Automate" pitch="Let a rule or your own AI look after a position for you, inside a budget and a time limit you set." points={["Your limits are enforced on-chain, on every action", "Only you can withdraw", "Stop everything with one transaction"]} href="/strategies" cta="Open Strategies" />
+              <Pillar name="Discover" pitch="Discover reusable financial strategies. See exactly what each one may do before you adopt it." points={["Ready-made strategies, adopted in minutes", "Set your own budget and time limit", "Adopt strategies while retaining control"]} href="/discover" cta="Explore strategies" />
+              <Pillar name="Build" pitch="Create and share your own strategies, or launch a lending market with rules you define." points={["Share a strategy for anyone to adopt", "Launch an isolated lending market", "Whoever adopts your strategy keeps control of their account"]} href="/studio" cta="Open Studio" />
             </div>
           </div>
         </section>
@@ -118,9 +124,9 @@ export default function LandingPage() {
           <h2 className="headline mt-3 max-w-3xl">Less to watch. Nothing handed over.</h2>
           <ul className="mt-10 grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2 lg:grid-cols-4" data-testid="benefits">
             <Benefit title="Less manual work" body="A strategy repays debt or makes a bounded swap when its conditions hold, so you are not the one refreshing a position at night." />
-            <Benefit title="Controlled AI permissions" body="An agent gets a grant, not a key: which operation, how much per call and in total, until when. Outside it, the account refuses." />
+            <Benefit title="Controlled AI permissions" body="Your AI gets a job, not your keys: what it may do, how much, and until when. Your account refuses anything else." />
             <Benefit title="Unified management" body="Positions, active strategies, remaining budgets, recent operations and the stop button are on one page: Portfolio." />
-            <Benefit title="Reusable strategies" body="A strategy is a small versioned document. Export it, share it, import it elsewhere. Each owner still signs their own grant." />
+            <Benefit title="Reusable strategies" body="Build a strategy once and share it. Anyone can adopt it on their own account, and every owner approves it for themselves." />
           </ul>
         </section>
 
@@ -130,7 +136,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="eyebrow">Discover</p>
-                <h2 className="headline mt-3 max-w-2xl">The strategies you can adopt today.</h2>
+                <h2 className="headline mt-3 max-w-2xl">{debt?.canSign || swap?.canSign ? "The strategies you can adopt today." : "The first strategies."}</h2>
               </div>
               <ButtonLink href="/discover" variant="secondary">
                 See them on Discover <IconArrowRight size={16} />
@@ -162,7 +168,21 @@ export default function LandingPage() {
                 );
               })}
             </ul>
-            <p className="mt-5 max-w-2xl text-sm text-faint">That is the whole catalogue: two templates, both on test tokens. No performance figures exist for them and none are shown.</p>
+            {/* Future categories, kept visibly apart from what can be adopted: dashed, muted, no action. */}
+            <div className="mt-6 rounded-3xl border border-dashed border-line-strong p-5 sm:p-6" data-testid="landing-planned">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <StrategyBadge status="planned" />
+                <p className="text-sm text-muted">Not available yet. Nothing below can be adopted.</p>
+              </div>
+              <ul className="mt-3 flex flex-wrap gap-2 text-sm text-muted">
+                {PLANNED_STRATEGIES.map((item) => (
+                  <li key={item.name} className="rounded-full border border-dashed border-line-strong px-3 py-1" data-planned={item.name}>
+                    {item.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="mt-5 max-w-2xl text-sm text-faint">Testnet preview with test tokens. Performance figures are not shown, because none exist yet.</p>
           </div>
         </section>
 
@@ -170,10 +190,11 @@ export default function LandingPage() {
         <section className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[1fr_1fr] lg:gap-16" data-testid="landing-byo">
           <div>
             <p className="eyebrow">Bring your own AI</p>
-            <h2 className="headline mt-3">Your model. Your machine. A grant instead of a key.</h2>
+            <h2 className="headline mt-3">Connect your preferred compatible AI.</h2>
             <p className="mt-5 max-w-lg text-muted">
-              Sentinel Connect is an MCP server you run next to any MCP-capable model. The model reads your account, simulates, and can execute the one operation you granted. Peridot runs no model and hosts none of this.
+              Use the AI you already work with. Sentinel Connect gives any MCP-compatible model a safe way to help with your account: it can read, test an action first, and carry out the one operation you approved.
             </p>
+            <p className="mt-3 max-w-lg text-sm text-faint">It runs on your machine, next to your AI. Peridot does not host a model, and nothing acts on your account between sessions.</p>
             <div className="mt-7 flex flex-col gap-3 xs:flex-row">
               <ButtonLink href="/connect#onboarding">
                 Connect your own AI <IconArrowRight size={16} />
@@ -187,7 +208,7 @@ export default function LandingPage() {
           </div>
           <ol className="divide-y divide-line rounded-3xl border border-line bg-surface">
             <Flow n="1" title="You grant" body="As the owner you sign a grant for an operator address: one operation, a per-call and a total limit, an expiry." />
-            <Flow n="2" title="Your agent proposes" body="Through typed tools it reads, quotes and simulates. No tool takes calldata, a recipient or another account." />
+            <Flow n="2" title="Your agent proposes" body="It reads your account, gets a quote and tests the action first. It cannot name a recipient or reach another account." />
             <Flow n="3" title="The account decides" body="The account contract checks the grant and the policy circuit on every call. What is outside the grant reverts." />
             {llm ? (
               <li className="p-5 text-sm sm:p-6" data-testid="landing-llm">
@@ -206,7 +227,7 @@ export default function LandingPage() {
             <div className="min-w-0">
               <p className="text-sm font-medium opacity-70">Studio, for builders</p>
               <h2 className="headline mt-3 max-w-2xl">Create financial products others can adopt.</h2>
-              <p className="mt-4 max-w-xl text-lg opacity-70">Publish a strategy template, or launch an isolated lending market with its own limits and policy circuit. Studio shows the exact call before anything is signed. Managed vaults are on the roadmap.</p>
+              <p className="mt-4 max-w-xl text-lg opacity-70">Create a strategy and share it, or launch a lending market with your own limits and rules. You see exactly what you sign, every time. Managed vaults are planned, not available.</p>
               <div className="mt-8 flex flex-col gap-3 xs:flex-row">
                 <Link href="/studio" className="inline-flex h-13 items-center justify-center gap-2 rounded-full bg-bg px-7 font-medium text-fg hover:opacity-90">
                   Open Studio <IconArrowRight size={18} />
@@ -219,17 +240,18 @@ export default function LandingPage() {
             {/* What a builder can make, with the same status words Studio itself derives. */}
             <ul className="min-w-0 divide-y divide-on-inverse/20 border-y border-on-inverse/20" data-testid="landing-studio-list">
               {[
-                { name: "Strategy template", body: "Budget, trigger and lifetime, exported as JSON with a content hash.", status: CURATED.length === 0 ? "Planned" : LANDING_CONTEXT.testnetLive ? "Available on testnet" : "Demonstration" },
+                { name: "Shareable strategy", body: "Set the budget, trigger and time limit, then share it for others to adopt.", status: CURATED.length === 0 ? "Planned" : LANDING_CONTEXT.testnetLive ? "Available on testnet" : "Demonstration" },
                 { name: "Lending market", body: "Isolated, with your limits and your policy circuit on every borrow.", status: live ? "Available on testnet" : "Example data in this build" },
                 { name: "Policy circuit", body: "A rule compiled to a small circuit with a deterministic hash.", status: "Library" },
-                { name: "Managed vault", body: "A pooled product run under a published policy. No contract exists.", status: "Roadmap" },
+                { name: "Managed vault", body: "A pooled product run under a published policy. Not built: no contract exists.", status: "Planned" },
               ].map((item) => (
                 <li key={item.name} className="flex items-start justify-between gap-4 py-4" data-status={item.status}>
                   <div className="min-w-0">
                     <p className="font-medium">{item.name}</p>
                     <p className="mt-1 text-sm opacity-70">{item.body}</p>
                   </div>
-                  <span className="mt-0.5 shrink-0 rounded-full border border-on-inverse/40 px-2.5 py-0.5 text-xs font-medium whitespace-nowrap">{item.status}</span>
+                  {/* Available is a filled pill; planned is a dashed, dimmed outline: never the same shape. */}
+                  <span className={`mt-0.5 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${item.status === "Planned" ? "border border-dashed border-on-inverse/60 opacity-70" : item.status === "Available on testnet" ? "bg-bg text-fg" : "border border-on-inverse/40"}`}>{item.status}</span>
                 </li>
               ))}
             </ul>
@@ -259,9 +281,10 @@ export default function LandingPage() {
         </section>
 
         {/* Availability and limits */}
-        <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24" data-testid="landing-limits">
+        <section id="availability" className="mx-auto max-w-7xl scroll-mt-20 px-5 py-16 sm:px-8 sm:py-24" data-testid="landing-limits">
           <p className="eyebrow">Availability</p>
           <h2 className="headline mt-3 max-w-3xl">Testnet only, and what that means.</h2>
+          <Disclosures className="mt-8 max-w-4xl" />
           <div className="mt-10 grid gap-4 lg:grid-cols-2">
             <LimitList
               title="What works today"

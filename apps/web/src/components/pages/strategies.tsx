@@ -23,6 +23,7 @@ import { SourceTag } from "@/components/domain/policy-card";
 import { TxFeedback } from "@/components/domain/tx-feedback";
 import { ActiveStrategies } from "./strategy-active";
 import { StrategyBuilder } from "./strategy-builder";
+import { Disclosures } from "@/components/domain/disclosures";
 import { V2EmergencyStop } from "./v2-stop";
 import { Badge, Button, ButtonLink, Card, CardHeader, EmptyState, ExampleTag, Mono, PageHeader, Skeleton, type Tone } from "@/components/ui/core";
 import { IconAlert, IconBot, IconConnect, IconLock, IconShield } from "@/components/ui/icons";
@@ -85,7 +86,7 @@ export function Strategies() {
       <PageHeader
         eyebrow="Personal"
         title="Strategies"
-        description="A strategy lets software act for your account inside limits the account contract enforces: which operation, how much in total, and until when. You adopt it by signing the grant yourself, and you can stop everything at once."
+        description="Put a rule or your own AI to work on your account, inside limits you set: what it may do, how much, and until when. You approve every strategy yourself, and you can stop them all at once."
         actions={
           <>
             <SourceTag source={services.account.source} />
@@ -103,7 +104,7 @@ export function Strategies() {
           {[
             ["#active", "Active"],
             ["#create", "Create"],
-            ["#import", "Import"],
+            ["#import", "Shared strategy"],
             ["#stop", "Stop"],
             ["#rules", "Rules, field by field"],
             ["#modes", "Execution modes"],
@@ -116,6 +117,8 @@ export function Strategies() {
           ))}
         </ul>
       </nav>
+
+      <Disclosures />
 
       <ActiveStrategies />
       <StrategyBuilder />
