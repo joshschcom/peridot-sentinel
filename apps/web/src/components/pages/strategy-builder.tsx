@@ -96,7 +96,7 @@ export function StrategyBuilder() {
               <button type="button" role="radio" aria-checked={choice === "published"} onClick={() => setChoice("published")} className={cx("rounded-control border p-4 text-left sm:col-span-2", choice === "published" ? "border-fg" : "border-line hover:border-line-strong")} data-testid="template-option-published" data-state={publication.data?.state ?? (publication.isError ? "unavailable" : "loading")}>
                 <span className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-medium">Published strategy · version {publishedKey.version}</span>
-                  <span className="text-xs text-warning">{published ? "Written by someone else · checked against the registry · cannot act until you sign" : "From the public registry · nothing is offered until it is verified"}</span>
+                  <span className="text-xs text-warning">{published ? "Written by someone else · checked against the registry · cannot act until you sign" : IS_PRIVATE_FORK ? "From the registry on this private fork · nothing is offered until it is verified" : "From the public registry · nothing is offered until it is verified"}</span>
                 </span>
                 <span className="mt-1.5 block text-xs text-muted">
                   Published by <span className="font-mono break-all" data-testid="published-option-creator">{publishedKey.creator}</span>
