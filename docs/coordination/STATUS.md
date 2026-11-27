@@ -11,8 +11,8 @@
 | Fable 5.2 | Claude Code subagent, `fable` (claude-fable-5-2) | Claude background subagent | running |
 
 Astra session: resume with `codex exec resume <id>`. The ID is recorded below after launch.
-- astra-m0: `01a212ed-f090-7143-89e7-8b707c7b7631` (log: `/Users/joshua/Peridot/OKX/.agent-logs/astra-m0.log`)
-- astra-s2: same Codex thread resumed (`codex exec resume 01a212ed-…`), JSON event log `/Users/joshua/Peridot/OKX/.agent-logs/astra-s2.jsonl`, brief `.agent-briefs/astra-s2.md`
+- astra-m0: `01a212ed-f090-7143-89e7-8b707c7b7631` (log: `../.agent-logs/astra-m0.log`)
+- astra-s2: same Codex thread resumed (`codex exec resume 01a212ed-…`), JSON event log `../.agent-logs/astra-s2.jsonl`, brief `.agent-briefs/astra-s2.md`
 
 ## Commits
 - `fae7cdad` = tag `pre-xlayer-hackathon`, the imported baseline from peridot-contracts-2-5@e08e5363.
