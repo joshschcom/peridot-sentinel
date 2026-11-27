@@ -1,0 +1,45 @@
+{
+  "mode": "activity-recovery",
+  "onlyPaths": null,
+  "case": "",
+  "base": "http://127.0.0.1:3212",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": true,
+  "failures": [],
+  "notes": [
+    {
+      "activityRecovery": {
+        "state": "not-canonical",
+        "conflictNotice": 1,
+        "uncheckedNotice": 0,
+        "segments": [
+          "100-101:configured",
+          "120-120:known-emitters"
+        ],
+        "segmentText": [
+          "Blocks 100 to 101: every configured contract. Ends at block hash 0x00000000…000065.",
+          "Blocks 120 to 120: known emitters only: contracts a factory created during the preceding gap may be missing. Ends at block hash 0x00000000…000078, re-anchored at 0x00000000…000078."
+        ],
+        "gaps": [
+          "102-119:history-unavailable",
+          "121-132:other"
+        ],
+        "gapText": [
+          "Blocks 102 to 119 (18 blocks): history unavailable: the RPC no longer served these blocks when the snapshot was refreshed, so events in them are permanently missing from it.",
+          "Blocks 121 to 132 (12 blocks): inside the confirmation depth of 12 blocks when it was refreshed."
+        ],
+        "recorded": [
+          "0x000000000000000000000000000000000000000000000000000000000000044c",
+          "0x0000000000000000000000000000000000000000000000000000000000000460"
+        ],
+        "liveList": {
+          "snapshot": "not-canonical",
+          "added": "0",
+          "text": "The indexed snapshot shipped with this build (blocks 120 to 120 in its last checked segment) is not merged into this list: the block the chain has at its checkpoint is not the block the snapshot recorded. Its events are still listed, with their original transaction hashes, in the historical snapshot card on this page, as previously verified evidence. Only this page's own scan is shown in this list"
+        },
+        "rowsFromSnapshot": 0
+      }
+    }
+  ]
+}

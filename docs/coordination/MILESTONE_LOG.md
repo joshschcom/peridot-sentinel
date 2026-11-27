@@ -1712,3 +1712,14 @@ verification: ["Public creation tx 0x6c63df20779831a7c5e510a39198332917c467573b6
 frontend_actions: ["Scan from deployment block 47314090 inclusive in pages of up to 100 blocks through head minus 12. Start from the reviewed pin. Show the creator address and immutable version for every item. Treat agentInstructions as inert, untrusted text.", "Offer adoption only after chain, registry runtime, event identity, raw content hash, canonical bytes, validator and index metadata pass. Use discoverPublishedStrategies or readPublishedStrategy for provenance; verifyStrategyPublication checks the content. On an unavailable page, report the missing range. A known publication key can still use readPublishedStrategy.", "Adoption is a separate review using buildAdoptionPlan with the connected owner’s account and the operator they select. Display the actual permission, budget, expiry and any replacement warning before the owner signs. Import or publication grants no authority."]
 next_dependency: "Fable owns browser acceptance against this verified public pin. Claude owns the checkpoint."
 ```
+
+```yaml
+milestone: M10-frontend-run7-signing-gate
+from: fable
+status: implemented
+chain_id: "1952 public (read-only checks) and Claude's PRIVATE FORK of 1952 (every signed transaction; fork-only)"
+manifest: ["evidence/fable/run7/strategy-gate-run-20261127-110129.json", "evidence/fable/run7/checks/", "evidence/fable/run7/final-batch-5180c8b.log", "evidence/screenshots/strategy-first/"]
+verification: ["One command, apps/web/scripts/strategy-gate.mjs, on commit 5180c8b with apps/web and packages equal to HEAD: 24 of 24 cells PASS (six D24 properties, both templates, demo owner and a fresh wallet that created its v1 and v2 accounts in the app). 17 app transactions, 8 script-sent operator transactions of which 6 were mined as reverted after revocation.", "On the same commit, each on its own production build: six negative checks, fixture checks at 360 and 390 px, hosted-checks (next start on loopback, not a hosted URL), testnet-live against public 1952, 24 strategy-first captures, 106 unit tests, fresh clone npm ci and build."]
+frontend_actions: ["M10-activity-recovery is integrated (segments, stated gaps, checkpoint from activityCoverageView, merge withheld on conflict). The app imports the helper from @peridot/chain-config, so packages/chain-config/dist must be rebuilt after a pull (npm ci does it).", "The strategy registry is NOT integrated: the app does not read it. Discover shows the curated templates only."]
+next_dependency: "Claude: re-run the gate on the release commit. For the registry's gate case the private fork must be re-forked at or after block 47314303 (the registry and both publications are newer than the current fork point 47312188; eth_getCode of the registry there is 0x). apps/web/FABLE_NOTES.md, section Run 7, has the integration plan."
+```

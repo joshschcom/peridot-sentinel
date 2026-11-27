@@ -1,0 +1,45 @@
+commit 5180c8b dirty(apps/web packages)=0
+unit: ℹ pass 106 ℹ fail 0  | tsc: exit 0 | tokens: check-tokens: no hardcoded colours, gradients, shadows or default-palette classes in src/
+build neg-wrong-network: exit 0
+negative neg-wrong-network: exit 0 :: wrong-network: all checks passed. [{"walletChainId":"0xc4","banner":"X
+build neg-broken-deployment: exit 0
+negative neg-broken-deployment: exit 0 :: broken-deployment: all checks passed. [{"adoptionOnBrokenDeployment":[
+build neg-rejected-root: exit 0
+negative neg-rejected-root: exit 0 :: rejected-manifest (root): all checks passed. [{"reasonShown":"This bui
+build neg-rejected-missing: exit 0
+negative neg-rejected-missing: exit 0 :: rejected-manifest (missing): all checks passed. [{"reasonShown":"This 
+build neg-testnet-unverified: exit 0
+negative neg-testnet-unverified: exit 0 :: testnet-unverified: all checks passed. [{"adoptionOnBrokenDeployment":
+build neg-activity-recovery: exit 0
+negative neg-activity-recovery: exit 0 :: activity-recovery: all checks passed. [{"activityRecovery":{"state":"n
+build fixture: exit 0
+fixture checks: exit 0 :: All UI checks passed.
+build testnet: exit 0
+hosted-checks (next start on loopback, NOT a hosted URL): exit 0 :: hosted-checks: all checks passed.
+testnet-live: exit 0 :: testnet-live: all checks passed. [{"width":1440,"landing":{"title":"Pe
+strategy-first screenshots: exit 0 :: All 24 captures are clean. /Users/joshua/Peridot/OKX/peridot-xlayer/evidence/screenshots/strategy-fi
+strategy gate: exit 0
+
+Strategy-adoption signing gate, run-20261127-110129, commit 5180c8b, fork block 47312226
+property                                                              | template            | demo owner | fresh wallet
+1 An unverified deployment cannot authorise                           | debt-protection-v1  | PASS       | PASS
+1 An unverified deployment cannot authorise                           | restricted-swap-v2  | PASS       | PASS
+2 Importing grants nothing                                            | debt-protection-v1  | PASS       | PASS
+2 Importing grants nothing                                            | restricted-swap-v2  | PASS       | PASS
+3 The template's creator gets no authority                            | debt-protection-v1  | PASS       | PASS
+3 The template's creator gets no authority                            | restricted-swap-v2  | PASS       | PASS
+4 The owner reviews the real operation: what is shown is what is mined | debt-protection-v1  | PASS       | PASS
+4 The owner reviews the real operation: what is shown is what is mined | restricted-swap-v2  | PASS       | PASS
+5 Unsupported versions are rejected with a visible reason             | debt-protection-v1  | PASS       | PASS
+5 Unsupported versions are rejected with a visible reason             | restricted-swap-v2  | PASS       | PASS
+6 Revocation works after adoption                                     | debt-protection-v1  | PASS       | PASS
+6 Revocation works after adoption                                     | restricted-swap-v2  | PASS       | PASS
+supporting: PASS scope-note-lending-template-on-a-build-whose-v2-manifest-is-wrong (debt-protection-v1, demo owner)
+supporting: PASS scope-note-lending-template-on-a-build-whose-v2-manifest-is-wrong (debt-protection-v1, fresh wallet)
+supporting: PASS fresh-wallet-reaches-adoption-through-the-app (debt-protection-v1, fresh wallet)
+supporting: PASS fresh-wallet-reaches-adoption-through-the-app (restricted-swap-v2, fresh wallet)
+PASSED. 17 app transactions, 8 script-sent operator transactions, 0 page problem(s).
+Evidence: /Users/joshua/Peridot/OKX/peridot-xlayer/evidence/fable/run7/strategy-gate-run-20261127-110129.json
+Screenshots: /Users/joshua/Peridot/OKX/peridot-xlayer/evidence/fable/run7/strategy-gate-run-20261127-110129
+commit at end 5180c8b dirty(apps/web packages)=0
+final7-done

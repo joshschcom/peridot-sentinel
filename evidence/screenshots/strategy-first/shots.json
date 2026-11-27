@@ -1,12 +1,12 @@
 {
   "base": "http://127.0.0.1:3220",
-  "at": "2026-11-26T20:09:44.423Z",
+  "at": "2026-11-27T11:01:28.295Z",
   "wallet": "watch-only test wallet reporting the public demo owner address on chain 1952; it cannot sign or send",
   "passed": true,
   "shots": [
     {
       "file": "landing-390-light.png",
-      "pageHeightPx": 12570,
+      "pageHeightPx": 13102,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -17,7 +17,7 @@
     },
     {
       "file": "landing-390-dark.png",
-      "pageHeightPx": 12570,
+      "pageHeightPx": 13102,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -28,7 +28,7 @@
     },
     {
       "file": "landing-1440-light.png",
-      "pageHeightPx": 7620,
+      "pageHeightPx": 7860,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -39,7 +39,7 @@
     },
     {
       "file": "landing-1440-dark.png",
-      "pageHeightPx": 7620,
+      "pageHeightPx": 7860,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -50,7 +50,7 @@
     },
     {
       "file": "portfolio-390-light.png",
-      "pageHeightPx": 8858,
+      "pageHeightPx": 9037,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -61,7 +61,7 @@
     },
     {
       "file": "portfolio-390-dark.png",
-      "pageHeightPx": 8858,
+      "pageHeightPx": 9037,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -72,7 +72,7 @@
     },
     {
       "file": "portfolio-1440-light.png",
-      "pageHeightPx": 5265,
+      "pageHeightPx": 5367,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -83,7 +83,7 @@
     },
     {
       "file": "portfolio-1440-dark.png",
-      "pageHeightPx": 5265,
+      "pageHeightPx": 5367,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -94,7 +94,7 @@
     },
     {
       "file": "strategies-390-light.png",
-      "pageHeightPx": 10325,
+      "pageHeightPx": 10407,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -105,7 +105,7 @@
     },
     {
       "file": "strategies-390-dark.png",
-      "pageHeightPx": 10325,
+      "pageHeightPx": 10407,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -116,7 +116,7 @@
     },
     {
       "file": "strategies-1440-light.png",
-      "pageHeightPx": 6442,
+      "pageHeightPx": 6467,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -127,7 +127,7 @@
     },
     {
       "file": "strategies-1440-dark.png",
-      "pageHeightPx": 6442,
+      "pageHeightPx": 6467,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -138,7 +138,7 @@
     },
     {
       "file": "discover-390-light.png",
-      "pageHeightPx": 2883,
+      "pageHeightPx": 3048,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -149,7 +149,7 @@
     },
     {
       "file": "discover-390-dark.png",
-      "pageHeightPx": 2883,
+      "pageHeightPx": 3048,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -160,7 +160,7 @@
     },
     {
       "file": "discover-1440-light.png",
-      "pageHeightPx": 1367,
+      "pageHeightPx": 1485,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -171,7 +171,7 @@
     },
     {
       "file": "discover-1440-dark.png",
-      "pageHeightPx": 1367,
+      "pageHeightPx": 1485,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -182,7 +182,7 @@
     },
     {
       "file": "studio-390-light.png",
-      "pageHeightPx": 2672,
+      "pageHeightPx": 2744,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -193,7 +193,7 @@
     },
     {
       "file": "studio-390-dark.png",
-      "pageHeightPx": 2672,
+      "pageHeightPx": 2744,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -226,7 +226,7 @@
     },
     {
       "file": "connect-390-light.png",
-      "pageHeightPx": 19474,
+      "pageHeightPx": 19610,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -237,7 +237,7 @@
     },
     {
       "file": "connect-390-dark.png",
-      "pageHeightPx": 19474,
+      "pageHeightPx": 19610,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -248,7 +248,7 @@
     },
     {
       "file": "connect-1440-light.png",
-      "pageHeightPx": 10877,
+      "pageHeightPx": 10947,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
@@ -259,7 +259,7 @@
     },
     {
       "file": "connect-1440-dark.png",
-      "pageHeightPx": 10877,
+      "pageHeightPx": 10947,
       "truncated": false,
       "overflowPx": 0,
       "pageErrors": [],
