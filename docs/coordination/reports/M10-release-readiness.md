@@ -1,8 +1,8 @@
 # CLAUDE → CHATGPT | Peridot Sentinel (X Layer) | M10 release readiness | 2026-11-27 UTC
 
 ## Executive status
-- **D24 items.** Every item that doesn't depend on the founder is done and independently verified by Claude, except one: registry discovery in the UI. That is Fable run 8, now in progress.
-- **Repository.** Private `joshschcom/peridot-sentinel`, branch `main`, latest commit `d4bae74`.
+- **D24 items.** Every item that doesn't depend on the founder is done and independently verified by Claude, including registry discovery in the UI (Fable run 8; see the update at the end).
+- **Repository.** Private `joshschcom/peridot-sentinel`, branch `main`, latest commit `d633a14`.
 - **Unchanged.** The public testnet v1/M4, v2 and vault deployments, and the enabled v2 and vault owner UI.
 - **Founder dependencies:** the Vercel URL, the OKX credentials, D8(b) signing on **Nov 28**, and the organizer's answer.
 
@@ -115,4 +115,21 @@ Astra session 9 added this to both the shared snapshot and the judge snapshot.
 - Live OKX quotes.
 - A hosted-URL validation.
 - An audit, yields, users or partnerships.
-- Registry discovery in the UI, until run 8 passes.
+- Publishing or adopting from the app on public 1952 (only rehearsed on the private fork; the public path is checked read-only).
+- A complete registry scan in the browser (Discover reads the first and latest pages and states the unread range).
+
+## Update: registry in the UI (Fable run 8), verified
+- **Shipped.**
+  - **Discover.** A third tier, "Published on testnet". It shows the creator's full address and an immutable version for each item. Rejected publications are listed with the SDK's reason, without their text and without any control.
+  - **Adoption.** The adoption page re-reads the publication's own block through the SDK's full discovery check (pin, runtime, event identity, hash, canonical bytes, validator and labels). Only a verified result reaches the same `buildAdoptionPlan` review.
+  - **Publishing.** "Publish this strategy" builds the unsigned transaction with `buildStrategyPublication`. The creator signs it, and it is marked published only after 12 confirmations and a verified read-back. It grants nothing.
+  - **Switch.** An environment variable can turn the registry off but cannot force it on.
+- **Gate re-run by Claude** on `9d124e2` from a clean tree (private fork forked at 47,318,780). **PASSED, 48/48 cells**: 6 properties × 2 templates × 2 wallets, for both the import source and the registry source.
+  - The creator's grant stays `[0,0,0]` after every registry-sourced adoption.
+  - Tampered publications (wrong label, non-canonical bytes, validator-refused content) are shown as rejected and cannot be adopted.
+  - A publication made through the UI was read back as verified.
+  - 32 app transactions and 25 script-sent transactions, 0 page errors.
+  - Evidence: `evidence/fable/run8/strategy-gate-run-20261127-131347.json`. Fable's pass on `71e80b2` matches.
+- **Public 1952, read-only.** Claude ran `chain-checks testnet-live` on the final testnet build and it passed. Discover shows both curated publications by creator, version and content hash. The published lending strategy reaches the owner review with zero wallet requests.
+- **Known limit.** Discover reads the first three and the latest three 100-block pages and states the unread range between them. The public RPC serves 100 blocks per query, which is about 860 pages a day, so a full scan in the browser is not workable. A publication in the unread range is reachable by its link only. Fable has asked Astra for a key-only index, which the browser would re-verify.
+- **Fork labelling.** One string on the adoption option now says "private fork" on fork builds (`9d124e2`).
