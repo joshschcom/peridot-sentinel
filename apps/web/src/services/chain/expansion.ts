@@ -162,8 +162,8 @@ export async function readVenueQuote(manifest: ExpansionManifest, tokenIn: Addre
 }
 
 /** Is the snapshot's last block still the canonical block at that height? Only then is the snapshot called canonical. */
-export async function verifySnapshotTerminal(toBlock: bigint, toBlockHash: string): Promise<{ canonical: boolean; head: bigint }> {
+export async function verifySnapshotTerminal(toBlock: bigint, toBlockHash: string): Promise<{ canonical: boolean; head: bigint; hash: string }> {
   const rpc = testnet();
   const [block, head] = await Promise.all([retryRead(() => rpc.getBlock({ blockNumber: toBlock })), retryRead(() => rpc.getBlockNumber({ cacheTime: 0 }))]);
-  return { canonical: same(block.hash, toBlockHash), head };
+  return { canonical: same(block.hash, toBlockHash), head, hash: block.hash };
 }

@@ -15,6 +15,7 @@
  */
 import { RAW_CONFIG } from "../generated/config.ts";
 import { RAW_EVIDENCE } from "../generated/evidence.ts";
+import { type ParsedCoverage, inCheckedSegment, parseCoverage } from "./activity-coverage.ts";
 import { type Maybe, ok, unavailable } from "./maybe.ts";
 
 export const V2_SWAP_LABEL = "Mock swap on testnet; real Uniswap v3 verified on mainnet fork";
@@ -241,6 +242,12 @@ export interface ActivitySnapshot {
   /** Hash of the last covered block. The browser re-reads it before the snapshot is called canonical. */
   toBlockHash: `0x${string}`;
   status: string;
+  /**
+   * The checked segments and the gaps. `fromBlock`/`toBlock` above are only the outer envelope: with more than one
+   * segment it is NOT a checked range, and nothing may present it as one.
+   */
+  coverage: ParsedCoverage;
+  confirmations: number | null;
   /** The contracts the indexer followed, each from its own first block. A contract not listed here is not covered. */
   sources: Array<{ address: `0x${string}`; fromBlock: bigint }>;
   events: SnapshotEvent[];
@@ -253,6 +260,9 @@ export function parseActivitySnapshot(json: unknown, file: string): Maybe<Activi
   const to = uint(coverage?.toBlock);
   const terminal = hash(coverage?.toBlockHash);
   if (!root || root.schemaVersion !== 1 || root.kind !== "indexed-event-snapshot" || root.chainId !== 1952 || typeof root.updatedAt !== "string" || from === null || to === null || to < from || !terminal || !Array.isArray(root.events)) return unavailable("No indexed activity snapshot for X Layer testnet in this build");
+  // Segments and gaps (M10-activity-recovery). A legacy file is one configured segment. Contradictory coverage is refused.
+  const checked = parseCoverage(root.coverage);
+  if (!checked) return unavailable("The indexed activity snapshot states its coverage in a form this app cannot verify");
   const events: SnapshotEvent[] = [];
   for (const item of root.events) {
     const e = rec(item);
@@ -261,7 +271,7 @@ export function parseActivitySnapshot(json: unknown, file: string): Maybe<Activi
     const index = uint(e?.logIndex);
     const at = address(e?.address);
     // One malformed or out-of-range event makes the whole snapshot unusable: a partial list would look complete.
-    if (!e || block === null || !tx || index === null || !at || typeof e.eventName !== "string" || typeof e.contract !== "string" || block < from || block > to) return unavailable("The indexed activity snapshot has an event outside its stated block range or in an unknown format");
+    if (!e || block === null || !tx || index === null || !at || typeof e.eventName !== "string" || typeof e.contract !== "string" || block < from || block > to || !inCheckedSegment(checked, block)) return unavailable("The indexed activity snapshot has an event outside its checked block ranges or in an unknown format");
     events.push({ blockNumber: block, transactionHash: tx, logIndex: index, address: at, contract: e.contract, eventName: e.eventName, args: rec(e.args) ?? {}, timestamp: uint(e.timestamp) });
   }
   const sources: ActivitySnapshot["sources"] = [];
@@ -272,7 +282,7 @@ export function parseActivitySnapshot(json: unknown, file: string): Maybe<Activi
     if (!at || first === null) return unavailable("The indexed activity snapshot lists a source in an unknown format");
     sources.push({ address: at, fromBlock: first });
   }
-  return ok({ file, chainId: 1952, updatedAt: root.updatedAt, fromBlock: from, toBlock: to, toBlockHash: terminal, status: typeof coverage?.status === "string" ? coverage.status : "unknown", sources, events });
+  return ok({ file, chainId: 1952, updatedAt: root.updatedAt, fromBlock: from, toBlock: to, toBlockHash: terminal, status: typeof coverage?.status === "string" ? coverage.status : "unknown", coverage: checked, confirmations: typeof coverage?.confirmations === "number" ? coverage.confirmations : null, sources, events });
 }
 
 export const EXPANSION = {

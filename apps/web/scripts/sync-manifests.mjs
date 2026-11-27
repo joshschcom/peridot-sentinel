@@ -221,7 +221,7 @@ function judgeCampaign() {
   const activity = raw && Array.isArray(raw.events)
     ? {
         ...pick(raw, ["schemaVersion", "kind", "chainId", "campaign", "profile", "updatedAt"]),
-        coverage: pick(raw.coverage, ["fromBlock", "toBlock", "toBlockHash", "headAtRefresh", "confirmations", "gaps"]),
+        coverage: pick(raw.coverage, ["fromBlock", "toBlock", "toBlockHash", "headAtRefresh", "confirmations", "gaps", "segments"]),
         sources: Array.isArray(raw.sources) ? raw.sources.length : null,
         events: raw.events.map((event) => pick(event, ["blockNumber", "transactionHash", "logIndex", "address", "contract", "eventName", "timestamp"])),
       }

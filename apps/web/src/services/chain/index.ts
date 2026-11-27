@@ -4,6 +4,7 @@
  * impossible read is `unavailable` with a reason. Every read first requires the deployment check
  * (chain id, bytecode at manifest addresses, template root) to pass.
  */
+import { coverageCheckpoint, earlierSegments } from "../../lib/activity-coverage.ts";
 import { type SnapshotAutoRepay, type SnapshotPolicyAllowed, activityKey, mergedCoverage, snapshotActivity, unindexedEmitters } from "../../lib/activity-merge.ts";
 import { WRITE_CHAIN_ID } from "../../lib/chains.ts";
 import { EXPANSION } from "../../lib/expansion.ts";
@@ -118,15 +119,30 @@ export const chainActivityService: ActivityService = {
       ]);
       const allowed = allowedScan.logs;
       const repays = repayScan?.logs ?? [];
-      // The indexed snapshot (public testnet only). Nothing of it is used unless its last block is canonical.
+      // The indexed snapshot (public testnet only). It joins this list only when the chain's block at its checkpoint
+      // matches, and then only its LAST checked segment counts as read. On a conflict, or when the checkpoint cannot be
+      // read, the merge is withheld: the snapshot's own card still shows its events as previously verified evidence.
       const shipped = WRITE_CHAIN_ID === 1952 && EXPANSION.snapshot.status === "ok" ? EXPANSION.snapshot.value : null;
       let snapshotEvents: Array<SnapshotPolicyAllowed | SnapshotAutoRepay> = [];
       let snapshot: ActivityFeed["snapshot"];
       if (shipped) {
-        const info = { file: shipped.file, fromBlock: shipped.fromBlock, toBlock: shipped.toBlock, updatedAt: shipped.updatedAt, added: 0, shared: 0, skipped: 0, unindexed: 0 };
+        const tail = shipped.coverage.segments.at(-1)!;
+        const info = {
+          file: shipped.file,
+          fromBlock: tail.from,
+          toBlock: tail.to,
+          updatedAt: shipped.updatedAt,
+          added: 0,
+          shared: 0,
+          skipped: 0,
+          unindexed: 0,
+          earlier: earlierSegments(shipped.coverage).map((segment) => ({ from: segment.from, to: segment.to })),
+          historyGaps: shipped.coverage.gaps.filter((gap) => gap.permanent).map((gap) => ({ from: gap.from, to: gap.to })),
+          knownEmittersOnly: tail.sourceCoverage === "known-emitters",
+        };
         try {
           const terminal = await retryRead(() => rpc.getBlock({ blockNumber: shipped.toBlock }));
-          if (terminal.hash.toLowerCase() !== shipped.toBlockHash.toLowerCase()) snapshot = { ...info, state: "not-canonical" };
+          if (coverageCheckpoint(shipped.coverage, terminal.hash).checkpoint !== "matches") snapshot = { ...info, state: "not-canonical" };
           else {
             const found = snapshotActivity(shipped, { controllers, sentinels, holders });
             snapshotEvents = found.events;
@@ -203,7 +219,9 @@ export const chainActivityService: ActivityService = {
       ];
       entries.sort((a, b) => ((position.get(b.id) ?? 0n) > (position.get(a.id) ?? 0n) ? 1 : -1));
       // Coverage is the union of what was really read. The snapshot's range counts only in state "merged".
-      const merged = mergedCoverage(allowedScan.ranges, snapshot?.state === "merged" ? { from: snapshot.fromBlock, to: snapshot.toBlock } : null, DEPLOYMENT_BLOCK(), allowedScan.toBlock);
+      // Segment by segment, never the snapshot's outer envelope: a history gap between two segments stays a gap.
+      const counted = snapshot?.state === "merged";
+      const merged = mergedCoverage(counted ? [...allowedScan.ranges, ...snapshot!.earlier] : allowedScan.ranges, counted ? { from: snapshot!.fromBlock, to: snapshot!.toBlock } : null, DEPLOYMENT_BLOCK(), allowedScan.toBlock);
       return { entries, coverage: { ranges: merged.ranges, complete: merged.complete }, scanRanges: allowedScan.ranges, gaps: merged.gaps, head: allowedScan.toBlock, snapshot };
     });
   },

@@ -47,11 +47,12 @@ export function MergedCoverageText({ feed }: { feed: ActivityFeed }) {
   const first = coverage.ranges[0];
   const snapshotRange = `${group(snapshot.fromBlock)} to ${group(snapshot.toBlock)}`;
   const refreshed = snapshot.updatedAt.slice(0, 16).replace("T", " ");
+  const segmented = snapshot.earlier.length > 0;
   return (
     <span data-ranges={coverage.ranges.length} data-gap={unread.toString()} data-snapshot={snapshot.state} data-snapshot-added={snapshot.added} data-snapshot-shared={snapshot.shared} data-snapshot-to={snapshot.toBlock.toString()}>
       {snapshot.state === "merged" ? (
         <>
-          This list is merged from two sources. The indexed snapshot shipped with this build covers blocks <span className="num text-fg">{snapshotRange}</span> (refreshed {refreshed} UTC); its last block was re-read from the chain for this page and matches. This page&apos;s own scan read blocks <span className="num text-fg">{rangeList(scanRanges)}</span>
+          This list is merged from two sources. The indexed snapshot shipped with this build covers blocks <span className="num text-fg">{snapshotRange}</span>{segmented ? " in its last checked segment" : ""} (refreshed {refreshed} UTC); its last block was re-read from the chain for this page and matches. This page&apos;s own scan read blocks <span className="num text-fg">{rangeList(scanRanges)}</span>
           {head !== undefined ? <>, up to the latest block <span className="num text-fg">{group(head)}</span></> : null}. {snapshot.added} of the entries above come from the snapshot only{snapshot.shared > 0 ? `, and ${snapshot.shared} were found by both and are shown once` : ""}.{" "}
         </>
       ) : snapshot.state === "events-only" ? (
@@ -60,11 +61,17 @@ export function MergedCoverageText({ feed }: { feed: ActivityFeed }) {
         </>
       ) : (
         <>
-          The indexed snapshot shipped with this build (blocks <span className="num text-fg">{snapshotRange}</span>) is not used in this list: {snapshot.state === "not-canonical" ? "its last block is not the block the chain has at that height" : "its last block could not be re-read from the chain just now"}. Only this page&apos;s own scan is shown, which read blocks <span className="num text-fg">{rangeList(scanRanges)}</span>.{" "}
+          The indexed snapshot shipped with this build (blocks <span className="num text-fg">{snapshotRange}</span>{segmented ? " in its last checked segment" : ""}) is not merged into this list: {snapshot.state === "not-canonical" ? "the block the chain has at its checkpoint is not the block the snapshot recorded" : "its checkpoint could not be re-read from the chain just now"}. Its events are still listed, with their original transaction hashes, in the historical snapshot card on this page, as previously verified evidence. Only this page&apos;s own scan is shown in this list, which read blocks <span className="num text-fg">{rangeList(scanRanges)}</span>.{" "}
         </>
       )}
+      {segmented ? (
+        <span data-testid="coverage-segments" data-earlier={snapshot.earlier.length} data-history-gaps={snapshot.historyGaps.length}>
+          The snapshot is not one continuous range. It also has {snapshot.earlier.length === 1 ? "an earlier checked segment" : `${snapshot.earlier.length} earlier checked segments`} (blocks <span className="num text-fg">{rangeList(snapshot.earlier)}</span>), verified when it was built and not re-checked by this page. Between the segments, blocks <span className="num text-fg">{rangeList(snapshot.historyGaps)}</span> are a permanent gap: the RPC no longer served that history when the snapshot was refreshed, so events in them are missing for good.{" "}
+          {snapshot.knownEmittersOnly ? "The last segment covers known emitters only: contracts a factory created during the gap may be missing from it. " : ""}
+        </span>
+      ) : null}
       {coverage.complete ? (
-        <>Together they cover every block from the deployment block{first ? <> <span className="num text-fg">{group(first.from)}</span></> : null} to the latest block.</>
+        <>Together the sources leave no block unread from the deployment block{first ? <> <span className="num text-fg">{group(first.from)}</span></> : null} to the latest block.</>
       ) : (
         <>
           Counted from the deployment block{first ? <> <span className="num text-fg">{group(first.from)}</span></> : null}, the <span className="num text-fg">{group(unread)}</span> blocks <span className="num text-fg">{rangeList(gaps)}</span> have not been read by {snapshot.state === "merged" ? "either source" : "this page"}: an action in them is not shown here{snapshot.state === "merged" ? " until the snapshot is refreshed" : ""}. The network&apos;s public RPC only answers event queries {LOG_PAGE_BLOCKS.toString()} blocks at a time, and this app has no indexer of its own.

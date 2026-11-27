@@ -7,6 +7,7 @@
  *   snapshot   the campaign's own scoped activity file, with its range, terminal block hash and gaps.
  * The card has no input and no control that could act on the campaign: its owner key is not this app's business.
  */
+import { SEGMENT_SOURCE_TEXT, gapReasonText } from "@/lib/activity-coverage";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -238,7 +239,24 @@ function Activity({ activity }: { activity: JudgeActivity }) {
         </Badge>
       </div>
       <p className="mt-2 text-sm text-muted" data-testid="judge-activity-coverage">
-        {activity.events.length} events in {activity.transactions} transactions, from testnet blocks <span className="num text-fg">{num(activity.fromBlock)}</span> to <span className="num text-fg">{num(activity.toBlock)}</span> (terminal block <Mono>{shortHash(activity.toBlockHash)}</Mono>)
+        {activity.events.length} events in {activity.transactions} transactions,{" "}
+        {activity.segments.length === 1 ? (
+          <>
+            from testnet blocks <span className="num text-fg">{num(activity.fromBlock)}</span> to <span className="num text-fg">{num(activity.toBlock)}</span>
+          </>
+        ) : (
+          <span data-testid="judge-activity-segments" data-segments={activity.segments.length}>
+            in {activity.segments.length} checked segments that are not one continuous range (
+            {activity.segments.map((segment, index) => (
+              <span key={segment.from.toString()} data-segment={`${segment.from}-${segment.to}`}>
+                {index > 0 ? "; " : ""}testnet blocks <span className="num text-fg">{num(segment.from)}</span> to <span className="num text-fg">{num(segment.to)}</span>
+                {segment.sourceCoverage === "known-emitters" ? `, ${SEGMENT_SOURCE_TEXT[segment.sourceCoverage]}` : ""}
+              </span>
+            ))}
+            )
+          </span>
+        )}{" "}
+        (terminal block <Mono>{shortHash(activity.toBlockHash)}</Mono>)
         {activity.updatedAt ? `, refreshed ${activity.updatedAt.slice(0, 16).replace("T", " ")} UTC` : ""}. Source: <Mono>{activity.file}</Mono>.
       </p>
       <p className="mt-2 rounded-control border border-line bg-subtle p-3 text-[0.8125rem] text-muted" data-testid="judge-activity-gaps">
@@ -246,8 +264,8 @@ function Activity({ activity }: { activity: JudgeActivity }) {
           <>
             Not covered by the snapshot:{" "}
             {activity.gaps.map((gap, index) => (
-              <span key={gap.fromBlock.toString()} data-judge-gap={`${gap.fromBlock}-${gap.toBlock}`}>
-                {index > 0 ? "; " : ""}blocks <span className="num">{num(gap.fromBlock)}</span> to <span className="num">{num(gap.toBlock)}</span> ({gap.reason === "confirmation-depth" ? `inside the confirmation depth${activity.confirmations !== null ? ` of ${activity.confirmations} blocks` : ""} when it was refreshed` : gap.reason.replace(/[^a-z0-9-]/gi, " ")})
+              <span key={gap.fromBlock.toString()} data-judge-gap={`${gap.fromBlock}-${gap.toBlock}`} data-reason={gap.permanent ? "history-unavailable" : "other"}>
+                {index > 0 ? "; " : ""}blocks <span className="num">{num(gap.fromBlock)}</span> to <span className="num">{num(gap.toBlock)}</span> ({gapReasonText(gap.reason, activity.confirmations)})
               </span>
             ))}
             .{" "}

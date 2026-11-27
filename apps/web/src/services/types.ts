@@ -272,7 +272,24 @@ export interface ActivityFeed {
    * the list and its range counts as read. "events-only": events are in the list, but it does not index every
    * contract of this list, so its range is NOT counted. "not-canonical" / "unverified": nothing of it is used.
    */
-  snapshot?: { file: string; fromBlock: bigint; toBlock: bigint; updatedAt: string; state: "merged" | "events-only" | "not-canonical" | "unverified"; added: number; shared: number; skipped: number; unindexed: number };
+  snapshot?: {
+    file: string;
+    /** The snapshot's LAST checked segment: the only part that can join the live scan, and only in state "merged". */
+    fromBlock: bigint;
+    toBlock: bigint;
+    updatedAt: string;
+    state: "merged" | "events-only" | "not-canonical" | "unverified";
+    added: number;
+    shared: number;
+    skipped: number;
+    unindexed: number;
+    /** Segments before the last one: previously verified, never counted as read by this page. */
+    earlier: Array<{ from: bigint; to: bigint }>;
+    /** Permanent gaps inside the snapshot (history unavailable when it was refreshed). */
+    historyGaps: Array<{ from: bigint; to: bigint }>;
+    /** The last segment only speaks for the contracts that were indexed (it follows a history gap). */
+    knownEmittersOnly: boolean;
+  };
 }
 
 export interface ActivityService extends ServiceMeta {

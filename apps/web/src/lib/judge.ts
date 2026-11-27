@@ -9,6 +9,7 @@
  * says it must (chain 1952, public-testnet profile, matching campaign, mock label) is unavailable, not repaired.
  * All amounts, block numbers and expiries are decimal strings in the files and bigint here.
  */
+import { type CoverageSegment, inCheckedSegment, parseCoverage } from "./activity-coverage.ts";
 import { type Maybe, ok, unavailable } from "./maybe.ts";
 
 type Rec = Record<string, unknown>;
@@ -58,8 +59,10 @@ export interface JudgeActivity {
   /** Head of the chain when the snapshot was refreshed, if recorded. */
   headAtRefresh: bigint | null;
   confirmations: number | null;
-  /** Ranges the snapshot itself says it has not covered. */
-  gaps: Array<{ fromBlock: bigint; toBlock: bigint; reason: string }>;
+  /** Ranges the snapshot itself says it has not covered. `permanent`: history was unavailable; it stays a gap. */
+  gaps: Array<{ fromBlock: bigint; toBlock: bigint; reason: string; permanent: boolean }>;
+  /** The checked segments. With more than one, `fromBlock`..`toBlock` is only an envelope, never one checked range. */
+  segments: CoverageSegment[];
   /** Newest first. */
   events: JudgeActivityEvent[];
   transactions: number;
@@ -95,14 +98,12 @@ function parseActivity(json: unknown, file: string | null, expected: { campaign:
   const toBlock = uint(coverage?.toBlock);
   const toBlockHash = hash(coverage?.toBlockHash);
   if (!coverage || fromBlock === null || toBlock === null || !toBlockHash || toBlock < fromBlock || !Array.isArray(root.events)) return unavailable("The activity snapshot does not state its coverage");
-  const gaps: JudgeActivity["gaps"] = [];
-  for (const entry of Array.isArray(coverage.gaps) ? coverage.gaps : []) {
-    const gap = rec(entry);
-    const from = uint(gap?.fromBlock);
-    const to = uint(gap?.toBlock);
-    if (!gap || from === null || to === null || to < from) return unavailable("The activity snapshot has a gap this app cannot read");
-    gaps.push({ fromBlock: from, toBlock: to, reason: typeof gap.reason === "string" ? gap.reason : "unspecified" });
-  }
+  // Segments and gaps through the contracts team's helper (M10-activity-recovery). A legacy file is one segment.
+  // The build's sync writes an absent field as null; the helper's contract is "absent", so null is dropped here.
+  const { segments: statedSegments, ...statedCoverage } = coverage;
+  const checked = parseCoverage({ ...statedCoverage, gaps: Array.isArray(coverage.gaps) ? coverage.gaps : [], ...(statedSegments === null || statedSegments === undefined ? {} : { segments: statedSegments }) });
+  if (!checked) return unavailable("The activity snapshot states its coverage or a gap in a form this app cannot verify");
+  const gaps: JudgeActivity["gaps"] = checked.gaps.map((gap) => ({ fromBlock: gap.from, toBlock: gap.to, reason: gap.reason, permanent: gap.permanent }));
   const events: JudgeActivityEvent[] = [];
   for (const entry of root.events) {
     const event = rec(entry);
@@ -113,7 +114,7 @@ function parseActivity(json: unknown, file: string | null, expected: { campaign:
     const timestamp = uint(event?.timestamp);
     if (!event || blockNumber === null || !transactionHash || logIndex === null || !at || timestamp === null || typeof event.contract !== "string" || typeof event.eventName !== "string" || !/^[A-Za-z][A-Za-z0-9]{0,63}$/.test(event.eventName) || !/^[A-Za-z][A-Za-z0-9]{0,63}$/.test(event.contract)) return unavailable("The activity snapshot has an event this app cannot read");
     // An event outside the range the snapshot claims to cover would make the stated coverage wrong.
-    if (blockNumber < fromBlock || blockNumber > toBlock) return unavailable("The activity snapshot lists an event outside its own coverage");
+    if (blockNumber < fromBlock || blockNumber > toBlock || !inCheckedSegment(checked, blockNumber)) return unavailable("The activity snapshot lists an event outside its own coverage");
     events.push({ blockNumber, transactionHash, logIndex: Number(logIndex), address: at, contract: event.contract, eventName: event.eventName, timestamp });
   }
   events.sort((a, b) => (a.blockNumber === b.blockNumber ? b.logIndex - a.logIndex : a.blockNumber < b.blockNumber ? 1 : -1));
@@ -126,6 +127,7 @@ function parseActivity(json: unknown, file: string | null, expected: { campaign:
     headAtRefresh: uint(coverage.headAtRefresh),
     confirmations: typeof coverage.confirmations === "number" && Number.isInteger(coverage.confirmations) ? coverage.confirmations : null,
     gaps,
+    segments: checked.segments,
     events,
     transactions: new Set(events.map((event) => event.transactionHash)).size,
   });

@@ -207,6 +207,49 @@ if (mode === "wrong-network") {
   notes.push({ bannerText: reason });
   expect(reason && /Live data unavailable/.test(reason), "banner text missing");
   await checkRedirects();
+} else if (mode === "activity-recovery") {
+  // DEFAULT-target server (chain 1952) built with PERIDOT_ACTIVITY_DIR pointing at a directory whose 1952.json is the
+  // contracts team's SYNTHETIC pruned snapshot (evidence/session9-activity/pruned-shared.json; never a release
+  // input). Its heights and hashes are simulated, so against the real chain its checkpoint either conflicts or cannot
+  // be read. Either way (MILESTONE_LOG M10-activity-recovery): the recorded events stay listed with their original
+  // hashes, the two segments are never shown as one range, each gap has its reason and range, the segment after the
+  // history gap is labelled "known emitters only", and nothing of the snapshot is merged into the live list.
+  const { readFileSync } = await import("node:fs");
+  const file = JSON.parse(readFileSync(new URL("../../../evidence/session9-activity/pruned-shared.json", import.meta.url), "utf8"));
+  const { context, page, wallet, errors } = await open("/activity", { walletChainId: "0x7a0", watch: "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67" });
+  const card = page.locator('[data-testid="activity-snapshot"]');
+  await page.waitForFunction(() => !["checking", null].includes(document.querySelector('[data-testid="activity-snapshot"]')?.getAttribute("data-state") ?? null), null, { timeout: 90_000 }).catch(() => {});
+  await page.locator("[data-snapshot]").first().waitFor({ timeout: 120_000 }).catch(() => {});
+  await page.evaluate(() => document.querySelectorAll("details").forEach((node) => (node.open = true)));
+  const shown = await page.evaluate(() => {
+    const card = document.querySelector('[data-testid="activity-snapshot"]');
+    const list = (selector, read) => [...card.querySelectorAll(selector)].map(read);
+    const merged = document.querySelector("[data-snapshot]");
+    return {
+      state: card.getAttribute("data-state"),
+      text: card.innerText.replace(/\s+/g, " "),
+      conflictNotice: card.querySelectorAll('[data-testid="snapshot-conflict"]').length,
+      uncheckedNotice: card.querySelectorAll('[data-testid="snapshot-unchecked"]').length,
+      segments: list('[data-testid="snapshot-segments"] li', (node) => `${node.dataset.segment}:${node.dataset.sourceCoverage}`),
+      segmentText: list('[data-testid="snapshot-segments"] li', (node) => node.innerText.replace(/\s+/g, " ")),
+      gaps: list('[data-testid="snapshot-gaps"] li', (node) => `${node.dataset.statedGap}:${node.dataset.reason}`),
+      gapText: list('[data-testid="snapshot-gaps"] li', (node) => node.innerText.replace(/\s+/g, " ")),
+      recorded: list('[data-testid="snapshot-all-events"] li', (node) => node.dataset.hash),
+      liveList: merged ? { snapshot: merged.getAttribute("data-snapshot"), added: merged.getAttribute("data-snapshot-added"), text: merged.innerText.replace(/\s+/g, " ") } : null,
+      rowsFromSnapshot: [...document.querySelectorAll("main li")].filter((row) => /From the indexed snapshot|also in the snapshot/.test(row.innerText)).length,
+    };
+  });
+  notes.push({ activityRecovery: { ...shown, text: undefined, liveList: shown.liveList ? { ...shown.liveList, text: shown.liveList.text.slice(0, 400) } : null } });
+  expect(["not-canonical", "unchecked"].includes(shown.state) && (shown.state === "not-canonical" ? shown.conflictNotice === 1 && /Checkpoint conflict/.test(shown.text) : shown.uncheckedNotice === 1), `the synthetic snapshot's checkpoint is shown as ${shown.state} without its notice`);
+  expect(JSON.stringify(shown.recorded) === JSON.stringify(file.events.map((event) => event.transactionHash)) && /previously verified evidence/.test(shown.text), `the recorded events are not all listed with their original hashes: ${JSON.stringify(shown.recorded)}`);
+  expect(JSON.stringify(shown.segments) === JSON.stringify(["100-101:configured", "120-120:known-emitters"]) && /Indexed events in 2 checked segments/.test(shown.text) && /not one continuous range/.test(shown.text) && !/every block/i.test(shown.text) && !/blocks 100 to 120/i.test(shown.text), `the two segments are not shown apart, or the envelope is shown as one range: ${JSON.stringify(shown.segments)} | ${shown.text.slice(0, 300)}`);
+  expect(/known emitters only/.test(shown.segmentText[1] ?? "") && /may be missing/.test(shown.segmentText[1] ?? "") && !/known emitters/.test(shown.segmentText[0] ?? ""), `the segment after the gap is not labelled as known emitters only: ${JSON.stringify(shown.segmentText)}`);
+  expect(JSON.stringify(shown.gaps) === JSON.stringify(["102-119:history-unavailable", "121-132:other"]) && /Blocks 102 to 119 \(18 blocks\): history unavailable/.test(shown.gapText[0] ?? "") && /permanently missing/.test(shown.gapText[0] ?? "") && /confirmation depth/.test(shown.gapText[1] ?? ""), `the gaps are not shown with their reason and range: ${JSON.stringify(shown.gapText)}`);
+  expect(shown.liveList !== null && ["not-canonical", "unverified"].includes(shown.liveList.snapshot) && shown.liveList.added === "0" && shown.rowsFromSnapshot === 0 && /is not merged into this list/.test(shown.liveList.text), `the live list merged the snapshot although its checkpoint does not match: ${JSON.stringify(shown.liveList)} (${shown.rowsFromSnapshot} rows)`);
+  expect(wallet.sent.length === 0, "a transaction was requested");
+  expect(errors.length === 0, `page errors: ${errors.join(" | ")}`);
+  await shot(page, "activity-recovery-synthetic-pruned-snapshot");
+  await context.close();
 } else if (mode === "rejected-manifest") {
   const expectReason = new RegExp(process.env.EXPECT_REASON ?? "rejected for live use");
   for (const path of ["/portfolio", "/markets", "/markets/example-0", "/activity", "/strategies", "/discover"]) {
@@ -836,7 +879,7 @@ if (mode === "wrong-network") {
             // (The two are computed from two reads of the head a moment apart, so they may differ by a few blocks.)
             const drift = BigInt(snapShown.gap ?? "0") - BigInt(gap ?? "0");
             expect(snapShown.gap !== null && drift > -120n && drift < 120n, `${tag}: the list says ${gap} blocks are unread, the snapshot card says ${snapShown.gap}`);
-          } else expect(ranges === 1 && /cover every block from the deployment block/.test(text), `${tag}: a complete merged coverage is described as "${text}"`);
+          } else expect(ranges === 1 && /leave no block unread from the deployment block/.test(text), `${tag}: a complete merged coverage is described as "${text}"`);
           // Paged from the deployment block: the recorded auto-repay (452 blocks after it) must be found by the scan
           // itself, with its explorer link, not only by the receipt re-read above.
           if (who.name === "demo-owner-watch-only") expect(chainRows.some((entry) => /Auto-repay/.test(entry.text) && entry.link === expectedTxUrl), `${tag}: the scan from the deployment block did not find the recorded auto-repay ${receipt.txHash} (${chainRows.length} entries)`);
@@ -886,7 +929,7 @@ if (mode === "wrong-network") {
   notes.push({ loads });
   await checkRedirects();
 } else {
-  throw new Error("mode must be wrong-network, broken-deployment, rejected-manifest, testnet-unverified or testnet-live");
+  throw new Error("mode must be wrong-network, broken-deployment, rejected-manifest, testnet-unverified, activity-recovery or testnet-live");
 }
 
 await browser.close();
