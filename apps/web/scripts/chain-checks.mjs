@@ -13,6 +13,9 @@
 //                       addresses do not hold this deployment on the public testnet, so the in-browser check must
 //                       fail closed. This is the only way to exercise the 1952 chain path before a real deployment.
 //
+//   registry-off        DEFAULT-target server built with NEXT_PUBLIC_PERIDOT_REGISTRY=off: no registry tier, a
+//                       publication link is ignored, no publishing, and no RPC request about the registry address.
+//
 //   testnet-live        DEFAULT-target server on the REAL 1952 manifest. Reads only, against the public testnet RPC:
 //                       gating, in-browser deployment check, paged logs, labels, the recorded public auto-repay
 //                       receipt re-read from the RPC with its explorer link, and the faucet notice. Two watch-only
@@ -989,8 +992,34 @@ if (mode === "wrong-network") {
   }
   notes.push({ loads });
   await checkRedirects();
+} else if (mode === "registry-off") {
+  // DEFAULT-target server built with NEXT_PUBLIC_PERIDOT_REGISTRY=off (the only thing that variable can do). The
+  // registry must be absent everywhere: no tier on Discover, a publication link is ignored, no publishing, and the
+  // browser never asks the RPC about the registry address. Curated strategies and import are untouched.
+  const pin = JSON.parse(readFileSync(new URL("../../../packages/chain-config/deployments/strategy-registry-1952.json", import.meta.url), "utf8"));
+  const recorded = JSON.parse(readFileSync(new URL("../../../evidence/session10-registry/discovery.json", import.meta.url), "utf8")).verified[0];
+  const watch = "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67";
+  for (const path of ["/discover", `/strategies?published=${recorded.creator}:${recorded.seriesId}:${recorded.version}&at=${recorded.block}`]) {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: "reduce" });
+    const wallet = await installTestWallet(context, { account: watch, walletChainId: "0x7a0", watchOnly: true });
+    const page = await context.newPage();
+    let registryRequests = 0;
+    page.on("request", (request) => {
+      if (request.method() === "POST" && (request.postData() ?? "").toLowerCase().includes(pin.address.toLowerCase().slice(2))) registryRequests++;
+    });
+    await page.goto(BASE + path, { waitUntil: "networkidle" });
+    await connectWallet(page);
+    await page.waitForFunction(() => !document.querySelector("[data-loading]"), null, { timeout: 90_000 }).catch(() => {});
+    await page.waitForTimeout(2500);
+    const seen = { path: path.slice(0, 40), tier: await page.locator('[data-testid="discover-published"]').count(), publishedCards: await page.locator('[data-testid="published-card"]').count(), curatedCards: await page.locator('[data-testid="discover-card"]').count(), publishedOption: await page.locator('[data-testid="template-option-published"]').count(), publishedNotice: await page.locator('[data-testid="strategy-published"], [data-testid="strategy-published-unavailable"]').count(), publishPanel: await page.locator('[data-testid="strategy-publish"]').count(), choice: await page.locator('[data-testid="strategy-builder"]').getAttribute("data-choice").catch(() => null), importCard: await page.locator('[data-testid="strategy-import"]').count(), registryWordOnPage: /registry on|strategy registry/i.test(await page.locator("main").innerText()), registryRequests, walletRequests: wallet.sent.length + wallet.refused.length };
+    notes.push(seen);
+    expect(seen.tier === 0 && seen.publishedCards === 0 && seen.publishedOption === 0 && seen.publishedNotice === 0 && seen.publishPanel === 0 && seen.registryRequests === 0 && !seen.registryWordOnPage && seen.walletRequests === 0, `registry-off ${seen.path}: something of the registry is shown or read: ${JSON.stringify(seen)}`);
+    if (path === "/discover") expect(seen.curatedCards === 2, `registry-off: the curated strategies are not listed: ${JSON.stringify(seen)}`);
+    else expect(seen.choice === "debt-protection-v1" && seen.importCard === 1, `registry-off: the builder is not on the curated default with import available: ${JSON.stringify(seen)}`);
+    await context.close();
+  }
 } else {
-  throw new Error("mode must be wrong-network, broken-deployment, rejected-manifest, testnet-unverified, activity-recovery or testnet-live");
+  throw new Error("mode must be wrong-network, broken-deployment, rejected-manifest, testnet-unverified, activity-recovery, registry-off or testnet-live");
 }
 
 await browser.close();

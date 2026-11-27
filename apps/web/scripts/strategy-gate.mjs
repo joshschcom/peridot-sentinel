@@ -988,6 +988,98 @@ async function registryScenario(base, wallet, profile) {
   }
 }
 
+/**
+ * Publishing through the app (supporting check, required): a wallet generated for this run publishes the curated swap
+ * strategy from the Strategies page. What the page showed before the signature is compared with the mined transaction,
+ * the page may call it published only after the registry's confirmations, and another wallet then finds and opens it.
+ */
+async function uiPublication(base, publisher, reader) {
+  const profile = "restricted-swap-v2";
+  const page = await newPage(publisher);
+  try {
+    for (const each of TEMPLATES) must(same(await target(each, publisher.address).accountOf(), zeroAddress), "the publisher wallet owns an account: not a bare publisher");
+    await openStrategies(page, base, profile);
+    const bytes = stringToHex(canonical(CURATED[profile]));
+    const hash = keccak256(bytes);
+    must((await page.locator('[data-testid="strategy-summary"]').getAttribute("data-hash")) === hash, "the strategy on the page is not the curated one, unchanged");
+    const panel = page.locator('[data-testid="strategy-publish"]');
+    must((await panel.count()) === 1, "this build does not offer publishing: its switch is off");
+    await panel.locator("summary").first().click();
+    const warning = await visibleText(panel.locator('[data-testid="publish-permanent"]'));
+    must(/public and permanent/.test(warning) && /never be edited or removed/.test(warning) && /gives you no access to anyone/.test(warning), `the page does not say that a post is permanent and grants nothing: ${warning}`);
+    const name = `gate-${RUN_ID.replace(/\D/g, "")}`;
+    const seriesId = keccak256(stringToHex(name));
+    const actionsBefore = publisher.actions();
+    await panel.locator('[data-testid="publish-series"]').fill(name);
+    await panel.locator('[data-testid="publish-prepare"]').click();
+    await page.locator('[data-testid="publish-review"], [data-testid="publish-error"]').first().waitFor({ timeout: 180000 });
+    const review = panel.locator('[data-testid="publish-review"]');
+    must((await review.count()) === 1, `no publication was prepared: ${await page.locator('[data-testid="publish-error"]').innerText().catch(() => "")}`);
+    must(publisher.actions() === actionsBefore && publisher.sent.length === 0, "preparing the publication asked the wallet to act");
+    await review.locator("details summary").click();
+    const rows = review.locator("[data-arg]");
+    const args = {};
+    for (let index = 0; index < (await rows.count()); index++) args[await rows.nth(index).getAttribute("data-arg")] = await visibleText(rows.nth(index).locator("[data-arg-raw]"));
+    const shown = { from: await visibleText(review.locator('[data-testid="publish-from"]')), to: await visibleText(review.locator('[data-testid="publish-to"]')), contentHash: await visibleText(review.locator('[data-testid="publish-hash"]')), args, calldata: await visibleText(review.locator('[data-testid="publish-calldata"]')) };
+    const labels = labelsOf(CURATED[profile]);
+    must(same(shown.to, PIN.address) && same(shown.from, publisher.address) && shown.contentHash === hash && args.seriesId === seriesId && args.expectedVersion === "1" && args.targetChainId === "1952" && args.adapterVersion === labels.adapterVersion && args.policyKey === labels.policyKey && args.canonicalJson === `${((bytes.length - 2) / 2).toLocaleString("en-US")} bytes`, `the review does not show the publication that is expected: ${JSON.stringify({ ...shown, calldata: undefined })}`);
+    const reviewShot = await shot(page, "reg-publish-1-review", '[data-testid="strategy-publish"]');
+    await freshHead();
+    await panel.locator('[data-testid="publish-sign"]').click();
+    for (let waited = 0; publisher.sent.length === 0; waited += 500) {
+      if (waited > 300000 || (await count(page, '[data-testid="strategy-publish"] [data-rejection]'))) throw new CheckFailed(`the publication was not sent: ${(await panel.locator('[data-testid="tx-feedback"]').innerText().catch(() => "the wallet was never asked")).slice(0, 400)}`);
+      await page.waitForTimeout(500);
+    }
+    const sent = publisher.sent[0].hash;
+    const receipt = await chain.waitForTransactionReceipt({ hash: sent, timeout: 300000 });
+    const tx = await chain.getTransaction({ hash: sent });
+    must(receipt.status === "success" && publisher.sent.length === 1, "the publication reverted, or more than one transaction was sent");
+    must(tx.input === shown.calldata && same(tx.to, PIN.address) && same(tx.from, publisher.address) && tx.value === 0n, "the mined transaction is not the one that was shown");
+    const decoded = decodeFunctionData({ abi: REGISTRY_ABI, data: tx.input });
+    must(decoded.functionName === "publish" && decoded.args[0] === seriesId && Number(decoded.args[1]) === 1 && decoded.args[2] === 1952n && decoded.args[3] === labels.adapterVersion && decoded.args[4] === labels.policyKey && decoded.args[5] === bytes, "the mined call is not publish() of the canonical bytes under the shown series, version and labels");
+    // It stores text and does nothing else: the only event is the registry's own, naming the sender as creator.
+    const events = parseEventLogs({ abi: REGISTRY_ABI, logs: receipt.logs });
+    must(receipt.logs.length === 1 && events.length === 1 && same(receipt.logs[0].address, PIN.address) && events[0].eventName === "StrategyPublished" && same(events[0].args.creator, publisher.address) && events[0].args.contentHash === hash, "the publication emitted something else than one StrategyPublished event from the registry");
+    appTransactions.push({ wallet: publisher.label, label: "publish the curated swap strategy through the app", hash: sent, block: String(receipt.blockNumber), method: "publish" });
+    // Before the confirmations the page must not say it was read back.
+    const back = page.locator('[data-testid="publish-readback"]');
+    await back.waitFor({ timeout: 60000 });
+    await page.waitForTimeout(1500);
+    const early = await back.getAttribute("data-state");
+    must(early !== "verified" && /Not read back yet/.test(await back.innerText()), `the page calls the publication read back before its confirmations (state "${early}")`);
+    const blocks = PIN.confirmations + 1;
+    await jsonRpc(RPC, "anvil_mine", [`0x${blocks.toString(16)}`]);
+    forkOnly.push({ cheat: "anvil_mine", blocks, why: "the publication made through the app needs its confirmations before the page reads it back" });
+    await page.locator('[data-testid="publish-readback"][data-state="verified"]').waitFor({ timeout: 120000 });
+    must((await back.getAttribute("data-hash")) === hash && (await back.getAttribute("data-version")) === "1" && (await back.getAttribute("data-block")) === String(receipt.blockNumber) && same(await back.getAttribute("data-creator"), publisher.address), "the page read back another publication than the one it sent");
+    const readBackText = (await visibleText(back)).replace(/\s+/g, " ");
+    const stored = await read(PIN.address, REGISTRY_ABI, "readVersion", [publisher.address, seriesId, 1]);
+    must(stored[3] === hash && stored[4] === bytes && String(await read(PIN.address, REGISTRY_ABI, "latestVersion", [publisher.address, seriesId])) === "1", "the registry does not hold the published bytes as version 1");
+    const readBackShot = await shot(page, "reg-publish-2-read-back", '[data-testid="strategy-publish"]');
+    const href = await page.locator('[data-testid="publish-link"]').getAttribute("href");
+    // Another wallet: the direct link verifies, and Discover lists it under the publisher's address.
+    const other = await newPage(reader);
+    let seen;
+    try {
+      await other.goto(`${base}${href}`, { waitUntil: "networkidle" });
+      await connectWallet(other);
+      const notice = other.locator('[data-testid="strategy-published"]');
+      await notice.waitFor({ timeout: 90000 });
+      must((await notice.getAttribute("data-hash")) === hash && same(await notice.getAttribute("data-creator"), publisher.address) && (await notice.getAttribute("data-version")) === "1", "another wallet does not see the publication verified");
+      await openDiscover(other, base);
+      const card = other.locator(`[data-testid="published-card"][data-creator="${publisher.address}" i][data-series="${seriesId}"][data-version="1"]`);
+      must((await card.count()) === 1 && (await card.getAttribute("data-hash")) === hash && same(await visibleText(card.locator('[data-testid="published-creator"]')), publisher.address), "Discover does not list the publication under the publisher's address");
+      seen = { byWallet: reader.address, directLink: href, verifiedThere: true, listedOnDiscoverUnderThePublisher: true };
+    } finally {
+      await other.close();
+    }
+    for (const each of TEMPLATES) must(same(await target(each, publisher.address).accountOf(), zeroAddress), "publishing created an account");
+    return { publisher: publisher.address, seriesName: name, seriesId, version: 1, contentHash: hash, warningShownBeforeSigning: warning.split("\n")[0], shown: { ...shown, calldata: `${shown.calldata.slice(0, 74)}… (${(shown.calldata.length - 2) / 2} bytes, compared in full)` }, mined: { hash: sent, block: String(receipt.blockNumber), to: tx.to, from: tx.from, value: "0", gasUsed: String(receipt.gasUsed), inputEqualsShownCalldata: true, events: ["StrategyPublished (registry)"] }, beforeConfirmations: { pageState: early }, readBack: { pageState: "verified", text: readBackText.slice(0, 300), registryReadVersion: { contentHash: stored[3], bytesEqualThePublishedBytes: true } }, seenByAnotherWallet: seen, publisherOwnsNoAccountBeforeOrAfter: true, screenshots: [reviewShot, readBackShot] };
+  } finally {
+    await page.close();
+  }
+}
+
 /* ---------- properties 2 to 6 for one wallet and one template, on the exact build ---------- */
 
 async function scenario(base, wallet, profile, attacker) {
@@ -1142,6 +1234,10 @@ async function scenario(base, wallet, profile, attacker) {
 /* ---------- run ---------- */
 
 const wallets = { owner: await openWallet("demo owner", DEMO_OWNER), fresh: await openWallet("fresh wallet", randomAddress()) };
+/** Publishes once through the app. Not an adopter: it is not part of the matrix. */
+const publisher = await openWallet("publisher wallet", randomAddress());
+/** Supporting checks that an evidence run must contain, passed. */
+const REQUIRED_SUPPORTING = ["ui-publication-read-back-verified"];
 const scenarios = [];
 let crash = null;
 const noCode = randomAddress();
@@ -1232,6 +1328,9 @@ try {
         scenarios.push(await registryScenario(base, wallet, profile));
       }
     }
+    console.log("\n-- registry, publishing through the app");
+    await fund(publisher.address, "the publisher wallet pays gas for its one publication; it holds nothing else and owns no account");
+    await check(0, "restricted-swap-v2", publisher, "ui-publication-read-back-verified", () => uiPublication(base, publisher, wallets.owner), "registry");
   });
 } catch (error) {
   crash = String(error?.stack ?? error).slice(0, 2000);
@@ -1260,7 +1359,8 @@ for (const source of SOURCES) {
   }
 }
 const supporting = checks.filter((entry) => entry.property === 0);
-const allPass = matrix.every((cell) => cell.result === "PASS") && supporting.every((entry) => entry.pass) && crash === null && pageProblems.length === 0;
+const supportingMissing = REQUIRED_SUPPORTING.filter((name) => !supporting.some((entry) => entry.name === name));
+const allPass = matrix.every((cell) => cell.result === "PASS") && supporting.every((entry) => entry.pass) && supportingMissing.length === 0 && crash === null && pageProblems.length === 0;
 const endHead = await chain.getBlock();
 const result = DEVELOPMENT_RUN ? `DEVELOPMENT RUN (not evidence): ${allPass ? "the phases that ran passed" : "FAILED"}` : allPass ? (tree.buildInputsClean ? "PASSED" : `PASSED, PROVISIONAL: these build inputs differed from HEAD when the gate ran: ${dirtyInputs.join(", ")}`) : "FAILED";
 const file = join(OUT, `strategy-gate-${RUN_ID}.json`);
@@ -1280,7 +1380,9 @@ writeFileSync(
       driver: "Playwright Chromium, a production build served by next start on loopback, and an injected test EIP-1193 provider that reports an address and forwards to the fork, which signs by impersonation. No private key exists anywhere in this run.",
       builds,
       tamperedManifestCopies: tampered.map(({ dir, ...entry }) => entry),
-      wallets: { "demo owner": { address: wallets.owner.address, note: "the public demo owner; owns the public v1 and v2 accounts" }, "fresh wallet": { address: wallets.fresh.address, note: "generated for this run; owned no Sentinel account at the start (both factories asked); gas by anvil_setBalance" } },
+      wallets: { "demo owner": { address: wallets.owner.address, note: "the public demo owner; owns the public v1 and v2 accounts" }, "fresh wallet": { address: wallets.fresh.address, note: "generated for this run; owned no Sentinel account at the start (both factories asked); gas by anvil_setBalance" }, "publisher wallet": { address: publisher.address, note: "generated for this run; publishes one strategy through the app and owns no account; gas by anvil_setBalance. Not an adopter: not in the matrix" } },
+      supportingRequired: REQUIRED_SUPPORTING,
+      supportingMissing,
       properties: PROPERTY,
       sources: SOURCE_TEXT,
       registry: {
@@ -1318,6 +1420,7 @@ for (const source of SOURCES) {
   }
 }
 for (const entry of supporting) console.log(`supporting: ${entry.pass ? "PASS" : "FAIL"} ${entry.name} (${entry.template}, ${entry.wallet})`);
+for (const name of supportingMissing) console.log(`supporting: NOT RUN ${name}`);
 console.log(`${result}. ${appTransactions.length} app transactions, ${scriptSent.length} script-sent operator transactions, ${pageProblems.length} page problem(s).`);
 console.log(`Evidence: ${file}\nScreenshots kept as evidence: ${SHOTS}\nOther screenshots (temporary): ${SCRATCH}`);
 process.exit(allPass ? 0 : 1);
