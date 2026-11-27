@@ -1,6 +1,6 @@
 # Peridot X Layer — rules for every agent working in this repo
 
-The master specification is `/Users/joshua/Peridot/OKX/PERIDOT_XLAYER_CLAUDE_HANDOFF.md`. Read it in full before your first change. This file sets the operating rules that apply to every agent.
+Paths outside the repo are written relative to the repo root. On the founder's machine the repo sits in an `OKX/` folder inside the Peridot workspace, so `../` is that `OKX/` folder and `../../` is the workspace. The master specification is `../PERIDOT_XLAYER_CLAUDE_HANDOFF.md`. Read it in full before your first change. This file sets the operating rules that apply to every agent.
 
 ## Roles (actual runtime, verified 2026-11-25)
 - **Claude (orchestrator)** runs Claude Code on `claude-opus-5-5`. It owns integration, merges, milestone acceptance, `STATUS.md`, `DECISIONS.md` and founder reports.
@@ -10,18 +10,18 @@ The master specification is `/Users/joshua/Peridot/OKX/PERIDOT_XLAYER_CLAUDE_HAN
 
 ## Hard safety rules
 1. **Never read, list, cat, grep or copy anything outside this repo,** with three exceptions:
-   - read-only `git` operations on `/Users/joshua/Peridot/peridot-contracts-2-5` (`git show`, `git archive`, `git ls-tree`, `git log`, `git diff`) at a pinned commit;
+   - read-only `git` operations on `../../peridot-contracts-2-5` (`git show`, `git archive`, `git ls-tree`, `git log`, `git diff`) at a pinned commit;
    - the handoff file;
-   - the testnet key path below, and only through a shell variable.
+   - the testnet key directory `$PERIDOT_KEY_DIR` (on the founder's machine `../.testnet-keys`, outside the repo), and only through a shell variable.
 
-   Never touch `/Users/joshua/Peridot/secrets`, `.deployers`, any `.*-signer` directory, `private-keys`, `.env` files in other repos, `~/.ssh` or keychains. Prior Peridot keys were compromised on 2026-11-02, so treat everything outside this repo as sensitive.
+   Never touch `../../secrets`, `.deployers`, any `.*-signer` directory, `private-keys`, `.env` files in other repos, `~/.ssh` or keychains. Prior Peridot keys were compromised on 2026-11-02, so treat everything outside this repo as sensitive.
 2. **Testnet deployer:**
    - The address is `0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67`. It is a fresh key used only on chain 1952 testnet.
-   - Use the key only as `--private-key "$(cat /Users/joshua/Peridot/OKX/.testnet-keys/deployer.key)"` or by exporting an env var inside a shell command.
+   - Use the key only as `--private-key "$(cat "$PERIDOT_KEY_DIR/deployer.key")"` or by exporting an env var inside a shell command.
    - Never echo, print, log or commit it, and never put it in a manifest or the frontend.
    - Never use it on mainnet.
 3. **No mainnet transactions of any kind.** This includes fabrication, deployment, approval and transfer. Read-only mainnet RPC calls and `anvil --fork-url` forks are allowed.
-4. Do not modify other repositories under `/Users/joshua/Peridot`. Do not check out, add worktrees to, build in, or write to them.
+4. Do not modify other repositories in the workspace (`../../`). Do not check out, add worktrees to, build in, or write to them.
 5. **Git:**
    - Commit only your own paths, using explicit pathspecs (`git add <paths>`, never `git add -A` or `git add .`).
    - No force-push, no history rewrite, no branch deletion. Remote: private `joshschcom/peridot-sentinel` (to be transferred to PeridotFinance). **Only Claude pushes**; agents never push or add remotes.
