@@ -1,6 +1,6 @@
 # Peridot Sentinel strategy publication
 
-**Decision on November 27.** Go for a local deployment and a private 1952-fork rehearsal of one append-only publication contract. Public 1952 deployment requires Claude’s review and transaction. Until a verified public address and frontend acceptance exist, the shipped discovery paths are curated templates and file import/export. December 1–2 is reserved for Fable. A failed implementation gate by November 30 leaves registry discovery on the roadmap.
+**Public X Layer testnet.** Claude deployed the registry at `0xB1BE0326E007e2719CdBBd61D8E26356d39F28ed` in block 47,314,090. The testnet deployer published version 1 of both curated strategies. Both public RPCs returned identical verified content. Discover from the deployment block in pages of up to 100 confirmed blocks. Fable owns browser integration. [Reviewed public pin](../packages/chain-config/deployments/strategy-registry-1952.json) · [Publications and read-only owner reviews](../evidence/session10-registry/discovery.json)
 
 ## Publication and retrieval
 
@@ -29,7 +29,7 @@ The contract has three callable functions. `publish` takes the series, expected 
 
 ## November 27 acceptance and handoff
 
-**Ready for Claude's public-deployment review.** The registry was at `0xA11012A2ca9AdeeA836560A267A183966a4092c1` on the two disposable nodes. Both used the same fixture creator and creation nonce. The fork originated at block **47,313,472**. Two independent testnet RPCs agreed on origin hash `0xb4fa171115bd0e2ec0ae534ba1e4e339ba8ba9a41cb642a6e08aae8e5a16c7bd` and returned empty public code at that address at the origin. **Public 1952 registry deployment is pending.** [Local proof](../evidence/session9-registry/nov27/local-31337.json) · [1952 FORK receipts and adoption](../evidence/session9-registry/nov27/fork-1952.json)
+**Session 9 private rehearsal.** The registry was at `0xA11012A2ca9AdeeA836560A267A183966a4092c1` on the two disposable nodes. Both used the same fixture creator and creation nonce. The fork originated at block **47,313,472**. Two independent testnet RPCs agreed on origin hash `0xb4fa171115bd0e2ec0ae534ba1e4e339ba8ba9a41cb642a6e08aae8e5a16c7bd` and returned empty public code at that address at the origin. [Local proof](../evidence/session9-registry/nov27/local-31337.json) · [1952 FORK receipts and adoption](../evidence/session9-registry/nov27/fork-1952.json)
 
 | Action on the private 1952 fork | Canonical JSON bytes | Transaction data bytes | Gas used | Execution fee in simulated test OKB |
 | --- | ---: | ---: | ---: | ---: |

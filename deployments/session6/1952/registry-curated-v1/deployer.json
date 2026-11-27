@@ -1,0 +1,34 @@
+{
+  "profile": "public testnet",
+  "chainId": 1952,
+  "actor": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+  "steps": {
+    "debt-protection-v1": {
+      "to": "0xB1BE0326E007e2719CdBBd61D8E26356d39F28ed",
+      "dataHash": "0x57c97319045fe0bb3ffbd783dc14545e54788f2866a98bb1e31f58dc10d4d708",
+      "value": "0",
+      "expected": "success",
+      "nonce": 103,
+      "gasLimit": "1439023",
+      "hash": "0x356c55ed170d00420f47c2e80e51bbaf3e4588fa0f2e0d50d7ddb7f628d57992",
+      "status": "success",
+      "block": "47314279",
+      "blockHash": "0x94fb6d2c7081940c5e23ade7fe43b54b47e28c47b37370af67e91438ec3554c7",
+      "gasUsed": "1047288"
+    },
+    "restricted-swap-v2": {
+      "to": "0xB1BE0326E007e2719CdBBd61D8E26356d39F28ed",
+      "dataHash": "0x2de62d4077dba0cd3abad7595fca6131250d6642bedde4eff50d790968d5db63",
+      "value": "0",
+      "expected": "success",
+      "nonce": 104,
+      "gasLimit": "1530776",
+      "hash": "0xa0a8274fe5166b349727be52263fad9cc921a876f19e00039be4b8d0f8dc457e",
+      "status": "success",
+      "block": "47314291",
+      "blockHash": "0x65c54e2faae1b39cbcd60a8af3dbeda402b1c679717b2be4bddecf8d419fdcd7",
+      "gasUsed": "1115561"
+    }
+  },
+  "data": {}
+}

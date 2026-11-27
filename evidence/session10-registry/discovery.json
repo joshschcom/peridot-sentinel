@@ -1,0 +1,123 @@
+{
+  "kind": "public-testnet-strategy-discovery",
+  "chainId": 1952,
+  "registry": "0xB1BE0326E007e2719CdBBd61D8E26356d39F28ed",
+  "journal": "deployments/session6/1952/registry-curated-v1/deployer.json",
+  "verifiedAt": "2026-11-27T09:53:13.119Z",
+  "witnesses": [
+    {
+      "url": "https://testrpc.xlayer.tech",
+      "head": "47314320",
+      "successors": "29"
+    },
+    {
+      "url": "https://xlayertestrpc.okx.com",
+      "head": "47314319",
+      "successors": "28"
+    }
+  ],
+  "fromBlock": "47314090",
+  "toBlock": "47314291",
+  "blockHash": "0x65c54e2faae1b39cbcd60a8af3dbeda402b1c679717b2be4bddecf8d419fdcd7",
+  "pages": [
+    {
+      "fromBlock": "47314090",
+      "toBlock": "47314189",
+      "toBlockHash": "0xc3840d75f41b32283ebe20dbb2cb811f9d4d32d2bd6dfbf0cf3ee3e9ebd87887",
+      "accepted": 0,
+      "rejected": 0
+    },
+    {
+      "fromBlock": "47314190",
+      "toBlock": "47314289",
+      "toBlockHash": "0xf73c26d1d5bdb79b287c8a4793ccbdc7ea6221d4e23a971dce453089a098ba28",
+      "accepted": 1,
+      "rejected": 0
+    },
+    {
+      "fromBlock": "47314290",
+      "toBlock": "47314291",
+      "toBlockHash": "0x65c54e2faae1b39cbcd60a8af3dbeda402b1c679717b2be4bddecf8d419fdcd7",
+      "accepted": 1,
+      "rejected": 0
+    }
+  ],
+  "verified": [
+    {
+      "profile": "debt-protection-v1",
+      "creator": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+      "seriesId": "0x6f84ba19c0dacee0ddbec3bd4f6a3eafc32b3fe3d4f6a65c7333a19b431bfe3c",
+      "version": 1,
+      "contentHash": "0x7513d5f4afc6485d0cfcb77818171301e93bb698c2922357b27566d5647ff7f2",
+      "targetChainId": "1952",
+      "adapterVersion": "0x04b5d965b2f6e2b368a2db256ac145805cd378791b27d5e5d19d0fb64f476dcc",
+      "policyKey": "0x3a3a9206ce7f8125287f2dfddcc1a2fdda378a5ab283aab4a7e764b755957604",
+      "canonicalBytes": 1260,
+      "transactionHash": "0x356c55ed170d00420f47c2e80e51bbaf3e4588fa0f2e0d50d7ddb7f628d57992",
+      "nonce": 103,
+      "block": "47314279",
+      "blockHash": "0x94fb6d2c7081940c5e23ade7fe43b54b47e28c47b37370af67e91438ec3554c7",
+      "logIndex": 0,
+      "gasUsed": "1047288",
+      "effectiveGasPrice": "20000001",
+      "executionFeeWei": "20945761047288",
+      "ownerPreview": {
+        "kind": "unsigned owner review",
+        "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "account": "0xAD7c0077CbdDe5CbBcDD207F612B124f0c3776A0",
+        "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+        "reviewId": "0xdb27fa57b77719cf1193f49c810a17f52525f72936f196141c43f5f5256636ee",
+        "currentGrant": {
+          "mask": 8,
+          "perCallRaw": null,
+          "remainingRaw": "0",
+          "expiry": "1796305268"
+        },
+        "warnings": [
+          "Changing the account-wide trigger affects every existing repay operator. V1 cannot enumerate all operators on-chain. Check historical grants before confirming this change.",
+          "setOperator replaces the selected operator’s entire mask, expiry and remaining budget."
+        ],
+        "unsignedMethods": [],
+        "eventualGrantMethod": "setOperator"
+      }
+    },
+    {
+      "profile": "restricted-swap-v2",
+      "creator": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+      "seriesId": "0xe14f75db943cd69c5bcc0283dd75e671c3f88b17414af100d51e13caa6373965",
+      "version": 1,
+      "contentHash": "0x94decccab381efa610678332af9cb190a9e9feee7211e2b7cc5089d8d43ed301",
+      "targetChainId": "1952",
+      "adapterVersion": "0x4c67d56e5fc5a496213ae3b235344d1ed3253bd680e4e6d628e4073ec9e026fd",
+      "policyKey": "0xea4eef29c91ed8a5a6353d38af3e23a59008f8f430e281bf74b47af3897d7a60",
+      "canonicalBytes": 1368,
+      "transactionHash": "0xa0a8274fe5166b349727be52263fad9cc921a876f19e00039be4b8d0f8dc457e",
+      "nonce": 104,
+      "block": "47314291",
+      "blockHash": "0x65c54e2faae1b39cbcd60a8af3dbeda402b1c679717b2be4bddecf8d419fdcd7",
+      "logIndex": 0,
+      "gasUsed": "1115561",
+      "effectiveGasPrice": "20000001",
+      "executionFeeWei": "22311221115561",
+      "ownerPreview": {
+        "kind": "unsigned owner review",
+        "owner": "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "account": "0x7dC8DD13f3C73DaeecAa37cB1f321A08AF741b5f",
+        "operator": "0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88",
+        "reviewId": null,
+        "currentGrant": {
+          "mask": null,
+          "perCallRaw": "0",
+          "remainingRaw": "0",
+          "expiry": "0"
+        },
+        "warnings": [],
+        "unsignedMethods": [
+          "setGrant"
+        ],
+        "eventualGrantMethod": "setGrant"
+      }
+    }
+  ],
+  "adoptionTransactionsSubmitted": 0
+}

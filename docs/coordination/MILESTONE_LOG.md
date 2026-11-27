@@ -1696,3 +1696,19 @@ manifest: ["evidence/session9-release/shared-preview.json (preview only)", "evid
 frontend_actions: ["M10-activity-recovery and M10-browser-activity-coverage describe the retained receipts and gap display. The final refresh also rejects adjacent independent segments and malformed starting hashes before replacing any output. Fable owns browser acceptance for pruned RPCs; public registry UI should wait for Claude’s separate public pin."]
 next_dependency: "Founder signing and Claude's verified public receipt sequence; independent Claude review of public 1952 registry deployment. Claude owns the checkpoint."
 ```
+
+```yaml
+milestone: M10-strategy-registry-ready
+from: astra
+status: testnet_verified
+commit: "Registry source acaafba; Claude’s deployment evidence 1b3ac4a. Session 10 working tree for Claude."
+chain_id: 1952
+specialists: ["A5 verified the deployment and published the frontend pin and read-only verifier", "A4 independently verified both discovery results, receipt events, raw records and unsigned owner reviews", "Astra published the two curated versions, reconciled nonces and receipts, and verified costs"]
+contracts: ["StrategyRegistry = 0xB1BE0326E007e2719CdBBd61D8E26356d39F28ed; runtime keccak256 = 0xc8f42e779cd1e1c1b7436a8f75ad9acf7da98f8fb947a8dd6b90f79f612f29b1"]
+manifest: "@peridot/chain-config/deployments/strategy-registry-1952.json (packages/chain-config/deployments/strategy-registry-1952.json); convert deploymentBlock to BigInt for the SDK"
+abi_version: "packages/chain-config/expansion/abi/StrategyRegistry.json"
+new_functions: ["@peridot/strategy-sdk/registry: discoverPublishedStrategies, readPublishedStrategy, verifyStrategyPublication, buildStrategyPublication (unsigned)", "@peridot/strategy-sdk: buildAdoptionPlan and buildRevocationPlan (unsigned owner transactions)"]
+verification: ["Public creation tx 0x6c63df20779831a7c5e510a39198332917c467573b62fd8f9ad7ac1229e1f28d, block 47314090, matched both RPCs with 150 successors in saved pin evidence.", "Creator 0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67. debt-protection-v1 version 1, nonce 103, block 47314279, tx 0x356c55ed170d00420f47c2e80e51bbaf3e4588fa0f2e0d50d7ddb7f628d57992. restricted-swap-v2 version 1, nonce 104, block 47314291, tx 0xa0a8274fe5166b349727be52263fad9cc921a876f19e00039be4b8d0f8dc457e.", "Deployment-to-publication scan 47314090–47314291 inclusive on both public RPCs: three pages, two accepted, zero rejected. Raw stored bytes, canonical hashes, labels, calldata and receipt events matched. Evidence: evidence/session10-registry/discovery.json. Zero public adoptions or grants."]
+frontend_actions: ["Scan from deployment block 47314090 inclusive in pages of up to 100 blocks through head minus 12. Start from the reviewed pin. Show the creator address and immutable version for every item. Treat agentInstructions as inert, untrusted text.", "Offer adoption only after chain, registry runtime, event identity, raw content hash, canonical bytes, validator and index metadata pass. Use discoverPublishedStrategies or readPublishedStrategy for provenance; verifyStrategyPublication checks the content. On an unavailable page, report the missing range. A known publication key can still use readPublishedStrategy.", "Adoption is a separate review using buildAdoptionPlan with the connected owner’s account and the operator they select. Display the actual permission, budget, expiry and any replacement warning before the owner signs. Import or publication grants no authority."]
+next_dependency: "Fable owns browser acceptance against this verified public pin. Claude owns the checkpoint."
+```
