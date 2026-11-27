@@ -1,7 +1,8 @@
 "use client";
 /**
- * Discover (DECISIONS D23): the curated strategy templates. Every card is one of the SDK's own templates, bound to
- * contracts deployed on X Layer testnet. There is no performance, yield, TVL, user count or creator earning on this
+ * Discover (DECISIONS D23): the curated strategy templates, then what anyone has published to the public strategy
+ * registry (discover-published.tsx), then what is planned. Every curated card is one of the SDK's own templates, bound
+ * to contracts deployed on X Layer testnet. There is no performance, yield, TVL, user count or creator earning on this
  * page, because none exists: the assets are test tokens and nobody has earned anything.
  * A label is derived from what this build lets a user do with the template (src/lib/strategy.ts), never typed in.
  */
@@ -15,6 +16,7 @@ import { explorerTxUrl } from "@/lib/chains";
 import { EVIDENCE } from "@/lib/evidence";
 import { EXPANSION } from "@/lib/expansion";
 import { shortHash } from "@/lib/format";
+import { PublishedBand } from "./discover-published";
 import { CURATED, type CheckedStrategy, STRATEGY_AVAILABILITY_LABEL, modeLabel, templateAvailability, templateFacts } from "@/lib/strategy";
 
 export function Discover() {
@@ -51,6 +53,9 @@ export function Discover() {
           ))}
         </ul>
       </section>
+
+      {/* Third tier: what anyone has posted to the public registry. Rendered only when this build reads it. */}
+      <PublishedBand />
 
       <section aria-labelledby="discover-labels" className="rounded-card border border-line p-5 sm:p-6">
         <h2 id="discover-labels" className="text-base font-semibold tracking-tight">What the labels mean</h2>

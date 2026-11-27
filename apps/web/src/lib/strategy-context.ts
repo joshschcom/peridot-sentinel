@@ -7,6 +7,7 @@ import { RUNTIME, FORCE_FIXTURE } from "../services/runtime.ts";
 import { TARGET_KIND } from "./chains.ts";
 import { EXPANSION } from "./expansion.ts";
 import type { AvailabilityContext } from "./strategy.ts";
+import { REGISTRY_SWITCHES, type RegistryPinFile, parseRegistryPin } from "./strategy-registry.ts";
 import { parseV2OwnerTarget } from "./v2-target.ts";
 
 export const STRATEGY_CONTEXT: AvailabilityContext = {
@@ -16,6 +17,15 @@ export const STRATEGY_CONTEXT: AvailabilityContext = {
   // the network label, the explorer links and the faucet link, and no switch.
   v2: EXPANSION.manifest.status === "ok" ? EXPANSION.manifest.value : null,
 };
+
+/**
+ * The public strategy registry this build reads, or null: its switch is off, the build is not reading X Layer testnet,
+ * or it carries no valid reviewed pin. Null means the registry is not mentioned anywhere in the app.
+ */
+const REGISTRY_PARSED = parseRegistryPin(RAW_CONFIG.registry.json);
+export const REGISTRY_PIN: RegistryPinFile | null = REGISTRY_SWITCHES.discover && STRATEGY_CONTEXT.testnetLive && REGISTRY_PARSED.status === "ok" ? REGISTRY_PARSED.value : null;
+/** Publishing from this app: its own switch, and only where the registry is read. */
+export const REGISTRY_PUBLISH_ON: boolean = REGISTRY_PIN !== null && REGISTRY_SWITCHES.publish;
 
 /**
  * The Sentinel v2 deployment an owner can act on in this build (base account and vault sibling), parsed once here so

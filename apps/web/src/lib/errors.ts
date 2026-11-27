@@ -289,8 +289,8 @@ const TABLE: Record<string, Entry> = {
     title: "Operation blocked while another is running",
     message: "The swap adapter refuses a call that re-enters it during a swap.",
   },
-  // Strategy registry (packages/chain-config/expansion/abi/StrategyRegistry.json). This app does not call the
-  // registry: no public deployment exists. The names are mapped so that the ABI coverage test stays total.
+  // Strategy registry (packages/chain-config/expansion/abi/StrategyRegistry.json), public on 1952 since session 10.
+  // The app reads it (Discover, services/chain/registry.ts); these are the reverts of its one write, publish().
   EmptyIdentity: {
     category: "protocol",
     title: "Publication is missing an identity",

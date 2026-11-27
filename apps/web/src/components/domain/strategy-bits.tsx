@@ -32,12 +32,12 @@ export function StrategyBadge({ status, label }: { status: StrategyAvailability;
  * Free text of a template (name, description, objective, instructions). It may come from a file a stranger wrote, so
  * it is rendered as a plain text node, wrapped, never interpreted, never linked, and visibly attributed.
  */
-export function TemplateText({ label, text, untrusted }: { label: string; text: string; untrusted: boolean }) {
+export function TemplateText({ label, text, untrusted, source = "imported" }: { label: string; text: string; untrusted: boolean; source?: "imported" | "published" }) {
   return (
     <div>
       <div className="text-[0.8125rem] text-muted">
         {label}
-        {untrusted ? <span className="text-warning"> · imported text, shown exactly as written</span> : null}
+        {untrusted ? <span className="text-warning"> · {source} text, shown exactly as written</span> : null}
       </div>
       <p className="mt-0.5 text-sm break-words whitespace-pre-wrap" data-template-text={label.toLowerCase()}>
         {text}

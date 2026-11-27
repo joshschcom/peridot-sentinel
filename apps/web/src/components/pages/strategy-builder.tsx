@@ -2,7 +2,8 @@
 /**
  * Create, import, export and adopt a strategy (DECISIONS D23).
  *
- *   choose    one of the SDK's curated templates, or a template the user imported (untrusted);
+ *   choose    one of the SDK's curated templates, a template the user imported (untrusted), or one publication of
+ *             the public strategy registry, named by `?published=` and re-read and re-verified here (untrusted);
  *   adjust    only the fields the schema leaves open; every change goes back through the SDK's validator;
  *   review    the SDK reads the chain and returns the exact, unsigned owner transactions;
  *   sign      one transaction at a time, by the connected owner, and only what was reviewed.
@@ -14,7 +15,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { isAddress } from "viem";
 import { StrategyBadge, TemplateFacts, TemplateIdentity, TemplateText } from "@/components/domain/strategy-bits";
-import { STRATEGY_CONTEXT } from "@/lib/strategy-context";
+import { REGISTRY_PIN, STRATEGY_CONTEXT } from "@/lib/strategy-context";
+import { type PublicationKey, parsePublicationKey, rejectionMeaning } from "@/lib/strategy-registry";
+import { type PublicationRead, readPublication } from "@/services/chain/registry";
 import { TxFeedback } from "@/components/domain/tx-feedback";
 import { Advanced, Button, Card, CardHeader, Mono, Notice, Skeleton, cx } from "@/components/ui/core";
 import { IconAlert, IconLock, IconShield } from "@/components/ui/icons";
@@ -37,18 +40,37 @@ const LIFETIMES = [
   { seconds: 604_800, label: "7 days" },
 ];
 
-type Choice = "debt-protection-v1" | "restricted-swap-v2" | "imported";
+type Choice = "debt-protection-v1" | "restricted-swap-v2" | "imported" | "published";
 
 export function StrategyBuilder() {
   const [imported, setImported] = useState<CheckedStrategy | null>(null);
   const [choice, setChoice] = useState<Choice>("debt-protection-v1");
+  const [publishedKey, setPublishedKey] = useState<PublicationKey | null>(null);
   useEffect(() => {
     // `?template=` comes from Discover. Read after mount so the page can still be prerendered. Only a known profile
     // name is accepted; anything else is ignored.
-    const wanted = new URLSearchParams(window.location.search).get("template");
+    const query = new URLSearchParams(window.location.search);
+    const wanted = query.get("template");
     if (wanted === "debt-protection-v1" || wanted === "restricted-swap-v2") setChoice(wanted);
+    // `?published=` comes from Discover's registry tier. It only says where to read: what is shown comes from the chain.
+    const key = REGISTRY_PIN ? parsePublicationKey(query.get("published"), query.get("at")) : null;
+    if (key) {
+      setPublishedKey(key);
+      setChoice("published");
+    }
   }, []);
-  const base = choice === "imported" ? imported : (CURATED.find((entry) => entry.template.profile === choice) ?? null);
+  // The publication is read again here, from the registry, with every check the SDK makes. Only "verified" yields a
+  // template; a block that is not confirmed yet is asked again until it is.
+  const publication = useQuery({
+    queryKey: ["registry-publication", publishedKey?.creator, publishedKey?.seriesId, publishedKey?.version, publishedKey?.block.toString()],
+    queryFn: () => readPublication(REGISTRY_PIN!, publishedKey!),
+    enabled: REGISTRY_PIN !== null && publishedKey !== null,
+    staleTime: 60_000,
+    retry: 0,
+    refetchInterval: (query) => (query.state.data?.state === "pending" ? 4000 : false),
+  });
+  const published = publication.data?.state === "verified" ? publication.data.item : null;
+  const base = choice === "published" ? published : choice === "imported" ? imported : (CURATED.find((entry) => entry.template.profile === choice) ?? null);
 
   return (
     <div className="space-y-6" data-testid="strategy-builder" data-choice={choice}>
@@ -69,6 +91,17 @@ export function StrategyBuilder() {
                 </button>
               );
             })}
+            {publishedKey ? (
+              <button type="button" role="radio" aria-checked={choice === "published"} onClick={() => setChoice("published")} className={cx("rounded-control border p-4 text-left sm:col-span-2", choice === "published" ? "border-fg" : "border-line hover:border-line-strong")} data-testid="template-option-published" data-state={publication.data?.state ?? (publication.isError ? "unavailable" : "loading")}>
+                <span className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-medium">Published strategy · version {publishedKey.version}</span>
+                  <span className="text-xs text-warning">{published ? "Written by someone else · checked against the registry · cannot act until you sign" : "From the public registry · nothing is offered until it is verified"}</span>
+                </span>
+                <span className="mt-1.5 block text-xs text-muted">
+                  Published by <span className="font-mono break-all" data-testid="published-option-creator">{publishedKey.creator}</span>
+                </span>
+              </button>
+            ) : null}
             {imported ? (
               <button type="button" role="radio" aria-checked={choice === "imported"} onClick={() => setChoice("imported")} className={cx("rounded-control border p-4 text-left sm:col-span-2", choice === "imported" ? "border-fg" : "border-line hover:border-line-strong")} data-testid="template-option-imported">
                 <span className="flex flex-wrap items-center justify-between gap-2">
@@ -79,7 +112,8 @@ export function StrategyBuilder() {
               </button>
             ) : null}
           </div>
-          {base ? <Adopt key={`${choice}:${base.hash}`} base={base} untrusted={choice === "imported"} /> : <p className="text-sm text-muted">The curated templates are not available in this build.</p>}
+          {choice === "published" && publishedKey ? <PublishedSource publicationKey={publishedKey} read={publication.data ?? null} failed={publication.isError} /> : null}
+          {base ? <Adopt key={`${choice}:${base.hash}`} base={base} untrusted={choice === "imported" || choice === "published"} source={choice === "published" ? "published" : "imported"} /> : choice === "published" ? null : <p className="text-sm text-muted">The curated templates are not available in this build.</p>}
         </div>
       </Card>
       <ImportCard onImported={(strategy) => { setImported(strategy); setChoice("imported"); }} current={imported} />
@@ -89,7 +123,53 @@ export function StrategyBuilder() {
 
 /* ---------- parameters, review, signing ---------- */
 
-function Adopt({ base, untrusted }: { base: CheckedStrategy; untrusted: boolean }) {
+/**
+ * Where a published strategy stands. Verified: who published it, which version, where it was read, and that nothing
+ * was granted. Anything else: the reason, and no template, no form, no plan and no signature below it.
+ */
+function PublishedSource({ publicationKey, read, failed }: { publicationKey: PublicationKey; read: PublicationRead | null; failed: boolean }) {
+  const where = IS_PRIVATE_FORK ? "the registry on this private fork of X Layer testnet" : "the public strategy registry on X Layer testnet";
+  if (read?.state === "verified") {
+    const item = read.item;
+    return (
+      <Notice icon={<IconShield size={18} />} title="Loaded from the registry for review. No authority was granted." data-testid="strategy-published" data-hash={item.hash} data-creator={item.creator} data-series={item.seriesId} data-version={item.version} data-block={item.publishedBlock.toString()}>
+        This is version {item.version} of a strategy that the address below posted to {where}, in block {item.publishedBlock.toLocaleString("en-US")}. A version can never be changed. This page read it again from the registry and checked the registry&apos;s code, the publication event, the stored bytes and their hash, and that it is a valid strategy for this deployment. The publisher gets no access by publishing, and none if you adopt: you choose the operator and sign for your own account.
+        <span className="mt-1.5 block text-xs">
+          Published by <span className="font-mono break-all text-fg" data-testid="strategy-published-creator">{item.creator}</span>
+        </span>
+        <span className="mt-1 block text-xs">
+          Content hash <span className="font-mono break-all">{item.hash}</span>
+        </span>
+      </Notice>
+    );
+  }
+  const why = read?.state ?? (failed ? "unavailable" : "loading");
+  if (why === "loading" || why === "pending") {
+    return (
+      <div className="space-y-2 rounded-control border border-line p-4" data-testid="strategy-published-unavailable" data-why={why}>
+        <p className="text-sm text-muted">{why === "pending" && read && "reason" in read ? `Waiting for confirmations: ${read.reason}. Nothing is offered until then.` : `Reading the publication from ${where} and checking it…`}</p>
+        <Skeleton className="h-10" data-loading />
+      </div>
+    );
+  }
+  const title = why === "rejected" ? "This publication was rejected. It cannot be adopted." : why === "not-found" ? "No such publication. Nothing can be adopted." : why === "mismatch" ? "The registry could not be verified. Nothing can be adopted." : "The publication could not be read. Nothing can be adopted.";
+  return (
+    <Notice tone="warning" icon={<IconAlert size={18} />} title={title} data-testid="strategy-published-unavailable" data-why={why} data-reason={read?.state === "rejected" ? read.item.reason : ""}>
+      {read?.state === "rejected" ? (
+        <>
+          {rejectionMeaning(read.item.reason)} Check result: “{read.item.reason}”. Its text is not shown, because it did not pass as a strategy.
+        </>
+      ) : read && "reason" in read ? (
+        `${read.reason.charAt(0).toUpperCase()}${read.reason.slice(1)}.`
+      ) : (
+        "The network did not answer."
+      )}{" "}
+      Version {publicationKey.version}, posted by <span className="font-mono break-all">{publicationKey.creator}</span>. No plan is built and nothing can be signed from it. You can still pick a curated strategy above.
+    </Notice>
+  );
+}
+
+function Adopt({ base, untrusted, source = "imported" }: { base: CheckedStrategy; untrusted: boolean; source?: "imported" | "published" }) {
   const template = base.template;
   const asset = budgetAsset(template);
   const debt = template.profile === "debt-protection-v1";
@@ -115,9 +195,9 @@ function Adopt({ base, untrusted }: { base: CheckedStrategy; untrusted: boolean 
   return (
     <div className="space-y-5">
       <div className="space-y-3 rounded-control border border-line p-4">
-        <TemplateText label="Name" text={template.name} untrusted={untrusted} />
-        <TemplateText label="Objective" text={template.objective} untrusted={untrusted} />
-        <TemplateText label="Instructions for the agent" text={template.agentInstructions} untrusted={untrusted} />
+        <TemplateText label="Name" text={template.name} untrusted={untrusted} source={source} />
+        <TemplateText label="Objective" text={template.objective} untrusted={untrusted} source={source} />
+        <TemplateText label="Instructions for the agent" text={template.agentInstructions} untrusted={untrusted} source={source} />
         <p className="text-xs text-faint">Instructions are a note for whoever runs the operator. This app does not act on them, does not send them anywhere and no contract reads them. What binds the operator is the grant you sign.</p>
       </div>
 
@@ -173,6 +253,9 @@ function Adopt({ base, untrusted }: { base: CheckedStrategy; untrusted: boolean 
             <div className="mt-3">
               <TemplateIdentity strategy={strategy} />
             </div>
+            {source === "published" && untrusted && strategy.hash !== base.hash ? (
+              <p className="mt-2 text-xs text-warning" data-testid="strategy-published-edited">You changed the limits. What you review below is your version (the hash above), no longer the exact text that was published.</p>
+            ) : null}
           </div>
           <Review strategy={strategy} availability={availability} />
           <ExportPanel strategy={strategy} />
