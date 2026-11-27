@@ -258,11 +258,12 @@ function Coverage({ pin, ranges, pages, pagesRead, confirmed, busy, onMore, onRe
           </li>
         ))}
       </ul>
+      {notRead.length > 0 ? <p className="mt-2 text-xs text-faint">Reading on goes back from the latest block, {MORE_PAGES} pages at a time. A link to a publication always works, whatever was read here.</p> : null}
       {complete ? null : (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {notRead.length > 0 ? (
             <Button size="sm" variant="secondary" disabled={busy} onClick={onMore} data-testid="published-scan-more">
-              {busy ? "Reading…" : `Read ${MORE_PAGES} more pages, going back from the latest`}
+              {busy ? "Reading…" : `Read ${MORE_PAGES} more pages`}
             </Button>
           ) : null}
           {failed.length > 0 ? (
