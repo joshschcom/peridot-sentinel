@@ -179,6 +179,15 @@ for (const [width, scheme] of [[1440, "light"], [390, "dark"]]) {
       const cards = await page.locator('[data-testid="discover-card"]').evaluateAll((nodes) => nodes.map((node) => `${node.dataset.profile}:${node.dataset.availability}:${node.dataset.canSign}`));
       notes[`discover@${width}`] = cards;
       expect(cards.length === 2 && /Performance figures are not shown, because none exist yet/.test(main), `${tag}: Discover does not list the two curated templates with the no-metrics statement: ${JSON.stringify(cards)}`);
+      // The registry tier reads the public chain without a wallet. Whatever its state, it never offers a signature,
+      // and when it lists a strategy it shows who published it.
+      const tier = page.locator('[data-testid="discover-published"]');
+      if (await tier.count()) {
+        await page.locator('[data-testid="discover-published"]:not([data-state="loading"])').waitFor({ timeout: 120_000 }).catch(() => {});
+        const published = await page.locator('[data-testid="published-card"]').evaluateAll((nodes) => nodes.map((node) => `${node.dataset.profile}:v${node.dataset.version}:${node.querySelector('[data-testid="published-creator"]')?.innerText.trim()}`));
+        notes[`registry@${width}`] = { state: await tier.getAttribute("data-state"), published, coverage: await page.locator('[data-testid="published-coverage"] [data-coverage]').evaluateAll((nodes) => nodes.map((node) => `${node.dataset.coverage} ${node.dataset.from}-${node.dataset.to}`)) };
+        expect((await tier.getAttribute("data-state")) !== "loading" && published.every((entry) => /:v\d+:0x[0-9a-fA-F]{40}$/.test(entry)) && (await page.locator('[data-testid="strategy-sign"]').count()) === 0, `${tag}: the registry tier did not settle, or lists a strategy without its creator: ${JSON.stringify(notes[`registry@${width}`])}`);
+      }
     }
     if (path === "/strategies") {
       // Browsing never offers an enabled signature: the sign button exists only inside a review the user asked for.

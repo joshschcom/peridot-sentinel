@@ -343,6 +343,10 @@ if (mode === "wrong-network") {
   const judgeGuide = readFileSync(new URL("../../../docs/JUDGE_DEMO.md", import.meta.url), "utf8");
   const v2Demo = JSON.parse(readFileSync(new URL("../../../evidence/session6-v2/1952.json", import.meta.url), "utf8"));
   const rejectionsFile = JSON.parse(readFileSync(new URL("../../../evidence/session6-rejections/public-1952.json", import.meta.url), "utf8"));
+  // The public strategy registry: the reviewed pin, and the two publications Astra recorded (creator, series, version,
+  // content hash, block). The page must find exactly these by reading the public chain itself.
+  const registryPin = JSON.parse(readFileSync(new URL("../../../packages/chain-config/deployments/strategy-registry-1952.json", import.meta.url), "utf8"));
+  const registryEvidence = JSON.parse(readFileSync(new URL("../../../evidence/session10-registry/discovery.json", import.meta.url), "utf8"));
   const demoOwner = process.env.WATCH_ADDRESS ?? "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"; // public address from AGENTS.md; no key is used or needed
   const wallets = [{ name: "empty-wallet", address: account }, { name: "demo-owner-watch-only", address: demoOwner }];
   const only = process.env.ONLY_WALLET;
@@ -806,7 +810,64 @@ if (mode === "wrong-network") {
           // Inspecting a template shows its details without asking the wallet for anything.
           await page.locator('[data-testid="discover-inspect"]').first().click();
           expect((await page.locator('[data-testid="discover-details"]').count()) === 1 && (await overflow(page)) <= 0, `${tag}: the template details do not open, or overflow (${await overflow(page)}px)`);
+          // Third tier (run 8): what anyone published to the public strategy registry, read by this page from the
+          // public RPC. Expected values come from the reviewed pin and from evidence/session10-registry/discovery.json.
+          const tier = page.locator('[data-testid="discover-published"]');
+          await page.locator('[data-testid="discover-published"]:not([data-state="loading"])').waitFor({ timeout: 120_000 }).catch(() => {});
+          const registry = {
+            state: await tier.getAttribute("data-state").catch(() => null),
+            registry: await tier.getAttribute("data-registry").catch(() => null),
+            heading: (await page.locator("#discover-published").innerText().catch(() => "")).replace(/\s+/g, " ").trim(),
+            confirmed: await tier.getAttribute("data-confirmed").catch(() => null),
+            cards: await page.locator('[data-testid="published-card"]').evaluateAll((nodes) => nodes.map((node) => ({ creator: node.dataset.creator, series: node.dataset.series, version: node.dataset.version, hash: node.dataset.hash, block: node.dataset.block, profile: node.dataset.profile, availability: node.dataset.availability, canSign: node.dataset.canSign, creatorShown: node.querySelector('[data-testid="published-creator"]')?.innerText.trim() ?? null, versionShown: node.querySelector('[data-testid="published-version"]')?.innerText.trim() ?? null, adopt: node.querySelector('[data-testid="published-adopt"]')?.getAttribute("href") ?? null, links: [...node.querySelectorAll("a")].map((link) => link.getAttribute("href")), sameAsCurated: Boolean(node.querySelector('[data-testid="published-same-as-curated"]')) }))),
+            rejected: await page.locator('[data-testid="published-rejected"]').evaluateAll((nodes) => nodes.map((node) => ({ creator: node.dataset.creator, series: node.dataset.series, version: node.dataset.version, reason: node.dataset.reason, controls: node.querySelectorAll('a[href^="/"], button').length }))),
+            ranges: await page.locator('[data-testid="published-coverage"] [data-coverage]').evaluateAll((nodes) => nodes.map((node) => ({ status: node.dataset.coverage, from: node.dataset.from, to: node.dataset.to }))),
+            complete: await page.locator('[data-testid="published-coverage"]').getAttribute("data-complete").catch(() => null),
+            more: await page.locator('[data-testid="published-scan-more"]').count(),
+          };
+          notes.push({ wallet: who.name, width, registryTier: registry });
+          expect(registry.state === "verified" && registry.registry === registryPin.address && registry.heading.startsWith("Published on testnet"), `${tag}: the registry tier is ${JSON.stringify({ state: registry.state, registry: registry.registry, heading: registry.heading })}`);
+          for (const expected of registryEvidence.verified) {
+            const card = registry.cards.find((entry) => entry.creator?.toLowerCase() === expected.creator.toLowerCase() && entry.series === expected.seriesId && entry.version === String(expected.version));
+            const adopt = `/strategies?published=${expected.creator}:${expected.seriesId}:${expected.version}&at=${expected.block}#create`;
+            expect(card !== undefined && card.hash === expected.contentHash && card.block === String(expected.block) && card.profile === expected.profile, `${tag}: the recorded publication ${expected.profile} v${expected.version} is not listed with its recorded hash and block: ${JSON.stringify(card)}`);
+            // Creator in full, the immutable version, and no link built from published text: the adoption link is this
+            // app's own, the other two go to the documented explorer (creator address, publication transaction).
+            if (card) expect(card.creatorShown === expected.creator && /^Version 1 · cannot be changed/.test(card.versionShown ?? "") && (card.adopt === null ? card.availability !== "available" : card.adopt === adopt) && card.links.every((href) => href === adopt || href === `${DOCS_EXPLORER_ROOT}/address/${expected.creator}` || href === `${DOCS_EXPLORER_ROOT}/tx/${expected.transactionHash}`) && card.sameAsCurated, `${tag}: the published ${expected.profile} card does not show its creator and version, or links elsewhere: ${JSON.stringify(card)}`);
+            expect(!registry.rejected.some((entry) => entry.series === expected.seriesId), `${tag}: a recorded, verified publication is listed as rejected`);
+          }
+          // Anyone can post to a public registry, so other items may appear. Whatever is rejected carries no control.
+          expect(registry.rejected.every((entry) => entry.controls === 0 && (entry.reason ?? "") !== ""), `${tag}: a rejected publication carries a control or no reason: ${JSON.stringify(registry.rejected)}`);
+          // Coverage is stated block by block: from the deployment block through head − 12, without a hole; the first
+          // range was read and contains both recorded publications; what was not read is said, with a way to read on.
+          const contiguous = registry.ranges.length > 0 && registry.ranges[0].from === registryPin.deploymentBlock && registry.ranges.at(-1).to === registry.confirmed && registry.ranges.every((range, at) => at === 0 || BigInt(range.from) === BigInt(registry.ranges[at - 1].to) + 1n);
+          const unread = registry.ranges.filter((range) => range.status !== "read");
+          expect(contiguous && registry.ranges[0].status === "read" && registryEvidence.verified.every((expected) => BigInt(registry.ranges[0].to) >= BigInt(expected.block)) && (registry.complete === "true") === (unread.length === 0) && (registry.ranges.some((range) => range.status === "not-read") ? registry.more === 1 : true), `${tag}: the registry tier does not state what it read: ${JSON.stringify({ ranges: registry.ranges, complete: registry.complete, more: registry.more, confirmed: registry.confirmed })}`);
+          expect(registry.ranges.every((range) => BigInt(range.to) - BigInt(range.from) >= 0n), `${tag}: an empty coverage range`);
+          await page.locator('[data-testid="published-inspect"]').first().click();
+          expect((await page.locator('[data-testid="published-details"]').count()) === 1 && (await overflow(page)) <= 0, `${tag}: the published strategy's details do not open, or overflow (${await overflow(page)}px)`);
+          expect(wallet.sent.length + wallet.refused.length === 0, `${tag}: Discover asked the wallet for something`);
           await shot(page, `testnet-${who.name}-discover-${width}`);
+          if (who.name === "demo-owner-watch-only" && width === 1440) {
+            // From Discover to the review page, on the public chain, read-only: the publication is read again and
+            // verified, the SAME review is offered as for any template, and nothing is asked of the wallet.
+            const expected = registryEvidence.verified.find((entry) => entry.profile === "debt-protection-v1");
+            await page.locator(`[data-testid="published-card"][data-series="${expected.seriesId}"] [data-testid="published-adopt"]`).click();
+            const loaded = page.locator('[data-testid="strategy-published"]');
+            await loaded.waitFor({ timeout: 90_000 }).catch(() => {});
+            await page.locator('[data-testid="strategy-review"], [data-testid="strategy-review-unavailable"]').first().waitFor({ timeout: 90_000 }).catch(() => {});
+            const adoption = { hash: await loaded.getAttribute("data-hash").catch(() => null), creator: await loaded.getAttribute("data-creator").catch(() => null), version: await loaded.getAttribute("data-version").catch(() => null), block: await loaded.getAttribute("data-block").catch(() => null), choice: await page.locator('[data-testid="strategy-builder"]').getAttribute("data-choice").catch(() => null), summaryHash: await page.locator('[data-testid="strategy-summary"]').getAttribute("data-hash").catch(() => null), review: await page.locator('[data-testid="strategy-review"]').count(), sign: await page.locator('[data-testid="strategy-sign"]').count() };
+            await page.locator('[data-testid="strategy-operator"]').fill("0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc").catch(() => {});
+            await page.locator('[data-testid="strategy-review-submit"]').click().catch(() => {});
+            await page.locator('[data-testid="strategy-plan"], [data-testid="strategy-plan-error"]').first().waitFor({ timeout: 60_000 }).catch(() => {});
+            adoption.plan = await page.locator('[data-testid="strategy-plan"]').count();
+            adoption.planOwner = (await page.locator('[data-testid="plan-owner"]').innerText().catch(() => "")).trim();
+            adoption.planOperator = (await page.locator('[data-testid="plan-operator"]').innerText().catch(() => "")).trim();
+            notes.push({ wallet: who.name, width, registryAdoptionReview: adoption });
+            expect(adoption.hash === expected.contentHash && adoption.creator === expected.creator && adoption.version === "1" && adoption.block === String(expected.block) && adoption.choice === "published" && adoption.summaryHash === expected.contentHash && adoption.review === 1 && adoption.sign === 0, `${tag}: the published strategy does not reach the review page verified: ${JSON.stringify(adoption)}`);
+            expect(adoption.plan === 1 && adoption.planOwner.toLowerCase() === who.address.toLowerCase() && adoption.planOperator === "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc", `${tag}: the review of the published strategy is not the owner's own plan with the operator they chose: ${JSON.stringify(adoption)}`);
+            expect(wallet.sent.length + wallet.refused.length === 0, `${tag}: loading and reviewing a published strategy asked the wallet for something`);
+          }
         }
         if (path === "/studio") {
           const workspace = (await page.locator('[data-testid="studio-workspace"]').innerText()).replace(/\s+/g, " ");
