@@ -1,4 +1,6 @@
 // Strategy adoption and revocation, SIGNED in a real browser, against a PRIVATE FORK of X Layer testnet 1952.
+// SUPERSEDED for acceptance by scripts/strategy-gate.mjs (run 7), which builds the production build itself and asserts
+// six properties for two wallets. This script remains as the quick two-template smoke run against a dev server.
 //   Node:   a loopback Anvil fork of 1952 with --chain-id 1952 and --auto-impersonate. Claude runs it; this script never starts one.
 //   Server: NEXT_PUBLIC_PERIDOT_FORK=1 NEXT_PUBLIC_TESTNET_RPC_URL=http://127.0.0.1:19750 npm run dev -- -p 3213 -H 127.0.0.1
 //   Run:    PLAYWRIGHT_BROWSERS_PATH=0 node scripts/e2e-fork-strategy.mjs

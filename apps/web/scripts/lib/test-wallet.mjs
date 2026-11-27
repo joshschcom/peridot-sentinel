@@ -5,7 +5,11 @@
 //   readOnly       refuse eth_sendTransaction (used by the read-only check scripts).
 //   watchOnly      a wallet that only REPORTS an address and a chain: nothing is forwarded anywhere, and every
 //                  signing or sending method is refused. Used to look at public testnet data for a public address.
-// It reports every send and every switch through window.__recordTx / window.__recordSwitch.
+// It reports every send and every switch through window.__recordTx / window.__recordSwitch, and the method name of
+// EVERY request the page makes to the wallet through window.__recordRequest (`requests`), so a script can assert
+// that nothing was asked of the wallet (no send, no signature, no permission) between two points.
+/** Methods that ask the wallet to send, sign, or change what it permits. Reads and identity queries are not in it. */
+export const WALLET_ACTION = /^(eth_send|eth_sign|personal_sign|wallet_)/;
 export const LOOPBACK_RPC = /^http:\/\/(127\.0\.0\.1|localhost):\d+$/;
 
 export async function jsonRpc(url, method, params = []) {
@@ -15,13 +19,15 @@ export async function jsonRpc(url, method, params = []) {
   return json.result;
 }
 
-/** Returns { sent, switches } arrays that fill up as the page uses the wallet. */
+/** Returns { sent, switches, refused, requests } arrays that fill up as the page uses the wallet. */
 export async function installTestWallet(context, { rpcUrl = null, account, walletChainId, readOnly = false, watchOnly = false }) {
   if (watchOnly) readOnly = true;
   else if (!LOOPBACK_RPC.test(rpcUrl ?? "")) throw new Error("The test wallet only forwards to a loopback RPC");
   const sent = [];
   const switches = [];
   const refused = [];
+  const requests = [];
+  await context.exposeBinding("__recordRequest", (_source, method) => requests.push(method));
   await context.exposeBinding("__recordTx", (_source, tx) => sent.push(tx));
   await context.exposeBinding("__recordSwitch", (_source, chainId) => switches.push(chainId));
   await context.exposeBinding("__recordRefused", (_source, tx) => refused.push(tx));
@@ -40,6 +46,7 @@ export async function installTestWallet(context, { rpcUrl = null, account, walle
       window.ethereum = {
         isPeridotTestProvider: true,
         request: async ({ method, params }) => {
+          window.__recordRequest(method);
           if (method === "eth_requestAccounts" || method === "eth_accounts") return [account];
           if (method === "eth_chainId") return current;
           if (method === "net_version") return String(parseInt(current, 16));
@@ -73,7 +80,7 @@ export async function installTestWallet(context, { rpcUrl = null, account, walle
     },
     { rpcUrl, account, walletChainId, readOnly, watchOnly },
   );
-  return { sent, switches, refused };
+  return { sent, switches, refused, requests };
 }
 
 export async function connectWallet(page) {

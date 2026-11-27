@@ -336,7 +336,7 @@ writeFileSync(
       driver: "Playwright Chromium + injected test EIP-1193 provider reporting the public demo owner and forwarding to the fork, which signs by impersonation; no private key",
       build: POSTFLIP
         ? "production build for chain 1952 WITHOUT the fork flag (the exact post-flip public configuration: base v2 switch off and not forced, vault switch on from a manifest copy), RPC pointed at the private fork. The page labels itself Testnet and links hashes to the public explorer where they do not exist, so no screenshot was taken in this mode."
-        : "production build (next build + next start) for chain 1952 with the private-fork label, RPC pointed at the fork; expansion manifests from a copy in which only vault-1952.json uiEnabled is true (the base v2 write switch is treated as on by the fork build)",
+        : "production build (next build + next start) for chain 1952 with the private-fork label, RPC pointed at the fork; expansion manifests from EXPANSION_DIR when set; every switch follows its manifest (since run 7 a fork build forces no switch)",
       rpc: RPC,
       chainId: 1952,
       nodeClient: version,

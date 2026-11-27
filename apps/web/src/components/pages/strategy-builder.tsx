@@ -9,23 +9,26 @@
  * Choosing or importing a template grants nothing. There is no field here for a key, and none is ever needed:
  * the operator is an address the owner types, and it never signs anything in this app.
  */
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { isAddress } from "viem";
 import { StrategyBadge, TemplateFacts, TemplateIdentity, TemplateText } from "@/components/domain/strategy-bits";
 import { STRATEGY_CONTEXT } from "@/lib/strategy-context";
 import { TxFeedback } from "@/components/domain/tx-feedback";
-import { Advanced, Button, Card, CardHeader, Mono, Notice, cx } from "@/components/ui/core";
+import { Advanced, Button, Card, CardHeader, Mono, Notice, Skeleton, cx } from "@/components/ui/core";
 import { IconAlert, IconLock, IconShield } from "@/components/ui/icons";
 import { useChainTx } from "@/hooks/use-chain-tx";
 import { useDeploymentCheck, useWallet, useWriteGate } from "@/hooks/use-wallet";
 import { formatAmount, toDecimalString } from "@/lib/amount";
 import { IS_PRIVATE_FORK, WRITE_CHAIN, WRITE_CHAIN_ID } from "@/lib/chains";
-import { shortAddress } from "@/lib/format";
-import { CURATED, type CheckedStrategy, IMPORT_LIMIT, IMPORT_RULES, type StrategyEdits, budgetAsset, editStrategy, exportFileName, parseStrategy, rawFromText, templateAvailability } from "@/lib/strategy";
+import { CURATED, type CheckedStrategy, IMPORT_LIMIT, IMPORT_RULES, type StrategyEdits, budgetAsset, editStrategy, exportFileName, parseStrategy, rawFromText, refusalHints, templateAvailability } from "@/lib/strategy";
 import { METHOD_ARGS, METHOD_TEXT, type OwnerTransaction, type PlanKind, type StrategyPlan, argumentText, ownerTransactionStep, reviewStrategy } from "@/services/chain/strategy";
+import { V2_OWNER_TARGET, verifyOwnerTarget } from "@/services/chain/v2-owner";
 import type { Address } from "@/services/types";
 
-const utc = (seconds: bigint | string) => `${new Date(Number(seconds) * 1000).toISOString().slice(0, 16).replace("T", " ")} UTC`;
+/** To the second: the expiry a user reviews is the exact value in the calldata, not a rounded one. */
+const utc = (seconds: bigint | string) => `${new Date(Number(seconds) * 1000).toISOString().slice(0, 19).replace("T", " ")} UTC`;
 const INPUT = "mt-1.5 h-11 w-full min-w-0 rounded-control border border-line-strong bg-bg px-3 text-[0.9375rem] outline-none focus:border-fg";
 const LIFETIMES = [
   { seconds: 3600, label: "1 hour" },
@@ -184,9 +187,31 @@ type ReviewState = { phase: "idle" } | { phase: "loading" } | { phase: "error"; 
 function Review({ strategy, availability }: { strategy: CheckedStrategy; availability: ReturnType<typeof templateAvailability> }) {
   const wallet = useWallet();
   const gate = useWriteGate("account");
-  // A deployment this browser could not verify offers no adoption at all: no plan is built from it, nothing is signed.
+  // A review is offered only AFTER this browser has verified the deployment the template acts on: the lending
+  // deployment for every template, and additionally the Sentinel v2 deployment (every recorded code hash and the
+  // factory's bindings) for a v2 template. While that is pending, or if it fails or the RPC does not answer, there
+  // is no form, no plan and nothing to sign.
   const deployment = useDeploymentCheck();
-  const unverified = deployment.data && !deployment.data.ok ? deployment.data.reason : null;
+  const needsV2 = strategy.template.profile === "restricted-swap-v2";
+  const v2Target = V2_OWNER_TARGET;
+  const v2Check = useQuery({ queryKey: ["v2-owner-verify", v2Target?.chainId], queryFn: () => verifyOwnerTarget(v2Target!), enabled: needsV2 && v2Target !== null, staleTime: 60_000, retry: 1 });
+  const verification: { state: "pending" } | { state: "ok" } | { state: "failed"; reason: string } = deployment.isPending
+    ? { state: "pending" }
+    : !deployment.data
+      ? { state: "failed", reason: "the RPC did not answer the deployment check" }
+      : !deployment.data.ok
+        ? { state: "failed", reason: deployment.data.reason }
+        : !needsV2
+          ? { state: "ok" }
+          : !v2Target
+            ? { state: "failed", reason: "this build has no usable Sentinel v2 manifest" }
+            : v2Check.isPending
+              ? { state: "pending" }
+              : !v2Check.data
+                ? { state: "failed", reason: "the RPC did not answer the Sentinel v2 deployment check" }
+                : !v2Check.data.ok
+                  ? { state: "failed", reason: `Sentinel v2: ${v2Check.data.problems[0] ?? "the deployment is not the one the manifest describes"}` }
+                  : { state: "ok" };
   const tx = useChainTx();
   const owner = wallet.status === "connected" ? (wallet.address as Address) : null;
   const [operator, setOperator] = useState("");
@@ -236,11 +261,19 @@ function Review({ strategy, availability }: { strategy: CheckedStrategy; availab
     await build();
   };
 
-  if (!availability.canReview || unverified !== null) {
+  if (!availability.canReview || verification.state === "failed") {
     return (
       <Notice tone="warning" icon={<IconAlert size={18} />} title={availability.canReview ? "Adoption is not offered: the deployment could not be verified" : "Adoption is not offered in this build"} data-testid="strategy-review-unavailable" data-why={availability.canReview ? "unverified" : "availability"}>
-        {availability.canReview ? `The contracts on ${WRITE_CHAIN.name} are not the deployment this app expects (${unverified}). No plan is built from a chain this app cannot verify, and nothing can be signed.` : availability.reason}
+        {availability.canReview && verification.state === "failed" ? `The contracts on ${WRITE_CHAIN.name} could not be verified as the deployment this app expects (${verification.reason}). No plan is built from a chain this app cannot verify, and nothing can be signed.` : availability.reason}
       </Notice>
+    );
+  }
+  if (verification.state === "pending") {
+    return (
+      <div className="space-y-2 rounded-control border border-line p-4" data-testid="strategy-review-verifying">
+        <p className="text-sm text-muted">Verifying the deployment on {WRITE_CHAIN.name} before a review is offered…</p>
+        <Skeleton className="h-10" data-loading />
+      </div>
     );
   }
   const grantNow = plan ? plan.currentGrant : null;
@@ -281,6 +314,15 @@ function Review({ strategy, availability }: { strategy: CheckedStrategy; availab
       {review.phase === "error" ? (
         <Notice tone="warning" icon={<IconAlert size={18} />} title="No plan could be built" data-testid="strategy-plan-error">
           {review.message}. Nothing was sent.
+          {/Create your own account/.test(review.message) ? (
+            <span className="mt-2 block" data-testid="strategy-plan-needs-account">
+              This wallet has no {needsV2 ? "Sentinel v2 account" : "Sentinel account for this lending market"} yet.{" "}
+              <Link href={needsV2 ? "/trade" : "/portfolio#accounts"} className="font-medium underline underline-offset-4">
+                {needsV2 ? "Create your v2 account on Trade" : "Create your account on Portfolio"}
+              </Link>
+              , then come back and build the review again.
+            </span>
+          ) : null}
         </Notice>
       ) : null}
 
@@ -289,10 +331,13 @@ function Review({ strategy, availability }: { strategy: CheckedStrategy; availab
           <dl className="divide-y divide-line text-sm">
             <Row label="Network">{IS_PRIVATE_FORK ? "Private fork of X Layer testnet (1952). Not the public chain." : "X Layer testnet (1952)"}</Row>
             <Row label="Your account">
-              <Mono>{plan.account}</Mono>
+              <span data-testid="plan-account"><Mono className="break-all">{plan.account}</Mono></span>
             </Row>
-            <Row label="Owner (you) → operator">
-              <Mono>{shortAddress(plan.owner)}</Mono> → <Mono>{shortAddress(plan.operator)}</Mono>
+            <Row label="Owner (you)">
+              <span data-testid="plan-owner"><Mono className="break-all">{plan.owner}</Mono></span>
+            </Row>
+            <Row label="Operator you chose">
+              <span data-testid="plan-operator"><Mono className="break-all">{plan.operator}</Mono></span>
             </Row>
             <Row label="Read at block">
               {plan.blockNumber.toLocaleString("en-US")} <Mono className="text-faint">{plan.blockHash.slice(0, 18)}…</Mono>
@@ -309,7 +354,11 @@ function Review({ strategy, availability }: { strategy: CheckedStrategy; availab
               )}
             </Row>
             {plan.currentTrigger !== null ? <Row label="Account-wide trigger now">{plan.currentTrigger === 0 ? "Disabled" : `${plan.currentTrigger / 100}%`}</Row> : null}
-            {plan.expiry !== null && finished === null ? <Row label="New grant would expire">{utc(plan.expiry)}</Row> : null}
+            {plan.expiry !== null && finished === null ? (
+              <Row label="New grant would expire">
+                <span data-testid="plan-expiry">{utc(plan.expiry)}</span>
+              </Row>
+            ) : null}
           </dl>
 
           {finished !== null ? (
@@ -346,7 +395,7 @@ function Review({ strategy, availability }: { strategy: CheckedStrategy; availab
               {plan.transactions.length > 0 ? (
                 <ol className="space-y-3" data-testid="strategy-transactions">
                   {plan.transactions.map((transaction, index) => (
-                    <PlannedTransaction key={transaction.data} transaction={transaction} index={signed.length + index} total={signed.length + plan.transactions.length} />
+                    <PlannedTransaction key={transaction.data} transaction={transaction} index={signed.length + index} total={signed.length + plan.transactions.length} asset={asset} />
                   ))}
                 </ol>
               ) : null}
@@ -391,13 +440,27 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-function PlannedTransaction({ transaction, index, total }: { transaction: OwnerTransaction; index: number; total: number }) {
+/** One argument in the units a person reads. The exact value stays next to it; this is derived from it, not from the template. */
+function argumentMeaning(name: string, value: unknown, asset: { symbol: string; decimals: number }): string | null {
+  if (name === "cumulative" && typeof value === "bigint") return `${toDecimalString(value, asset.decimals)} ${asset.symbol} in total`;
+  if (name === "perCall" && typeof value === "bigint") return `${toDecimalString(value, asset.decimals)} ${asset.symbol} per swap`;
+  if (name === "expiry" && typeof value === "bigint") return `expires ${utc(value)}`;
+  if (name === "triggerBps" && typeof value === "number") return `${value / 100}% loan-to-value, account-wide`;
+  if (name === "mask") return value === 8 ? "repay only" : null;
+  if (name === "op") return value === 5 ? "swap, exact input" : null;
+  if (name === "operator") return "the operator you chose";
+  if (name === "adapter") return "the pinned swap adapter";
+  if (name === "input") return `${asset.symbol}, the token the operator may spend`;
+  return null;
+}
+
+function PlannedTransaction({ transaction, index, total, asset }: { transaction: OwnerTransaction; index: number; total: number; asset: { symbol: string; decimals: number } }) {
   const names = METHOD_ARGS[transaction.method];
   return (
     <li className="rounded-control border border-line p-3.5 text-sm" data-testid="strategy-tx" data-method={transaction.method} data-to={transaction.to} data-from={transaction.from} data-data={transaction.data} data-value={transaction.value.toString()}>
       <div className="flex flex-wrap items-center gap-2">
         <span className="grid size-6 shrink-0 place-items-center rounded-full bg-raised text-xs font-medium">{index + 1}</span>
-        <span className="font-medium">{METHOD_TEXT[transaction.method]}</span>
+        <span className="font-medium" data-tx-title>{METHOD_TEXT[transaction.method]}</span>
         {total > 1 ? <span className="text-xs text-faint">of {total}</span> : null}
       </div>
       <dl className="mt-3 space-y-1.5 text-[0.8125rem]">
@@ -407,16 +470,22 @@ function PlannedTransaction({ transaction, index, total }: { transaction: OwnerT
             {transaction.method}({names.join(", ")})
           </dd>
         </div>
-        {transaction.args.map((value, position) => (
-          <div key={names[position]} className="flex flex-wrap gap-x-2">
-            <dt className="text-muted">{names[position]}</dt>
-            <dd className="font-mono break-all">{argumentText(value)}</dd>
-          </div>
-        ))}
+        {transaction.args.map((value, position) => {
+          const meaning = argumentMeaning(names[position]!, value, asset);
+          return (
+            <div key={names[position]} className="flex flex-wrap gap-x-2" data-arg={names[position]}>
+              <dt className="text-muted">{names[position]}</dt>
+              <dd className="min-w-0">
+                <span className="font-mono break-all" data-arg-raw>{argumentText(value)}</span>
+                {meaning ? <span className="text-muted" data-arg-meaning> · {meaning}</span> : null}
+              </dd>
+            </div>
+          );
+        })}
         <div className="flex flex-wrap gap-x-2">
           <dt className="text-muted">From (you) → to (your account)</dt>
           <dd className="font-mono break-all">
-            {transaction.from} → {transaction.to}
+            <span data-tx-from>{transaction.from}</span> → <span data-tx-to>{transaction.to}</span>
           </dd>
         </div>
         <div className="flex flex-wrap gap-x-2">
@@ -425,7 +494,7 @@ function PlannedTransaction({ transaction, index, total }: { transaction: OwnerT
         </div>
       </dl>
       <Advanced label="Exact calldata" className="mt-3">
-        <code className="font-mono text-xs break-all">{transaction.data}</code>
+        <code className="font-mono text-xs break-all" data-testid="strategy-tx-calldata">{transaction.data}</code>
       </Advanced>
     </li>
   );
@@ -475,18 +544,25 @@ function ExportPanel({ strategy }: { strategy: CheckedStrategy }) {
 function ImportCard({ onImported, current }: { onImported: (strategy: CheckedStrategy) => void; current: CheckedStrategy | null }) {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [hints, setHints] = useState<string[]>([]);
   const check = (source: string) => {
     const outcome = parseStrategy(source);
     if (outcome.ok) {
       setError(null);
+      setHints([]);
       onImported(outcome.strategy);
-    } else setError(outcome.error);
+    } else {
+      setError(outcome.error);
+      // Display only, and only after the validator's refusal: it never changes the outcome.
+      setHints(refusalHints(source));
+    }
   };
   const onFile = async (file: File | undefined) => {
     if (!file) return;
     // The size is checked before the file is read. Valid templates are plain ASCII, so bytes and characters agree.
     if (file.size > IMPORT_LIMIT) {
       setError(`The file is ${file.size.toLocaleString("en-US")} bytes. A strategy template is at most ${IMPORT_LIMIT.toLocaleString("en-US")} characters, so it was not read`);
+      setHints([]);
       return;
     }
     const content = await file.text();
@@ -513,12 +589,26 @@ function ImportCard({ onImported, current }: { onImported: (strategy: CheckedStr
         {error ? (
           <div className="rounded-control border border-danger bg-danger-soft p-3.5 text-sm" data-testid="strategy-import-error">
             <p className="font-medium">Not loaded: {error}.</p>
-            <p className="mt-2 text-muted">The validator does not say which rule failed. A template is accepted only if all of these hold:</p>
-            <ul className="mt-1.5 list-disc space-y-1 pl-4 text-muted">
-              {IMPORT_RULES.map((rule) => (
-                <li key={rule}>{rule}</li>
-              ))}
-            </ul>
+            {current ? <p className="mt-1 text-muted" data-testid="strategy-import-kept">The template you loaded earlier is unchanged and still selected.</p> : null}
+            {hints.length > 0 ? (
+              <>
+                <p className="mt-2 font-medium">What looks wrong</p>
+                <ul className="mt-1.5 list-disc space-y-1 pl-4" data-testid="strategy-import-hints">
+                  {hints.map((hint) => (
+                    <li key={hint}>{hint}</li>
+                  ))}
+                </ul>
+                <p className="mt-1.5 text-xs text-faint">A hint from this page, found by comparing the text with the supported template. The validator itself gives one answer for every refusal.</p>
+              </>
+            ) : null}
+            <details className="mt-2 text-muted">
+              <summary className="min-h-8 font-medium">Every rule a template must meet</summary>
+              <ul className="mt-1.5 list-disc space-y-1 pl-4">
+                {IMPORT_RULES.map((rule) => (
+                  <li key={rule}>{rule}</li>
+                ))}
+              </ul>
+            </details>
           </div>
         ) : null}
         {current ? (

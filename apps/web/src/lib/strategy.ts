@@ -60,6 +60,91 @@ export function parseStrategy(text: string): ParseOutcome {
   }
 }
 
+/* ---------- why was it refused? (display only) ---------- */
+
+/** Fields the schema leaves open. Everything else must equal the curated template of the same profile. */
+const OPEN_FIELDS = new Set(["name", "description", "objective", "agentInstructions", "expirySeconds", "risk.triggerLtvBps", "budget.cumulativeRaw", "budget.perCallRaw"]);
+/** Field names that would carry authority or identity if a template could hold them. It cannot: they are refused. */
+const AUTHORITY_FIELDS = ["operator", "owner", "author", "creator", "account", "recipient", "beneficiary", "grant", "signature", "signer", "expiry", "calldata"];
+const PINNED_TEXT: Record<string, string> = {
+  schema: "the template format is not peridot.strategy/v1",
+  chainId: "the network is not X Layer testnet (1952)",
+  executionMode: "the execution mode is not the one this profile uses",
+  "deployment.accountVersion": "the account version is not the deployed one",
+  "deployment.sourceCommit": "the contract source commit is not the deployed one",
+  "deployment.factory": "the account factory is not the deployed one",
+  "deployment.adapter": "the adapter version is not the deployed one",
+  "deployment.target": "the adapter or market address is not the deployed one",
+  allowedOperations: "the operations are not the ones this profile allows",
+  allowedAssets: "the assets are not the deployed tokens",
+  "policy.kind": "the policy kind is not the deployed one",
+  "policy.schemaVersion": "the policy schema version is not supported",
+  "policy.templateVersion": "the policy template version is not supported",
+  "policy.mode": "the policy processor mode is not the deployed one",
+  "policy.enforcer": "the policy enforcer is not the deployed one",
+  "policy.processor": "the policy processor is not the deployed one",
+  "policy.circuitId": "the policy circuit is not the deployed one",
+  "policy.netlistHash": "the policy circuit's netlist hash is not the deployed one",
+  "policy.policyId": "the policy id is not the deployed one",
+  "risk.maxSlippageBps": "the price limit is not the one the deployed circuit enforces",
+};
+
+/** JSON with sorted keys, so a comparison does not depend on the order in which a file lists its fields. */
+const sorted = (value: unknown): string =>
+  Array.isArray(value) ? `[${value.map(sorted).join(",")}]` : typeof value === "object" && value !== null ? `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${sorted((value as Record<string, unknown>)[key])}`).join(",")}}` : JSON.stringify(value);
+
+/**
+ * Why did the SDK refuse this text? The SDK answers every refusal with one generic sentence, on purpose. This is a
+ * display-only hint, computed only AFTER a refusal, by comparing the text with the curated template of the same
+ * profile. It accepts nothing, and every word it returns is this app's own: no text of the import is echoed.
+ */
+export function refusalHints(text: string): string[] {
+  if (text.length > IMPORT_LIMIT) return [`It is longer than ${IMPORT_LIMIT.toLocaleString("en-US")} characters.`];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return ["It is not valid JSON."];
+  }
+  const record = (value: unknown): Record<string, unknown> | null => (typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : null);
+  const root = record(parsed);
+  if (!root) return ["It is not a JSON object."];
+  const reference = CURATED.find((entry) => entry.template.profile === root.profile)?.template;
+  if (!reference) return ["Its profile is not one this deployment supports (debt-protection-v1 or restricted-swap-v2)."];
+  const hints: string[] = [];
+  let extra = 0;
+  const named = new Set<string>();
+  const walk = (expected: Record<string, unknown>, found: Record<string, unknown>, prefix: string) => {
+    for (const key of Object.keys(found)) {
+      if (Object.hasOwn(expected, key)) continue;
+      extra += 1;
+      const known = AUTHORITY_FIELDS.find((name) => name === key.toLowerCase());
+      if (known) named.add(known);
+    }
+    for (const [key, want] of Object.entries(expected)) {
+      const path = `${prefix}${key}`;
+      if (!Object.hasOwn(found, key)) {
+        hints.push(`The field "${path}" is missing.`);
+        continue;
+      }
+      const got = found[key];
+      const [wantRecord, gotRecord] = [record(want), record(got)];
+      if (wantRecord) {
+        if (gotRecord) walk(wantRecord, gotRecord, `${path}.`);
+        else hints.push(`The field "${path}" is not an object.`);
+      } else if (!OPEN_FIELDS.has(path) && sorted(got) !== sorted(want)) {
+        hints.push(`"${path}": ${PINNED_TEXT[path] ?? "this is not the value the deployment pins"}.`);
+      } else if (OPEN_FIELDS.has(path) && typeof got !== typeof want) {
+        hints.push(`The field "${path}" has the wrong type.`);
+      }
+    }
+  };
+  walk(reference as unknown as Record<string, unknown>, root, "");
+  if (extra > 0) hints.push(`It has ${extra} field${extra === 1 ? "" : "s"} the format does not define${named.size > 0 ? ` (${[...named].map((name) => `"${name}"`).join(", ")})` : ""}. A template cannot name an operator, an owner, an author or an account: the person who adopts it chooses those.`);
+  if (hints.length === 0) hints.push("Its fixed fields match this deployment, so the refusal comes from a free-text field (addresses, links, long codes and key-like words are not allowed), a repeated field name, or a budget or lifetime outside the demo limits.");
+  return hints.slice(0, 6);
+}
+
 /** Fields a user may change. Everything else in a template is pinned to the deployment by the SDK's schema. */
 export interface StrategyEdits {
   name?: string;

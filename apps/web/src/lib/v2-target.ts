@@ -97,11 +97,8 @@ function parseVault(json: unknown, file: string, chainId: number, base: { usdc: 
   return { file, label: root.label, writes: true, factory: at("vaultFactory"), adapter: at("vaultAdapter"), vault: at("mockVault"), asset: { address: asset, symbol: "mUSDC", decimals: root.assetDecimals }, shareDecimals: root.shareDecimals, accountPolicy: policy, codes: list };
 }
 
-/**
- * `forceWrites`: a private-fork test build treats the testnet write switch as on (see IS_PRIVATE_FORK). It never
- * applies to a public build.
- */
-export function parseV2OwnerTarget(chainId: 1952 | 31337, json: unknown, vaultJson: unknown, files: { base: string; vault: string }, forceWrites = false): Maybe<V2OwnerTarget> {
+/** The write switch is the manifest's own `uiEnabled`, in every build: nothing in the app can force it on. */
+export function parseV2OwnerTarget(chainId: 1952 | 31337, json: unknown, vaultJson: unknown, files: { base: string; vault: string }): Maybe<V2OwnerTarget> {
   const root = rec(json);
   if (!root) return unavailable(`No Sentinel v2 deployment manifest for chain ${chainId} in this build`);
   if (root.chainId !== chainId || root.schemaVersion !== 2) return unavailable(`The Sentinel v2 manifest is not a schema-2 manifest for chain ${chainId}`);
@@ -121,7 +118,7 @@ export function parseV2OwnerTarget(chainId: 1952 | 31337, json: unknown, vaultJs
   const market = rec(root.lendingMarket);
   const lendingMarket = market && address(market.controller) && address(market.collateralAsset) && address(market.debtAsset) && address(market.collateralMarket) ? { label: typeof market.label === "string" ? market.label : "Lending market of the v2 lending adapter", controller: address(market.controller)!, collateralAsset: address(market.collateralAsset)!, debtAsset: address(market.debtAsset)!, collateralMarket: address(market.collateralMarket)! } : null;
   if (local && !lendingMarket) return unavailable("The local Sentinel v2 manifest does not state its lending market");
-  const enabled = root.uiEnabled === true || forceWrites;
+  const enabled = root.uiEnabled === true;
   return ok({
     file: files.base,
     chainId,
