@@ -28,6 +28,7 @@ import { IS_PRIVATE_FORK, WRITE_CHAIN, WRITE_CHAIN_ID } from "@/lib/chains";
 import { CURATED, type CheckedStrategy, IMPORT_LIMIT, IMPORT_RULES, type StrategyEdits, budgetAsset, editStrategy, exportFileName, parseStrategy, rawFromText, refusalHints, templateAvailability } from "@/lib/strategy";
 import { METHOD_ARGS, METHOD_TEXT, type OwnerTransaction, type PlanKind, type StrategyPlan, argumentText, ownerTransactionStep, reviewStrategy } from "@/services/chain/strategy";
 import { V2_OWNER_TARGET, verifyOwnerTarget } from "@/services/chain/v2-owner";
+import { PublishPanel } from "./strategy-publish";
 import type { Address } from "@/services/types";
 
 /** To the second: the expiry a user reviews is the exact value in the calldata, not a rounded one. */
@@ -259,6 +260,7 @@ function Adopt({ base, untrusted, source = "imported" }: { base: CheckedStrategy
           </div>
           <Review strategy={strategy} availability={availability} />
           <ExportPanel strategy={strategy} />
+          <PublishPanel strategy={strategy} />
         </>
       ) : null}
     </div>

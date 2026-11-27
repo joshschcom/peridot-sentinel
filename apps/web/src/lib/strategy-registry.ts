@@ -1,7 +1,7 @@
 /**
  * The public strategy registry on X Layer testnet (docs/STRATEGY_REGISTRY.md), as far as it can be decided without a
  * chain read: the reviewed pin, the two switches, the page grid of a scan, and the address of one publication.
- * Pure and dependency-free, so it runs in node tests. Nothing here validates a strategy or a publication: that is the
+ * Pure (one hash function from viem), so it runs in node tests. Nothing here validates a strategy or a publication: that is the
  * SDK's job (packages/strategy-sdk/registry.ts), called from src/services/chain/registry.ts.
  *
  * Rules this module encodes:
@@ -11,6 +11,7 @@
  *     was not read (page budget) and what could not be read (the RPC refused) are two different, stated things.
  *   - Publishing gives the publisher nothing. A publication is text: the adopter chooses the operator and signs.
  */
+import { keccak256, stringToHex } from "viem";
 import { type Maybe, ok, unavailable } from "./maybe.ts";
 
 type Hex = `0x${string}`;
@@ -25,7 +26,7 @@ const zero = (value: string) => /^0x0+$/.test(value);
  * environment variable can only turn them OFF (NEXT_PUBLIC_PERIDOT_REGISTRY=off); nothing can force them on.
  */
 const DISCOVERY_COMMITTED = true;
-const PUBLISH_COMMITTED = false;
+const PUBLISH_COMMITTED = true;
 export function registrySwitches(override: string | undefined): { discover: boolean; publish: boolean } {
   const off = override === "off";
   return { discover: DISCOVERY_COMMITTED && !off, publish: DISCOVERY_COMMITTED && PUBLISH_COMMITTED && !off };
@@ -173,3 +174,16 @@ const REJECTION_MEANING: Record<string, string> = {
 };
 export const rejectionMeaning = (reason: string): string => REJECTION_MEANING[reason] ?? "It did not pass the registry checks.";
 export const REJECTION_SENTENCES = Object.keys(REJECTION_MEANING);
+
+/* ---------- publishing: the series a creator publishes under ---------- */
+
+/**
+ * A creator numbers the versions of one strategy under a series id of their own choosing (any non-zero 32 bytes).
+ * This app derives it from a short name the creator types: keccak256 of its UTF-8 bytes. Lower-case letters, digits
+ * and single hyphens, 1 to 32 characters. The name itself is not stored anywhere; the id is.
+ */
+export const SERIES_NAME = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+export function seriesIdFromName(name: string): Hex | null {
+  if (name.length < 1 || name.length > 32 || !SERIES_NAME.test(name)) return null;
+  return keccak256(stringToHex(name));
+}

@@ -4,7 +4,7 @@ import { encodeAbiParameters, getAddress, keccak256, stringToHex } from "viem";
 import { type PublishedRecord, verifyStrategyPublication } from "../../../../packages/strategy-sdk/registry.ts";
 import { RAW_CONFIG } from "../generated/config.ts";
 import { CURATED } from "./strategy.ts";
-import { REJECTION_SENTENCES, blocksIn, coverageRanges, pageCount, pageSpan, parsePublicationKey, parseRegistryPin, publicationHref, registrySwitches, rejectionMeaning, samePublication, selectPages } from "./strategy-registry.ts";
+import { REJECTION_SENTENCES, blocksIn, coverageRanges, pageCount, pageSpan, parsePublicationKey, parseRegistryPin, publicationHref, registrySwitches, rejectionMeaning, samePublication, selectPages, seriesIdFromName } from "./strategy-registry.ts";
 
 const PIN = { chainId: 1952, address: "0xB1BE0326E007e2719CdBBd61D8E26356d39F28ed", runtimeCodeHash: `0x${"c8".repeat(32)}`, deploymentBlock: "47314090", confirmations: 12, deploymentTxHash: `0x${"6c".repeat(32)}` };
 
@@ -143,4 +143,11 @@ test("every sentence the SDK rejects a publication with has a meaning here (the 
   }
   assert.deepEqual([...seen].sort(), [...REJECTION_SENTENCES].sort());
   for (const sentence of seen) assert.notEqual(rejectionMeaning(sentence), rejectionMeaning("something else"));
+});
+
+test("a series id is the hash of a short, plain name, and nothing else is accepted as a name", () => {
+  assert.equal(seriesIdFromName("my-debt-guard"), keccak256(stringToHex("my-debt-guard")));
+  assert.notEqual(seriesIdFromName("a"), seriesIdFromName("b"));
+  for (const bad of ["", "-a", "a-", "a--b", "Has Capitals", "has space", "ünï", "a".repeat(33), "0x" + "00".repeat(32), "a_b", "a.b"]) assert.equal(seriesIdFromName(bad), null, bad);
+  assert.match(seriesIdFromName("a".repeat(32))!, /^0x[0-9a-f]{64}$/);
 });

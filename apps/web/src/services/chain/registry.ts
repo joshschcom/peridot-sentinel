@@ -12,13 +12,19 @@
  *             with its range and reason; it is never counted as "no publications".
  *   re-read   one publication for the adoption page: the SAME discovery call on the one block its event is in.
  *             There is no second, weaker path to adoption.
+ *   publish   `buildStrategyPublication`: the SDK validates and canonicalises the text, checks the registry and the
+ *             next version, and returns ONE unsigned, zero-value transaction to the registry. The creator signs it
+ *             after reviewing it. It stores text under the creator's own address and grants nothing to anyone.
  * A publication is text. What it may lead to is decided by the existing owner review (services/chain/strategy.ts).
  */
-import { type Hex, type PublicClient, createPublicClient, http, keccak256 } from "viem";
-import { discoverPublishedStrategies } from "../../../../../packages/strategy-sdk/registry.ts";
+import { type Abi, type Hex, type PublicClient, createPublicClient, http, keccak256, stringToHex } from "viem";
+import registryAbiJson from "../../../../../packages/chain-config/expansion/abi/StrategyRegistry.json" with { type: "json" };
+import { buildStrategyPublication, discoverPublishedStrategies, registryAbi } from "../../../../../packages/strategy-sdk/registry.ts";
 import { xLayerTestnet } from "../../lib/chains.ts";
 import { retryRead } from "../../lib/retry.ts";
 import type { CheckedStrategy } from "../../lib/strategy.ts";
+import type { Address } from "../types.ts";
+import type { TxPlanStep } from "./tx.ts";
 import { type CoverageRange, type PublicationKey, type RegistryPinFile, coverageRanges, pageCount, pageSpan, samePublication, selectPages } from "../../lib/strategy-registry.ts";
 
 export interface PublishedStrategy extends CheckedStrategy {
@@ -157,4 +163,43 @@ export async function readPublication(pin: RegistryPinFile, key: PublicationKey)
   } catch (error) {
     return { state: "unavailable", reason: firstLine(error) };
   }
+}
+
+/* ---------- publishing ---------- */
+
+export type Publication = Awaited<ReturnType<typeof buildStrategyPublication>>;
+export type PreparedPublication = { ok: true; publication: Publication; bytes: number } | { ok: false; reason: string };
+/** The generated ABI (with the registry's custom errors), for simulation and friendly reverts. Calldata is the SDK's. */
+const REGISTRY_ABI = registryAbiJson as Abi;
+
+/**
+ * The unsigned publication of `canonical` as the next version of the creator's series. Read-only. The version is the
+ * one after the latest the chain reports; the SDK checks it again at the confirmed block and refuses a mismatch (a
+ * publication of the same series that is still confirming), in which case nothing is offered.
+ */
+export async function preparePublication(pin: RegistryPinFile, request: { creator: Address; seriesId: Hex; canonical: string }): Promise<PreparedPublication> {
+  const check = await checkRegistry(pin);
+  if (check.state !== "verified") return { ok: false, reason: check.state === "mismatch" ? `The registry could not be verified: ${check.reason}` : `The registry could not be read: ${check.reason}` };
+  try {
+    const client = registryClient();
+    const latest = await retryRead(() => client.readContract({ address: pin.address, abi: registryAbi, functionName: "latestVersion", args: [request.creator, request.seriesId] }), { attempts: 3 });
+    const publication = await buildStrategyPublication(client, pin, { creator: request.creator, seriesId: request.seriesId, expectedVersion: latest + 1, json: request.canonical });
+    return { ok: true, publication, bytes: (stringToHex(publication.canonical).length - 2) / 2 };
+  } catch (error) {
+    const reason = firstLine(error);
+    return { ok: false, reason: reason === "Expected strategy version differs from registry" ? "An earlier publication of this series is still being confirmed. Wait a few seconds and prepare it again" : reason };
+  }
+}
+
+/** The six arguments of publish(), in order, exactly as the SDK encoded them into the reviewed calldata. */
+export function publicationArgs(publication: Publication): readonly [Hex, number, bigint, Hex, Hex, Hex] {
+  return [publication.seriesId, publication.expectedVersion, publication.topics.targetChainId, publication.topics.adapterVersion, publication.topics.policyKey, stringToHex(publication.canonical)];
+}
+
+/** The reviewed publication as one wallet step. The driver refuses unless the call encodes to the SDK's calldata and the wallet is the creator. */
+export function publicationStep(publication: Publication): TxPlanStep {
+  return {
+    title: `Publish version ${publication.expectedVersion} to the strategy registry`,
+    build: async () => ({ address: publication.to, abi: REGISTRY_ABI, functionName: "publish", args: publicationArgs(publication), reviewed: { data: publication.data, from: publication.from } }),
+  };
 }
