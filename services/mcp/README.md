@@ -16,7 +16,7 @@ node services/mcp/client.mjs reject
 node --test services/mcp/test/*.test.mjs
 ```
 
-An external MCP host can start `node /absolute/path/to/services/mcp/server.mjs` using stdio. `client.mjs` uses the official MCP Client in a separate process to initialize a session, discover tools and invoke them. No listening port is opened. Only give execution credentials to a host authorized to exercise this specific grant. [MCP stdio transport](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)
+Set the external MCP host’s working directory to the repository root and configure its stdio command as `node` with the argument `services/mcp/server.mjs`. `client.mjs` uses the official MCP Client in a separate process to initialize a session, discover tools and invoke them. No listening port is opened. Only give execution credentials to a host authorized to exercise this specific grant. [MCP stdio transport](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)
 
 | Tools | Input | Result |
 |---|---|---|

@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "mode": "LOCAL_31337",
+  "chainId": 31337,
+  "publicDeployment": "NOT DEPLOYED",
+  "origin": null,
+  "fixture": "Distinct deterministic addresses on private Anvil, no private key required.",
+  "identities": {
+    "creator": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+    "adopter": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+    "operator": "0x1157aeEC6b3b32F38d5373C86961d5dA7DFCaAbC"
+  },
+  "pin": {
+    "chainId": 31337,
+    "address": "0xA11012A2ca9AdeeA836560A267A183966a4092c1",
+    "runtimeCodeHash": "0xc8f42e779cd1e1c1b7436a8f75ad9acf7da98f8fb947a8dd6b90f79f612f29b1",
+    "deploymentBlock": "1",
+    "confirmations": 1
+  },
+  "creationBytes": 1781,
+  "creationCodeHash": "0x575fbf57464d1467af5f5bc96ec3eb5389d8ee30d777fff2e128f3f6659d8775",
+  "runtimeBytes": 1708,
+  "deploymentHash": "0xf17a1982b0e4f2043b7da61b7a31670dd531550e30fcc2e2639953c1ca16d7d6",
+  "deploymentGasUsed": "422773",
+  "publications": [
+    {
+      "profile": "debt-protection-v1",
+      "creator": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "seriesId": "0x6f84ba19c0dacee0ddbec3bd4f6a3eafc32b3fe3d4f6a65c7333a19b431bfe3c",
+      "version": 1,
+      "topics": {
+        "targetChainId": "1952",
+        "adapterVersion": "0x04b5d965b2f6e2b368a2db256ac145805cd378791b27d5e5d19d0fb64f476dcc",
+        "policyKey": "0x3a3a9206ce7f8125287f2dfddcc1a2fdda378a5ab283aab4a7e764b755957604"
+      },
+      "contentHash": "0x7513d5f4afc6485d0cfcb77818171301e93bb698c2922357b27566d5647ff7f2",
+      "canonicalJsonBytes": 1260,
+      "publishCalldataBytes": 1508,
+      "gasUsed": "1047288",
+      "feeWei": "1852346371710648",
+      "hash": "0x834f7c17bebc23a60009a7848be45949a6821867cb29d9edc610a0fe6aa67e0e",
+      "readBlock": "3",
+      "readBlockHash": "0x124ef884590111a729bd09e0fbd61095de413aa815f986bbc82792c322a5b522",
+      "filterMatches": 1,
+      "filterRejected": 0
+    },
+    {
+      "profile": "restricted-swap-v2",
+      "creator": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "seriesId": "0xe14f75db943cd69c5bcc0283dd75e671c3f88b17414af100d51e13caa6373965",
+      "version": 1,
+      "topics": {
+        "targetChainId": "1952",
+        "adapterVersion": "0x4c67d56e5fc5a496213ae3b235344d1ed3253bd680e4e6d628e4073ec9e026fd",
+        "policyKey": "0xea4eef29c91ed8a5a6353d38af3e23a59008f8f430e281bf74b47af3897d7a60"
+      },
+      "contentHash": "0x94decccab381efa610678332af9cb190a9e9feee7211e2b7cc5089d8d43ed301",
+      "canonicalJsonBytes": 1368,
+      "publishCalldataBytes": 1604,
+      "gasUsed": "1115561",
+      "feeWei": "1778663919874587",
+      "hash": "0x917844dd42234b46298e23b42b72994d962fbc6bff0b7e05ddc8a815edb0d5aa",
+      "readBlock": "5",
+      "readBlockHash": "0xde23ac92123dc6ddb1a0a1ecb07c710e20516a3c42035abf79770cb296509327",
+      "filterMatches": 1,
+      "filterRejected": 0
+    }
+  ],
+  "adoptions": [],
+  "receiptCount": 3,
+  "totalGas": "2585622",
+  "totalFeeWei": "4476556291585235",
+  "receipts": [
+    {
+      "label": "Deploy StrategyRegistry",
+      "from": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "to": null,
+      "created": "0xa11012a2ca9adeea836560a267a183966a4092c1",
+      "hash": "0xf17a1982b0e4f2043b7da61b7a31670dd531550e30fcc2e2639953c1ca16d7d6",
+      "block": "1",
+      "blockHash": "0xf121421a77e81912a0b66f940b6301c641f6d01a2b7f69c38ee39de5f9d25de0",
+      "gasEstimate": "422773",
+      "gasLimit": "558466",
+      "gasUsed": "422773",
+      "effectiveGasPriceWei": "2000000000",
+      "feeWei": "845546000000000",
+      "status": "success"
+    },
+    {
+      "label": "Publish debt-protection-v1",
+      "from": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "to": "0xa11012a2ca9adeea836560a267a183966a4092c1",
+      "created": null,
+      "hash": "0x834f7c17bebc23a60009a7848be45949a6821867cb29d9edc610a0fe6aa67e0e",
+      "block": "3",
+      "blockHash": "0x124ef884590111a729bd09e0fbd61095de413aa815f986bbc82792c322a5b522",
+      "gasEstimate": "1047288",
+      "gasLimit": "1339110",
+      "gasUsed": "1047288",
+      "effectiveGasPriceWei": "1768707721",
+      "feeWei": "1852346371710648",
+      "status": "success"
+    },
+    {
+      "label": "Publish restricted-swap-v2",
+      "from": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "to": "0xa11012a2ca9adeea836560a267a183966a4092c1",
+      "created": null,
+      "hash": "0x917844dd42234b46298e23b42b72994d962fbc6bff0b7e05ddc8a815edb0d5aa",
+      "block": "5",
+      "blockHash": "0xde23ac92123dc6ddb1a0a1ecb07c710e20516a3c42035abf79770cb296509327",
+      "gasEstimate": "1115561",
+      "gasLimit": "1424451",
+      "gasUsed": "1115561",
+      "effectiveGasPriceWei": "1594412067",
+      "feeWei": "1778663919874587",
+      "status": "success"
+    }
+  ]
+}

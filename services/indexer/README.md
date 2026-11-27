@@ -1,41 +1,56 @@
 # Public testnet activity snapshot
 
-The Peridot Sentinel app can read a committed JSON snapshot of **settled on-chain events** on X Layer testnet 1952. It covers a single inclusive range from the M4 deployment block. The issuer-set mock prices, test tokens and development reference processor retain their testnet meaning. [Snapshot](../../packages/chain-config/activity/1952.json)
+The Peridot Sentinel app ships previously verified, settled X Layer testnet events. Each row retains its emitter, transaction hash, log index, block hash, timestamp and decoded arguments. Mock prices, tokens and reference circuits retain their testnet labels. [Shared snapshot](../../packages/chain-config/activity/1952.json) · [Judge campaign snapshot](../../deployments/session7/1952/judge-01/activity.json)
 
-## Refresh
+## Refresh or recover
 
-Use Node 22.13 or later with the repository dependencies installed. Run from the repository root.
+From the repository root with workspace dependencies installed, run the following command. It reads the committed snapshot and writes a separate candidate. Add `--judge=judge-01` and choose a separate filename to run the same workflow for the judge campaign.
 
 ```sh
-npm run build -w @peridot/chain-config
-node --test services/indexer/scan.test.mjs
-node services/indexer/refresh.mjs
-node evidence/session6-indexer/verify.mjs
+node services/indexer/refresh.mjs --output=evidence/session9-activity/shared-preview.json
 ```
 
-Refresh every **15 minutes during a live demo** and immediately after each deployment or recorded operation has 12 L2 successor blocks. At the observed one-second cadence, 15 minutes adds about nine 100-block pages. Claude publishes the updated JSON with the app build. A one-off local refresh does not update a previously deployed web bundle.
+The output identifies the candidate file, event count, inclusive segments, gaps, terminal hash, observed head and confirmation depth. During a demo, preview every 15 minutes or when a recorded transaction has 12 L2 successor blocks. Each invocation starts from the canonical file. It atomically replaces the requested candidate only after the full run succeeds. Previews reject paths inside the committed chain-config and judge deployment trees. A real refresh requires a separate coordinator request: replace the output argument with `--publish` to update the canonical file. Keep the candidate and publish processes separate from a frontend release build. A deployed app picks up a new snapshot with its next build.
 
-The two official RPC transports must identify chain 1952, recent heads and the same pinned target hash. Each read has a timeout and bounded retries. The scanner pages in 100 **inclusive** blocks with up to six log requests in flight. The first new block must name the saved checkpoint as its parent. Each committed group has its start checkpoint and end hash checked, including a check of the end hash on the other RPC transport. The most recent group is also scanned independently on both endpoints and their decoded results must agree. Every returned event's block hash is verified and its timestamp comes from that block. A verified group is written by atomic rename. A failed group leaves the last contiguous checkpoint available. A local SQLite writer lock prevents concurrent refreshes and releases on process exit.
+The scanner checks chain 1952, the recency of both public tips, their minimum height less 12 confirmations and the target block hash. Before continuing, it re-reads the saved terminal block and its logs. It also checks the most recent nonempty event height in the last segment. Both hosts must return the original event fields. An incremental scan uses pages of up to 100 inclusive blocks. Both endpoints must agree on each group’s decoded logs, discovered emitters, terminal hash and the connection to the previous group. A successful empty page reports no events for those emitters on those endpoints. Identical omissions by both providers at heights with no independent positive control can go undetected during an ordinary scan.
 
-On the next run, the scanner rechecks the saved checkpoint hash against both RPCs. A confirmed reorg or changed event definitions trigger a rebuild from deployment. When a manifest only appends contract roots to a hash-matched configuration, the scanner preserves blocks before the earliest added deployment, then replays its entire overlapping suffix. Both transports verify the rewind checkpoint. An RPC disagreement, stale head or missing block leaves the last written range intact; rerun the same command after the public backend recovers. The target has 12 successor **L2 blocks** at the lower observed tip.
+| Operator observation | Behaviour |
+| --- | --- |
+| Saved hash and logs are readable | Extend the final segment. The existing rows are compared with the candidate before publication. |
+| A requested historical block or log index is explicitly pruned, or the same recorded rows are repeatedly missing at an unchanged hash | Preserve every old row and every previously verified segment. Try the most recent common confirmed height as a new one-block segment. The interval from the last verified end plus one through the new start minus one is recorded as `history-unavailable`. The gap conservatively covers all unverified heights, including heights another provider may still serve. |
+| Fresh recovery anchor | Both hosts must agree on the exact block, transaction list, ordered decoded logs and source discovery. The scanner fetches each transaction receipt on each host, checks its block and transaction identity and independently derives the indexed events from those receipts. Missing receipts, a disagreement or a short log response stops recovery, even when both log queries return the same empty list. |
+| Hash/row conflict, wrong chain, stale tip, malformed reply, timeout, rate limit, incompatible scope, failed recovery anchor or no room for a nonempty gap | Exit nonzero, leave the prior file intact, and print the failed check. Recheck with archive or explorer evidence. A transient failure alone cannot create a history gap. Network reads use bounded retries. |
+| Recovered snapshot refreshed again | Preserve internal gaps and extend the latest verified segment when its checkpoint is readable. The tail gap for confirmation depth is recomputed. The scanner can start another segment after a later pruning incident. |
+
+Each recovery stands on the trusted shipped checkpoint and new RPC observations. An initial scan with no existing snapshot must be complete from deployment. Compatible appended factory roots can replay an overlapping suffix of a single segment with both endpoints. Every old event must reappear unchanged before publication. An incompatible ABI change or overlapping scope replay across a historical hole requires separate archive review. Automatic refresh never retrospectively fills a permanent hole. A future backfill must verify both boundary hashes, all intervening pages, prior rows and emitter discovery before a coordinator publishes a reviewed replacement.
+
+For a receipt-level recheck, obtain the archive endpoint separately, verify its chain ID and compare the receipt block hash, emitter and log index with the stored event. The public explorer's transaction page is also an independent check when it still has that record.
+
+```sh
+cast chain-id --rpc-url "$ARCHIVE_RPC_1952"
+cast receipt --rpc-url "$ARCHIVE_RPC_1952" "$EVENT_TRANSACTION_HASH" --json
+```
 
 ## Read contract
 
-The file is `packages/chain-config/activity/1952.json`. Import the JSON by repository-relative path at web build time. The pinned v1 package exports are unchanged.
+Schema version 1 and the original event fields remain valid. Heights are inclusive decimal strings. A legacy snapshot without `coverage.segments` describes one interval from `coverage.fromBlock` through `coverage.toBlock`.
 
 | Field | Meaning |
-|---|---|
-| `schemaVersion`, `kind`, `chainId` | Numeric 1, literal `indexed-event-snapshot`, numeric 1952 |
-| `updatedAt`, `scopeDigest` | UTC refresh time and SHA-256 of source configuration and event ABI |
-| `coverage` | Inclusive decimal-string `fromBlock` and `toBlock`, `toBlockHash`, decimal-string `headAtRefresh`, numeric `confirmations`, `status` of `caught-up` or `catching-up`, and `gaps[]` with inclusive ranges and `reason` of `awaiting-index` or `confirmation-depth` |
-| `sources[]` | Verified deployment/factory identity, represented as `address`, ABI contract name and first covered `fromBlock` |
-| `events[]` | `blockNumber`, `blockHash`, `transactionHash`, `transactionIndex`, `logIndex`, UNIX-seconds `timestamp`, emitting `address`, ABI `contract`, `eventName`, decoded `args` |
+| --- | --- |
+| `schemaVersion`, `kind`, `chainId` | 1, `indexed-event-snapshot` for shared or `judge-event-snapshot` for a named judge, 1952. The latter carries `campaign` and `profile`. |
+| `updatedAt`, `scopeDigest` | UTC observation time and digest of the configured source scope. |
+| `coverage.fromBlock`, `toBlock`, `toBlockHash`, `headAtRefresh`, `confirmations` | Original deployment bound, newest indexed height/hash, observed head and confirmation depth. When gaps exist, the outer bounds contain several verified intervals. The shared `status: caught-up` means that the selected confirmed target was reached. |
+| **`coverage.segments[]`** | Each item contains `fromBlock`, `toBlock`, `toBlockHash`, `sourceCoverage`. A new independent anchor includes `fromBlockHash`. `configured` covers the declared scope. The shared factory index switches to `known-emitters` after a gap: an account or market created during that gap may remain undiscovered, even in a subsequent scanned range. The judge has a fixed, recorded emitter list. |
+| **`coverage.gaps[]`** | Each item has `fromBlock`, `toBlock` and `reason`. New `history-unavailable` items represent permanent unverified internal intervals. The existing `confirmation-depth` and `awaiting-index` values describe trailing coverage. |
+| `sources[]`, `events[]` | Emitter address, ABI name and start height; indexed event identity, arguments in original raw units and timestamp. Keep saved events with their original transaction and block identifiers. |
 
-All numeric event arguments and log indexes are decimal strings. Addresses and hashes are hex. Booleans stay booleans. Token amounts retain the underlying contract's base units; BPS and WAD fields retain their ABI semantics. Events are in ascending chain order. On a fixed canonical branch, deduplicate by `(transactionHash,logIndex)` and retain the block hash for reorg checks. Conflicting duplicates stop a refresh.
+Display the verified intervals and every internal hole with its reason. Label the shared index’s known-emitter limitation after a gap. On a live page, connect a live scan to a shipped terminal only after validating its hash. If the live RPC cannot serve the terminal, keep the original events visible as previously verified history, label that terminal unavailable and show any independently scanned recent interval with its own range and gap. A different terminal hash is a canonical conflict: suppress the live merge, preserve the historical evidence and surface the conflict. An unreadable interval must never display as zero activity.
 
-For market/account filtering, compare emitting addresses and/or named arguments. `PolicyAllowed` is emitted independently by the controller and by the account. In an `AutoRepayExecuted` row the emitter identifies the account and the args identify the operator, amount and LTVs. Factory creation rows contain the owner's address and the child addresses needed to discover newly created markets and accounts.
+Reproduce the simulated pruning and fail-closed tests without public RPC calls. Optional `ACTIVITY_FIXTURE_DIR` exports explicit synthetic examples to a separate evidence directory.
 
-Show **“Indexed through block …”** on snapshot results. Before merging a live scan, require the RPC block hash at `toBlock` to match `toBlockHash`. Request new pages starting at `toBlock + 1`, merge in block/log order and deduplicate by transaction hash and log index on the same canonical chain. If only a recent head interval fits the browser budget, display the exact gap between those ranges. If the boundary hash changes, suppress the merge and request a refreshed snapshot.
+```sh
+ACTIVITY_FIXTURE_DIR=evidence/session9-activity node --test services/indexer/scan.test.mjs services/indexer/recovery.test.mjs
+```
 
 ## Included records
 

@@ -2,13 +2,15 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {readFileSync} from 'node:fs'
 import {keccak256} from 'viem'
+import {loadData} from '../../script/native7/publication-io.mjs'
 import {config,inputMode} from '../../script/native7/fork.mjs'
 
-const d=JSON.parse(readFileSync(new URL('../../../../evidence/session7-native/rehearsal-fork.json',import.meta.url)))
+const d=process.env.NATIVE7_FORK_PROOF?loadData(process.env.NATIVE7_FORK_PROOF):JSON.parse(readFileSync(new URL('../../../../evidence/session7-native/rehearsal-fork.json',import.meta.url)))
 test('rehearsal evidence can never populate publication mode',()=>{
   assert.equal(d.chainId,31337)
   assert.equal(d.publicCircuitIds,null)
-  assert.equal(d.upstream.chainId,196)
+  assert.equal(d.origin?.originChainId ?? d.upstream.chainId,196)
+  if(d.origin)assert.equal(d.upstream.chainId,31337)
   assert(d.programs.every(p=>p.publication==='fork-only'))
   if(config.status!=='published')assert.throws(()=>inputMode('--published'),/has not verified public IDs/)
   assert.throws(()=>inputMode(undefined),/Choose/)

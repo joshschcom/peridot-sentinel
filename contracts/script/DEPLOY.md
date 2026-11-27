@@ -7,27 +7,31 @@ npm run build --workspace @peridot/circuit-sdk
 (cd contracts && forge build && forge build script/DemoRateModel.sol)
 ```
 
-Use an **unforked local Anvil** on loopback. Start a fresh node in one terminal and leave it running.
+Use a private, **unforked local Anvil** on loopback for a rehearsal. The shared browser node uses port 18545. Start the rehearsal node in one terminal and leave it running.
 
 ```sh
-anvil --chain-id 31337 --port 18545 --silent
+anvil --host 127.0.0.1 --chain-id 31337 --port 18546 --silent
 ```
 
 In another terminal, run the deployment. The first unlocked account owns the registry and market. The script adds 200 mock dollars of debt liquidity, activates the market and verifies code at its addresses. The optional position funds a Sentinel account with 100 mock collateral tokens, borrows 80 mock dollars, and authorizes the second unlocked account to repay up to 20. The controlled price moves LTV from 4000 to 5000 bps, past the 4500 bps automation trigger. The final output provides the keeper environment.
 
 ```sh
-node contracts/script/deploy-demo.mjs local --position --publish-manifest
-node packages/chain-config/scripts/check-manifest.mjs packages/chain-config/deployments/31337.json http://127.0.0.1:18545
+LOCAL_ANVIL_RPC=http://127.0.0.1:18546 node contracts/script/deploy-demo.mjs local --position
 ```
 
-For **X Layer testnet**, fund the designated deployer with test OKB. Supply a reviewed Git commit for both the no-key preflight and the deployment. `--ops=price` seeds the market and Sentinel position, authorizes the designated testnet operator, and performs the labeled mock-price move.
+The existing **X Layer testnet** deployment records the reviewed source commit in its manifest. Verify that pin from the repository root without loading any key. [1952 manifest](../../packages/chain-config/deployments/1952.json)
 
 ```sh
-deployment_commit=586af978bdba9ce249c867a9884a14e8334473fe
+deployment_commit=$(node -p "require('./packages/chain-config/deployments/1952.json').commit")
 env -u PERIDOT_TESTNET_KEY node contracts/script/deploy-demo.mjs testnet --source-commit="$deployment_commit" --preflight-only
+```
 
+For an authorized testnet deployment, the coordinator sets `PERIDOT_KEY_DIR` in the signer shell to the protected key directory outside this repository (the founder's layout uses `../.testnet-keys`). Scope the deployer key to the deployment process. This operation seeds a market, configures a representative repayment position, performs the labelled mock-price move and publishes a manifest. The preflight above is sufficient for release verification.
+
+```sh
+: "${PERIDOT_KEY_DIR:?Set the external testnet key directory in the signer shell}"
 DEMO_OPERATOR=0x2c7E78e47deBC84eFac28D336f98d54b4c1FCE88 \
-PERIDOT_TESTNET_KEY="$(cat /Users/joshua/Peridot/OKX/.testnet-keys/deployer.key)" \
+PERIDOT_TESTNET_KEY="$(cat "$PERIDOT_KEY_DIR/deployer.key")" \
   node contracts/script/deploy-demo.mjs testnet --source-commit="$deployment_commit" --ops=price --publish-manifest
 ```
 
@@ -55,10 +59,10 @@ The script checks the X Layer source block hash, loopback fork parent, chain ID 
 
 ## Repeatable demo operations
 
-Start a fresh development Anvil as above. A single command deploys the suite, registers a market policy through Studio, seeds and activates the first market, creates a Sentinel account, and opens its position. The command uses the operator and RPC described above. Locally, a separate unlocked user publishes the market template with its SDK proof. The registry decides the canonical circuit ID.
+Start a fresh development Anvil on port 18546 as above. A single command deploys the suite, registers a market policy through Studio, seeds and activates the first market, creates a Sentinel account, and opens its position. Locally, a separate unlocked user publishes the market template with its SDK proof. The registry decides the canonical circuit ID.
 
 ```sh
-node contracts/script/deploy-demo.mjs local --ops=fresh
+LOCAL_ANVIL_RPC=http://127.0.0.1:18546 node contracts/script/deploy-demo.mjs local --ops=fresh
 ```
 
 Run any of the following on the same node. Each command retrieves completed receipts from the journal and carries out its prerequisites. `--ops=all` runs the operations in order from a fresh node.

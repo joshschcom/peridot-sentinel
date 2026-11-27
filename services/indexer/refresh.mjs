@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict'
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { DatabaseSync } from 'node:sqlite'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { addSource, catalog, GROUP, header, mergeEvents, scanGroup } from './scan.mjs'
+import { advance } from './history.mjs'
+import { reader } from './rpc.mjs'
+export { reader } from './rpc.mjs'
+import { outputOptions, writeSnapshot } from './output.mjs'
+import { addSource, catalog, header } from './scan.mjs'
 
 const repo = new URL('../../',import.meta.url)
 const json = file => JSON.parse(readFileSync(new URL(file,repo),'utf8'))
@@ -11,7 +14,7 @@ const out = new URL('packages/chain-config/activity/1952.json',repo)
 const endpoints = ['https://testrpc.xlayer.tech','https://xlayertestrpc.okx.com']
 const confirmations = 12
 
-function configuration() {
+export function configuration() {
   const m4 = json('packages/chain-config/deployments/1952.json')
   assert(m4.chainId===1952 && m4.status==='deployed' && m4.profile==='testnet')
   const first = BigInt(m4.deploymentBlock)
@@ -43,7 +46,7 @@ function configuration() {
   }
   const roots = [...sources.values()]
   const abiEvents = Object.fromEntries(Object.entries(catalog).map(([name,events])=>[name,[...events.values()]]))
-  return {first,roots,abiEvents,scopeDigest:digest(roots,abiEvents)}
+  return {first,roots,abiEvents,scopeDigest:digest(roots,abiEvents),metadata:{schemaVersion:1,kind:'indexed-event-snapshot',chainId:1952}}
 }
 
 export function digest(roots,abiEvents) {
@@ -68,29 +71,6 @@ function addedRoots(previous,config) {
   return null
 }
 
-export function reader(url) {
-  let id = 0
-  return async (method,params) => {
-    let last
-    for (let attempt=0; attempt<4; attempt++) {
-      try {
-        const n = ++id
-        const res = await fetch(url,{method:'POST',headers:{'content-type':'application/json'},
-          body:JSON.stringify({jsonrpc:'2.0',id:n,method,params}),signal:AbortSignal.timeout(10000)})
-        if (!res.ok) throw Error('HTTP '+res.status)
-        const body = await res.json()
-        if (body.error) throw Error(body.error.message)
-        assert(body.id===n && body.result!=null,'Incomplete RPC reply')
-        return body.result
-      } catch(error) {
-        last=error
-        if (attempt<3) await new Promise(resolve=>setTimeout(resolve,250*2**attempt))
-      }
-    }
-    throw Error(url+' '+method+' failed: '+last.message)
-  }
-}
-
 export async function resume(previous, config, safe, rpc) {
   if (!previous) return null
   const additions=addedRoots(previous,config)
@@ -112,64 +92,25 @@ export async function resume(previous, config, safe, rpc) {
     coverage:{...previous.coverage,toBlock:String(next-1n),toBlockHash:checkpoint}}
 }
 
-function publish(snapshot) {
-  const temporary = new URL('1952.json.'+process.pid+'.tmp',out)
-  writeFileSync(temporary,JSON.stringify(snapshot,null,2)+'\n')
-  renameSync(temporary,out)
+export async function refreshShared(options, dependencies={}) {
+  const clients=dependencies.clients ?? endpoints.map(reader)
+  return writeSnapshot(dependencies.input ?? fileURLToPath(out),options,previous=>advance({
+    previous,clients,config:dependencies.config ?? configuration(),depth:confirmations,dynamic:true,prepare:resume,
+    clock:dependencies.clock
+  }))
 }
 
-async function refresh() {
-  const config = configuration()
-  const clients = endpoints.map(reader)
-  for (const rpc of clients) assert.equal(BigInt(await rpc('eth_chainId',[])),1952n)
-  const tips = await Promise.all(clients.map(rpc=>header(rpc,'latest')))
-  const head = tips[0].number < tips[1].number ? tips[0].number : tips[1].number
-  assert(tips.every(t=>Math.abs(Date.now()/1000-Number(t.timestamp))<180),'RPC head is stale')
-  const safe = head-BigInt(confirmations)
-  // Both official endpoints must identify the same target and saved checkpoint.
-  const tipsAtSafe = await Promise.all(clients.map(rpc=>header(rpc,safe)))
-  assert.equal(tipsAtSafe[0].hash,tipsAtSafe[1].hash,'RPC endpoints disagree on target')
-  const prior = existsSync(out)?JSON.parse(readFileSync(out,'utf8')):null
-  const choices = await Promise.all(clients.map(rpc=>resume(prior,config,safe,rpc)))
-  assert.deepEqual(choices[0]?.coverage??null,choices[1]?.coverage??null,'RPC endpoints disagree on saved checkpoint')
-  let snapshot = choices[0]
-  let next = snapshot ? BigInt(snapshot.coverage.toBlock)+1n : config.first
-  if (next>safe) { console.log('Already covers confirmed target',String(safe)); return }
-  while(next<=safe) {
-    const to = next+GROUP-1n < safe ? next+GROUP-1n : safe
-    let group, failure, peerRpc
-    for (const [index,rpc] of clients.entries()) {
-      try {
-        group = await scanGroup(rpc,snapshot?.sources??config.roots,next,to,snapshot?.coverage.toBlockHash??null)
-        peerRpc=clients[1-index]
-        break
-      } catch(e) { failure=e }
-    }
-    if (!group) throw failure
-    // Verify the group endpoint on the independent transport before extending public coverage.
-    const peer = await header(peerRpc,to)
-    assert.equal(peer.hash,group.toBlockHash,'Public RPCs disagree about indexed range')
-    if (to===safe) {
-      assert.equal(group.toBlockHash,tipsAtSafe[0].hash,'Pinned target changed')
-      const independent=await scanGroup(peerRpc,snapshot?.sources??config.roots,next,to,snapshot?.coverage.toBlockHash??null)
-      assert.deepEqual(group,independent,'Public RPCs disagree about recent logs or emitters')
-    }
-    snapshot = {schemaVersion:1,kind:'indexed-event-snapshot',chainId:1952,updatedAt:new Date().toISOString(),
-      scopeDigest:config.scopeDigest,coverage:{fromBlock:String(config.first),toBlock:String(to),toBlockHash:group.toBlockHash,
-        headAtRefresh:String(head),confirmations,status:to===safe?'caught-up':'catching-up',
-        gaps:[
-          ...(to<safe?[{fromBlock:String(to+1n),toBlock:String(safe),reason:'awaiting-index'}]:[]),
-          {fromBlock:String(safe+1n),toBlock:String(head),reason:'confirmation-depth'},
-        ]},sources:group.sources,events:mergeEvents(snapshot?.events??[],group.events)}
-    publish(snapshot)
-    next=to+1n
+export async function run(args) {
+  const judges=args.filter(arg=>arg.startsWith('--judge='))
+  assert(judges.length<=1,'Choose one campaign')
+  const output=outputOptions(args.filter(arg=>!arg.startsWith('--judge=')))
+  if (judges.length) {
+    const {runJudge}=await import('../judge-activity/refresh.mjs')
+    return runJudge('testnet',judges[0].slice(8),output)
   }
-  console.log('1952 snapshot',snapshot.coverage.fromBlock,'through',snapshot.coverage.toBlock,'events',snapshot.events.length)
+  return refreshShared(output)
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href===import.meta.url) {
-  mkdirSync(new URL('packages/chain-config/activity/',repo),{recursive:true})
-  mkdirSync(new URL('.research/',repo),{recursive:true})
-  const lock = new DatabaseSync(fileURLToPath(new URL('.research/activity-1952-refresh.sqlite',repo)))
-  try { lock.exec('BEGIN IMMEDIATE'); await refresh() } finally { lock.close() }
+  console.log(JSON.stringify(await run(process.argv.slice(2)),null,2))
 }

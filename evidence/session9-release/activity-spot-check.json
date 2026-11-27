@@ -1,0 +1,87 @@
+{
+  "label": "Read-only spot checks of committed historical evidence; no refresh",
+  "chainId": 1952,
+  "observedAt": "2026-11-27T09:21:53.776Z",
+  "endpoints": [
+    {
+      "url": "https://testrpc.xlayer.tech",
+      "head": "47312476",
+      "checks": [
+        {
+          "profile": "shared",
+          "expectedCheckpoint": {
+            "number": "47250330",
+            "hash": "0xd371e2436e61ccc38f79fd6a059e3ad253c0369376e00cb8a62704a3e56543d8"
+          },
+          "observedCheckpoint": "0xd371e2436e61ccc38f79fd6a059e3ad253c0369376e00cb8a62704a3e56543d8",
+          "matchingTerminal": true,
+          "savedEvent": {
+            "blockNumber": "47250298",
+            "blockHash": "0xa3b3af09df4fdf2751d47a9f8c44b88beadc4480b95699a983ccc209c0226e90",
+            "transactionHash": "0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+            "logIndex": "0"
+          },
+          "matchingRawLog": true,
+          "matchingReceipt": true
+        },
+        {
+          "profile": "judge",
+          "expectedCheckpoint": {
+            "number": "47253214",
+            "hash": "0x8717f8338cbeeec62c28d5122909534cf1a11f198ee93bc10ca421a8e5362d12"
+          },
+          "observedCheckpoint": "0x8717f8338cbeeec62c28d5122909534cf1a11f198ee93bc10ca421a8e5362d12",
+          "matchingTerminal": true,
+          "savedEvent": {
+            "blockNumber": "47253173",
+            "blockHash": "0x1a86453f32d35597ee8b0be414fb5a20569516dab7b90dbcffb86cba7bd2c1df",
+            "transactionHash": "0x81ecd45e8dce8714d8ab9ee3b0b08d2e4c339030330b06d15356e0071e9ae496",
+            "logIndex": "0"
+          },
+          "matchingRawLog": true,
+          "matchingReceipt": true
+        }
+      ]
+    },
+    {
+      "url": "https://xlayertestrpc.okx.com",
+      "head": "47312480",
+      "checks": [
+        {
+          "profile": "shared",
+          "expectedCheckpoint": {
+            "number": "47250330",
+            "hash": "0xd371e2436e61ccc38f79fd6a059e3ad253c0369376e00cb8a62704a3e56543d8"
+          },
+          "observedCheckpoint": "0xd371e2436e61ccc38f79fd6a059e3ad253c0369376e00cb8a62704a3e56543d8",
+          "matchingTerminal": true,
+          "savedEvent": {
+            "blockNumber": "47250298",
+            "blockHash": "0xa3b3af09df4fdf2751d47a9f8c44b88beadc4480b95699a983ccc209c0226e90",
+            "transactionHash": "0xcd440b9f2d352d04019283158506f7c9ab40dd6d4b395515a38e8670b2c40f7f",
+            "logIndex": "0"
+          },
+          "matchingRawLog": true,
+          "matchingReceipt": true
+        },
+        {
+          "profile": "judge",
+          "expectedCheckpoint": {
+            "number": "47253214",
+            "hash": "0x8717f8338cbeeec62c28d5122909534cf1a11f198ee93bc10ca421a8e5362d12"
+          },
+          "observedCheckpoint": "0x8717f8338cbeeec62c28d5122909534cf1a11f198ee93bc10ca421a8e5362d12",
+          "matchingTerminal": true,
+          "savedEvent": {
+            "blockNumber": "47253173",
+            "blockHash": "0x1a86453f32d35597ee8b0be414fb5a20569516dab7b90dbcffb86cba7bd2c1df",
+            "transactionHash": "0x81ecd45e8dce8714d8ab9ee3b0b08d2e4c339030330b06d15356e0071e9ae496",
+            "logIndex": "0"
+          },
+          "matchingRawLog": true,
+          "matchingReceipt": true
+        }
+      ]
+    }
+  ]
+}

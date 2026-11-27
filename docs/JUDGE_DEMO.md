@@ -6,12 +6,14 @@ This walkthrough uses X Layer testnet **1952**, valueless tokens, a mock oracle,
 
 Start in the repository root with workspace dependencies installed. Build the existing artifacts with `forge build --root contracts --offline`, `forge build --root contracts/expansion --offline`, `npm --prefix packages/circuit-sdk run build` and `npm --prefix packages/chain-config run build`. The setup verifies the creation bytecode against the public expansion source pin. Keep the campaign's directory across restarts.
 
-The coordinator provisions a fresh judge wallet and supplies its public address in `JUDGE_OWNER`. The preparation process receives `JUDGE_OWNER_KEY` and the approved 1952 deployer in `PERIDOT_TESTNET_KEY` through its private environment. The disposable owner key is available to the preparation operator as well as the judge. A judge can import that testnet-only owner into an isolated browser wallet. Use an empty, dedicated wallet for this shared demo. Only the coordinator needs the deployment credential. The D9 operator key stays on the separate signer host. All three signer addresses must be distinct. The grant expires seven days after preparation. A new campaign needs a fresh judge address and a unique campaign name.
+The coordinator provisions a fresh judge wallet and supplies its public address in `JUDGE_OWNER`. The preparation process receives `JUDGE_OWNER_KEY` and the approved 1952 deployer in `PERIDOT_TESTNET_KEY` through its private environment. In the preparation shell, set `PERIDOT_KEY_DIR` to the protected testnet key directory outside the repository. The disposable owner key is available to the preparation operator as well as the judge. A judge can import that testnet-only owner into an isolated browser wallet. Use an empty, dedicated wallet for this shared demo. Only the coordinator needs the deployment credential. The D9 operator key stays on the separate signer host. All three signer addresses must be distinct. The grant expires seven days after preparation. A new campaign needs a fresh judge address and a unique campaign name.
 
 **One-command setup** creates both markets through Studio’s compiler, registration and factory methods and leaves both grants unspent. This path submits the same typed transactions a Studio wallet uses. Step 1 below lets the judge create market A in the browser instead.
 
 ```sh
-node services/judge-demo/run.mjs testnet setup judge-01
+: "${PERIDOT_KEY_DIR:?Set the external testnet key directory in the preparation shell}"
+PERIDOT_TESTNET_KEY="$(cat "$PERIDOT_KEY_DIR/deployer.key")" \
+  node services/judge-demo/run.mjs testnet setup judge-01
 ```
 
 It funds the judge to at least **0.006 test OKB**, funds the operator to at least **0.001 test OKB** and transfers at least **0.0001 test OKB** to each new campaign participant. The journal records the two exact transfers and the deployer's starting and final native balances. On the shared M4 feed it keeps the quoted prices and refreshes their timestamps. It deploys new jWOKB and jUSDC contracts, a dedicated mock feed and an inventory-backed venue, with 3 jWOKB in the judge’s v2 account. Both M4 collateral books receive freshly minted original test tokens. Each market gets its own controller and books. New MARKET and ACCOUNT circuit IDs use the existing M4 development processor. A separate development processor receives the new EXECUTION circuit.
@@ -110,10 +112,10 @@ Inspect `revoke.json` and the verifier. V1 returns a zero operator mask, budget 
 ## 7. Read activity and refresh recorded history
 
 ```sh
-node services/judge-activity/refresh.mjs testnet judge-01
+node services/indexer/refresh.mjs --judge=judge-01 --output=evidence/session9-activity/judge-01.json
 ```
 
-Read the campaign’s `activity.json` with its start, end, terminal block hash and confirmation gap. Refresh after each demonstration reaches its public confirmation depth, or every 15 minutes when showing a running demo. Use the mined-rejection files for failed calls and the MCP results for simulations. The canonical M4 history can also be refreshed with `node services/indexer/refresh.mjs`. The campaign profile includes its own new v2 factory and venue. [Historical activity schema](../services/indexer/README.md)
+Read the candidate snapshot with its covered ranges, block hashes and gaps. The judge campaign includes its own v2 factory and venue. Allow 12 successor blocks on public testnet before checking for a new event. For the shared M4 history, run `node services/indexer/refresh.mjs --output=evidence/session9-activity/shared.json`. Both commands write outside the files served by the app. On the coordinator’s explicit request, publish the selected profile with `--publish`. Mined-rejection files retain the failed receipts and MCP results identify simulations. [Historical activity schema and recovery](../services/indexer/README.md)
 
 ## Evidence and rehearsal
 
@@ -132,7 +134,7 @@ node services/judge-demo/run.mjs fork policy-denials judge-01
 node services/judge-connect/client.mjs fork judge-01 exercise
 node services/judge-demo/run.mjs fork revoke judge-01
 node services/judge-demo/verify.mjs fork judge-01
-node services/judge-activity/refresh.mjs fork judge-01
+node services/judge-activity/refresh.mjs fork judge-01 --output=evidence/session9-activity/judge-01-fork.json
 ```
 
 The private 1952 fork rehearsal pinned upstream block **47,252,205**. Setup mined 49 transactions. A repeat submitted zero additional transactions and observed both grants ready. The independent generic MCP client then executed the three typed actions through stdio. Repayment used 224,693 gas, paid 2 mUSD and moved LTV from 4001 to 3876 bps. Swap used 262,198 gas and returned 19.99 jUSDC. The intentional unauthorized borrow used 48,786 gas and left the monitored state unchanged. The separate independent policy checks observed 5800 and 5200 bps. After revocation an idempotent setup observed both grants unavailable. The fork activity snapshot recorded 56 events from blocks 47,252,206–47,252,262. These transactions exist only on the disposable fork. Its market creation used the scripted Studio transaction path. Earlier browser evidence covers the wizard on an unforked local Anvil instance. [Earlier browser Studio wallet evidence](../evidence/fable/local-e2e-first-full-studio-run.json) [Fork manifest and journal](../deployments/session7/fork-c3ff76c553e75afa/judge-01/manifest.json) · [Stdio client results](../evidence/session7-judge/fork-mcp.json) · [Fork policy rejections](../deployments/session7/fork-c3ff76c553e75afa/judge-01/policy-denials.json)

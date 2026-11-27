@@ -1593,3 +1593,106 @@ basis: "Fable run 6 accepted both owner flows in a browser on a private fork of 
 verification: "Claude rebuilt production with both switches on and ran `chain-checks.mjs testnet-live` (KEEPER_API_URL unset) against public 1952: all checks passed (log evidence/claude-postflip/testnet-live.log)."
 note: "Writes on public 1952 need the user's own wallet with faucet test OKB. All swap and vault assets are valueless mocks."
 ```
+
+```yaml
+milestone: M10-activity-recovery-draft
+from: astra
+status: integrating
+chain_id: 1952
+specialists: ["A5 shared/judge refreshers and pruning tests", "Astra browser coverage helper and integration", "A1 native signing rehearsal", "A6 portable commands"]
+frontend_actions: ["Fable/Claude: adapt the shared live merge and both coverage views during release verification. Read additive coverage.segments[] with inclusive decimal-string fromBlock/toBlock, toBlockHash, optional fromBlockHash and sourceCoverage ('configured' or 'known-emitters'). A legacy snapshot has one configured segment. coverage.gaps[] adds permanent reason 'history-unavailable'. Retain earlier events and their receipt/block hashes as previously verified evidence if the checkpoint header cannot be fetched; label a hash conflict separately, withhold canonical merge on conflict, and report live scan ranges separately.", "Never represent the outer envelope of disconnected segments as fully covered. After a shared discovery gap, label newer coverage as limited to known emitters; factory children created during the gap may be missing. Replace the current 'every block' copy on /records and the single-range merge on /sentinel/activity. Judge history uses a fixed scope. A browser-safe coverage helper and exact final contract follow in M10-activity-recovery."]
+next_dependency: "Fable owns apps/web and its production-build verification. No shared or judge committed snapshot refresh is requested. Test fixtures belong outside the release inputs."
+```
+
+```yaml
+milestone: M10-browser-activity-coverage
+from: astra
+status: implemented
+specialists: ["Astra implemented and tested the browser coverage helper against A5's snapshot contract", "A5 owns both refreshers; A1 native; A6 portability"]
+new_functions: ["activityCoverageView(coverage, observedTerminalHash | null) in packages/chain-config/src/activity-coverage.ts; re-exported by @peridot/chain-config after its normal build"]
+verification: ["TypeScript --noEmit and 3 browser-helper tests passed. They preserve legacy evidence when the header cannot be read, retain the declared gap, restrict a live match to the last segment and reject missing anchors or contradictory ranges. Independent read-only spot checks on both public RPCs matched the two original terminals plus a saved event/receipt from each snapshot; these checks did not refresh either file."]
+frontend_actions: ["Pass the observed hash at coverage.toBlock, or null after an unavailable read. The helper returns historicalSegments, gaps, checkpoint ('matches' | 'unavailable' | 'conflict') and mergeableTail (last checked segment or null). Display every previously verified event with its original receipt/block hash. Never use the outer envelope as a single checked range. A matching last segment with sourceCoverage='known-emitters' supports claims only for emitters that were indexed.", "Fable owns apps/web. Pass the original coverage object to this helper before reducing it in the parser. Keep live-only rows and their evidence separate when the terminal cannot be compared or conflicts. Direct relative source import is available to an in-progress build."]
+next_dependency: "A5's M10-activity-recovery will give the final portable both-profile operator command and pruning/re-anchor checks."
+```
+
+```yaml
+milestone: M10-native-publication-inputs
+from: astra
+status: implementing
+chain_id: "196 read-only; private Anvil writes only"
+specialists: ["A1 owns sponsor verification and the two-fork pipeline; Astra reviews the public/config boundary. A5 activity and A6 portability work separately."]
+verification: ["Nov 27 09:19:48 UTC pre-sign check passed at block 77002152, CPU 410, 9837 NAND available for the 209 needed; the reviewed four-transaction cap was 0.004647 OKB. No signer address was supplied. The founder should repeat with their public address at signing time."]
+frontend_actions: ["The old D8b-postpublish.mjs had no output-path option. It now requires explicit --published or --fork for receipt processing. Only --published can default to packages/chain-config/expansion/tapeout-196.json. --fork requires --out in an isolated directory; it does not issue app-consumable publication status. Keep the current UI's public IDs unset until separate founder transactions are finalized and verified by Claude."]
+next_dependency: "The exact post-sign sequence is in docs/coordination/D8b-v2-three-circuits.md. Final FORK evidence and counts will follow."
+```
+
+```yaml
+milestone: M10-activity-recovery
+from: astra
+status: implemented
+chain_id: 1952
+specialists: ["A5 implemented both refreshers, receipt-backed anchors, synthetic pruning tests and runbooks", "Astra exercised actual CLI dispatch, found the import cycle, retested A5's fix, added the browser helper and cross-checked public historical receipts", "A1 native and A6 portable operations"]
+manifest: ["evidence/session9-activity/pruned-shared.json", "evidence/session9-activity/pruned-judge.json"]
+verification: ["20/20 targeted indexer tests passed including both refresh paths. Four browser-helper tests passed, including both actual committed legacy files. Simulated profiles retained the original event and hash, declared 102–119 history-unavailable, verified a new anchor at 120 from two matching log/receipt witnesses and exposed 121–132 as confirmation-depth. Conflicting history, missing receipts, generic network errors, incomplete anchors or no available gap fail closed without replacing a candidate."]
+frontend_actions: ["Schema version stays 1. Optional coverage.segments[] entries are {fromBlock,toBlock,toBlockHash,fromBlockHash?,sourceCoverage}. All block heights are inclusive decimal strings. A re-anchor includes fromBlockHash and a permanent coverage.gaps[] item with reason history-unavailable for the exact intervening heights. After a discovery gap the shared segment's sourceCoverage is known-emitters; judge remains configured. No event fields change. Render historical receipts even if live comparison fails; display gaps with their reason and range. See M10-browser-activity-coverage and the two synthetic examples."]
+next_dependency: "One portable CLI from repo root: node services/indexer/refresh.mjs --output=evidence/session9-activity/shared-preview.json ; add --judge=judge-01 for the campaign and choose its own output. --publish is a separate coordinator-requested real refresh. Nothing was published. Runbooks are services/indexer/README.md and services/judge-activity/README.md."
+```
+
+```yaml
+milestone: M10-native-publication-rehearsed
+from: astra
+status: implemented
+chain_id: "196 read-only and two private FORKs"
+specialists: ["A1 implemented and ran both fork stages; Astra independently verified receipt counts, no-fallback traces and nine targeted tests. A5 covered activity and A6 portable commands."]
+manifest: ["evidence/session9-native/nov27-fork/tapeout-196.json (FORK ONLY)", "evidence/session9-native/presign-196.json"]
+verification: ["All four fork fabrications/fee transactions settled and returned local-only circuit IDs 2, 3 and 4. Native and public-1952 dev reference decisions matched 23/23 vectors. Financial verification mined 61 fork receipts (49 successful, 12 deliberate reverts); 18 traces contained no development processor calls. Inclusive account/market/swap boundaries used 796290/480767/350388 gas; each next basis point failed. Nine focused Node tests passed."]
+frontend_actions: ["Public CPU 410 publication remains pending. After the founder signs and the receipts finalize, follow the three-command sequence in docs/coordination/D8b-v2-three-circuits.md#november-28-signing-and-verification. D8b-postpublish.mjs writes the public config by default only with --published. --fork always requires a scoped --out."]
+next_dependency: "Founder signing November 28, with a fresh sender-aware presign check. The zero-funds witness is a separate founder decision. Its illustrative 626790-gas envelope at 0.05 gwei is 0.0000313395 OKB."
+```
+
+```yaml
+milestone: M10-strategy-registry-interface
+from: astra
+status: proposed
+chain_id: "31337 local and private fork of 1952"
+specialists: ["A2 owns contract and fuzz tests; A4 owns verified SDK reads and unsigned publication calls; A5 owns private deployments and the independent adoption rehearsal; Astra owns design, release gates and Fable handoff."]
+frontend_actions: ["Read docs/STRATEGY_REGISTRY.md. The publication key is (creator, seriesId, version). StrategyPublished indexes targetChainId, adapterVersion and policyKey. The SDK must check raw content hash, existing validator, canonical form and labels before offering adoption. The existing owner adoption planner remains the only grant path."]
+next_dependency: "Private deployments, SDK checks and independent adoption rehearsal are pending. Claude owns any public deployment. Keep public discovery disabled until a separate address and Fable acceptance."
+```
+
+```yaml
+milestone: M10-strategy-registry-ready
+from: astra
+status: implemented
+chain_id: "31337 disposable local, 1952 PRIVATE FORK at 47313472; public registry NOT DEPLOYED"
+specialists: ["A2 implemented the immutable registry and fuzz tests", "A4 implemented the registry SDK and generated ABI parity test", "A5 exported the ABI and mined both deployments, publications and independent adoptions", "Astra reviewed runtime and bytes against the artifact, both public origin witnesses, cost and test results"]
+contracts: ["LOCAL and FORK fixture address only = 0xA11012A2ca9AdeeA836560A267A183966a4092c1", "runtime keccak256 = 0xc8f42e779cd1e1c1b7436a8f75ad9acf7da98f8fb947a8dd6b90f79f612f29b1"]
+abi_version: "packages/chain-config/expansion/abi/StrategyRegistry.json"
+manifest: ["evidence/session9-registry/nov27/local-31337.json", "evidence/session9-registry/nov27/fork-1952.json (FORK only)"]
+new_functions: ["@peridot/strategy-sdk/registry: buildStrategyPublication, readPublishedStrategy, discoverPublishedStrategies, verifyStrategyPublication", "StrategyPublished(uint256 indexed targetChainId,bytes32 indexed adapterVersion,bytes32 indexed policyKey,address creator,bytes32 seriesId,uint32 version,bytes32 contentHash)"]
+verification: ["8/8 Forge tests, two 256-case fuzz targets, strict TypeScript and 18/18 SDK tests. Private deployments recorded 3 local and 10 fork receipts. Both independently owned fresh accounts adopted and revoked; creator grant stayed zero. FORK registry deployment 0x2ec478b0b99e81cb906c856bca4870afb5dce07632f174a5136c48c2ceb39e22, 422748 gas. Debt and swap publications used 1047288 and 1115561 gas."]
+frontend_actions: ["Use an independently reviewed deployment pin and display the creator and immutable version. Only chain-verified, validator-accepted entries can start the existing owner adoption review. Agent instructions stay inert. Discovery pages are up to 100 confirmed blocks. See docs/STRATEGY_REGISTRY.md for entry points, full costs and evidence."]
+next_dependency: "Claude reviews and deploys on public 1952. Fable binds the actual public receipt/address and verifies both templates December 1–2. Stay on curated templates/import until that gate passes."
+```
+
+```yaml
+milestone: M10-portable-operations
+from: astra
+status: implemented
+specialists: ["A6 reviewed operational docs, shell snippets and the tracked-files inventory; Astra reviewed release commands and output isolation. A1 and A5 delivered the native and activity runbooks."]
+verification: ["27 shell snippets passed sh -n. The reviewed index contained 1423 entries, with no tracked key, dotenv file or recognized credential. Reviewed docs use repo-relative paths or the external PERIDOT_KEY_DIR shell variable."]
+frontend_actions: ["Run examples from the repository root. Keep the external key directory server-side."]
+```
+
+```yaml
+milestone: M10-session9-report
+from: astra
+status: implemented
+commit: "Working tree for Claude; current integration head at review 8ea0767"
+chain_id: "1952 and 196 public reads; deployments on disposable local and private forks only"
+specialists: ["A5 shared and judge recovery, registry receipts and independent owner adoption", "A1 sponsor presign and native publication rehearsal", "A6 portable operations and tracked credential review", "A2 registry implementation and fuzz tests", "A4 registry SDK and ABI parity", "Astra integration, historical coverage helper, read-only previews, integrity regression and release checks"]
+verification: ["25/25 activity and browser-helper checks, 9/9 native publication/evidence checks, 8/8 Forge registry tests (including 512 fuzz cases), 18/18 SDK tests. Both actual public read-only previews succeeded. All 108 shared and all 47 judge historical rows matched exactly. Shared preview adds 59 records through 47312687; judge found zero new records through 47313483.", "All 30 protected files matched the pre-session SHA-256 inventory. The canonical TapeOut config still has three null public IDs. The 1952 expansion and vault source hashes match. No public transactions, shared-node changes, or canonical refresh occurred."]
+manifest: ["evidence/session9-release/shared-preview.json (preview only)", "evidence/session9-release/judge-preview.json (preview only)", "docs/coordination/ASTRA_REPORT.md#session-9--release-readiness"]
+frontend_actions: ["M10-activity-recovery and M10-browser-activity-coverage describe the retained receipts and gap display. The final refresh also rejects adjacent independent segments and malformed starting hashes before replacing any output. Fable owns browser acceptance for pruned RPCs; public registry UI should wait for Claude’s separate public pin."]
+next_dependency: "Founder signing and Claude's verified public receipt sequence; independent Claude review of public 1952 registry deployment. Claude owns the checkpoint."
+```

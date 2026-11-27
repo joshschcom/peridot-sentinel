@@ -1,4 +1,5 @@
 export * from './abis.js';
+export * from './activity-coverage.js';
 
 export const abiVersion = 'v1' as const;
 export const xLayerTestnet = {

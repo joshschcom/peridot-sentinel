@@ -1,7 +1,13 @@
 # Judge campaign activity
 
-Run `node services/judge-activity/refresh.mjs testnet judge-01` from the repo root after setup and after each walkthrough. During a demo refresh every 15 minutes. For the private 1952 fork, replace `testnet` with `fork`. The result is `activity.json` next to the corresponding judge manifest. The shared M4 and M7 snapshot has its own refresh command. [Shared indexer](../indexer/README.md)
+Preview a campaign from the repo root using the same command as the shared index. The existing manifest and campaign snapshot are read as inputs.
 
-The snapshot covers successful events emitted by this campaign’s two controllers, four pToken books, two v1 accounts, v2 account and swap adapter. The campaign manifest links the factory creation, circuit registration, funding and other setup receipts. Deliberately reverted transactions produce zero event logs. Read their proof from the campaign’s separate receipt files. A keeper attempt that never reached the chain must come from its service journal.
+```sh
+node services/indexer/refresh.mjs --judge=judge-01 --output=evidence/session9-activity/judge-preview.json
+```
 
-Display the campaign, profile, inclusive block range and terminal hash. The 1952 public reader waits for 12 successor L2 blocks and reconciles decoded events on both official RPCs. A private automining fork uses its local tip. Refresh reads in 100-block pages, writes each verified group atomically and rechecks the checkpoint on resume. A changed branch or source set triggers rebuilding. An RPC disagreement or a lagging endpoint stops advancement.
+A requested real refresh uses `--publish` in place of the explicit candidate output. The direct entry point also accepts `node services/judge-activity/refresh.mjs testnet judge-01 --output=<candidate.json>`. Use `fork` in place of `testnet` for the designated private 1952 fork: the RPC must prove the upstream and local instance, and the fork uses its own tip and one local witness. Public verification uses two official RPCs and 12 successor L2 blocks.
+
+Each run checks current runtime, account, factory, ownership and route bindings. The index covers successful events on the two controllers, four pToken books, two v1 accounts, v2 account and swap adapter listed in the campaign. Because this list is fixed, every verified campaign segment has `sourceCoverage: configured`. Deliberate reversions and keeper simulations are reported separately through their receipts and service journal.
+
+Display the campaign, profile, every inclusive segment, terminal hash and gaps. Older rows remain previously verified evidence if the current provider loses its checkpoint. Recent confirmed blocks can continue only after the receipt-checked recovery anchor succeeds. See the [refresh and pruning runbook](../indexer/README.md) for error handling, candidate publication, fail-closed outcomes, archive rechecks and the exact additive schema.

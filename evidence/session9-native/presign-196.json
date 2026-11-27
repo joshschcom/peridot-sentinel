@@ -1,0 +1,103 @@
+{
+  "mode": "read-only pre-sign verification; no transaction submitted",
+  "chainId": 196,
+  "blockNumber": "77002152",
+  "blockHash": "0x401a3e9c4fc7756c2fc2c92d0cb55f57d71bd22d7c1c90be9977337cf2005465",
+  "utc": "2026-11-27T09:19:48.000Z",
+  "reviewedPacketSha256": "af5ac98cb1c7ea91cada427a256d4fd7cfdcad972d1ed327bb05f772734ed074",
+  "sender": null,
+  "binding": {
+    "factory": "0x1f09DAeFA827f02CBb40967cc91b259763760761",
+    "cpuIndex": 410,
+    "cpu": "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5",
+    "components": "0x3896076BE165d6a7eC2a70CCF6876673fE245007",
+    "beacon": "0xf70d1ed4f62CF3780157B0b421b7E2F45bD0991C",
+    "beaconImpl": "0x977f217887E085D298Cb3819cDAD5A0ee35F29B2",
+    "beaconOwner": "0x0000000000000000000000000000000000000000",
+    "factoryImpl": "0x000000000000000000000000336e9f0f4c3fee7c8c803377e4dea00293f4ae2a",
+    "factoryOwner": "0xB3D85b42A045c1A88D800CAD0F55d2566a4D3138",
+    "sealed": false,
+    "codeHashes": {
+      "0x1f09DAeFA827f02CBb40967cc91b259763760761": "0x5cddc08137fc81eb8ba1d37902e77553152c2f639b6bf6f601ecb094e2cae5c8",
+      "0x336e9F0F4c3fEe7C8c803377e4DEA00293f4ae2a": "0x8310648246b9825d2861cd4a5a980eed1d3b7165b2aed247b1c55abe049b7f60",
+      "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5": "0x8c799a18cd8e0d5f5f3c0cec4fbc145e2daf79f70c2b131c09d0f380921db545",
+      "0xf70d1ed4f62CF3780157B0b421b7E2F45bD0991C": "0xc7cc9854e1465f48d6d8d6d220c04efa6509939832930be4b04ee7fe86575362",
+      "0x977f217887E085D298Cb3819cDAD5A0ee35F29B2": "0x7a15c353205e5245f40f5f5524542a982a4bb3b9a28476e4f10845163f941b30",
+      "0x3896076BE165d6a7eC2a70CCF6876673fE245007": "0xbd8d1d3ea1dcf084b7f25f47a0bb2c71a1405d66b0088610f3a5fe5c7034d983",
+      "0x420000000000000000000000000000000000000F": "0xfa8c9db6c6cab7108dea276f4cd09d575674eb0852c0fa3187e59e98ef977998",
+      "0x4Ff345b18a2bF894F8627F41501FBf30d5C5e7BE": "0xbd6f524cdc4268b6bd1bb6f77a8821faeea9c52ee9e0afa0b6d948ce82c966c2"
+    }
+  },
+  "netlistHashes": [
+    "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+    "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+    "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b"
+  ],
+  "fees": {
+    "batchFee": "660000000000000",
+    "unit": "0",
+    "fabricationFee": "1300000000000000",
+    "baseFeePerGas": "20000000"
+  },
+  "components": {
+    "id": "0",
+    "cap": "10000",
+    "minted": "163",
+    "available": "9837",
+    "needed": 209
+  },
+  "calls": [
+    {
+      "label": "Mint 209 NAND",
+      "to": "0x3896076BE165d6a7eC2a70CCF6876673fE245007",
+      "selector": "0x1b2ef1ca",
+      "dataHash": "0xe25441207526d5dcb8230fc0cd728d9855ba8898c618a1aaf856babba2e82ce3",
+      "valueWei": "660000000000000",
+      "gas": "120000",
+      "executionUpperWei": "6000000000000",
+      "l1UpperWei": "0",
+      "operatorUpperWei": "0",
+      "maxWei": "666000000000000"
+    },
+    {
+      "label": "Market Policy V1",
+      "to": "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5",
+      "selector": "0x7bd3ac1d",
+      "dataHash": "0xa2d60060d3513a174e3fd28a63c8a97620d17c257a35d743cd55fcf74b01f9fc",
+      "valueWei": "1300000000000000",
+      "gas": "520000",
+      "executionUpperWei": "26000000000000",
+      "l1UpperWei": "0",
+      "operatorUpperWei": "0",
+      "maxWei": "1326000000000000"
+    },
+    {
+      "label": "Sentinel Policy V1",
+      "to": "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5",
+      "selector": "0x7bd3ac1d",
+      "dataHash": "0xccf66475a540004afff3b1b1884511f107805017b3ffec87fe2ee65c428dad1c",
+      "valueWei": "1300000000000000",
+      "gas": "580000",
+      "executionUpperWei": "29000000000000",
+      "l1UpperWei": "0",
+      "operatorUpperWei": "0",
+      "maxWei": "1329000000000000"
+    },
+    {
+      "label": "Expanded Sentinel Policy V2 (EXECUTION)",
+      "to": "0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5",
+      "selector": "0x7bd3ac1d",
+      "dataHash": "0x05271fbc680a24a64b029c23c64c563c581b49f8d1548b08c9687ffa942fcb3f",
+      "valueWei": "1300000000000000",
+      "gas": "520000",
+      "executionUpperWei": "26000000000000",
+      "l1UpperWei": "0",
+      "operatorUpperWei": "0",
+      "maxWei": "1326000000000000"
+    }
+  ],
+  "upperWei": "4647000000000000",
+  "ceilingWei": "4647000000000000",
+  "upperOKB": "0.004647"
+}
+

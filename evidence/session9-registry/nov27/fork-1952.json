@@ -1,0 +1,336 @@
+{
+  "schemaVersion": 1,
+  "mode": "PRIVATE_FORK_1952",
+  "chainId": 1952,
+  "publicDeployment": "NOT DEPLOYED",
+  "origin": {
+    "number": "47313472",
+    "hash": "0xb4fa171115bd0e2ec0ae534ba1e4e339ba8ba9a41cb642a6e08aae8e5a16c7bd",
+    "timestamp": "1795772309",
+    "witnesses": [
+      "https://testrpc.xlayer.tech",
+      "https://xlayertestrpc.okx.com"
+    ]
+  },
+  "fixture": "Distinct deterministic addresses on private Anvil, no private key required.",
+  "identities": {
+    "creator": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+    "adopter": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+    "operator": "0x1157aeEC6b3b32F38d5373C86961d5dA7DFCaAbC"
+  },
+  "pin": {
+    "chainId": 1952,
+    "address": "0xA11012A2ca9AdeeA836560A267A183966a4092c1",
+    "runtimeCodeHash": "0xc8f42e779cd1e1c1b7436a8f75ad9acf7da98f8fb947a8dd6b90f79f612f29b1",
+    "deploymentBlock": "47313473",
+    "confirmations": 1
+  },
+  "creationBytes": 1781,
+  "creationCodeHash": "0x575fbf57464d1467af5f5bc96ec3eb5389d8ee30d777fff2e128f3f6659d8775",
+  "runtimeBytes": 1708,
+  "deploymentHash": "0x2ec478b0b99e81cb906c856bca4870afb5dce07632f174a5136c48c2ceb39e22",
+  "deploymentGasUsed": "422748",
+  "publications": [
+    {
+      "profile": "debt-protection-v1",
+      "creator": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "seriesId": "0x6f84ba19c0dacee0ddbec3bd4f6a3eafc32b3fe3d4f6a65c7333a19b431bfe3c",
+      "version": 1,
+      "topics": {
+        "targetChainId": "1952",
+        "adapterVersion": "0x04b5d965b2f6e2b368a2db256ac145805cd378791b27d5e5d19d0fb64f476dcc",
+        "policyKey": "0x3a3a9206ce7f8125287f2dfddcc1a2fdda378a5ab283aab4a7e764b755957604"
+      },
+      "contentHash": "0x7513d5f4afc6485d0cfcb77818171301e93bb698c2922357b27566d5647ff7f2",
+      "canonicalJsonBytes": 1260,
+      "publishCalldataBytes": 1508,
+      "gasUsed": "1047288",
+      "feeWei": "1061329703419128",
+      "hash": "0x46d065ef7f53b0c247eab374b1dffa4c92abccccb284fe9edd7b573edae39b29",
+      "readBlock": "47313475",
+      "readBlockHash": "0x25ca710409f76fce337638a43f7f599113efa62aa8227a7c824a0453f6009b60",
+      "filterMatches": 1,
+      "filterRejected": 0
+    },
+    {
+      "profile": "restricted-swap-v2",
+      "creator": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "seriesId": "0xe14f75db943cd69c5bcc0283dd75e671c3f88b17414af100d51e13caa6373965",
+      "version": 1,
+      "topics": {
+        "targetChainId": "1952",
+        "adapterVersion": "0x4c67d56e5fc5a496213ae3b235344d1ed3253bd680e4e6d628e4073ec9e026fd",
+        "policyKey": "0xea4eef29c91ed8a5a6353d38af3e23a59008f8f430e281bf74b47af3897d7a60"
+      },
+      "contentHash": "0x94decccab381efa610678332af9cb190a9e9feee7211e2b7cc5089d8d43ed301",
+      "canonicalJsonBytes": 1368,
+      "publishCalldataBytes": 1604,
+      "gasUsed": "1115561",
+      "feeWei": "1127028837674924",
+      "hash": "0x9c8e5b131b90da69d6e79f2898ff337177feb0790e6a339ec82618a090f2edca",
+      "readBlock": "47313477",
+      "readBlockHash": "0xc0bf06e576132a6e6689d46b4ea3909cc25d665c50cfdf935e491c2ca2c8667a",
+      "filterMatches": 1,
+      "filterRejected": 0
+    }
+  ],
+  "adoptions": [
+    {
+      "profile": "debt-protection-v1",
+      "strategyHash": "0x7513d5f4afc6485d0cfcb77818171301e93bb698c2922357b27566d5647ff7f2",
+      "account": "0x2422427710ab92AeB84ade2E61DAfe0a12374B5d",
+      "adopter": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+      "operator": "0x1157aeEC6b3b32F38d5373C86961d5dA7DFCaAbC",
+      "creator": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "initialAccount": "0x0000000000000000000000000000000000000000",
+      "plannerRejectedMissingAccount": true,
+      "review": {
+        "block": "47313479",
+        "blockHash": "0x7b1ecf83a511376879906aecac696fc02e3877ccae6d745ed9c4bdef522e8a1c",
+        "warnings": [
+          "Changing the account-wide trigger affects every existing repay operator. V1 cannot enumerate all operators on-chain. Check historical grants before confirming this change."
+        ],
+        "reviewId": "0x98808619b4ab5f2f75c6503c79723fda9ac8fbe36edc2ac18f02c0fcd0c671ab",
+        "methods": [
+          "setAutoRepayTrigger",
+          "setOperator"
+        ],
+        "expiry": "1795858720"
+      },
+      "writes": [
+        "0x2853ef7e5a9845b570b6efb903311d47f5d29ad7428639b0eb3d30ab7a42eafb",
+        "0x531419f513cf851a35933fcd110e7fca7f99c32105c51b1772be5b13183167b3"
+      ],
+      "creatorBefore": [
+        0,
+        "0",
+        "0"
+      ],
+      "operatorBefore": [
+        0,
+        "0",
+        "0"
+      ],
+      "activeOperatorGrant": [
+        8,
+        "2000000",
+        "1795858720"
+      ],
+      "revoked": "0x90767de433cbe5998b304644ef8617d88cea4efbc8058d62cc86bb9927257279",
+      "operatorAfter": [
+        0,
+        "0",
+        "0"
+      ],
+      "creatorAfter": [
+        0,
+        "0",
+        "0"
+      ]
+    },
+    {
+      "profile": "restricted-swap-v2",
+      "strategyHash": "0x94decccab381efa610678332af9cb190a9e9feee7211e2b7cc5089d8d43ed301",
+      "account": "0x748B5da4a32733f5200be7D0d7246fFd6D567273",
+      "adopter": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+      "operator": "0x1157aeEC6b3b32F38d5373C86961d5dA7DFCaAbC",
+      "creator": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "initialAccount": "0x0000000000000000000000000000000000000000",
+      "plannerRejectedMissingAccount": true,
+      "review": {
+        "block": "47313483",
+        "blockHash": "0x05b90b85b3217b746f4e4d84abd871a76614302ef3e937a62777c0b2eddf8433",
+        "warnings": [],
+        "reviewId": null,
+        "methods": [
+          "setGrant"
+        ],
+        "expiry": "1795858737"
+      },
+      "writes": [
+        "0x5a0242e7aca62483f0b5a5f952a54d8134379bc473dbedc60966b80acbff8e04"
+      ],
+      "creatorBefore": [
+        "0",
+        "0",
+        "0"
+      ],
+      "operatorBefore": [
+        "0",
+        "0",
+        "0"
+      ],
+      "activeOperatorGrant": [
+        "500000000000000000",
+        "1000000000000000000",
+        "1795858737"
+      ],
+      "revoked": "0xeb8be1f4baed2da1ea080feb2ac7590edc7045e175f8890dc82a992afd31baab",
+      "operatorAfter": [
+        "0",
+        "0",
+        "0"
+      ],
+      "creatorAfter": [
+        "0",
+        "0",
+        "0"
+      ]
+    }
+  ],
+  "receiptCount": 10,
+  "totalGas": "7726309",
+  "totalFeeWei": "7788684388071564",
+  "receipts": [
+    {
+      "label": "Deploy StrategyRegistry",
+      "from": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "to": null,
+      "created": "0xa11012a2ca9adeea836560a267a183966a4092c1",
+      "hash": "0x2ec478b0b99e81cb906c856bca4870afb5dce07632f174a5136c48c2ceb39e22",
+      "block": "47313473",
+      "blockHash": "0x15f115c7a199a2c0f11c7a035ae13168ca0ac6e320604696ebe3e8b2e5007f80",
+      "gasEstimate": "422748",
+      "gasLimit": "558435",
+      "gasUsed": "422748",
+      "effectiveGasPriceWei": "1017502005",
+      "feeWei": "430146937609740",
+      "status": "success"
+    },
+    {
+      "label": "Publish debt-protection-v1",
+      "from": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "to": "0xa11012a2ca9adeea836560a267a183966a4092c1",
+      "created": null,
+      "hash": "0x46d065ef7f53b0c247eab374b1dffa4c92abccccb284fe9edd7b573edae39b29",
+      "block": "47313475",
+      "blockHash": "0x25ca710409f76fce337638a43f7f599113efa62aa8227a7c824a0453f6009b60",
+      "gasEstimate": "1047288",
+      "gasLimit": "1339110",
+      "gasUsed": "1047288",
+      "effectiveGasPriceWei": "1013407681",
+      "feeWei": "1061329703419128",
+      "status": "success"
+    },
+    {
+      "label": "Publish restricted-swap-v2",
+      "from": "0xe6a7Db76979141CB109d420163875f2a16AFfbC0",
+      "to": "0xa11012a2ca9adeea836560a267a183966a4092c1",
+      "created": null,
+      "hash": "0x9c8e5b131b90da69d6e79f2898ff337177feb0790e6a339ec82618a090f2edca",
+      "block": "47313477",
+      "blockHash": "0xc0bf06e576132a6e6689d46b4ea3909cc25d665c50cfdf935e491c2ca2c8667a",
+      "gasEstimate": "1115561",
+      "gasLimit": "1424451",
+      "gasUsed": "1115561",
+      "effectiveGasPriceWei": "1010279884",
+      "feeWei": "1127028837674924",
+      "status": "success"
+    },
+    {
+      "label": "Adopter creates own debt-protection-v1 account",
+      "from": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+      "to": "0x37157221a5fa97d3f3ec1aa2375032d578db182f",
+      "created": null,
+      "hash": "0x0a700639694eb4284e57ef5a16ca4b2a19590f905601a375813f2575e26153b6",
+      "block": "47313479",
+      "blockHash": "0x7b1ecf83a511376879906aecac696fc02e3877ccae6d745ed9c4bdef522e8a1c",
+      "gasEstimate": "1710179",
+      "gasLimit": "2167723",
+      "gasUsed": "1706944",
+      "effectiveGasPriceWei": "1007882483",
+      "feeWei": "1720398957061952",
+      "status": "success"
+    },
+    {
+      "label": "debt-protection-v1 owner setAutoRepayTrigger",
+      "from": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+      "to": "0x2422427710ab92aeb84ade2e61dafe0a12374b5d",
+      "created": null,
+      "hash": "0x2853ef7e5a9845b570b6efb903311d47f5d29ad7428639b0eb3d30ab7a42eafb",
+      "block": "47313480",
+      "blockHash": "0xb38bd9b111355858d093da6bdddfb8346a6e03183ceeaf206c2afa783e8c9662",
+      "gasEstimate": "44745",
+      "gasLimit": "85931",
+      "gasUsed": "44745",
+      "effectiveGasPriceWei": "1006913191",
+      "feeWei": "45054330731295",
+      "status": "success"
+    },
+    {
+      "label": "debt-protection-v1 owner setOperator",
+      "from": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+      "to": "0x2422427710ab92aeb84ade2e61dafe0a12374b5d",
+      "created": null,
+      "hash": "0x531419f513cf851a35933fcd110e7fca7f99c32105c51b1772be5b13183167b3",
+      "block": "47313481",
+      "blockHash": "0x23e1e3238263a7604da2ee899fbe689651edbd03a291d0c66e3c148dbb485ad4",
+      "gasEstimate": "91348",
+      "gasLimit": "144185",
+      "gasUsed": "91348",
+      "effectiveGasPriceWei": "1006049411",
+      "feeWei": "91900601596028",
+      "status": "success"
+    },
+    {
+      "label": "debt-protection-v1 owner revokeOperator",
+      "from": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+      "to": "0x2422427710ab92aeb84ade2e61dafe0a12374b5d",
+      "created": null,
+      "hash": "0x90767de433cbe5998b304644ef8617d88cea4efbc8058d62cc86bb9927257279",
+      "block": "47313482",
+      "blockHash": "0x6d63928cbbd5ab9282087d0a67d43df182d6030781b351a1b2d77e7d5c30847d",
+      "gasEstimate": "38353",
+      "gasLimit": "77941",
+      "gasUsed": "30683",
+      "effectiveGasPriceWei": "1005293893",
+      "feeWei": "30845432518919",
+      "status": "success"
+    },
+    {
+      "label": "Adopter creates own restricted-swap-v2 account",
+      "from": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+      "to": "0xbdd270a685596452557c8342ca3d39b1133ba7a0",
+      "created": null,
+      "hash": "0x9441aae9047b46435e141ca0343be4cfaa7ff507a4ecb89dd4cd82d7abebf8f5",
+      "block": "47313483",
+      "blockHash": "0x05b90b85b3217b746f4e4d84abd871a76614302ef3e937a62777c0b2eddf8433",
+      "gasEstimate": "3076568",
+      "gasLimit": "3875710",
+      "gasUsed": "3051713",
+      "effectiveGasPriceWei": "1004632350",
+      "feeWei": "3065849602715550",
+      "status": "success"
+    },
+    {
+      "label": "restricted-swap-v2 owner setGrant",
+      "from": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+      "to": "0x748b5da4a32733f5200be7d0d7246ffd6d567273",
+      "created": null,
+      "hash": "0x5a0242e7aca62483f0b5a5f952a54d8134379bc473dbedc60966b80acbff8e04",
+      "block": "47313484",
+      "blockHash": "0xc26e72fd28946f66ff911376f917182a98f2c9f6eb658fd2b23f83975d4ce341",
+      "gasEstimate": "165610",
+      "gasLimit": "237012",
+      "gasUsed": "165610",
+      "effectiveGasPriceWei": "1004070136",
+      "feeWei": "166284055222960",
+      "status": "success"
+    },
+    {
+      "label": "restricted-swap-v2 owner revokeGrant",
+      "from": "0x0f471B8e92A8F5B88E149FE680cCCF71ED664EE9",
+      "to": "0x748b5da4a32733f5200be7d0d7246ffd6d567273",
+      "created": null,
+      "hash": "0xeb8be1f4baed2da1ea080feb2ac7590edc7045e175f8890dc82a992afd31baab",
+      "block": "47313485",
+      "blockHash": "0x637ff4285738a6162ee2a5c9b46f366c12227648444bf5ed7ce0166bfbfada56",
+      "gasEstimate": "62086",
+      "gasLimit": "107607",
+      "gasUsed": "49669",
+      "effectiveGasPriceWei": "1003562172",
+      "feeWei": "49845929521068",
+      "status": "success"
+    }
+  ]
+}

@@ -1,13 +1,16 @@
 // Read-only re-pricing for a separate founder decision after publication; no wallet or send method.
 import assert from 'node:assert/strict'
-import {readFileSync} from 'node:fs'
+import {parseArgs} from 'node:util'
+import {loadData} from './publication-io.mjs'
 import {encodeDeployData,formatEther,getAddress,keccak256,size,toHex} from 'viem'
 import {abi,mainnet,packet,stringify,verifyBindings} from '../../../../evidence/session6-d8b/checks.mjs'
 import {artifact,config,inputMode} from './fork.mjs'
 
 const pin=inputMode('--published')
-assert(process.argv.length<=3,'Only an optional public sender address is accepted')
-const d=JSON.parse(readFileSync('evidence/session7-native/published-ids-fork.json','utf8'))
+const {values,positionals}=parseArgs({allowPositionals:true,options:{proof:{type:'string'}}})
+assert(positionals.length<=1,'Only an optional public sender address is accepted')
+const d=loadData(values.proof ?? 'evidence/session9-native/public-financial-fork.json')
+assert.equal(d.upstream.chainId,196)
 assert.equal(d.upstream.hash,pin.hash)
 assert.deepEqual(d.publicCircuitIds,config.circuits.map(c=>c.publishedId))
 const witness=artifact('NativeCircuitWitness',true)
@@ -19,7 +22,7 @@ const now=BigInt(Math.floor(Date.now()/1000))
 assert(now>=head.timestamp-15n && now-head.timestamp<=120n,'Stale public head')
 await verifyBindings(head.number)
 const receipt=await mainnet.getTransactionReceipt({hash:config.circuits[2].publicReceipt})
-const sender=getAddress(process.argv[2]??receipt.from)
+const sender=getAddress(positionals[0]??receipt.from)
 assert(!await mainnet.getCode({address:sender,blockNumber:head.number}),'Expected an ordinary EOA sender')
 const gasEstimate=await mainnet.estimateGas({account:sender,data,value:0n,blockNumber:head.number})
 const gas=gasEstimate+(gasEstimate+3n)/4n+30000n

@@ -1,33 +1,46 @@
 // A wallet is created only by withFork(), after the upstream fork and loopback checks.
 import assert from 'node:assert/strict'
 import {execFileSync} from 'node:child_process'
-import {renameSync,writeFileSync} from 'node:fs'
+import {parseArgs} from 'node:util'
+import {checkedPath,configPath,forkReader,forkUrl,loadData,publicationFork,publicUrl,saveData} from './publication-io.mjs'
 import {formatEther,getAddress,encodeFunctionData,keccak256,size,toHex,zeroHash} from 'viem'
 import {abi as sponsor,mainnet,packet,stringify,verifyBindings,verifyCalls} from '../../../../evidence/session6-d8b/checks.mjs'
 import {receiptEvent} from '../../../../docs/coordination/D8b-postpublish.mjs'
-import {artifact,config,cpu,inputMode,loggedEvent,programs,withFork} from './fork.mjs'
+import {artifact,cpu,inputMode,loggedEvent,programs,withFork} from './fork.mjs'
 import {financialChecks} from './settlement.mjs'
 
-const pin=inputMode(process.argv[2])
-assert.equal(process.argv.length,3)
+const {values}=parseArgs({options:{published:{type:'boolean'},rehearse:{type:'boolean'},fork:{type:'boolean'},config:{type:'string'},out:{type:'string'}}})
+assert(Boolean(values.published)!==Boolean(values.rehearse),'Choose --published or --rehearse')
+assert(!values.fork || (values.published && values.config && values.out),'Fork publication requires --published, --config and --out')
+const input=values.config ?? configPath
+if(values.fork)checkedPath(input)
+const config=loadData(input,{canonical:!values.fork})
+const output=values.out
+checkedPath(output)
+assert.notEqual(input,output)
+assert.notEqual(config.evidence,output,'Use a distinct financial proof output')
+const origin=values.fork?await publicationFork():null
+const pin=inputMode(values.published?'--published':'--rehearse',config,origin)
+const upstream=origin?forkReader:mainnet
+const upstreamUrl=origin?forkUrl:publicUrl
 execFileSync('forge',['build','--root','contracts','--offline','script/DemoRateModel.sol','src/markets/MarketFactory.sol','src/mocks/TestnetOracle.sol','src/mocks/TestnetToken.sol','src/policies/DevelopmentReferenceProcessor.sol','src/policies/TapeOutPolicyAdapter.sol'],{stdio:'inherit'})
 execFileSync('forge',['build','--root','contracts/expansion','--offline','src/native7/NativeFinancialPolicy.sol','src/account/SentinelAccountFactoryV2.sol','src/swap/TestnetInventoryVenue.sol'],{stdio:'inherit'})
 
-const bindings=await verifyBindings(pin.number)
+const bindings=await verifyBindings(origin?BigInt(origin.originBlock):pin.number)
 const calls=verifyCalls(packet.proposedMainnetCalls)
 const rpcAbi=packet.readOnlyAbi
 await withFork(pin,async ctx=>{
   const {node,source,owner,receipts,contracts,call,send,deploy,read}=ctx
-  const d={chainId:31337,label:pin.published?'FORK of 196 using finalized public publication':'FORK of 196, circuits fabricated locally on real CPU 410',
-    upstream:{rpc:'https://rpc.xlayer.tech',chainId:196,block:pin.number,hash:source.hash,timestamp:source.timestamp},
-    publicCircuitIds:pin.published?config.circuits.map(c=>c.publishedId):null,bindings,contracts,receipts,programs:[]}
+  const d={chainId:31337,label:origin?'FORK: fabricated IDs verified via the post-publication pipeline on a private fork of 196':pin.published?'FORK of 196 using finalized public publication':'FORK of 196, circuits fabricated locally on real CPU 410',
+    ...(origin?{origin}:{}),upstream:{rpc:upstreamUrl,chainId:origin?31337:196,block:pin.number,hash:source.hash,timestamp:source.timestamp},
+    publicCircuitIds:pin.published && !origin?config.circuits.map(c=>c.publishedId):null,bindings,contracts,receipts,programs:[]}
   const programIds=[]
   let publisher,previousReceipt
-  if(pin.published)assert((await mainnet.getBlock({blockTag:'finalized'})).number>=pin.number,'Publication block is not finalized')
+  if(pin.published && !origin)assert((await upstream.getBlock({blockTag:'finalized'})).number>=pin.number,'Publication block is not finalized')
   if(!pin.published)await send('FORK mint 209 NAND components',{to:calls[0].to,data:calls[0].data,value:BigInt(calls[0].value)})
   for(const [i,c] of config.circuits.entries()){
     const tx=calls[i+1]
-    const receipt=pin.published ? await mainnet.getTransactionReceipt({hash:c.publicReceipt}) :
+    const receipt=pin.published ? await upstream.getTransactionReceipt({hash:c.publicReceipt}) :
       await send('FORK fabricate '+c.kind,{to:tx.to,data:tx.data,value:BigInt(tx.value)})
     assert.equal(receipt.status,'success')
     assert.equal(getAddress(receipt.to),cpu)
@@ -41,11 +54,11 @@ await withFork(pin,async ctx=>{
       assert.equal(id,BigInt(c.publishedId))
       assert(receipt.blockNumber<=pin.number)
       if(i===2)assert.equal(receipt.blockNumber,pin.number)
-      assert.equal(receipt.blockHash,(await mainnet.getBlock({blockNumber:receipt.blockNumber})).hash)
-      const publishedTx=await mainnet.getTransaction({hash:c.publicReceipt})
+      assert.equal(receipt.blockHash,(await upstream.getBlock({blockNumber:receipt.blockNumber})).hash)
+      const publishedTx=await upstream.getTransaction({hash:c.publicReceipt})
       assert.equal(publishedTx.input,tx.data)
       assert.equal(publishedTx.value,BigInt(tx.value))
-      assert.equal(publishedTx.chainId,196)
+      assert.equal(publishedTx.chainId,origin?31337:196)
     }
     programIds.push(id)
     const netlist=await read(cpu,rpcAbi,'netlist',[id])
@@ -53,7 +66,7 @@ await withFork(pin,async ctx=>{
     assert.equal(netlist,programs[i].netlist)
     assert.equal(keccak256(netlist),c.netlistHash)
     assert.deepEqual(dims,[20,1,0,c.gates])
-    d.programs.push({kind:c.kind,schema:c.schema,id,netlistHash:c.netlistHash,dimensions:dims,publication:pin.published?'public-196':'fork-only',
+    d.programs.push({kind:c.kind,schema:c.schema,id,netlistHash:c.netlistHash,dimensions:dims,publication:pin.published && !origin?'public-196':'fork-only',
       fabricationHash:receipt.transactionHash,publisher})
   }
   const witness=await deploy('Witness','NativeCircuitWitness',programIds,true)
@@ -103,18 +116,17 @@ await withFork(pin,async ctx=>{
   // An ordinary CREATE needs no recipient prediction. Read calls after mining target receipt.contractAddress.
   const gas=witness.receipt.gasUsed+((witness.receipt.gasUsed+3n)/4n)+30000n
   const maxFeePerGas=50_000_000n
-  const publicRead=(functionName,args)=>mainnet.readContract({address:packet.bindings.gasOracle,abi:sponsor,functionName,args,blockNumber:pin.number})
+  const publicRead=(functionName,args)=>upstream.readContract({address:packet.bindings.gasOracle,abi:sponsor,functionName,args,blockNumber:pin.number})
   const [l1,operatorFee]=await Promise.all([publicRead('getL1FeeUpperBound',[BigInt(size(witness.init)+300)]),publicRead('getOperatorFee',[gas])])
   const maximum=gas*maxFeePerGas+l1+operatorFee
   const views=config.circuits.map((c,i)=>({kind:c.kind,schema:c.schema,inputs:d.programs[i].vectors[1].inputs,
     calldata:encodeFunctionData({abi:witness.abi,functionName:'evaluate',args:[i,d.programs[i].vectors[1].inputs]}),output:d.programs[i].vectors[1].native}))
   assert.equal(await node.getBalance({address:witness.address}),0n)
-  d.witnessProposal={status:pin.published?'Unsigned proposal; founder authorization required':'FORK illustration with provisional IDs; rerun --published before requesting authorization',
+  d.witnessProposal={status:pin.published && !origin?'Unsigned proposal; founder authorization required':'FORK illustration with provisional IDs; rerun --published before requesting authorization',
     transaction:{chainId:196,type:'0x2',to:null,value:'0x0',data:witness.init,gas:toHex(gas),maxFeePerGas:toHex(maxFeePerGas),maxPriorityFeePerGas:'0x1',accessList:[]},
     creationDataHash:keccak256(witness.init),constructorIds:programIds,observedGas:witness.receipt.gasUsed,feeObservationBlock:pin.number,baseFeeWei:source.baseFeePerGas,
     l1UpperWei:l1,operatorUpperWei:operatorFee,totalUpperWei:maximum,totalUpperOKB:formatEther(maximum),verificationCalls:views,
     nonce:'Sender selects next unused nonce. Each verification is an eth_call to the resulting CREATE receipt address.'}
-  const path='evidence/session7-native/'+(pin.published?'published-ids-fork.json':'rehearsal-fork.json')
-  writeFileSync(path+'.tmp',stringify(d));renameSync(path+'.tmp',path)
-  console.log(path)
-})
+  saveData(output,d)
+  console.log(output)
+},upstream,upstreamUrl)

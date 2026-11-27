@@ -1,0 +1,28 @@
+✔ shared retains every prior row and anchors a confirmed segment when checkpoint header is pruned (20.078292ms)
+✔ shared classifies both explicit missing logs and omitted previously recorded events (159.56875ms)
+✔ shared refuses an incomplete anchor, contradictions, generic outages and an empty gap (13.637084ms)
+✔ shared preserves evidence when the trusted source scope changes incompatibly (3.162458ms)
+✔ shared accepts matching empty recent results and refuses incomplete bootstrap (3.312542ms)
+✔ judge retains every prior row and anchors a confirmed segment when checkpoint header is pruned (5.38425ms)
+✔ judge classifies both explicit missing logs and omitted previously recorded events (161.39325ms)
+✔ judge refuses an incomplete anchor, contradictions, generic outages and an empty gap (18.223042ms)
+✔ judge preserves evidence when the trusted source scope changes incompatibly (3.747084ms)
+✔ judge accepts matching empty recent results and refuses incomplete bootstrap (4.135708ms)
+✔ explicit output selection prevents accidental replacement of protected data (0.962291ms)
+✔ pruning classification retries historical RPC errors and keeps transport errors distinct (5290.271583ms)
+✔ shared CLI loads judge dispatch and rejects a bad campaign before any RPC (158.372042ms)
+✔ pages are inclusive, bounded and contiguous (0.621917ms)
+✔ same-transaction constructor events on verified children and their integer units survive discovery (1.238125ms)
+✔ identical canonical events deduplicate by transaction hash and log index (1.494041ms)
+✔ removed, conflicting and noncanonical events stop coverage advancement (0.801042ms)
+✔ resume rejects an incompatible checkpoint and refuses a shorter head (0.330959ms)
+✔ requires parent hash ancestry at saved checkpoint (0.222292ms)
+✔ new roots preserve the common prefix and replay all overlapping blocks (1.207125ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6068.35575

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "kind": "indexed-event-snapshot",
+  "chainId": 1952,
+  "scopeDigest": "synthetic-session9",
+  "updatedAt": "2026-11-27T09:00:00.000Z",
+  "coverage": {
+    "fromBlock": "100",
+    "toBlock": "120",
+    "toBlockHash": "0x0000000000000000000000000000000000000000000000000000000000000078",
+    "headAtRefresh": "132",
+    "confirmations": 12,
+    "status": "caught-up",
+    "segments": [
+      {
+        "fromBlock": "100",
+        "sourceCoverage": "configured",
+        "toBlock": "101",
+        "toBlockHash": "0x0000000000000000000000000000000000000000000000000000000000000065"
+      },
+      {
+        "fromBlock": "120",
+        "fromBlockHash": "0x0000000000000000000000000000000000000000000000000000000000000078",
+        "toBlock": "120",
+        "toBlockHash": "0x0000000000000000000000000000000000000000000000000000000000000078",
+        "sourceCoverage": "known-emitters"
+      }
+    ],
+    "gaps": [
+      {
+        "fromBlock": "102",
+        "toBlock": "119",
+        "reason": "history-unavailable"
+      },
+      {
+        "fromBlock": "121",
+        "toBlock": "132",
+        "reason": "confirmation-depth"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "fromBlock": "100"
+    }
+  ],
+  "events": [
+    {
+      "blockNumber": "100",
+      "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000064",
+      "transactionHash": "0x000000000000000000000000000000000000000000000000000000000000044c",
+      "transactionIndex": "0",
+      "logIndex": "0",
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0x00000000000000000000000000000000000000000000000000000000000003e8",
+        "account": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+        "op": "2",
+        "postLtvBps": "3000",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795770000"
+    },
+    {
+      "blockNumber": "120",
+      "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000078",
+      "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000460",
+      "transactionIndex": "0",
+      "logIndex": "0",
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0x00000000000000000000000000000000000000000000000000000000000003e8",
+        "account": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+        "op": "2",
+        "postLtvBps": "3000",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795770000"
+    }
+  ],
+  "fixture": "SYNTHETIC pruning RPC demonstration; all heights, hashes, receipts and operations in this file are simulated"
+}

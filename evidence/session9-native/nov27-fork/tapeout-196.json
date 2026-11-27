@@ -1,0 +1,117 @@
+{
+  "chainId": 31337,
+  "mode": "fork-only",
+  "status": "verified-fork-rehearsal",
+  "rpcUrl": "http://127.0.0.1:19709",
+  "processor": "0x423446eefaa885b804c7bd9b0bdd130ce2ee00b5",
+  "circuitInfoOutputs": [
+    "inputs",
+    "outputs",
+    "stateBits",
+    "gates"
+  ],
+  "abi": [
+    {
+      "type": "function",
+      "name": "circuitInfo",
+      "stateMutability": "view",
+      "inputs": [
+        {
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "uint32"
+        },
+        {
+          "type": "uint32"
+        },
+        {
+          "type": "uint32"
+        },
+        {
+          "type": "uint32"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "netlist",
+      "stateMutability": "view",
+      "inputs": [
+        {
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "eval",
+      "stateMutability": "view",
+      "inputs": [
+        {
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "name": "inputs",
+          "type": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bytes"
+        }
+      ]
+    }
+  ],
+  "circuits": [
+    {
+      "name": "Market Policy V1",
+      "schema": "lending-v1",
+      "kind": "MARKET",
+      "gates": 63,
+      "netlistHash": "0xe845d0cb6d0e0c86faca013143995f6a0c9d6a1dbb0772a6176fe0ee977e6c09",
+      "publishedId": "2",
+      "publicReceipt": "0x63347a7c0b975360cd1138169866f2c619386f860b4ed7c9bbea6cbbc83edf2f"
+    },
+    {
+      "name": "Sentinel Policy V1",
+      "schema": "lending-v1",
+      "kind": "ACCOUNT",
+      "gates": 87,
+      "netlistHash": "0x7dbd1ad5e86acbf5796e7ed7aacbcb724ae35b69ee5742c8efae1744d20a6818",
+      "publishedId": "3",
+      "publicReceipt": "0x18a8f40543d298c1d8a623763d9eb0ea1cbbd2e8c290b416963e708c48b3e1d4"
+    },
+    {
+      "name": "Expanded Sentinel Policy V2",
+      "schema": "sentinel-execution-swap-v1",
+      "kind": "EXECUTION",
+      "gates": 59,
+      "netlistHash": "0x898674f49c1caa2e3196f31ce7afe18fa839d6260d5f75ebc4cd2248d266b30b",
+      "publishedId": "4",
+      "publicReceipt": "0xa9f9d8e777f949e8998d339d4be3993d77b2885eaf6ce5e97e1fea50c1b5abde"
+    }
+  ],
+  "verifiedBlock": "77001273",
+  "verifiedBlockHash": "0x49dbee488b4e8a6c03438fca4c48f64bac9403f6c907c96fa87df309f6573e16",
+  "evidence": "evidence/session9-native/nov27-fork/verified-receipts.json",
+  "origin": {
+    "url": "http://127.0.0.1:19709",
+    "chainId": 31337,
+    "instanceId": "0x81ab62cb44f39ab8d2d6219b11e09e46313152030ce3454df37f61ebc2473cd2",
+    "originChainId": 196,
+    "originRpc": "https://rpc.xlayer.tech",
+    "originBlock": "77001269",
+    "originBlockHash": "0xa389fe56db4e76879c55c8e2eb0f3165e50e8e247cc98727ee530a8eb7406cf4"
+  }
+}

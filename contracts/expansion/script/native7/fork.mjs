@@ -5,14 +5,16 @@ import {once} from 'node:events'
 import {readFileSync} from 'node:fs'
 import {setTimeout as delay} from 'node:timers/promises'
 import {createPublicClient,createWalletClient,encodeDeployData,encodeFunctionData,getAddress,http,keccak256,parseEventLogs,toHex} from 'viem'
+import {forkStatus,publicUrl} from './publication-io.mjs'
 import {mainnet,packet,readJson} from '../../../../evidence/session6-d8b/checks.mjs'
 
 export const config=readJson('packages/chain-config/expansion/tapeout-196.json')
 export const programs=[...readJson('packages/circuit-sdk/fixtures/policies-v1.json').policies,readJson('contracts/expansion/policy/execution.json')]
 export const cpu=getAddress(packet.bindings.cpu)
-export const inputMode=arg=>{
+export const inputMode=(arg,document=config,privateOrigin=null)=>{
+  const config=document
   assert(['--published','--rehearse'].includes(arg),'Choose --published or --rehearse explicitly')
-  assert.equal(config.chainId,196)
+  assert.equal(config.chainId,privateOrigin?31337:196)
   assert.equal(getAddress(config.processor),cpu)
   assert.deepEqual(config.circuits.map(c=>c.kind),['MARKET','ACCOUNT','EXECUTION'])
   for(const [i,c] of config.circuits.entries()){
@@ -21,7 +23,11 @@ export const inputMode=arg=>{
     assert.equal(c.schema,i===2?'sentinel-execution-swap-v1':'lending-v1')
   }
   if(arg==='--published'){
-    assert.equal(config.status,'published','D8b-postpublish.mjs has not verified public IDs; publication mode stops here')
+    if(privateOrigin){
+      assert.equal(config.mode,'fork-only')
+      assert.deepEqual(config.origin,privateOrigin,'Wrong private publication fork')
+    }
+    assert.equal(config.status,privateOrigin?forkStatus:'published','D8b-postpublish.mjs has not verified public IDs; publication mode stops here')
     assert(config.circuits.every(c=>/^[0-9]+$/.test(c.publishedId) && /^0x[0-9a-f]{64}$/i.test(c.publicReceipt)))
     assert.equal(new Set(config.circuits.map(c=>BigInt(c.publishedId))).size,3)
     return {published:true,number:BigInt(config.verifiedBlock),hash:config.verifiedBlockHash}
@@ -38,16 +44,17 @@ export function loggedEvent(receipt,abi,address,name) {
   return matching[0].args
 }
 export function flatten(trace) {return [trace,...(trace.calls??[]).flatMap(flatten)]}
-export async function withFork(pin,body) {
-  const url='http://127.0.0.1:19710'
+export async function withFork(pin,body,upstream=mainnet,upstreamUrl=publicUrl,port=19710) {
+  assert([19709,19710].includes(port))
+  const url='http://127.0.0.1:'+port
   const node=createPublicClient({transport:http(url,{retryCount:0,timeout:90000}),cacheTime:0})
   const wallet=createWalletClient({transport:http(url,{retryCount:0,timeout:90000})})
   const busy=await fetch(url,{signal:AbortSignal.timeout(1000)}).then(()=>true,()=>false)
   assert(!busy,'Port 19710 is already in use')
-  assert.equal(await mainnet.getChainId(),196)
-  const source=await mainnet.getBlock({blockNumber:pin.number})
+  assert.equal(await upstream.getChainId(),upstreamUrl===publicUrl?196:31337)
+  const source=await upstream.getBlock({blockNumber:pin.number})
   assert.equal(source.hash,pin.hash,'Upstream block hash differs from the chosen pin')
-  const child=spawn('anvil',['--host','127.0.0.1','--port','19710','--chain-id','31337','--fork-url','https://rpc.xlayer.tech','--fork-block-number',String(pin.number),'--no-storage-caching','--silent'],{stdio:['ignore','ignore','inherit']})
+  const child=spawn('anvil',['--host','127.0.0.1','--port',String(port),'--chain-id','31337','--fork-url',upstreamUrl,'--fork-block-number',String(pin.number),'--no-storage-caching','--silent'],{stdio:['ignore','ignore','inherit']})
   const exited=once(child,'exit')
   const stop=()=>child.kill('SIGTERM')
   process.once('SIGTERM',stop)
@@ -59,7 +66,7 @@ export async function withFork(pin,body) {
       try{info=await node.request({method:'anvil_nodeInfo'})}catch{await delay(200)}
     }
     assert.equal(await node.getChainId(),31337)
-    assert.equal(info?.forkConfig?.forkUrl,'https://rpc.xlayer.tech')
+    assert.equal(info?.forkConfig?.forkUrl,upstreamUrl)
     assert.equal(BigInt(info.forkConfig.forkBlockNumber),pin.number)
     assert.equal((await node.getBlock()).hash,pin.hash)
     const actors=[]
@@ -100,6 +107,7 @@ export async function withFork(pin,body) {
   } finally {
     process.off('SIGINT',stop);process.off('SIGTERM',stop)
     if(child.exitCode===null && child.signalCode===null)stop()
-    await exited
+    const deadline=setTimeout(()=>child.kill('SIGKILL'),5000)
+    try {await exited} finally {clearTimeout(deadline)}
   }
 }

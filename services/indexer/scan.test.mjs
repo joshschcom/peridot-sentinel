@@ -47,7 +47,7 @@ test('removed, conflicting and noncanonical events stop coverage advancement',as
     await assert.rejects(scanGroup(backend(rows),[root],100n,100n,null))
   }
 })
-test('checkpoint mismatch rebuilds; stale head cannot shorten a valid snapshot',async()=>{
+test('resume rejects an incompatible checkpoint and refuses a shorter head',async()=>{
   const s={schemaVersion:1,kind:'indexed-event-snapshot',chainId:1952,scopeDigest:'v1',sources:[],coverage:{fromBlock:'100',toBlock:'101',toBlockHash:hash(101)}}
   const cfg={scopeDigest:'v1',first:100n}
   assert.equal(await resume(s,cfg,120n,backend([])),s)

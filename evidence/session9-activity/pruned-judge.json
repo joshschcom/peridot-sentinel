@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "kind": "judge-event-snapshot",
+  "chainId": 1952,
+  "campaign": "judge-01",
+  "profile": "public-testnet",
+  "scopeDigest": "c3c2dc780d97efe41be1ea7b5435e953de1c270434508c2d18ff8e6a6eed8aa4",
+  "updatedAt": "2026-11-27T09:00:00.000Z",
+  "coverage": {
+    "fromBlock": "100",
+    "toBlock": "120",
+    "toBlockHash": "0x0000000000000000000000000000000000000000000000000000000000000078",
+    "headAtRefresh": "132",
+    "confirmations": 12,
+    "segments": [
+      {
+        "fromBlock": "100",
+        "sourceCoverage": "configured",
+        "toBlock": "101",
+        "toBlockHash": "0x0000000000000000000000000000000000000000000000000000000000000065"
+      },
+      {
+        "fromBlock": "120",
+        "fromBlockHash": "0x0000000000000000000000000000000000000000000000000000000000000078",
+        "toBlock": "120",
+        "toBlockHash": "0x0000000000000000000000000000000000000000000000000000000000000078",
+        "sourceCoverage": "configured"
+      }
+    ],
+    "gaps": [
+      {
+        "fromBlock": "102",
+        "toBlock": "119",
+        "reason": "history-unavailable"
+      },
+      {
+        "fromBlock": "121",
+        "toBlock": "132",
+        "reason": "confirmation-depth"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "fromBlock": "100"
+    },
+    {
+      "address": "0xF771265720ef710391d2cF759ba2396Ec965a272",
+      "contract": "MarketPToken",
+      "fromBlock": "100"
+    },
+    {
+      "address": "0x4fca8462E806C5FF665B5A6b57820816517bc40E",
+      "contract": "MarketPToken",
+      "fromBlock": "100"
+    },
+    {
+      "address": "0xb7eBAF22BDf9099fE38636A101115a5c9CfeEDf2",
+      "contract": "SentinelAccount",
+      "fromBlock": "100"
+    },
+    {
+      "address": "0x356da76Dd963d1468Cd88c0276e30a5d401c01A1",
+      "contract": "IsolatedController",
+      "fromBlock": "100"
+    },
+    {
+      "address": "0x5C17D78F7362cD5785CdBFe03F52F51aAbfe2468",
+      "contract": "MarketPToken",
+      "fromBlock": "100"
+    },
+    {
+      "address": "0x760E51425Ee94f6e772188F1B6d21815E8cDB7D6",
+      "contract": "MarketPToken",
+      "fromBlock": "100"
+    },
+    {
+      "address": "0xB5392B3ae038a7de7d57eE6450c33E734391b4d2",
+      "contract": "SentinelAccount",
+      "fromBlock": "100"
+    },
+    {
+      "address": "0x154815582Eae6b49B7F0f3cABD16adCA0227d269",
+      "contract": "SentinelAccountV2",
+      "fromBlock": "100"
+    },
+    {
+      "address": "0x29E2D42f371383A0ee02924EF2b339BE0592cA52",
+      "contract": "SinglePoolSwapAdapter",
+      "fromBlock": "100"
+    }
+  ],
+  "events": [
+    {
+      "blockNumber": "100",
+      "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000064",
+      "transactionHash": "0x000000000000000000000000000000000000000000000000000000000000044c",
+      "transactionIndex": "0",
+      "logIndex": "0",
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0x00000000000000000000000000000000000000000000000000000000000003e8",
+        "account": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+        "op": "2",
+        "postLtvBps": "3000",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795770000"
+    },
+    {
+      "blockNumber": "120",
+      "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000078",
+      "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000460",
+      "transactionIndex": "0",
+      "logIndex": "0",
+      "address": "0xfa1b92bdA3eDE700a38917238749D1d47990A1C4",
+      "contract": "IsolatedController",
+      "eventName": "PolicyAllowed",
+      "args": {
+        "policyId": "0x00000000000000000000000000000000000000000000000000000000000003e8",
+        "account": "0x36bdf2AF3aAa8113c34a6d0168769F6Cc695D50B",
+        "op": "2",
+        "postLtvBps": "3000",
+        "oracleFresh": true,
+        "cashOk": true
+      },
+      "timestamp": "1795770000"
+    }
+  ],
+  "fixture": "SYNTHETIC pruning RPC demonstration; all heights, hashes, receipts and operations in this file are simulated"
+}
