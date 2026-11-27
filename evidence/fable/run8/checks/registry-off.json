@@ -1,0 +1,40 @@
+{
+  "mode": "registry-off",
+  "onlyPaths": null,
+  "case": "",
+  "base": "http://127.0.0.1:3212",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": true,
+  "failures": [],
+  "notes": [
+    {
+      "path": "/discover",
+      "tier": 0,
+      "publishedCards": 0,
+      "curatedCards": 2,
+      "publishedOption": 0,
+      "publishedNotice": 0,
+      "publishPanel": 0,
+      "choice": null,
+      "importCard": 0,
+      "registryWordOnPage": false,
+      "registryRequests": 0,
+      "walletRequests": 0
+    },
+    {
+      "path": "/strategies?published=0x8C1741a53d5FB97D",
+      "tier": 0,
+      "publishedCards": 0,
+      "curatedCards": 0,
+      "publishedOption": 0,
+      "publishedNotice": 0,
+      "publishPanel": 0,
+      "choice": "debt-protection-v1",
+      "importCard": 1,
+      "registryWordOnPage": false,
+      "registryRequests": 0,
+      "walletRequests": 0
+    }
+  ]
+}

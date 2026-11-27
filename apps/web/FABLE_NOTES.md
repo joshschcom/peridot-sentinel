@@ -350,7 +350,7 @@ One batch, serially, every check on its own production build made from a scrubbe
 
 ## Run 8 (2026-11-27): the public strategy registry is integrated (Discover, adoption, publishing) and in the gate
 
-Commits of the run: `6c34ac8` (Discover tier and adoption), `20e38c9` (gate, testnet-live, hosted checks), then publishing with its gate check and the `registry-off` check, then notes and evidence.
+Commits of the run: `6c34ac8` (Discover tier and adoption), `20e38c9` (gate, testnet-live, hosted checks), `75f08bf` (publishing), `9ee8c52` (gate check for publishing, `registry-off`, JPEG screenshots, notes), `13bfe1e` and `71e80b2` (two fixes the batch found, below), then notes and evidence. The batch below ran on `71e80b2` with `apps/web` and `packages` equal to HEAD; the later commit touches notes, MILESTONE_LOG and evidence only.
 
 ### What the app does with the registry
 
@@ -383,4 +383,34 @@ Commits of the run: `6c34ac8` (Discover tier and adoption), `20e38c9` (gate, tes
 2. The early pages depend on the RPC serving state and logs at the deployment block. Both public RPCs do today (checked back to block 40,000,000). If one stops, those pages become "unavailable" ranges and the two curated publications disappear from the third tier (the curated tier holds the same text).
 3. An adopter who changes the limits reviews their own version; the page says so (`strategy-published-edited`). What is adopted is never "the publication" on chain: a grant carries no template identity.
 4. Anyone can post to the public registry, so the public page can show items this team did not write, and rejected ones. That is the design; the checks do not assume the list is closed.
+
+### Results of every check (2026-11-27), all on commit `71e80b2`
+
+Serially, every check on its own production build from a scrubbed environment (`env -i` with PATH and HOME). Summary: `evidence/fable/run8/final-batch-71e80b2.log`; per-check JSON in `evidence/fable/run8/checks/`. The checks' own screenshots went to the scratchpad and are NOT in the repository; kept are 10 JPEGs of the gate and the 4 Discover captures.
+
+| Check | Environment | Result |
+|---|---|---|
+| `npm test`, `tsc --noEmit`, `check:tokens` | working tree = `71e80b2` | 115/115, clean, clean |
+| Negative: `wrong-network`, `broken-deployment`, `rejected-manifest` root and missing, `testnet-unverified`, `activity-recovery`, and new `registry-off` | one production build each, `next start` on loopback | all seven passed |
+| Fixture mode, `screenshots.mjs --checks-only`, 360 and 390 px | production build, loopback | all passed (the registry tier is not rendered in fixture mode) |
+| `hosted-checks.mjs` with `NEXT_DIR=.next` | **`next start` of the production testnet build on LOOPBACK. Not a hosted URL: none exists.** | all passed: 26 loads over 13 routes; bundle scan 402 files, 0 loopback, 0 credential names, 0 unexplained 32-byte values (the pin's hashes are explained by the tracked pin file); registry tier `verified` with both publications and their creator at 1440 and 390 |
+| `chain-checks.mjs testnet-live`, unfiltered | the same build, reads against the PUBLIC 1952 RPC, two watch-only wallets | all passed, 56 loads. Registry tier on public testnet: both recorded publications with the recorded creator, version 1, content hashes and blocks; 0 rejected; coverage stated (read 47,314,090 to 47,314,389, not read in between, read the last three pages to head − 12); the published lending strategy reached the owner review read-only (plan for the demo owner's own account, operator as typed, no sign button before a review, zero wallet requests) |
+| Discover screenshots, 4 captures (390 and 1440, light and dark), JPEG | the same build | clean; `evidence/screenshots/strategy-first/discover-*.jpg` and `shots-discover.json`. The four `discover-*.png` of run 7 are removed; `shots.json` remains the run 7 report of the other 20 |
+| `strategy-gate.mjs` | its own three production builds, Claude's PRIVATE FORK of 1952 (forked at 47,318,780; head 47,318,942 at start, 47,319,050 at end) | **PASSED**, 48 of 48 cells (24 import, 24 registry), 5 supporting checks, 32 app transactions (14 demo owner, 17 fresh wallet, 1 publisher), 25 script-sent transactions (9 publications, 4 operator swaps inside a grant, 12 operator calls mined as reverted after revocation), 0 page problems. `git.clean` and `git.buildInputsClean` both true. `evidence/fable/run8/strategy-gate-run-20261127-122307.json` |
+| `.next` left as the public testnet build | rebuilt after the gate, scrubbed environment | BUILD_ID `DLNoPKgnTaQufK-ynuVtz`; 0 files naming the fork RPC port, 0 loopback addresses in client chunks |
+| Fresh clone, `npm ci` then `npm run build -w @peridot/web`, `env -i`, outside the repository | clone of `71e80b2` | second attempt: `npm ci` exit 0, build exit 0, 16 routes. The FIRST attempt failed at `npm ci` with the disk full (below). Logs in the scratchpad only |
+
+**What the batch found, in order.** (1) On `9ee8c52` it stopped at my new `registry-off` mode: a missing import in the check script (`13bfe1e`). (2) On `13bfe1e`, `testnet-unverified` failed on `/discover` at 360 px: the registry tier's "read more" button was 9 px too wide (`71e80b2`; then measured at 360 and 390 on a fork build with 15 published cards and 18 rejected posts listed, every card open, the published route, the publish review and a not-found route: 0 px each). Both batches were stopped there and the WHOLE batch was run again on `71e80b2`: the gate first, then everything else.
+
+**Disk full.** At the end of the batch the machine's data volume had 166 MB free and the fresh clone's `npm ci` failed. I deleted three temporary clones of this repository from the session scratchpad (this run's and those of runs 6 and 7, about 2.8 GB; their logs are kept) and ran the fresh clone again. Every check JSON was re-read afterwards and parses with `passed: true`. The volume is still about 99% full: the next run should not assume space for more than one clone.
+
+**NOT run in run 8:** `hosted-checks.mjs` against a hosted URL (none exists); `circuits-fail-closed`, `e2e-local.mjs`, `e2e-local-v2.mjs`, `e2e-fork-v2.mjs`, `screenshots.mjs --chain` (their flows were not changed); the 20 non-Discover strategy-first captures (unchanged pages, by the brief); no real wallet extension; **no publication or adoption from the app on PUBLIC 1952** (the public path is covered read-only by `testnet-live`; every signature is on the fork); a scan in which the RPC refuses a page, in a browser (the "unavailable" range is covered by unit tests of `coverageRanges` only).
+
+### Open after run 8
+
+1. Claude re-runs `strategy-gate.mjs` on the release commit. It now takes longer: nine script-sent publications, each of which the fork may need tens of seconds for.
+2. Discovery needs an index to scale (Known limits 1). Until then the tier honestly shows the first 300 and the latest 300 blocks.
+3. The fork accumulates the gate's publications (9 valid-or-rejected posts and 1 through the app per run). After a few runs the fork build's Discover lists many "Mallory Capital" cards; a re-fork clears them. They exist on the fork only.
+4. `PUBLISH_COMMITTED` is on. If publishing should not ship, set it to false (one line, `lib/strategy-registry.ts`); the gate then reports its publishing check as failed by design, so remove it from `REQUIRED_SUPPORTING` in the same commit.
+5. Repository size: run 8 added about 4.5 MB (10 gate JPEGs 2.3 MB, 4 Discover JPEGs 2.0 MB replacing 1.7 MB of PNG, JSON).
 

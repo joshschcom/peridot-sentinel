@@ -1,0 +1,88 @@
+Run 8 evidence batch. Order: the signing gate first, then every other check, then the fresh clone. All on one commit.
+
+== part 1: strategy-adoption signing gate
+commit 71e80b2 dirty(apps/web packages)=0
+strategy gate: exit 0
+  PASS  P3 registry restricted-swap-v2 fresh wallet: creator-holds-nothing-after-adoption
+  PASS  P6 registry restricted-swap-v2 fresh wallet: grant-live-after-adoption
+  PASS  P6 registry restricted-swap-v2 fresh wallet: revocation-plan-then-operator-reverts
+  PASS  P6 registry restricted-swap-v2 fresh wallet: revoke-all-operators-then-operator-reverts
+
+-- registry, publishing through the app
+  PASS  P0 registry restricted-swap-v2 publisher wallet: ui-publication-read-back-verified
+
+Strategy-adoption signing gate, run-20261127-122307, commit 71e80b2, fork block 47318942
+
+source: import (template imported by paste or file)
+property                                                              | template            | demo owner | fresh wallet
+1 An unverified deployment cannot authorise                           | debt-protection-v1  | PASS       | PASS
+1 An unverified deployment cannot authorise                           | restricted-swap-v2  | PASS       | PASS
+2 Importing grants nothing                                            | debt-protection-v1  | PASS       | PASS
+2 Importing grants nothing                                            | restricted-swap-v2  | PASS       | PASS
+3 The template's creator gets no authority                            | debt-protection-v1  | PASS       | PASS
+3 The template's creator gets no authority                            | restricted-swap-v2  | PASS       | PASS
+4 The owner reviews the real operation: what is shown is what is mined | debt-protection-v1  | PASS       | PASS
+4 The owner reviews the real operation: what is shown is what is mined | restricted-swap-v2  | PASS       | PASS
+5 Unsupported versions are rejected with a visible reason             | debt-protection-v1  | PASS       | PASS
+5 Unsupported versions are rejected with a visible reason             | restricted-swap-v2  | PASS       | PASS
+6 Revocation works after adoption                                     | debt-protection-v1  | PASS       | PASS
+6 Revocation works after adoption                                     | restricted-swap-v2  | PASS       | PASS
+
+source: registry (template published in the strategy registry, adopted from Discover)
+property                                                              | template            | demo owner | fresh wallet
+1 An unverified deployment cannot authorise                           | debt-protection-v1  | PASS       | PASS
+1 An unverified deployment cannot authorise                           | restricted-swap-v2  | PASS       | PASS
+2 Importing grants nothing                                            | debt-protection-v1  | PASS       | PASS
+2 Importing grants nothing                                            | restricted-swap-v2  | PASS       | PASS
+3 The template's creator gets no authority                            | debt-protection-v1  | PASS       | PASS
+3 The template's creator gets no authority                            | restricted-swap-v2  | PASS       | PASS
+4 The owner reviews the real operation: what is shown is what is mined | debt-protection-v1  | PASS       | PASS
+4 The owner reviews the real operation: what is shown is what is mined | restricted-swap-v2  | PASS       | PASS
+5 Unsupported versions are rejected with a visible reason             | debt-protection-v1  | PASS       | PASS
+5 Unsupported versions are rejected with a visible reason             | restricted-swap-v2  | PASS       | PASS
+6 Revocation works after adoption                                     | debt-protection-v1  | PASS       | PASS
+6 Revocation works after adoption                                     | restricted-swap-v2  | PASS       | PASS
+supporting: PASS scope-note-lending-template-on-a-build-whose-v2-manifest-is-wrong (debt-protection-v1, demo owner)
+supporting: PASS scope-note-lending-template-on-a-build-whose-v2-manifest-is-wrong (debt-protection-v1, fresh wallet)
+supporting: PASS fresh-wallet-reaches-adoption-through-the-app (debt-protection-v1, fresh wallet)
+supporting: PASS fresh-wallet-reaches-adoption-through-the-app (restricted-swap-v2, fresh wallet)
+supporting: PASS ui-publication-read-back-verified (restricted-swap-v2, publisher wallet)
+PASSED. 32 app transactions, 25 script-sent operator transactions, 0 page problem(s).
+Evidence: evidence/fable/run8/strategy-gate-run-20261127-122307.json
+Screenshots kept as evidence: evidence/fable/run8/strategy-gate-run-20261127-122307
+Other screenshots (temporary): <scratchpad>/final8-shots/gate/run-20261127-122307
+commit at end 71e80b2 dirty(apps/web packages)=0
+final8-gate-done
+
+== part 2: every other check, each on its own production build
+commit 71e80b2 dirty(apps/web packages)=0
+unit: ℹ pass 115 ℹ fail 0  | tsc: exit 0 | tokens: check-tokens: no hardcoded colours, gradients, shadows or default-palette classes in src/
+build neg-wrong-network: exit 0
+negative neg-wrong-network: exit 0 :: wrong-network: all checks passed. [{"walletChainId":"0xc4","banner":"X
+build neg-broken-deployment: exit 0
+negative neg-broken-deployment: exit 0 :: broken-deployment: all checks passed. [{"adoptionOnBrokenDeployment":[
+build neg-rejected-root: exit 0
+negative neg-rejected-root: exit 0 :: rejected-manifest (root): all checks passed. [{"reasonShown":"This bui
+build neg-rejected-missing: exit 0
+negative neg-rejected-missing: exit 0 :: rejected-manifest (missing): all checks passed. [{"reasonShown":"This 
+build neg-testnet-unverified: exit 0
+negative neg-testnet-unverified: exit 0 :: testnet-unverified: all checks passed. [{"adoptionOnBrokenDeployment":
+build neg-activity-recovery: exit 0
+negative neg-activity-recovery: exit 0 :: activity-recovery: all checks passed. [{"activityRecovery":{"state":"n
+build neg-registry-off: exit 0
+negative neg-registry-off: exit 0 :: registry-off: all checks passed. [{"path":"/discover","tier":0,"publis
+build fixture: exit 0
+fixture checks: exit 0 :: All UI checks passed.
+build testnet: exit 0
+hosted-checks (next start on loopback, NOT a hosted URL): exit 0 :: hosted-checks: all checks passed.
+testnet-live: exit 0 :: testnet-live: all checks passed. [{"width":1440,"landing":{"title":"Pe
+Discover screenshots (4, JPEG): exit 0 :: All 4 captures are clean. evidence/screenshots/strategy-fir
+build testnet-final: exit 0
+final .next: BUILD_ID DLNoPKgnTaQufK-ynuVtz; files naming the fork RPC port: 0; loopback addresses in client chunks: 0
+commit at end 71e80b2 dirty(apps/web packages)=0
+final8-rest-done
+
+== part 3: fresh clone outside the repository, env -i with PATH and HOME (second attempt; the first failed with the disk full, see apps/web/FABLE_NOTES.md)
+clone at 71e80b2
+fresh clone npm ci: exit 0
+fresh clone build: exit 0 :: routes 16

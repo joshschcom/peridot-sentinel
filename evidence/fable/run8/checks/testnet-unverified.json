@@ -1,0 +1,75 @@
+{
+  "mode": "testnet-unverified",
+  "onlyPaths": null,
+  "case": "",
+  "base": "http://127.0.0.1:3212",
+  "account": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+  "readOnlyWallet": true,
+  "passed": true,
+  "failures": [],
+  "notes": [
+    {
+      "adoptionOnBrokenDeployment": [
+        {
+          "option": "template-option-debt-protection-v1",
+          "reviewUnavailable": true,
+          "planBuilt": false,
+          "signEnabled": false
+        },
+        {
+          "option": "template-option-restricted-swap-v2",
+          "reviewUnavailable": true,
+          "planBuilt": false,
+          "signEnabled": false
+        }
+      ]
+    },
+    {
+      "bannerText": "Live data unavailable. The deployment on X Layer Testnet could not be verified, so nothing is read from it and transactions are blocked. No bytecode at 1 manifest address(es), e.g. 0x000000000000000000000000000000000000dEaD. Check again"
+    },
+    {
+      "redirects": [
+        {
+          "from": "/app",
+          "status": 307,
+          "location": "/portfolio"
+        },
+        {
+          "from": "/app?market=0x0000000000000000000000000000000000000001",
+          "status": 307,
+          "location": "/portfolio?market=0x0000000000000000000000000000000000000001"
+        },
+        {
+          "from": "/sentinel",
+          "status": 307,
+          "location": "/portfolio"
+        },
+        {
+          "from": "/sentinel?market=0x0000000000000000000000000000000000000001",
+          "status": 307,
+          "location": "/portfolio?market=0x0000000000000000000000000000000000000001"
+        },
+        {
+          "from": "/sentinel/activity",
+          "status": 307,
+          "location": "/activity"
+        },
+        {
+          "from": "/sentinel/activity?market=0x0000000000000000000000000000000000000001",
+          "status": 307,
+          "location": "/activity?market=0x0000000000000000000000000000000000000001"
+        },
+        {
+          "from": "/automate",
+          "status": 307,
+          "location": "/strategies"
+        },
+        {
+          "from": "/automate?market=0x0000000000000000000000000000000000000001",
+          "status": 307,
+          "location": "/strategies?market=0x0000000000000000000000000000000000000001"
+        }
+      ]
+    }
+  ]
+}

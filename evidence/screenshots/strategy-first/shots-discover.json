@@ -1,0 +1,72 @@
+{
+  "base": "http://127.0.0.1:3220",
+  "at": "2026-11-27T13:06:24.254Z",
+  "wallet": "watch-only test wallet reporting the public demo owner address on chain 1952; it cannot sign or send",
+  "passed": true,
+  "shots": [
+    {
+      "file": "discover-390-light.jpg",
+      "registryTier": {
+        "state": "verified",
+        "accepted": 2,
+        "rejected": 0
+      },
+      "pageHeightPx": 5314,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "discover-390-dark.jpg",
+      "registryTier": {
+        "state": "verified",
+        "accepted": 2,
+        "rejected": 0
+      },
+      "pageHeightPx": 5314,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "discover-1440-light.jpg",
+      "registryTier": {
+        "state": "verified",
+        "accepted": 2,
+        "rejected": 0
+      },
+      "pageHeightPx": 2520,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    },
+    {
+      "file": "discover-1440-dark.jpg",
+      "registryTier": {
+        "state": "verified",
+        "accepted": 2,
+        "rejected": 0
+      },
+      "pageHeightPx": 2520,
+      "truncated": false,
+      "overflowPx": 0,
+      "pageErrors": [],
+      "notReady": [],
+      "deploymentBanner": 0,
+      "fixtureBanner": 0,
+      "walletRequests": 0
+    }
+  ]
+}

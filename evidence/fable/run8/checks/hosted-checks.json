@@ -1,0 +1,152 @@
+{
+  "base": "http://127.0.0.1:3220",
+  "at": "2026-11-27T12:51:38.565Z",
+  "nextDir": "scanned",
+  "routes": [
+    "/",
+    "/portfolio",
+    "/strategies",
+    "/discover",
+    "/activity",
+    "/sentinel/policy",
+    "/markets",
+    "/markets?view=borrow",
+    "/connect",
+    "/trade",
+    "/studio",
+    "/studio/create",
+    "/circuits"
+  ],
+  "passed": true,
+  "failures": [],
+  "notes": {
+    "sdkDenyList": "found in packages/strategy-sdk/validate.ts",
+    "bundle": {
+      "files": 402,
+      "clientFiles": 42,
+      "hex64InClient": 463,
+      "unexplained": [],
+      "loopback": [],
+      "credentialNames": []
+    },
+    "landing@1440": {
+      "headline": "Put your portfolio on autopilot.",
+      "create": "/strategies#create",
+      "explore": "/discover"
+    },
+    "discover@1440": [
+      "debt-protection-v1:available:true",
+      "restricted-swap-v2:available:true"
+    ],
+    "registry@1440": {
+      "state": "verified",
+      "published": [
+        "debt-protection-v1:v1:0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "restricted-swap-v2:v1:0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"
+      ],
+      "coverage": [
+        "read 47314090-47314389",
+        "not-read 47314390-47324389",
+        "read 47324390-47324657"
+      ]
+    },
+    "connect@1440": {
+      "availability": "available",
+      "tools": "12",
+      "executeTools": "1",
+      "grant": "ok",
+      "readiness": "spent",
+      "kinds": {
+        "scripted": "Verified",
+        "llm": "Verified",
+        "simulated-rejection": "Recorded · nothing sent",
+        "mined-revert": "Recorded · reverted on chain"
+      }
+    },
+    "trade@1440": {
+      "deployment": "ok",
+      "account": "ok",
+      "quote": "ok"
+    },
+    "circuits@1440": {
+      "peridotPublished": "0",
+      "thirdParty": "ok",
+      "processor": "ok"
+    },
+    "landing@390": {
+      "headline": "Put your portfolio on autopilot.",
+      "create": "/strategies#create",
+      "explore": "/discover"
+    },
+    "discover@390": [
+      "debt-protection-v1:available:true",
+      "restricted-swap-v2:available:true"
+    ],
+    "registry@390": {
+      "state": "verified",
+      "published": [
+        "debt-protection-v1:v1:0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67",
+        "restricted-swap-v2:v1:0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"
+      ],
+      "coverage": [
+        "read 47314090-47314389",
+        "not-read 47314390-47324589",
+        "read 47324590-47324797"
+      ]
+    },
+    "connect@390": {
+      "availability": "available",
+      "tools": "12",
+      "executeTools": "1",
+      "grant": "ok",
+      "readiness": "spent",
+      "kinds": {
+        "scripted": "Verified",
+        "llm": "Verified",
+        "simulated-rejection": "Recorded · nothing sent",
+        "mined-revert": "Recorded · reverted on chain"
+      }
+    },
+    "trade@390": {
+      "deployment": "ok",
+      "account": "ok",
+      "quote": "ok"
+    },
+    "circuits@390": {
+      "peridotPublished": "0",
+      "thirdParty": "ok",
+      "processor": "ok"
+    },
+    "redirects": [
+      "/app -> 307 /portfolio",
+      "/app?market=0x0000000000000000000000000000000000000001 -> 307 /portfolio?market=0x0000000000000000000000000000000000000001",
+      "/sentinel -> 307 /portfolio",
+      "/sentinel?market=0x0000000000000000000000000000000000000001 -> 307 /portfolio?market=0x0000000000000000000000000000000000000001",
+      "/sentinel/activity -> 307 /activity",
+      "/sentinel/activity?market=0x0000000000000000000000000000000000000001 -> 307 /activity?market=0x0000000000000000000000000000000000000001",
+      "/automate -> 307 /strategies",
+      "/automate?market=0x0000000000000000000000000000000000000001 -> 307 /strategies?market=0x0000000000000000000000000000000000000001"
+    ],
+    "hosts": [
+      "127.0.0.1:3220",
+      "rpc.xlayer.tech",
+      "testrpc.xlayer.tech"
+    ],
+    "backgrounds": {
+      "light": "rgb(255, 255, 255)",
+      "dark": "rgb(11, 11, 11)"
+    },
+    "wrongNetwork": "Wrong network. Your wallet is on X Layer (read-only). Transactions are blocked until you switch to X Layer Testnet. Switch network",
+    "testnetRpcDown": {
+      "banner": "Live data unavailable. The deployment on X Layer Testnet could not be verified, so nothing is read from it and transactions are blocked. HTTP request failed.. C",
+      "pageErrors": 0
+    },
+    "testnetRpcDown /connect": "error",
+    "testnetRpcDown /trade": "error",
+    "mainnetRpcDown": {
+      "thirdParty": "error",
+      "processor": "error",
+      "results": 0
+    }
+  }
+}
