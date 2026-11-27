@@ -996,6 +996,7 @@ if (mode === "wrong-network") {
   // DEFAULT-target server built with NEXT_PUBLIC_PERIDOT_REGISTRY=off (the only thing that variable can do). The
   // registry must be absent everywhere: no tier on Discover, a publication link is ignored, no publishing, and the
   // browser never asks the RPC about the registry address. Curated strategies and import are untouched.
+  const { readFileSync } = await import("node:fs");
   const pin = JSON.parse(readFileSync(new URL("../../../packages/chain-config/deployments/strategy-registry-1952.json", import.meta.url), "utf8"));
   const recorded = JSON.parse(readFileSync(new URL("../../../evidence/session10-registry/discovery.json", import.meta.url), "utf8")).verified[0];
   const watch = "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67";
