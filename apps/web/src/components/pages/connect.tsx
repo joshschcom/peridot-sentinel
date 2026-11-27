@@ -55,7 +55,7 @@ export function Connect() {
       <PageHeader
         eyebrow="Sentinel Connect"
         title="Connect your AI"
-        description="Connect your preferred compatible AI to your Sentinel account. Any MCP-compatible model you run can read the account, test an action first, and carry out the one operation you approved. It acts only when your AI asks: nothing watches the account in the background."
+        description="Connect your preferred compatible AI to your Sentinel account. Any MCP-compatible model you run can read the account, test an action first, and carry out the one operation you approved. This is agent-directed execution: it acts only when your AI asks, and nothing watches the account in the background."
         actions={<Badge tone={verified ? "success" : "warning"}>{verified ? CONNECT_STATUS_LABEL : "In development"}</Badge>}
       />
       <Disclosures />
