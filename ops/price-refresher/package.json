@@ -1,0 +1,8 @@
+{
+  "name": "peridot-testnet-price-refresher",
+  "private": true,
+  "type": "module",
+  "description": "Keeps the public X Layer testnet (1952) demo's four mock prices fresh (timestamps only). DECISIONS D26.",
+  "engines": { "node": ">=20" },
+  "dependencies": { "viem": "2.58.6" }
+}
