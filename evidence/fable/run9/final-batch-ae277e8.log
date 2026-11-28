@@ -1,0 +1,42 @@
+Run 9 evidence batch. All on one commit. Build inputs: apps/web, packages, services/onchainos.
+commit ae277e8 dirty(build inputs)=0
+OKX_* variables in this shell: 0; disk free: 4.6Gi
+unit: ℹ pass 141 ℹ fail 0  | tsc: exit 0 | tokens: check-tokens: no hardcoded colours, gradients, shadows or default-palette classes in src/
+reader's own synthetic suite (Astra's, run from the repo root): ℹ pass 33 ℹ fail 0 
+build fixture: exit 0
+fixture checks: exit 0 :: checked other networks and the indicative quote: 6 example scenarios at 360 and 390 px, requests to /api/onchainos: 0 :: All UI checks passed.
+build neg-wrong-network: exit 0
+negative neg-wrong-network: exit 0 :: wrong-network: all checks passed. [{"walletChainId":"0xc4","banner":"X
+build neg-broken-deployment: exit 0
+negative neg-broken-deployment: exit 0 :: broken-deployment: all checks passed. [{"adoptionOnBrokenDeployment":[
+build neg-rejected-root: exit 0
+negative neg-rejected-root: exit 0 :: rejected-manifest (root): all checks passed. [{"reasonShown":"This bui
+build neg-rejected-missing: exit 0
+negative neg-rejected-missing: exit 0 :: rejected-manifest (missing): all checks passed. [{"reasonShown":"This 
+build neg-testnet-unverified: exit 0
+negative neg-testnet-unverified: exit 0 :: testnet-unverified: all checks passed. [{"adoptionOnBrokenDeployment":
+build neg-activity-recovery: exit 0
+negative neg-activity-recovery: exit 0 :: activity-recovery: all checks passed. [{"activityRecovery":{"state":"n
+build neg-registry-off: exit 0
+negative neg-registry-off: exit 0 :: registry-off: all checks passed. [{"path":"/discover","tier":0,"publis
+build testnet: exit 0
+hosted-checks (next start on loopback, NOT a hosted URL; no credentials): exit 0 :: hosted-checks: all checks passed.
+bundle: 421 files, 463 distinct 32-byte hex values in the client bundle, 0 unexplained; OKX credential names: 0 client file(s), 0 other forbidden file(s), 1 server chunk(s) loaded only by the onchainos routes
+onchainos routes: portfolio credentials missing/missing, cache-control no-store | no-store; quote unavailable (credentials-missing)/unavailable (credentials-missing), cache-control no-store | no-store
+public testnet mock price feed, read directly from the RPC BEFORE testnet-live: {"block":"47408037","blockTime":"2026-11-28T11:54:34.000Z","maxAgeSeconds":"86400","wokbPriceTime":"2026-11-26T15:42:41.000Z","usdcPriceTime":"2026-11-26T15:42:49.000Z","ageSeconds":"159113","expiredAt":"2026-11-27T15:42:41.000Z"}
+testnet-live: exit 1 :: testnet-live: 5 check(s) FAILED:
+- empty-wallet /trade @1440: the venue quote is "error" (the adapter's error: QuoteExpired)
+- empty-wallet /trade @390: the venue quote is "error" (the adapter's error: QuoteExpired)
+- demo-owner-watch-only /markets/<market0> @1440: the market policy is not shown as allowing the same borrow: null
+- demo-owner-watch-only /trade @1440: the venue quote is "error" (the adapter's error: QuoteExpired)
+- demo-owner-watch-only /trade @390: the venue quote is "error" (the adapter's error: QuoteExpired)
+public testnet mock price feed, read directly from the RPC AFTER testnet-live: {"block":"47408942","blockTime":"2026-11-28T12:09:39.000Z","maxAgeSeconds":"86400","wokbPriceTime":"2026-11-26T15:42:41.000Z","usdcPriceTime":"2026-11-26T15:42:49.000Z","ageSeconds":"160018","expiredAt":"2026-11-27T15:42:41.000Z"}
+routes on this server (no credentials):
+  GET /api/onchainos/portfolio?subjects=196:0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67 -> 200 cache-control: no-store :: {"schema":"peridot.okx-portfolio/v1","source":"OKX Onchain OS","credentials":"missing","requestedAt":"2026-11-28T12:09:42.779Z","networks":[{"chainInd
+  GET /api/onchainos/quote?from=WOKB&amount=1000000000000000000 -> 200 cache-control: no-store :: {"schema":"peridot.okx-quote/v1","status":"unavailable","reason":"credentials-missing","chainId":196,"tokenIn":"0xe538905cf8410324e03a5a23c1c177a474d5
+  GET /api/onchainos/portfolio -> 400 cache-control: no-store :: {"error":"Invalid request"}
+  GET /api/onchainos/quote?from=WOKB&amount=0 -> 400 cache-control: no-store :: {"error":"Invalid request"}
+  POST /api/onchainos/portfolio -> 405
+final .next: BUILD_ID i5lbqfgcOh6FGCzqa53PB; files naming the fork RPC port: 0; loopback addresses in client chunks: 0; client files naming OKX_API: 0
+commit at end ae277e8 dirty(build inputs)=0; disk free: 4.5Gi
+final9-done
