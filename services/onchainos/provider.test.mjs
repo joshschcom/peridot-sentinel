@@ -87,13 +87,15 @@ test('handles documented application error codes without passing on provider tex
 })
 
 test('malformed, truncated and oversized bodies plus thrown fetch failures return fixed reasons', async () => {
-  for (const response of [
-    () => new Response('broken '+env.OKX_API_KEY),
-    () => Response.json({code:'0',data:env.OKX_API_SECRET}),
-    () => new Response('x'.repeat(2*1024*1024+1)),
-    () => new Response(Uint8Array.of(255,255)),
+  // Each failure point has its own fixed code (D26 review); none carries provider text or a credential.
+  for (const [response, reason] of [
+    [() => new Response('broken '+env.OKX_API_KEY), 'malformed-json'],
+    [() => Response.json({code:'0',data:env.OKX_API_SECRET}), 'malformed-data'],
+    [() => Response.json({code:7,data:[]}), 'malformed-code'],
+    [() => new Response('x'.repeat(8*1024*1024+1)), 'malformed-too-large'],
+    [() => new Response(Uint8Array.of(255,255)), 'malformed-json'],
   ]) {
-    assert.deepEqual(await synthetic(response).read(plan),{status:'unavailable',reason:'malformed-provider'})
+    assert.deepEqual(await synthetic(response).read(plan),{status:'unavailable',reason})
   }
   const bad = await synthetic(()=>{throw Error(env.OKX_API_SECRET)}).read(plan)
   assert.deepEqual(bad,{status:'unavailable',reason:'provider-unavailable'})

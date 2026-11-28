@@ -19,7 +19,7 @@ const quoteAmount = '1000000000000000000'
 const nullReasons = {
   ok:[null,'tokens-omitted'], empty:[null,'tokens-omitted'], unsupported:['unsupported-chain'], 'not-entitled':['not-entitled'],
   'rate-limited':['rate-limited'], unavailable:['credentials-missing','provider-unavailable','malformed-provider','native-marker-unverified',
-    'malformed-too-large','malformed-inventory','malformed-chain','malformed-owner','malformed-token-symbol','malformed-risk-flag',
+    'malformed-too-large','malformed-json','malformed-code','malformed-inventory','malformed-chain','malformed-owner','malformed-token-symbol','malformed-risk-flag',
     'malformed-duplicate-asset','malformed-scope-count','malformed-data','malformed-decimal','malformed-integer','malformed-address'],
 }
 const credentialPattern = /(?:OK[-_]ACCESS[-_]|OKX_API_|Bearer\s+|-----BEGIN.*PRIVATE KEY|(?:api[-_ ]?key|passphrase|secret[-_ ]?key)|[a-z]+:\/\/|\b[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\b|\b0x[a-f\d]{64}\b|\b(?=[a-f\d]*[a-f])(?:[a-f\d]{64}|[a-f\d]{32})\b|\b[A-Za-z\d+/]{43}=|\b(?:sk[-_]|gh[pousr]_|github_pat_|xox[baprs]-|AKIA)[\w-]{12,}|\beyJ[\w-]+\.[\w-]+\.[\w-]+)/i

@@ -37,7 +37,8 @@ async function boundedJson(response) {
       }
       chunks.push(value)
     }
-    return JSON.parse(new TextDecoder('utf-8', {fatal:true}).decode(Buffer.concat(chunks, size)))
+    // Not fatal: one invalid byte in a spam token's name must not hide the wallet. Every field is validated later.
+    return JSON.parse(new TextDecoder('utf-8').decode(Buffer.concat(chunks, size)))
   } finally {
     reader.releaseLock()
   }
@@ -101,15 +102,15 @@ export function createProvider({env, fetch:request, now}) {
       let body
       try { body = await boundedJson(res) } catch (error) {
         if (error?.message === 'Payload too large') return {result:{status:'unavailable', reason:'malformed-too-large'}}
-        return {result:res.ok ? malformed() : unavailable()}
+        return {result:res.ok ? {status:'unavailable', reason:'malformed-json'} : unavailable()}
       }
       if (deniedCodes.has(body?.code)) return {result:notEntitled()}
       if (unsupportedCodes.has(body?.code)) return {result:{status:'unsupported', reason:'unsupported-chain'}}
       if (body?.code === '50011') return {result:rateLimited()}
       if (!res.ok) return {result:unavailable()}
-      if (typeof body?.code !== 'string' || !/^\d{1,16}$/.test(body.code)) return {result:malformed()}
+      if (typeof body?.code !== 'string' || !/^\d{1,16}$/.test(body.code)) return {result:{status:'unavailable', reason:'malformed-code'}}
       if (body.code !== '0') return {result:unavailable()}
-      if (!Array.isArray(body.data)) return {result:malformed()}
+      if (!Array.isArray(body.data)) return {result:{status:'unavailable', reason:'malformed-data'}}
       return {result:{status:'ok', body:{code:'0', data:body.data}}}
     } catch {
       return {result:unavailable()}
