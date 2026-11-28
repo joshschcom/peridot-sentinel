@@ -2,7 +2,10 @@
 import assert from 'node:assert/strict'
 import {base58} from '@scure/base'
 import {getAddress, isAddress} from 'viem'
-import {pair} from '../quote.mjs'
+export const pair = Object.freeze({
+  WOKB: '0xe538905cf8410324e03a5a23c1c177a474d59b2b',
+  USDC: '0xb6ceceab302e2e4948951ee7843fc24e92933061',
+})
 
 const origin = 'https://web3.okx.com'
 const endpoints = Object.freeze({
@@ -69,7 +72,7 @@ export function quotePlan(from, amount) {
   })
 }
 
-function canonical(req) {
+export function canonical(req) {
   if (req.kind === 'chains') return request('chains', null, {})
   if (req.kind === 'quote') return quotePlan(req.scope.from, req.scope.amountIn)
   assert(req.kind === 'inventory' || req.kind === 'walletUsd', 'Unsupported request kind')
