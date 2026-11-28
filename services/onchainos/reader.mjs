@@ -76,6 +76,19 @@ async function cached(reader, key, ttl, load, onFull) {
   return structuredClone(await entry.result)
 }
 
+// Our own fixed validation messages (portfolio-prep/reads.mjs) as fixed reason codes, so a rejected answer says which
+// check refused it. Only these constants can appear; any other error stays 'malformed-provider'. No provider text.
+const checkReasons = Object.freeze({
+  'Invalid token inventory':'malformed-inventory', 'Unexpected response chain':'malformed-chain',
+  'Unexpected response owner':'malformed-owner', 'Invalid token symbol':'malformed-token-symbol',
+  'Missing provider risk flag':'malformed-risk-flag', 'Duplicate asset identity in response':'malformed-duplicate-asset',
+  'Expected one scoped response object':'malformed-scope-count', 'Missing response data':'malformed-data',
+  'Expected unsigned decimal string':'malformed-decimal', 'Expected unsigned integer string':'malformed-integer',
+  'Amount exceeds uint256':'malformed-integer', 'Invalid EVM address':'malformed-address',
+  'Invalid Solana address':'malformed-address', 'Expected 32-byte Solana address':'malformed-address',
+})
+const checkReason = error => (typeof error?.message === 'string' && Object.hasOwn(checkReasons, error.message)) ? checkReasons[error.message] : 'malformed-provider'
+
 async function readData(reader, plan, requestedAt, subjectBudget) {
   try {
     const response = await reader.provider.read(plan,subjectBudget)
@@ -84,8 +97,8 @@ async function readData(reader, plan, requestedAt, subjectBudget) {
       requestedAt,receivedAt:stamp(reader.now)})
     if (parsed.status !== 'received') return unavailable('malformed-provider')
     return {status:'ok',data:parsed.data}
-  } catch {
-    return unavailable('malformed-provider')
+  } catch (error) {
+    return unavailable(checkReason(error))
   }
 }
 
