@@ -13,6 +13,7 @@ Paths outside the repo are written relative to the repo root. On the founder's m
    - read-only `git` operations on `../../peridot-contracts-2-5` (`git show`, `git archive`, `git ls-tree`, `git log`, `git diff`) at a pinned commit;
    - the handoff file;
    - the testnet key directory `$PERIDOT_KEY_DIR` (on the founder's machine `../.testnet-keys`, outside the repo), and only through a shell variable.
+   - **Claude only:** the founder's OKX credentials file (`../.okx-credentials/onchainos.env`), only through `services/onchainos/with-okx-env.sh` and never read, printed or copied (D25, `docs/OKX_CREDENTIALS.md`). Astra and Fable never run that launcher, never read the file, and never have the OKX variables in their environment.
 
    Never touch `../../secrets`, `.deployers`, any `.*-signer` directory, `private-keys`, `.env` files in other repos, `~/.ssh` or keychains. Prior Peridot keys were compromised on 2026-11-02, so treat everything outside this repo as sensitive.
 2. **Testnet deployer:**
