@@ -30,7 +30,8 @@ export const V2_FACTORY_VIEW_SIGNATURES = ["function accountOf(address) view ret
 export const V2_SWAP_VIEW_SIGNATURES = ["function executionQuote(address tokenIn, uint256 amountIn) view returns (uint256 expectedOut, uint256 floorOut, uint256 timestamp)"] as const;
 const ACCOUNT_ABI = parseAbi(V2_ACCOUNT_VIEW_SIGNATURES);
 const FACTORY_ABI = parseAbi(V2_FACTORY_VIEW_SIGNATURES);
-const SWAP_ABI = parseAbi(V2_SWAP_VIEW_SIGNATURES);
+// The view's own custom errors, so a refused quote is reported by name (QuoteExpired: the mock price is too old).
+const SWAP_ABI = parseAbi([...V2_SWAP_VIEW_SIGNATURES, "error QuoteExpired()", "error InvalidAsset()", "error InvalidAmount()"]);
 
 export interface Pinned {
   number: bigint;

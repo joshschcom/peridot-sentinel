@@ -19,6 +19,7 @@ import { V2_OWNER_TARGET, V2_OWNER_TARGET_REASON } from "@/services/chain/v2-own
 import { V2OwnerFlows } from "./v2-owner";
 import { OKX_QUOTE_ON, OkxQuote } from "./okx-quote";
 import { EXPANSION, type ExpansionManifest, V2_OP_LABEL, V2_SCOPE_LABEL, V2_SWAP_LABEL, type V2Demo } from "@/lib/expansion";
+import { KNOWN_ERROR_NAMES, extractRaw } from "@/lib/errors";
 import { shortAddress, shortHash } from "@/lib/format";
 import { readV2Account, readVenueQuote, verifyV2Deployment } from "@/services/chain/expansion";
 import { FORCE_FIXTURE } from "@/services/runtime";
@@ -232,6 +233,9 @@ function VenueQuote({ manifest }: { manifest: ExpansionManifest }) {
   const data = quote.data;
   // Loss allowed by a minimum output, exactly as the account computes it: ceil((expected - minOut) * 10000 / expected).
   const minOutAt = (lossBps: number) => (data ? data.expectedOut - (data.expectedOut * BigInt(lossBps)) / 10_000n : 0n);
+  // A revert of the view with one of the adapter's own errors is named; anything else stays the RPC's first line.
+  const revertName = quote.isError ? extractRaw(quote.error).name : undefined;
+  const refusal = revertName && KNOWN_ERROR_NAMES.includes(revertName) ? revertName : null;
   return (
     <Card as="section" data-testid="v2-quote" data-state={amountIn === null ? "bad-input" : quote.isPending ? "loading" : quote.isError ? "error" : "ok"} data-expected={data ? data.expectedOut.toString() : ""} data-block={data ? data.block.number.toString() : ""}>
       <CardHeader eyebrow="Live · read-only" title="What the testnet venue would expect" description="Ask the swap adapter what it expects for an exact input. This reads the venue's mock price source; it sends nothing and reserves nothing." action={<Badge tone="outline">Mock price · not an OKX quote</Badge>} />
@@ -245,8 +249,8 @@ function VenueQuote({ manifest }: { manifest: ExpansionManifest }) {
         ) : quote.isPending ? (
           <Skeleton className="h-20" data-loading />
         ) : quote.isError || !data ? (
-          <Notice tone="danger" icon={<IconAlert size={18} />} title="The venue gave no quote">
-            {quote.error instanceof Error ? quote.error.message.split("\n")[0] : "The read failed."} No figure is shown in its place.
+          <Notice tone="danger" icon={<IconAlert size={18} />} title="The venue gave no quote" data-testid="v2-quote-error" data-error={refusal ?? ""}>
+            {refusal === "QuoteExpired" ? "The testnet venue's mock price is older than the swap adapter accepts, so the adapter refuses to quote or swap (QuoteExpired). The owner of the mock price source has to refresh it; nothing on this page can." : refusal ? `The swap adapter refused the read (${refusal}).` : quote.error instanceof Error ? quote.error.message.split("\n")[0] : "The read failed."} No figure is shown in its place.
           </Notice>
         ) : (
           <dl className="divide-y divide-line">
