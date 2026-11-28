@@ -303,8 +303,6 @@ test('malformed provider envelopes, identity and amounts fail closed',async()=>{
     ()=>new Response('{',{status:200}),
     ()=>ok([{tokenAssets:'unexpected'}]),
     c=>ok([{tokenAssets:[token(c,{address:asset})]}]),
-    c=>ok([{tokenAssets:[token(c,{balance:'1e20'})]}]),
-    c=>ok([{tokenAssets:[token(c,{balance:9_007_199_254_740_992})]}]),
   ]) {
     const f=fixture(c=>c.kind==='inventory'?bad(c):valid(c))
     const n=(await portfolio(f,[subjects[1]])).body.networks[0]
@@ -315,6 +313,17 @@ test('malformed provider envelopes, identity and amounts fail closed',async()=>{
   const q=await quote(f)
   assert.equal(q.body.status,'unavailable')
   assert.equal(q.body.amountOut,null)
+})
+
+test('a malformed non-native row is omitted and reported as tokens-omitted, the rest of the wallet is kept (D26 review)',async()=>{
+  for (const change of [{balance:'1e20'},{balance:9_007_199_254_740_992},{symbol:''}]) {
+    const other='0x0000000000000000000000000000000000000007'
+    const f=fixture(c=>c.kind==='inventory'?ok([{tokenAssets:[token(c),token(c,{tokenContractAddress:other,...change})]}]):valid(c))
+    const n=(await portfolio(f,[subjects[1]])).body.networks[0]
+    assert.equal(n.status,'ok')
+    assert.equal(n.reason,'tokens-omitted')
+    assert.equal(n.tokens.length,1)
+  }
 })
 
 test('a hostile token symbol is replaced without discarding its balance or other valid assets',async()=>{

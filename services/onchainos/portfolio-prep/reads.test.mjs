@@ -55,10 +55,17 @@ test('all four chains preserve precision, address identity, absence and provider
 
 test('mismatched identity, duplicate rows and unsafe amount encodings invalidate the observation', () => {
   const r = inventoryRequest('1')
-  for (const change of [{chainIndex: '196'}, {address: contract}, {balance: 1.1}, {balance: '1e4'},
-    {rawBalance: (2n ** 256n).toString()}, {isRiskToken: 'false'}]) {
+  for (const change of [{chainIndex: '196'}, {address: contract}]) {
     assert.throws(() => apply(r, [{tokenAssets: [{...row(), ...change}]}]))
   }
+  // A malformed non-native row is left out and counted (D26 review); the rest of the wallet stays.
+  for (const change of [{balance: 1.1}, {balance: '1e4'}, {rawBalance: (2n ** 256n).toString()}, {isRiskToken: 'false'}, {symbol: ''}]) {
+    const {assets, omitted} = apply(r, [{tokenAssets: [{...row(), ...change}]}]).data
+    assert.equal(assets.length, 0)
+    assert.equal(omitted, 1)
+  }
+  // ...but a malformed native row still rejects the answer.
+  assert.throws(() => apply(r, [{tokenAssets: [{...row(), tokenContractAddress: '', symbol: 'ETH', balance: '1e4'}]}]))
   assert.throws(() => apply(r, [{tokenAssets: [row(), row()]}]))
   assert.throws(() => apply(r, []))
 })

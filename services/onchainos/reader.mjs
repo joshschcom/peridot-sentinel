@@ -155,7 +155,8 @@ async function readNetwork(reader, inventory, subtotal, supported, at) {
   if (total.status !== 'ok') return done(total)
   const walletUsd = total.data.walletTokensUsd
   if (matchesCredential(walletUsd,reader.keys)) return done(unavailable('malformed-provider'))
-  return done({status:tokens.tokens.length ? 'ok' : 'empty',tokens:tokens.tokens,walletUsd})
+  const omitted = inventoryResult.data.omitted ?? 0
+  return done({status:tokens.tokens.length ? 'ok' : 'empty',reason:omitted ? 'tokens-omitted' : null,tokens:tokens.tokens,walletUsd})
 }
 
 export async function handlePortfolio(searchParams, opts = {}) {

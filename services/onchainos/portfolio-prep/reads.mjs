@@ -82,29 +82,45 @@ export function canonical(req) {
 function inventory(scope, rows) {
   assert(Array.isArray(rows) && rows.length <= 10000, 'Invalid token inventory')
   const seen = new Set()
-  return rows.map(row => {
-    assert.equal(row.chainIndex, scope.chainIndex, 'Unexpected response chain')
+  const assets = []
+  let omitted = 0
+  for (const row of rows) {
+    // Integrity of the whole answer: every row must be for the requested chain and holder.
+    assert.equal(row?.chainIndex, scope.chainIndex, 'Unexpected response chain')
     assert.equal(address(scope.chainIndex, row.address), scope.address, 'Unexpected response owner')
-    assert(typeof row.symbol === 'string' && row.symbol.length > 0 && row.symbol.length <= 128 &&
-      !/[\u0000-\u001f\u007f]/u.test(row.symbol), 'Invalid token symbol')
-    assert.equal(typeof row.isRiskToken, 'boolean', 'Missing provider risk flag')
-    // The official Ethereum example documents an empty contract for ETH. Preserve ambiguous native markers elsewhere.
     const marker = row.tokenContractAddress
-    let assetKind = 'token'
-    let assetAddress = null
-    if (marker === '') assetKind = scope.chainIndex === '1' && row.symbol === 'ETH' ? 'native' : 'unverified-native-marker'
-    else {
-      assetAddress = address(scope.chainIndex, marker)
-      if (/^0x(0{40}|e{40})$/i.test(assetAddress) || assetAddress === '11111111111111111111111111111111') {
-        assetKind = 'unverified-native-marker'
+    const nativeLike = marker === ''
+    let asset
+    try {
+      assert(typeof row.symbol === 'string' && row.symbol.length > 0 && row.symbol.length <= 128 &&
+        !/[\u0000-\u001f\u007f]/u.test(row.symbol), 'Invalid token symbol')
+      assert.equal(typeof row.isRiskToken, 'boolean', 'Missing provider risk flag')
+      // The official Ethereum example documents an empty contract for ETH. Preserve ambiguous native markers elsewhere.
+      let assetKind = 'token'
+      let assetAddress = null
+      if (nativeLike) assetKind = scope.chainIndex === '1' && row.symbol === 'ETH' ? 'native' : 'unverified-native-marker'
+      else {
+        assetAddress = address(scope.chainIndex, marker)
+        if (/^0x(0{40}|e{40})$/i.test(assetAddress) || assetAddress === '11111111111111111111111111111111') {
+          assetKind = 'unverified-native-marker'
+        }
       }
+      const assetId = scope.chainIndex + '/' + (assetAddress ?? assetKind)
+      asset = {assetId, assetKind, assetAddress, symbol: row.symbol, balance: decimal(row.balance),
+        rawBalance: raw(row.rawBalance, true), tokenPriceUsd: decimal(row.tokenPrice, true), providerRiskFlag: row.isRiskToken}
+    } catch (error) {
+      // A malformed non-native row (typically an airdropped spam token with an invalid name) is left out and
+      // counted, instead of hiding the whole wallet. A malformed native row still rejects the answer.
+      if (nativeLike) throw error
+      omitted++
+      continue
     }
-    const assetId = scope.chainIndex + '/' + (assetAddress ?? assetKind)
-    assert(!seen.has(assetId), 'Duplicate asset identity in response')
-    seen.add(assetId)
-    return {assetId, assetKind, assetAddress, symbol: row.symbol, balance: decimal(row.balance),
-      rawBalance: raw(row.rawBalance, true), tokenPriceUsd: decimal(row.tokenPrice, true), providerRiskFlag: row.isRiskToken}
-  })
+    // Two rows for one asset make its balance ambiguous: that still rejects the whole answer.
+    assert(!seen.has(asset.assetId), 'Duplicate asset identity in response')
+    seen.add(asset.assetId)
+    assets.push(asset)
+  }
+  return {assets, omitted}
 }
 
 function dataFor(req, data) {
@@ -116,7 +132,7 @@ function dataFor(req, data) {
   }
   assert.equal(data.length, 1, 'Expected one scoped response object')
   const row = data[0]
-  if (req.kind === 'inventory') return {assets: inventory(req.scope, row.tokenAssets)}
+  if (req.kind === 'inventory') return inventory(req.scope, row.tokenAssets)
   if (req.kind === 'walletUsd') return {assetType: '1', walletTokensUsd: decimal(row.totalValue)}
   const {from, amountIn} = req.scope
   const to = from === 'WOKB' ? 'USDC' : 'WOKB'

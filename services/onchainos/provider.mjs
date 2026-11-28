@@ -4,7 +4,7 @@ import {setTimeout as delay} from 'node:timers/promises'
 import {canonical} from './portfolio-prep/reads.mjs'
 
 const origin = 'https://web3.okx.com'
-const maxBytes = 2 * 1024 * 1024
+const maxBytes = 8 * 1024 * 1024
 const sharedKey = Symbol.for('peridot.onchainos.provider-budget.v1')
 const schedules = globalThis[sharedKey] ??= new WeakMap()
 const malformed = () => ({status:'unavailable', reason:'malformed-provider'})
@@ -99,7 +99,10 @@ export function createProvider({env, fetch:request, now}) {
           retryMs:retryDelay(res.headers.get('retry-after'), clock)}
       }
       let body
-      try { body = await boundedJson(res) } catch { return {result:res.ok ? malformed() : unavailable()} }
+      try { body = await boundedJson(res) } catch (error) {
+        if (error?.message === 'Payload too large') return {result:{status:'unavailable', reason:'malformed-too-large'}}
+        return {result:res.ok ? malformed() : unavailable()}
+      }
       if (deniedCodes.has(body?.code)) return {result:notEntitled()}
       if (unsupportedCodes.has(body?.code)) return {result:{status:'unsupported', reason:'unsupported-chain'}}
       if (body?.code === '50011') return {result:rateLimited()}
