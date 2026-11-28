@@ -1,0 +1,13 @@
+{
+  "what": "Timestamp-only refresh of the four public testnet 1952 mock prices (values unchanged), after both feeds passed their one-day maxAge on 2026-11-27 (found by Fable run 9 testnet-live)",
+  "by": "Claude, testnet deployer 0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67 (oracle owner), chain 1952 only",
+  "at": "2026-11-28 ~12:20 UTC",
+  "transactions": [
+    {"oracle": "0x0386eA8906A1CB9Fa34C7a4A2433F5CEAB5210c8", "asset": "mWOKB 0x3a5F909912c4adbEE8776264E6b9faD130321b26", "priceWad": "80000000000000000000", "tx": "0x7a93fbd513e3e07784ad65c8ad72ba3d56275bfd7f4a3036954680aeba2ef384"},
+    {"oracle": "0x0386eA8906A1CB9Fa34C7a4A2433F5CEAB5210c8", "asset": "mUSDC 0x3A6cb8BEdc251C37dc8258a27575127990A67E95", "priceWad": "1000000000000000000", "tx": "0xe3c166f398d74da3ad812a6d33f37cd1eb244143a21bee148f8e7105b54a60e6"},
+    {"oracle": "0x2257293155CF9a52590BA289E599F9Adf297ac57", "asset": "MockCollateral 0xe1dA369f92596c3c10c353E200c05343C9F19c92", "priceWad": "1600000000000000000", "tx": "0x7e540e841966ce563754549c67babd80959fbdc6e8147b025d084a2eaaaeba2e"},
+    {"oracle": "0x2257293155CF9a52590BA289E599F9Adf297ac57", "asset": "MockDebt 0x0D5042F66e5D3Cb3CF3ce708F82208707e2B0dd9", "priceWad": "1000000000000000000", "tx": "0xb613b73c00946d324e7ab7dd8d1ac62d61ca948e16e500141581fe45a6187625"}
+  ],
+  "after": "TestnetOracle.price() fresh=true for MockCollateral and MockDebt; the v2 venue quote source reads 0x0386 quotes",
+  "nextExpiry": "about 2026-11-29 12:20 UTC (maxAge 86,400 s); must be refreshed daily while the demo is public"
+}
