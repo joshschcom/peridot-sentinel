@@ -90,11 +90,17 @@ async function open(path, { width = 1440, walletChainId = "0x7a69", connect = tr
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (error) => errors.push(String(error).slice(0, 300)));
+  // Every request this page sends to the app's OKX Onchain OS routes (path and query; a live list).
+  const okxRequests = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname.startsWith("/api/onchainos/")) okxRequests.push(url.pathname + url.search);
+  });
   const response = await page.goto(BASE + path, { waitUntil: "networkidle" });
   if (connect) await connectWallet(page);
   await page.waitForFunction(() => !document.querySelector("[data-loading]"), null, { timeout: 30_000 }).catch(() => {});
   await page.waitForTimeout(800);
-  return { context, page, wallet, errors, status: response?.status() ?? 0 };
+  return { context, page, wallet, errors, okxRequests, status: response?.status() ?? 0 };
 }
 const overflow = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 const shot = async (page, name) => {
@@ -350,6 +356,33 @@ if (mode === "wrong-network") {
   // content hash, block). The page must find exactly these by reading the public chain itself.
   const registryPin = JSON.parse(readFileSync(new URL("../../../packages/chain-config/deployments/strategy-registry-1952.json", import.meta.url), "utf8"));
   const registryEvidence = JSON.parse(readFileSync(new URL("../../../evidence/session10-registry/discovery.json", import.meta.url), "utf8"));
+  // Other networks and the indicative quote (OKX Onchain OS, DECISIONS D25): what the pages offer is exactly what the
+  // committed switches say, and browsing alone never sends a request to the app's OKX routes. Read from the source
+  // file, so the expectation cannot drift from the build. With every switch off this is one "Planned" line.
+  const { OKX_SWITCHES, enabledNetworks } = await import("../src/lib/okx-switches.ts");
+  const { quotePath } = await import("../src/lib/okx-portfolio.ts");
+  const okxNetworks = enabledNetworks(OKX_SWITCHES);
+  const otherNetworks = async (page) => {
+    const section = page.locator('[data-testid="other-networks"]');
+    return { count: await section.count(), state: await section.getAttribute("data-state").catch(() => null), networks: await section.getAttribute("data-networks").catch(() => null), source: await section.getAttribute("data-source").catch(() => null), paragraphs: await section.locator("p").count(), controls: await section.locator("button, input, a").count(), cards: await page.locator('[data-testid="other-network"], [data-testid="other-networks-total"]').count(), example: await page.locator('[data-testid="other-networks-example"]').count(), consent: (await section.locator('[data-testid="other-networks-consent"]').innerText().catch(() => "")).replace(/\s+/g, " "), text: (await section.innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 400) };
+  };
+  const expectOtherNetworks = (tag, shown, requests) => {
+    if (okxNetworks.length === 0) expect(shown.count === 1 && shown.state === "planned" && shown.paragraphs === 1 && shown.controls === 0 && shown.cards === 0 && /^Planned Other networks · mainnet · read-only via OKX Onchain OS\. Not available yet/.test(shown.text), `${tag}: with every OKX switch off, Portfolio must show exactly one "Planned" line and no control: ${JSON.stringify(shown)}`);
+    else expect(shown.count === 1 && shown.state === "idle" && shown.networks === okxNetworks.join(",") && shown.source === "route" && shown.cards === 0 && /Nothing is sent until you press the button/.test(shown.consent) && /to this app's server and to OKX/.test(shown.consent) && /Other networks · mainnet · read-only via OKX Onchain OS/.test(shown.text), `${tag}: Portfolio must offer exactly the committed networks (${okxNetworks.join(",")}), opt-in, with nothing shown before a press: ${JSON.stringify(shown)}`);
+    expect(shown.example === 0, `${tag}: a testnet build shows the example-data scenario of "Other networks"`);
+    expect(requests.filter((entry) => entry.startsWith("/api/onchainos/portfolio")).length === 0, `${tag}: browsing sent ${JSON.stringify(requests)} to the OKX portfolio route without a button press`);
+  };
+  const expectQuoteCard = async (tag, page, requests) => {
+    const card = page.locator('[data-testid="okx-quote"]');
+    if (!OKX_SWITCHES.quote) return expect((await card.count()) === 0 && requests.length === 0, `${tag}: the OKX quote switch is off, but the card is shown or a request was sent (${JSON.stringify(requests)})`);
+    await page.waitForFunction(() => !["loading", null].includes(document.querySelector('[data-testid="okx-quote"]')?.getAttribute("data-state") ?? null), null, { timeout: 30_000 }).catch(() => {});
+    const text = (await card.innerText().catch(() => "")).replace(/\s+/g, " ");
+    const state = await card.getAttribute("data-state").catch(() => null);
+    expect((await card.count()) === 1 && (await card.getAttribute("data-source")) === "route" && /Indicative X Layer mainnet price \(OKX\)/.test(text) && /Informational, not an offer, does not affect testnet swaps\./.test(text) && ["ok", "unavailable", "rate-limited", "not-entitled", "unsupported"].includes(state ?? "") && (state === "ok" ? /1 WOKB ≈ [\d,.<]+ USDC/.test(text) && /Observed \d{4}-\d\d-\d\d \d\d:\d\d:\d\d UTC/.test(text) : /No number is shown/.test(text) && !/\d USDC/.test(text)), `${tag}: the indicative quote card is "${state}": ${text.slice(0, 240)}`);
+    expect(requests.length >= 1 && requests.every((entry) => entry === quotePath()), `${tag}: the quote card sent ${JSON.stringify(requests)}, expected only ${quotePath()}`);
+    return state;
+  };
+  notes.push({ okxSwitches: OKX_SWITCHES });
   const demoOwner = process.env.WATCH_ADDRESS ?? "0x8C1741a53d5FB97D74C1d105b0fbFbb4740d5D67"; // public address from AGENTS.md; no key is used or needed
   const wallets = [{ name: "empty-wallet", address: account }, { name: "demo-owner-watch-only", address: demoOwner }];
   const only = process.env.ONLY_WALLET;
@@ -368,7 +401,7 @@ if (mode === "wrong-network") {
         const tag = `${who.name} ${path.replace(market, "<market0>")} @${width}`;
         const started = Date.now();
         // "/" is the landing page: it has no wallet button and no app shell.
-        const { context, page, wallet, errors, status } = await open(path, { width, walletChainId: "0x7a0", watch: who.address, connect: path !== "/" });
+        const { context, page, wallet, errors, okxRequests, status } = await open(path, { width, walletChainId: "0x7a0", watch: who.address, connect: path !== "/" });
         await settle(page);
         // Everything is rendered by now: a lookup of an element that is legitimately absent (no banner, no faucet
         // notice) must not sit out Playwright's 30 s default. Explicit waits below pass their own timeout.
@@ -473,6 +506,10 @@ if (mode === "wrong-network") {
           notes.push({ wallet: who.name, width, sentinelAccounts: accounts });
           if (who.name === "demo-owner-watch-only") expect(accounts.some((entry) => entry?.toLowerCase() === receipt.sentinelAccount.toLowerCase()), `${tag}: the demo Sentinel account ${receipt.sentinelAccount} is not shown for its owner (got ${JSON.stringify(accounts)})`);
           else expect(accounts.length === 0, `${tag}: accounts shown for a wallet that has none`);
+          // Other networks: follows the committed switches, and a connected wallet alone sends nothing to OKX.
+          const other = await otherNetworks(page);
+          expectOtherNetworks(tag, other, okxRequests);
+          notes.push({ wallet: who.name, width, otherNetworks: { state: other.state, networks: other.networks, requests: okxRequests.length } });
           // Navigation: product areas per D11, and nothing planned is a link.
           const brand = (await page.locator('[data-testid="brand"]:visible').first().innerText()).replace(/\s+/g, " ");
           expect(brand.includes("sentinel."), `${tag}: wordmark is "${brand}"`);
@@ -594,6 +631,8 @@ if (mode === "wrong-network") {
           const { xLayerTestnet } = await import("../src/lib/chains.ts");
           await page.waitForFunction(() => ["ok", "error"].includes(document.querySelector('[data-testid="v2-account"]')?.getAttribute("data-state") ?? "") && ["ok", "error"].includes(document.querySelector('[data-testid="v2-quote"]')?.getAttribute("data-state") ?? ""), null, { timeout: 90_000 }).catch(() => {});
           expect(/Mock swap on testnet; real Uniswap v3 verified on mainnet fork/.test(main) && /inventory-backed mock swap venue/.test(main) && /not an OKX quote/.test(main), `${tag}: the Trade page does not carry the mock-venue labels`);
+          // The indicative mainnet quote follows its committed switch. Off: no card, and no request to the route.
+          notes.push({ wallet: who.name, width, okxQuote: { switch: OKX_SWITCHES.quote, state: (await expectQuoteCard(tag, page, okxRequests)) ?? "not shown", requests: okxRequests.length } });
           expect((await page.locator('[data-testid="v2-deployment"]').getAttribute("data-state")) === "ok", `${tag}: the v2 deployment check is "${await page.locator('[data-testid="v2-deployment"]').getAttribute("data-state")}"`);
           // What the page may offer follows the two switches the contracts team sets in the manifests, and nothing else.
           const switches = { base: v2Manifest.uiEnabled === true, vault: vaultManifest.uiEnabled === true };
@@ -985,9 +1024,29 @@ if (mode === "wrong-network") {
         }
         // A watch-only wallet must never be asked to sign or send by merely browsing.
         expect(wallet.sent.length === 0 && wallet.refused.length === 0, `${tag}: the page asked the wallet for ${JSON.stringify(wallet.refused)}`);
+        // Only Trade may ask the OKX quote route, and only with its switch on. No other page asks either route by itself.
+        if (path !== "/trade") expect(okxRequests.length === 0, `${tag}: the page sent ${JSON.stringify(okxRequests)} to the OKX routes by itself`);
         console.log(`${failures.length ? "…" : "ok"} ${tag} ${ms} ms`);
         await context.close();
       }
+    }
+  }
+  // `?okx=<scenario>` selects a synthetic answer in a build pinned to example data, and only there. On this build
+  // it must change nothing: same section as without it, no example label, no request.
+  if (!process.env.ONLY_PATHS || new RegExp(process.env.ONLY_PATHS).test("/portfolio")) {
+    for (const path of ["/portfolio?okx=mixed", "/trade?okx=mixed"]) {
+      const tag = `demo-owner-watch-only ${path} @390`;
+      const { context, page, errors, okxRequests, status } = await open(path, { width: 390, walletChainId: "0x7a0", watch: demoOwner });
+      await settle(page);
+      page.setDefaultTimeout(2500);
+      loads.total++;
+      expect(status === 200 && errors.length === 0 && (await overflow(page)) <= 0, `${tag}: HTTP ${status}, page errors ${errors.length}, overflow ${await overflow(page)}px`);
+      if (path.startsWith("/portfolio")) expectOtherNetworks(tag, await otherNetworks(page), okxRequests);
+      else await expectQuoteCard(tag, page, okxRequests);
+      expect((await page.getByText("Example", { exact: true }).count()) === 0, `${tag}: an "Example" label is shown on the testnet build`);
+      notes.push({ okxScenarioParameterIgnored: path, requests: okxRequests.length });
+      console.log(`${failures.length ? "…" : "ok"} ${tag}`);
+      await context.close();
     }
   }
   notes.push({ loads });

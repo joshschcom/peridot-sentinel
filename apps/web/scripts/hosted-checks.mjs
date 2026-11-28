@@ -1,5 +1,6 @@
 // Clean-browser validation of a deployed build (the hosted app, or a local `next start` of the production build).
 //   BASE_URL=https://<deployment> [NEXT_DIR=.next] [OUT=<dir>] node scripts/hosted-checks.mjs
+//   NEXT_DIR=.next BUNDLE_ONLY=1 node scripts/hosted-checks.mjs      (development: the bundle scan alone)
 //
 // Every context is a fresh browser profile (no storage, no cookies). The script checks that:
 //   - no route asks for authentication or redirects off the origin (no deployment protection);
@@ -11,6 +12,10 @@
 //   - phone layout has no horizontal overflow, and light and dark themes both render;
 //   - Connect, the native TapeOut page and the v1/v2 labels say what is actually implemented;
 //   - (NEXT_DIR) the built bundle has no loopback address, no credential names and no unexplained 32-byte hex value.
+//     The OKX credential names exist in the build in exactly one place: server chunks loaded by the two
+//     api/onchainos routes and by nothing else. No client chunk (.next/static) and no prerendered file names them;
+//   - the two api/onchainos routes answer GET only, refuse a malformed request, and never let an answer that reports
+//     missing credentials (or any non-200) be cached.
 // Read-only. The wallet is the watch-only test provider with a PUBLIC address; it refuses to sign or send.
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
@@ -48,7 +53,19 @@ if (NEXT_DIR) {
   };
   for (const part of ["static", "server"]) if (existsSync(join(NEXT_DIR, part))) walk(join(NEXT_DIR, part));
   const clientFiles = files.filter((file) => file.startsWith(join(NEXT_DIR, "static")));
-  const hits = { loopback: [], credentialNames: [] };
+  const hits = { loopback: [], credentialNames: [], okxNames: [] };
+  // The OKX Onchain OS credentials are server-side variables read by the reader behind the two api/onchainos routes
+  // (DECISIONS D25). Their names may therefore exist in the SERVER build, but only in JavaScript chunks that those
+  // two route entries load and no other entry (page or route) loads. Everywhere else they are forbidden like every
+  // other credential name: in every client chunk, every prerendered document and every other server file.
+  const OKX_NAMES = /OKX_API|OK-ACCESS-/i;
+  const entryChunks = (entry) => [...readFileSync(entry, "utf8").matchAll(/R\.c\("([^"]+)"\)/g)].map((match) => match[1]);
+  const serverEntries = files.filter((file) => file.startsWith(join(NEXT_DIR, "server", "app") + "/") && /\/(route|page)\.js$/.test(file));
+  const okxEntries = serverEntries.filter((file) => /\/server\/app\/api\/onchainos\/(portfolio|quote)\/route\.js$/.test(file));
+  const okxChunks = new Set(okxEntries.flatMap(entryChunks));
+  const otherChunks = new Set(serverEntries.filter((file) => !okxEntries.includes(file)).flatMap(entryChunks));
+  const okxServerFiles = [];
+  const okxClientFiles = [];
   // The strategy SDK REJECTS imported template text that mentions a secret: its validator carries a deny-list regex
   // with the words "mnemonic", "private key" and so on. That one regex, read here from the SDK source, is the only
   // place where such words may appear in the build; it is removed before the scan, and only if it matches exactly.
@@ -67,7 +84,14 @@ if (NEXT_DIR) {
     if (/127\.0\.0\.1|\/\/localhost|localhost:\d|:18545|:8787/.test(own)) hits.loopback.push(short);
     // Names of secrets must not even be referenced by the web build. (SENTINEL_OPERATOR_KEY is shown on /connect as the
     // NAME of a variable the reader sets in their own MCP host; it is documentation, and no value follows it.)
-    if (/OKX_API_KEY|OKX_API_SECRET|OKX_API_PASSPHRASE|OK-ACCESS-|PERIDOT_TESTNET_KEY|KEEPER_TESTNET_OPERATOR_KEY|PRIVATE_KEY|BEGIN [A-Z ]*PRIVATE KEY|mnemonic/i.test(denyList ? text.replaceAll(denyList, "") : text)) hits.credentialNames.push(short);
+    if (/PERIDOT_TESTNET_KEY|KEEPER_TESTNET_OPERATOR_KEY|PRIVATE_KEY|BEGIN [A-Z ]*PRIVATE KEY|mnemonic/i.test(denyList ? text.replaceAll(denyList, "") : text)) hits.credentialNames.push(short);
+    if (OKX_NAMES.test(text)) {
+      if (clientFiles.includes(file)) okxClientFiles.push(short);
+      // `short` is relative to NEXT_DIR ("server/chunks/x.js"), which is also how an entry names its chunks.
+      const allowed = !clientFiles.includes(file) && /^server\/chunks\/[^/]+\.js$/.test(short) && okxChunks.has(short) && !otherChunks.has(short);
+      if (allowed) okxServerFiles.push(short);
+      else hits.okxNames.push(short);
+    }
     if (clientFiles.includes(file)) for (const match of text.matchAll(/(?<![0-9a-fA-F])(?:0x)?([0-9a-fA-F]{64})(?![0-9a-fA-F])/g)) hex64.add(match[1].toLowerCase());
   }
   // A private key looks like any 32-byte hex value. So every such value in the CLIENT bundle must be explained: it
@@ -89,11 +113,22 @@ if (NEXT_DIR) {
   };
   for (const lib of ["viem", "ox", "@noble", "@scure", "wagmi", "@wagmi", "abitype", "next/dist/compiled", "react-dom/cjs", "@tanstack"]) collect(join(repoRoot, "node_modules", lib));
   const unexplained = [...hex64].filter((value) => !haystacks.some((text) => text.includes(value)) && !libraryText.some((text) => text.includes(value)) && !/^(.)\1{63}$/.test(value));
-  notes.bundle = { files: files.length, clientFiles: clientFiles.length, hex64InClient: hex64.size, unexplained, loopback: hits.loopback, credentialNames: hits.credentialNames };
+  notes.bundle = { files: files.length, clientFiles: clientFiles.length, hex64InClient: hex64.size, unexplained, loopback: hits.loopback, credentialNames: hits.credentialNames, okxNamesInClientChunks: okxClientFiles, okxNamesOutsideTheRouteChunks: hits.okxNames, okxRouteEntries: okxEntries.map((file) => file.slice(NEXT_DIR.length + 1)), okxNamesInRouteOnlyServerChunks: okxServerFiles };
+  expect(okxClientFiles.length === 0, `bundle: an OKX credential name appears in the CLIENT chunks: ${okxClientFiles.slice(0, 5).join(", ")}`);
+  expect(hits.okxNames.length === 0, `bundle: an OKX credential name appears outside the server chunks that only the api/onchainos routes load: ${hits.okxNames.slice(0, 5).join(", ")}`);
+  expect(okxEntries.length === 2, `bundle: expected the two api/onchainos route entries in the server build, found ${okxEntries.length}`);
+  // The scan must be able to see the names where they are allowed, or "none found" would prove nothing.
+  expect(okxServerFiles.length >= 1, "bundle: the scan found no OKX credential name in the onchainos route chunks; the reader is not in this build, or the scan no longer sees it");
   expect(hits.loopback.length === 0, `bundle: loopback address or local port in ${hits.loopback.slice(0, 5).join(", ")}`);
   expect(hits.credentialNames.length === 0, `bundle: a credential name appears in ${hits.credentialNames.slice(0, 5).join(", ")}`);
   expect(unexplained.length === 0, `bundle: ${unexplained.length} 32-byte hex value(s) in the client bundle that no public repo file or dependency explains: ${unexplained.slice(0, 5).join(", ")}`);
-  console.log(`bundle: ${files.length} files, ${hex64.size} distinct 32-byte hex values in the client bundle, ${unexplained.length} unexplained`);
+  console.log(`bundle: ${files.length} files, ${hex64.size} distinct 32-byte hex values in the client bundle, ${unexplained.length} unexplained; OKX credential names: ${okxClientFiles.length} client file(s), ${hits.okxNames.length} other forbidden file(s), ${okxServerFiles.length} server chunk(s) loaded only by the onchainos routes`);
+}
+
+// BUNDLE_ONLY=1: stop after the bundle scan (to test the scan itself on a planted file). Never an evidence run.
+if (process.env.BUNDLE_ONLY) {
+  console.log(failures.length ? `bundle scan only: ${failures.length} check(s) FAILED:\n- ${failures.join("\n- ")}` : "bundle scan only: passed (DEVELOPMENT OPTION, the pages and routes were not checked).");
+  process.exit(failures.length ? 1 : 0);
 }
 
 /* ---------- 2. the pages, in clean browser profiles ---------- */
@@ -254,6 +289,64 @@ expect(backgrounds.light && backgrounds.dark && backgrounds.light !== background
   await context.close();
 }
 await browser.close();
+
+/* ---------- 3. the two OKX Onchain OS routes (DECISIONS D25) ---------- */
+// Plain HTTP, no browser. The portfolio request names the public demo owner address (AGENTS.md) and nothing else.
+// What the deployment answers depends on whether it has credentials; both cases are checked for what must hold:
+//   - an answer that reports missing credentials is `no-store`, twice in a row, and was not served from a cache;
+//   - a malformed request is a 400 and `no-store`; anything but GET is refused;
+//   - a cacheable answer exists only as a 200 of the schema with credentials present;
+//   - no answer names a credential, and none carries a cookie.
+{
+  const SCHEMA = { portfolio: "peridot.okx-portfolio/v1", quote: "peridot.okx-quote/v1" };
+  const MAX_AGE = { portfolio: 60, quote: 15 };
+  const good = { portfolio: `/api/onchainos/portfolio?subjects=196:${WATCH}`, quote: "/api/onchainos/quote?from=WOKB&amount=1000000000000000000" };
+  const bad = { portfolio: ["/api/onchainos/portfolio", "/api/onchainos/portfolio?subjects=1952:" + WATCH, `/api/onchainos/portfolio?subjects=196:${WATCH}&extra=1`], quote: ["/api/onchainos/quote", "/api/onchainos/quote?from=WOKB&amount=1.5"] };
+  const storeless = (header) => /(^|,\s*)no-store(\s*,|$)/i.test(header ?? "") && !/s-maxage|public|max-age=[1-9]/i.test(header ?? "");
+  const fromCache = (response) => /HIT|STALE|REVALIDATED/i.test(response.headers.get("x-vercel-cache") ?? "") || Number(response.headers.get("age") ?? 0) > 0;
+  notes.onchainos = {};
+  for (const kind of ["portfolio", "quote"]) {
+    const seen = [];
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const response = await fetch(BASE + good[kind], { redirect: "manual" });
+      const cacheControl = response.headers.get("cache-control");
+      const raw = await response.text();
+      let body = null;
+      try {
+        body = JSON.parse(raw);
+      } catch {}
+      const networks = Array.isArray(body?.networks) ? body.networks : [];
+      const missing = body?.credentials === "missing" || body?.reason === "credentials-missing" || networks.some((network) => network?.reason === "credentials-missing");
+      const state = kind === "portfolio" ? { credentials: body?.credentials ?? null, networks: networks.map((network) => `${network?.chainIndex}:${network?.status}:${network?.reason ?? ""}`) } : { status: body?.status ?? null, reason: body?.reason ?? null };
+      seen.push({ http: response.status, cacheControl, missing, vercelCache: response.headers.get("x-vercel-cache"), age: response.headers.get("age"), ...state });
+      const tag = `onchainos ${kind} (request ${attempt + 1})`;
+      expect(response.status === 200 && body?.schema === SCHEMA[kind], `${tag}: HTTP ${response.status}, schema ${body?.schema}`);
+      expect(/^application\/json/.test(response.headers.get("content-type") ?? ""), `${tag}: content type ${response.headers.get("content-type")}`);
+      expect(!response.headers.has("set-cookie"), `${tag}: the answer sets a cookie`);
+      expect(!/OKX_API|OK-ACCESS-|passphrase|secret/i.test(raw), `${tag}: the answer names a credential`);
+      if (missing || response.status !== 200) {
+        expect(storeless(cacheControl), `${tag}: credentials are reported missing but the answer is cacheable ("${cacheControl}")`);
+        expect(!fromCache(response), `${tag}: an answer that reports missing credentials was served from a cache (x-vercel-cache ${response.headers.get("x-vercel-cache")}, age ${response.headers.get("age")})`);
+        if (kind === "portfolio") expect(networks.length === 1 && networks.every((network) => network.status === "unavailable" && network.walletUsd === null && Array.isArray(network.tokens) && network.tokens.length === 0), `${tag}: an answer without credentials carries holdings: ${JSON.stringify(state)}`);
+        else expect(body?.status === "unavailable" && body?.amountOut === null, `${tag}: an answer without credentials carries a number`);
+      } else {
+        expect(cacheControl === `public, s-maxage=${MAX_AGE[kind]}, stale-while-revalidate=${MAX_AGE[kind]}`, `${tag}: a 200 with credentials has cache-control "${cacheControl}"`);
+      }
+    }
+    for (const path of bad[kind]) {
+      const response = await fetch(BASE + path, { redirect: "manual" });
+      expect(response.status === 400 && storeless(response.headers.get("cache-control")), `onchainos ${path.replace(WATCH, "<demo owner>")}: HTTP ${response.status}, cache-control "${response.headers.get("cache-control")}", expected a 400 that is not stored`);
+    }
+    const methods = {};
+    for (const method of ["POST", "PUT", "DELETE"]) {
+      const response = await fetch(BASE + good[kind], { method, redirect: "manual" });
+      methods[method] = response.status;
+      expect(response.status === 405, `onchainos ${kind}: ${method} answered HTTP ${response.status}, expected 405`);
+    }
+    notes.onchainos[kind] = { requests: seen, methods };
+  }
+  console.log(`onchainos routes: portfolio credentials ${notes.onchainos.portfolio.requests.map((entry) => entry.credentials).join("/")}, cache-control ${notes.onchainos.portfolio.requests.map((entry) => entry.cacheControl).join(" | ")}; quote ${notes.onchainos.quote.requests.map((entry) => `${entry.status}${entry.reason ? ` (${entry.reason})` : ""}`).join("/")}, cache-control ${notes.onchainos.quote.requests.map((entry) => entry.cacheControl).join(" | ")}`);
+}
 
 const result = { base: BASE, at: new Date().toISOString(), nextDir: NEXT_DIR ? "scanned" : "not scanned (pass NEXT_DIR for the bundle scan)", routes: ROUTES, passed: failures.length === 0, failures, notes };
 if (OUT) writeFileSync(`${OUT}/hosted-checks.json`, JSON.stringify(result, null, 2) + "\n");

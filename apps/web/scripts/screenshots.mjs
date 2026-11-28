@@ -309,6 +309,151 @@ if (CHAIN) {
     await context.close();
   }
   console.log("checked mobile sheet and wizard steps");
+
+  // Other networks and the indicative quote (OKX Onchain OS, DECISIONS D25) in an example-data build.
+  //   - Without `?okx=` the pages follow the committed switches (all off: one "Planned" line, no quote card).
+  //   - With `?okx=<scenario>` the page shows a SYNTHETIC route answer of every kind. What is expected on screen is
+  //     computed here, from the same synthetic answer, with the app's own checked functions (unit-tested).
+  //   - No request to /api/onchainos may leave the browser in this build, whatever is clicked.
+  //   OKX_SHOTS=<dir> also writes the two Portfolio captures (390 and 1440, light, JPEG) of the "mixed" scenario.
+  if (process.env.EXPECT_FIXTURE !== "0") {
+    const { OKX_FIXTURE_SCENARIOS, fixturePortfolio, fixtureQuote } = await import("../src/services/fixture/okx.ts");
+    const { buildSubjects, crossNetworkTotal, formatUsdString, observation, portfolioFromAnswer, quoteFromAnswer, statusWords } = await import("../src/lib/okx-portfolio.ts");
+    const { OKX_CHAIN_INDEXES, OKX_SWITCHES, enabledNetworks } = await import("../src/lib/okx-switches.ts");
+    const EXAMPLE_WALLET = "0x00000000000000000000000000000000000000E1";
+    const SOLANA = "So11111111111111111111111111111111111111112";
+    const committed = enabledNetworks(OKX_SWITCHES);
+    const routeRequests = [];
+    const watch = (page) => page.on("request", (request) => /\/api\/onchainos\//.test(request.url()) && routeRequests.push(request.url()));
+    const overflowOf = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    for (const width of [360, 390]) {
+      // The committed state of this build.
+      {
+        const { context, page, errors } = await open("/portfolio", width, "light", 780);
+        watch(page);
+        const section = page.locator('[data-testid="other-networks"]');
+        const shown = { count: await section.count(), state: await section.getAttribute("data-state").catch(() => null), networks: await section.getAttribute("data-networks").catch(() => null), controls: await section.locator("button, input, a").count(), text: (await section.innerText().catch(() => "")).replace(/\s+/g, " ") };
+        if (committed.length === 0) {
+          if (shown.count !== 1 || shown.state !== "planned" || shown.controls !== 0 || !/^Planned Other networks · mainnet · read-only via OKX Onchain OS\. Not available yet/.test(shown.text) || (await section.locator("p").count()) !== 1) failures.push(`other networks @${width}: with every switch off the section is not exactly one "Planned" line: ${JSON.stringify(shown)}`);
+        } else if (shown.networks !== committed.join(",") || shown.state !== "idle" || (await page.locator('[data-testid="other-network"]').count()) !== 0) failures.push(`other networks @${width}: the section does not offer exactly the committed networks, or shows a result before any press: ${JSON.stringify(shown)}`);
+        for (const error of errors) failures.push(`other networks @${width}: console error: ${error.slice(0, 300)}`);
+        await context.close();
+      }
+      {
+        const { context, page } = await open("/trade", width, "light", 780);
+        watch(page);
+        if ((await page.locator('[data-testid="okx-quote"]').count()) !== (OKX_SWITCHES.quote ? 1 : 0)) failures.push(`indicative quote @${width}: the card does not follow the committed switch (${OKX_SWITCHES.quote})`);
+        await context.close();
+      }
+      for (const scenario of OKX_FIXTURE_SCENARIOS) {
+        const tag = `other networks, example "${scenario}" @${width}`;
+        const { context, page, errors } = await open(`/portfolio?okx=${scenario}`, width, "light", 780);
+        watch(page);
+        const section = page.locator('[data-testid="other-networks"]');
+        const testnetValue = await page.locator('[data-testid="portfolio-value"]').innerText().catch(() => null);
+        if ((await section.getAttribute("data-source")) !== "example" || (await section.getAttribute("data-networks")) !== OKX_CHAIN_INDEXES.join(",") || (await section.locator('[data-testid="other-networks-example"]').count()) !== 1) failures.push(`${tag}: the section is not the labelled example of all four networks`);
+        // Opt-in: nothing is shown before the button is pressed, and the button says what it will do.
+        if ((await page.locator('[data-testid="other-network"], [data-testid="other-networks-total"]').count()) !== 0) failures.push(`${tag}: a result is shown before the button was pressed`);
+        if (!/sends the address to this app's server and to OKX/.test(await section.locator('[data-testid="other-networks-consent"]').innerText())) failures.push(`${tag}: the consent text does not say where the address goes`);
+        // The Solana address is validated in the browser: base58 that stands for 32 bytes.
+        const input = section.locator('[data-testid="other-networks-solana"]');
+        const help = section.locator('[data-testid="other-networks-solana-help"]');
+        const button = section.locator('[data-testid="other-networks-lookup"]');
+        for (const bad of ["not-an-address", SOLANA.slice(0, -1), `${SOLANA}1`, EXAMPLE_WALLET, SOLANA.replace("S", "0")]) {
+          await input.fill(bad);
+          if ((await help.getAttribute("data-valid")) !== "false" || !(await button.isDisabled()) || (await input.getAttribute("aria-invalid")) !== "true") failures.push(`${tag}: "${bad}" was accepted as a Solana address`);
+        }
+        await input.fill(SOLANA);
+        if ((await help.getAttribute("data-valid")) !== "true" || (await button.isDisabled())) failures.push(`${tag}: a valid Solana address was refused`);
+        if ((await button.getAttribute("data-subjects")) !== OKX_CHAIN_INDEXES.join(",")) failures.push(`${tag}: the button would look up ${await button.getAttribute("data-subjects")}`);
+        const pressedAt = Date.now();
+        await button.click();
+        await section.locator('[data-testid="other-networks-result"]').waitFor({ timeout: 10_000 });
+        // What the same synthetic answer must look like.
+        const subjects = buildSubjects(OKX_CHAIN_INDEXES, EXAMPLE_WALLET, SOLANA);
+        const answer = fixturePortfolio(scenario, subjects, pressedAt);
+        const expected = portfolioFromAnswer(answer.status, answer.body, subjects);
+        const total = crossNetworkTotal(expected.networks);
+        const cards = await section.locator('[data-testid="other-network"]').evaluateAll((nodes) => nodes.map((node) => ({ network: node.dataset.network, status: node.dataset.status, reason: node.dataset.reason, stale: node.dataset.stale, usd: node.dataset.usd, label: node.querySelector('[data-testid="other-network-status"]')?.textContent ?? "", detail: node.querySelector('[data-testid="other-network-detail"]')?.textContent ?? null, shownUsd: node.querySelector('[data-testid="other-network-usd"]')?.textContent ?? null, tokens: node.querySelector('[data-testid="other-network-tokens"]')?.getAttribute("data-count") ?? null, rows: node.querySelectorAll("[data-token]").length, observed: node.querySelector('[data-testid="other-network-observed"]')?.textContent ?? "", text: node.innerText, example: /EXAMPLE/i.test(node.innerText), links: node.querySelectorAll("a").length })));
+        if (cards.length !== 4 || cards.map((card) => card.network).join(",") !== OKX_CHAIN_INDEXES.join(",")) failures.push(`${tag}: the cards are ${cards.map((card) => card.network).join(",")}`);
+        for (const [index, network] of expected.networks.entries()) {
+          const card = cards[index];
+          if (!card) continue;
+          const words = statusWords(network.status, network.reason);
+          const where = `${tag}, ${network.chainIndex}`;
+          if (card.status !== network.status || card.reason !== (network.reason ?? "") || card.label !== words.label) failures.push(`${where}: shown as ${card.status}/${card.reason}/"${card.label}", expected ${network.status}/${network.reason}/"${words.label}"`);
+          if (card.links !== 0) failures.push(`${where}: the card contains a link`);
+          if (network.status === "ok") {
+            if (card.shownUsd !== formatUsdString(network.walletUsd) || !/OKX estimate · wallet tokens only/.test(card.text) || !card.example) failures.push(`${where}: the subtotal is shown as "${card.shownUsd}", expected "${formatUsdString(network.walletUsd)}" labelled "OKX estimate" and "Example"`);
+            if (card.tokens !== String(network.tokens.length) || card.rows !== network.tokens.length) failures.push(`${where}: ${card.rows} token rows for ${network.tokens.length} tokens`);
+            const stale = observation(network.observedAt, pressedAt).stale;
+            if (card.stale !== String(stale) || /Stale/.test(card.observed) !== stale || !/^\s*Observed \d\d \w{3}, \d\d:\d\d UTC/.test(card.observed)) failures.push(`${where}: observed time "${card.observed.trim()}", stale ${card.stale}, expected stale ${stale}`);
+          } else {
+            // A network that was not read shows words, and no amount of any kind.
+            if (card.detail !== words.detail || card.shownUsd !== null || card.tokens !== null || /\$\s?\d/.test(card.text)) failures.push(`${where}: a network with status ${network.status} shows "${card.detail}" / an amount`);
+          }
+        }
+        // The total: only networks read with an estimate, exact, "Partial" otherwise, and apart from the testnet figure.
+        const totalNode = section.locator('[data-testid="other-networks-total"]');
+        const shownTotal = { partial: await totalNode.getAttribute("data-partial"), counted: await totalNode.getAttribute("data-counted"), usd: await totalNode.getAttribute("data-usd"), text: (await totalNode.innerText()).replace(/\s+/g, " ") };
+        if (shownTotal.partial !== String(total.partial) || shownTotal.counted !== total.counted.join(",") || shownTotal.usd !== (total.usd ?? "") || /Partial/.test(shownTotal.text) !== total.partial || (total.usd !== null && !shownTotal.text.includes(formatUsdString(total.usd))) || (total.usd === null && /\$\s?\d/.test(shownTotal.text))) failures.push(`${tag}: the total is shown as ${JSON.stringify(shownTotal)}, expected ${JSON.stringify(total)}`);
+        if (!/not added to the portfolio value at the top of this page/.test(shownTotal.text) || !/OKX estimate/.test(shownTotal.text)) failures.push(`${tag}: the total does not say it is an OKX estimate kept apart from the testnet value`);
+        if ((await page.locator('[data-testid="portfolio-value"]').innerText().catch(() => null)) !== testnetValue) failures.push(`${tag}: the testnet portfolio value changed after the lookup`);
+        if ((await section.locator('[data-testid="other-networks-missing"]').count()) !== (expected.credentials === "missing" ? 1 : 0)) failures.push(`${tag}: the missing-credentials notice does not match the answer`);
+        await page.evaluate(() => document.querySelectorAll("details").forEach((node) => (node.open = true)));
+        await page.waitForTimeout(100);
+        if ((await overflowOf(page)) > 0) failures.push(`${tag}: horizontal overflow ${await overflowOf(page)}px with every disclosure open`);
+        const clipped = await section.evaluate((node) => [...node.querySelectorAll("button, h2, h3, li, p, span, code")].filter((el) => el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).overflowX !== "visible").length + [...node.querySelectorAll("button")].filter((el) => el.scrollWidth > el.clientWidth + 1).length);
+        if (clipped > 0) failures.push(`${tag}: ${clipped} element(s) of the section are cut off`);
+        if (process.env.OKX_SHOTS && scenario === "mixed" && width === 390) {
+          mkdirSync(resolve(process.env.OKX_SHOTS), { recursive: true });
+          for (const shotWidth of [390, 1440]) {
+            const shot = await open(`/portfolio?okx=${scenario}`, shotWidth, "light", 900);
+            watch(shot.page);
+            await shot.page.locator('[data-testid="other-networks-solana"]').fill(SOLANA);
+            await shot.page.locator('[data-testid="other-networks-lookup"]').click();
+            await shot.page.locator('[data-testid="other-networks-result"]').waitFor({ timeout: 10_000 });
+            for (let pass = 0; pass < 2; pass++) {
+              await shot.page.setViewportSize({ width: shotWidth, height: Math.min(Math.max(await shot.page.evaluate(() => document.documentElement.scrollHeight), 600), 16000) });
+              await shot.page.waitForTimeout(150);
+            }
+            await shot.page.evaluate(() => window.scrollTo(0, 0));
+            await shot.page.screenshot({ path: `${resolve(process.env.OKX_SHOTS)}/portfolio-other-networks-fixture-${shotWidth}-light.jpg`, type: "jpeg", quality: 72 });
+            await shot.context.close();
+          }
+        }
+        // "Clear" removes what was shown.
+        await section.locator('[data-testid="other-networks-clear"]').click();
+        if ((await page.locator('[data-testid="other-network"], [data-testid="other-networks-total"]').count()) !== 0) failures.push(`${tag}: "Clear" left a result on the page`);
+        for (const error of errors) failures.push(`${tag}: console error: ${error.slice(0, 300)}`);
+        await context.close();
+
+        // The indicative quote of the same scenario, on Trade.
+        const trade = await open(`/trade?okx=${scenario}`, width, "light", 780);
+        watch(trade.page);
+        const card = trade.page.locator('[data-testid="okx-quote"]');
+        await trade.page.waitForFunction(() => !["loading", null].includes(document.querySelector('[data-testid="okx-quote"]')?.getAttribute("data-state") ?? null), null, { timeout: 10_000 }).catch(() => {});
+        const quoteAnswer = fixtureQuote(scenario, Date.now());
+        const quote = quoteFromAnswer(quoteAnswer.status, quoteAnswer.body);
+        const quoteText = (await card.innerText().catch(() => "")).replace(/\s+/g, " ");
+        const amount = await card.locator('[data-testid="okx-quote-amount"]').innerText().catch(() => null);
+        const quoteTag = `indicative quote, example "${scenario}" @${width}`;
+        if ((await card.getAttribute("data-state").catch(() => null)) !== quote.status || !/Indicative X Layer mainnet price \(OKX\)/.test(quoteText) || !/Informational, not an offer, does not affect testnet swaps\./.test(quoteText) || !/EXAMPLE/i.test(quoteText)) failures.push(`${quoteTag}: the card shows state ${await card.getAttribute("data-state").catch(() => null)}, expected ${quote.status}, or lacks its title, caveat or example label`);
+        if (quote.status === "ok") {
+          // The page built its own synthetic answer a moment before this script did: the times agree to within seconds.
+          const stale = Date.now() - Date.parse(quote.observedAt) > 5 * 60_000;
+          const shownTime = /Observed (\d{4}-\d\d-\d\d) (\d\d:\d\d:\d\d) UTC/.exec(quoteText);
+          const drift = shownTime ? Math.abs(Date.parse(`${shownTime[1]}T${shownTime[2]}Z`) - Date.parse(quote.observedAt)) : Number.POSITIVE_INFINITY;
+          if ((amount ?? "").replace(/\s+/g, " ") !== `${quote.amountIn} ≈ ${quote.amountOut}` || drift > 30_000 || /Stale/.test(quoteText) !== stale) failures.push(`${quoteTag}: shows "${amount}" in "${quoteText.slice(0, 300)}", expected ${quote.amountIn} ≈ ${quote.amountOut} observed about ${quote.observedAt} in UTC, stale ${stale}`);
+        } else if (amount !== null || !/No number is shown/.test(quoteText) || !quoteText.includes(statusWords(quote.status, quote.reason, "quotes").label) || /\d USDC/.test(quoteText)) failures.push(`${quoteTag}: a quote that is ${quote.status} (${quote.reason}) shows "${quoteText.slice(0, 200)}"`);
+        if ((await overflowOf(trade.page)) > 0) failures.push(`${quoteTag}: horizontal overflow ${await overflowOf(trade.page)}px`);
+        for (const error of trade.errors) failures.push(`${quoteTag}: console error: ${error.slice(0, 300)}`);
+        await trade.context.close();
+      }
+    }
+    if (routeRequests.length !== 0) failures.push(`an example-data build sent ${routeRequests.length} request(s) to /api/onchainos: ${routeRequests.slice(0, 3).join(", ")}`);
+    console.log(`checked other networks and the indicative quote: ${OKX_FIXTURE_SCENARIOS.length} example scenarios at 360 and 390 px, requests to /api/onchainos: ${routeRequests.length}`);
+  }
 }
 
 // 5. Screenshots.
