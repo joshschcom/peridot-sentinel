@@ -16,11 +16,11 @@
  * The route exists in every deployment. Whether a page offers it is decided by src/lib/okx-switches.ts.
  */
 import { handlePortfolio } from "@onchainos/reader.mjs";
-import { okxRespond } from "@/lib/okx-route";
+import { okxEnv, okxRespond } from "@/lib/okx-route";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export function GET(request: Request): Promise<Response> {
-  return okxRespond("portfolio", handlePortfolio, request, { env: process.env, fetch, now: Date.now });
+  return okxRespond("portfolio", handlePortfolio, request, { env: okxEnv(process.env), fetch, now: Date.now });
 }

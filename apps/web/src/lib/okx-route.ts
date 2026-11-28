@@ -12,6 +12,19 @@
  *     credentials are set, the next request must reach the reader.
  *   - Everything else (a refused request, a failure) is `no-store`.
  */
+/**
+ * The three OKX read credentials, and nothing else of the server environment, under the names the reader expects.
+ * OKX's own documentation names two of them OKX_SECRET_KEY and OKX_PASSPHRASE; the deployment may use either
+ * spelling (D25). The reader never sees any other variable.
+ */
+export function okxEnv(env: Record<string, string | undefined>): Record<string, string | undefined> {
+  return {
+    OKX_API_KEY: env.OKX_API_KEY,
+    OKX_API_SECRET: env.OKX_API_SECRET ?? env.OKX_SECRET_KEY,
+    OKX_API_PASSPHRASE: env.OKX_API_PASSPHRASE ?? env.OKX_PASSPHRASE,
+  };
+}
+
 export type OkxRouteKind = "portfolio" | "quote";
 
 export interface OkxHandlerDeps {

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { parsePortfolioBody, parseQuoteBody } from "./okx-portfolio.ts";
-import { type OkxHandler, type OkxHandlerDeps, okxCacheControl, okxRespond, reportsMissingCredentials } from "./okx-route.ts";
+import { type OkxHandler, type OkxHandlerDeps, okxCacheControl, okxEnv, okxRespond, reportsMissingCredentials } from "./okx-route.ts";
 
 const PORTFOLIO = "public, s-maxage=60, stale-while-revalidate=60";
 const QUOTE = "public, s-maxage=15, stale-while-revalidate=15";
@@ -190,4 +190,11 @@ test("real reader, synthetic credentials and transport: cacheable 200s that this
   assert.equal(quote.status, 200);
   assert.equal(quote.headers.get("cache-control"), QUOTE);
   assert.deepEqual(parseQuoteBody(await quote.json()), { status: "ok", amountIn: "1 WOKB", amountOut: "51.2345 USDC", observedAt: "2026-11-28T12:00:00.000Z" });
+});
+
+test("okxEnv passes only the three read credentials and accepts OKX's own names for two of them", () => {
+  const mapped = okxEnv({ OKX_API_KEY: "k", OKX_SECRET_KEY: "s", OKX_PASSPHRASE: "p", OTHER_SECRET: "x", PATH: "/bin" });
+  assert.deepEqual(mapped, { OKX_API_KEY: "k", OKX_API_SECRET: "s", OKX_API_PASSPHRASE: "p" });
+  assert.deepEqual(okxEnv({ OKX_API_KEY: "k", OKX_API_SECRET: "s2", OKX_SECRET_KEY: "s", OKX_API_PASSPHRASE: "p2" }), { OKX_API_KEY: "k", OKX_API_SECRET: "s2", OKX_API_PASSPHRASE: "p2" });
+  assert.deepEqual(okxEnv({}), { OKX_API_KEY: undefined, OKX_API_SECRET: undefined, OKX_API_PASSPHRASE: undefined });
 });

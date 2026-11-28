@@ -8,11 +8,11 @@
  * around the reader with the same `fetch` and clock references, headers from src/lib/okx-route.ts.
  */
 import { handleQuote } from "@onchainos/reader.mjs";
-import { okxRespond } from "@/lib/okx-route";
+import { okxEnv, okxRespond } from "@/lib/okx-route";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export function GET(request: Request): Promise<Response> {
-  return okxRespond("quote", handleQuote, request, { env: process.env, fetch, now: Date.now });
+  return okxRespond("quote", handleQuote, request, { env: okxEnv(process.env), fetch, now: Date.now });
 }
