@@ -23,6 +23,7 @@ import { type Maybe, all2, mapMaybe, ok, unavailable } from "@/lib/maybe";
 import { Op } from "@/lib/policy";
 import type { Market, SentinelAccount } from "@/services/types";
 import { positionLtv } from "./market-detail";
+import { OtherNetworks } from "./other-networks";
 import { Portfolio } from "./portfolio";
 import { SentinelHeader } from "./sentinel-common";
 import { EmergencyStop } from "./strategies";
@@ -96,6 +97,7 @@ export function PortfolioHome() {
           </section>
         </>
       )}
+      <OtherNetworks />
       <HowItWorks />
     </div>
   );

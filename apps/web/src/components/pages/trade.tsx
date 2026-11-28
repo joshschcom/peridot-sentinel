@@ -17,6 +17,7 @@ import { formatAmount, parseAmount } from "@/lib/amount";
 import { TARGET_KIND, explorerAddressUrl, explorerTxUrl, xLayerTestnet } from "@/lib/chains";
 import { V2_OWNER_TARGET, V2_OWNER_TARGET_REASON } from "@/services/chain/v2-owner";
 import { V2OwnerFlows } from "./v2-owner";
+import { OKX_QUOTE_ON, OkxQuote } from "./okx-quote";
 import { EXPANSION, type ExpansionManifest, V2_OP_LABEL, V2_SCOPE_LABEL, V2_SWAP_LABEL, type V2Demo } from "@/lib/expansion";
 import { shortAddress, shortHash } from "@/lib/format";
 import { readV2Account, readVenueQuote, verifyV2Deployment } from "@/services/chain/expansion";
@@ -76,12 +77,13 @@ function TestnetTrade() {
         <Live manifest={manifest} demo={demo} />
       )}
       {(ownerWrites || vaultOn) && V2_OWNER_TARGET ? <V2OwnerFlows target={V2_OWNER_TARGET} /> : null}
+      <OkxQuote />
       <Card as="section" data-testid="trade-not-yet" data-owner-writes={String(ownerWrites)} data-vault={String(vaultOn)}>
         <CardHeader title="Not in this app yet" />
         <ul className="list-disc space-y-1.5 p-5 pl-10 text-sm text-muted sm:p-6 sm:pl-11">
           {ownerWrites ? <li>Swapping from your own wallet here. An operator swaps inside a grant; the owner flows above create the account and the grant.</li> : <li>Creating a v2 account, granting an operator or swapping from your own wallet here. The contracts are deployed, and the deployment's own switch for this app is off on testnet, so it offers none. The exact grant transaction of the swap strategy can be reviewed on Strategies.</li>}
           {vaultOn ? null : <li>The ERC-4626 vault account. It is deployed on testnet with a mock vault, and is switched off for this app there.</li>}
-          <li>Quotes from OKX Onchain OS. None is shown anywhere in this app until the provider answers; the figures on this page come from the testnet venue's mock price source.</li>
+          {OKX_QUOTE_ON ? <li>An OKX quote for the swap itself. The indicative mainnet price above is information only; every figure of the testnet swap comes from the testnet venue's mock price source.</li> : <li>Quotes from OKX Onchain OS. None is shown anywhere in this app until the provider answers; the figures on this page come from the testnet venue's mock price source.</li>}
         </ul>
       </Card>
     </div>
