@@ -298,6 +298,7 @@ await browser.close();
 //   - a cacheable answer exists only as a 200 of the schema with credentials present;
 //   - no answer names a credential, and none carries a cookie.
 {
+  const LOOPBACK = ["127.0.0.1", "localhost", "[::1]"].includes(new URL(BASE).hostname);
   const SCHEMA = { portfolio: "peridot.okx-portfolio/v1", quote: "peridot.okx-quote/v1" };
   const MAX_AGE = { portfolio: 60, quote: 15 };
   const good = { portfolio: `/api/onchainos/portfolio?subjects=196:${WATCH}`, quote: "/api/onchainos/quote?from=WOKB&amount=1000000000000000000" };
@@ -329,8 +330,14 @@ await browser.close();
         expect(!fromCache(response), `${tag}: an answer that reports missing credentials was served from a cache (x-vercel-cache ${response.headers.get("x-vercel-cache")}, age ${response.headers.get("age")})`);
         if (kind === "portfolio") expect(networks.length === 1 && networks.every((network) => network.status === "unavailable" && network.walletUsd === null && Array.isArray(network.tokens) && network.tokens.length === 0), `${tag}: an answer without credentials carries holdings: ${JSON.stringify(state)}`);
         else expect(body?.status === "unavailable" && body?.amountOut === null, `${tag}: an answer without credentials carries a number`);
-      } else {
+      } else if (LOOPBACK) {
+        // Straight from `next start`: the header exactly as the route sets it.
         expect(cacheControl === `public, s-maxage=${MAX_AGE[kind]}, stale-while-revalidate=${MAX_AGE[kind]}`, `${tag}: a 200 with credentials has cache-control "${cacheControl}"`);
+      } else {
+        // Behind a CDN the shared-cache directives are consumed by the proxy and need not reach the client (Vercel
+        // strips s-maxage and stale-while-revalidate). What must hold there: the answer is not marked no-store.
+        // The header, x-vercel-cache and age are recorded in the notes for a reader to judge.
+        expect(!/no-store/i.test(cacheControl ?? ""), `${tag}: a 200 with credentials is marked "${cacheControl}" on the hosted app, expected a cacheable answer`);
       }
     }
     for (const path of bad[kind]) {

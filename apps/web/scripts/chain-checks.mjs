@@ -675,7 +675,7 @@ if (mode === "wrong-network") {
             expect(String(count) === shown.operators && (await accountCard.locator("[data-v2-operator]").count()) === Number(count), `${tag}: the page lists ${shown.operators} operator(s) but operatorCount() is ${count} at block ${shown.block}`);
           }
           const quote = page.locator('[data-testid="v2-quote"]');
-          expect((await quote.getAttribute("data-state")) === "ok" && BigInt((await quote.getAttribute("data-expected")) || "0") > 0n, `${tag}: the venue quote is "${await quote.getAttribute("data-state")}"`);
+          expect((await quote.getAttribute("data-state")) === "ok" && BigInt((await quote.getAttribute("data-expected")) || "0") > 0n, `${tag}: the venue quote is "${await quote.getAttribute("data-state")}"${(await quote.locator('[data-testid="v2-quote-error"]').count()) ? ` (the adapter's error: ${(await quote.locator('[data-testid="v2-quote-error"]').getAttribute("data-error")) || "not one of its own"})` : ""}`);
           // Receipts by kind: operator execution, mined revert, simulation without a link, owner actions.
           const receipts = await page.locator('[data-testid="v2-receipts"] [data-receipt]').evaluateAll((nodes) => nodes.map((node) => ({ kind: node.dataset.receipt, hash: node.dataset.hash, href: node.querySelector("a")?.getAttribute("href") ?? null, text: node.innerText.replace(/\s+/g, " ") })));
           const byKind = Object.fromEntries(receipts.map((row) => [row.kind, row]));
