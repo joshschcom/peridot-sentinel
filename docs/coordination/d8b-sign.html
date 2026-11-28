@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D8(b) signing</title>
+<style>
+  :root { --bg:#fff; --fg:#111; --muted:#666; --line:#ddd; --ok:#0a7a3b; --bad:#b00020; --warn:#8a5a00; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#999; --line:#333; --ok:#4cc38a; --bad:#ff6b7f; --warn:#e0b050; } }
+  body { background:var(--bg); color:var(--fg); font:15px/1.5 system-ui, sans-serif; max-width:820px; margin:0 auto; padding:16px; }
+  h1 { font-size:20px; } code, .mono { font-family:ui-monospace, Menlo, monospace; font-size:13px; word-break:break-all; }
+  .card { border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin:12px 0; }
+  .muted { color:var(--muted); } .ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
+  button { font:inherit; padding:8px 14px; border-radius:6px; border:1px solid var(--fg); background:var(--fg); color:var(--bg); cursor:pointer; }
+  button:disabled { opacity:.35; cursor:not-allowed; }
+  dl { display:grid; grid-template-columns:max-content 1fr; gap:2px 12px; margin:8px 0; } dt { color:var(--muted); }
+  textarea { width:100%; min-height:90px; font-family:ui-monospace, Menlo, monospace; font-size:12px; background:var(--bg); color:var(--fg); border:1px solid var(--line); }
+</style>
+</head>
+<body>
+<h1>Peridot D8(b): publish three policy circuits on X Layer mainnet</h1>
+<p class="muted">A local page for signing with the OKX Wallet browser extension. It sends exactly the four reviewed transactions (DECISIONS D16/D22/D25), one at a time, each only after the previous one succeeded. It never sees your key, and it refuses any envelope that differs from the reviewed one.</p>
+
+<div class="card" id="checks"><b>1. Envelope check</b><div id="checkOut" class="muted">Loading the reviewed envelopes…</div></div>
+
+<div class="card"><b>2. Connect OKX Wallet on X Layer mainnet (196)</b>
+  <p><button id="connect" disabled>Connect OKX Wallet</button></p>
+  <div id="acct" class="muted"></div>
+</div>
+
+<div class="card"><b>3. Send the four transactions, in order</b>
+  <p class="muted">In each OKX Wallet popup, check: network <b>X Layer</b>, the <b>To</b> address and the <b>amount</b> shown here, and leave the gas settings as they are. If anything differs, reject it.</p>
+  <div id="calls"></div>
+</div>
+
+<div class="card"><b>4. Send these to Claude</b> <span class="muted">(public transaction hashes)</span>
+  <textarea id="hashes" readonly></textarea>
+</div>
+
+<script>
+// Pinned values from the reviewed proposal (evidence/session5-d8b/proposal-and-fork.json, verified by Claude on 2026-11-28).
+const PINNED = [
+  { label:"Mint 209 NAND", to:"0x3896076BE165d6a7eC2a70CCF6876673fE245007", value:"0x25844398d4000", gas:"0x1d4c0", bytes:68,
+    sha256:"70dd9fd0bc1171d19d69ff7a4cbaa0036500d13f792290b0220f5a60b82495c1", what:"Buys 209 NAND gates on TapeOut CPU #410's component contract. They are sent to your wallet.", okb:"0.00066", env:"MINT_TX" },
+  { label:"Market Policy V1", to:"0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5", value:"0x49e57d6354000", gas:"0x7ef40", bytes:580,
+    sha256:"72ca84040202dbf59ee631d0f4864b0b8e3133a0fb91eb357c16803ada236b62", what:"tapeout(): fabricates the market policy circuit on CPU #410 using your NANDs. The circuit NFT is minted to your wallet.", okb:"0.0013", env:"MARKET_TX" },
+  { label:"Sentinel Policy V1", to:"0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5", value:"0x49e57d6354000", gas:"0x8d9a0", bytes:772,
+    sha256:"ecc821ad4459949116ee182d08719b90a994af03a19dc602165df2a32153cfdb", what:"tapeout(): fabricates the Sentinel account policy circuit. NFT to your wallet.", okb:"0.0013", env:"ACCOUNT_TX" },
+  { label:"Expanded Sentinel Policy V2 (EXECUTION)", to:"0x423446EEFAa885B804C7bD9B0bdD130cE2Ee00B5", value:"0x49e57d6354000", gas:"0x7ef40", bytes:548,
+    sha256:"872fb6f35d3e01bb1578adc98bd3ed7de52a45213883d42a638f0caa1a9d8db1", what:"tapeout(): fabricates the execution policy circuit (v2). NFT to your wallet.", okb:"0.0013", env:"EXECUTION_TX" },
+];
+const CEILING_WEI = 4647000000000000n; // 0.004647 OKB, all four calls including gas
+const MAX_FEE = "0x2faf080", TIP = "0x1";
+const EXPLORER = "https://www.okx.com/web3/explorer/xlayer/tx/";
+let envelopes = null, account = null, provider = null;
+const $ = (id) => document.getElementById(id);
+const okb = (wei) => (Number(BigInt(wei)) / 1e18).toFixed(6);
+const hex = (b) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("");
+const bytesOf = (h) => new Uint8Array(h.slice(2).match(/../g).map((x) => parseInt(x, 16)));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const store = { get(k){ try { return localStorage.getItem(k); } catch { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch {} } };
+
+async function loadAndCheck() {
+  try {
+    const res = await fetch("../../evidence/session5-d8b/proposal-and-fork.json", { cache: "no-store" });
+    const calls = (await res.json()).proposedMainnetCalls;
+    if (!Array.isArray(calls) || calls.length !== 4) throw Error("expected exactly 4 calls");
+    for (let i = 0; i < 4; i++) {
+      const x = calls[i], p = PINNED[i];
+      const digest = hex(await crypto.subtle.digest("SHA-256", bytesOf(x.data)));
+      const same = x.label === p.label && x.to === p.to && x.value === p.value && x.gas === p.gas && x.chainId === "0xc4" && x.type === "0x2"
+        && x.maxFeePerGas === MAX_FEE && x.maxPriorityFeePerGas === TIP && (x.data.length - 2) / 2 === p.bytes && digest === p.sha256;
+      if (!same) throw Error(`call ${i + 1} differs from the reviewed envelope`);
+    }
+    envelopes = calls;
+    const total = calls.reduce((s, x) => s + BigInt(x.value), 0n);
+    $("checkOut").innerHTML = `<span class="ok">All four envelopes match the reviewed ones</span> (target, value, gas, fees, calldata SHA-256). Value total ${okb(total)} OKB; ceiling including gas ${okb(CEILING_WEI)} OKB. No calldata contains a recipient: NANDs and NFTs go to the sender.`;
+    $("connect").disabled = false;
+    render();
+  } catch (e) {
+    $("checkOut").innerHTML = `<span class="bad">Refusing: ${e.message}.</span> Serve this page from the repository root (see the instructions) and tell Claude.`;
+  }
+}
+
+async function connect() {
+  provider = window.okxwallet;
+  if (!provider) { $("acct").innerHTML = `<span class="bad">OKX Wallet extension not found in this browser.</span>`; return; }
+  try {
+    [account] = await provider.request({ method: "eth_requestAccounts" });
+    try { await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0xc4" }] }); }
+    catch (e) {
+      if (e && e.code === 4902) await provider.request({ method: "wallet_addEthereumChain", params: [{ chainId: "0xc4", chainName: "X Layer Mainnet", nativeCurrency: { name: "OKB", symbol: "OKB", decimals: 18 }, rpcUrls: ["https://rpc.xlayer.tech"], blockExplorerUrls: ["https://www.okx.com/web3/explorer/xlayer"] }] });
+      else throw e;
+    }
+    const chain = await provider.request({ method: "eth_chainId" });
+    if (chain !== "0xc4") throw Error(`wallet is on chain ${chain}, not X Layer mainnet (0xc4)`);
+    const code = await provider.request({ method: "eth_getCode", params: [account, "latest"] });
+    if (code && code !== "0x") throw Error("this account is a smart-contract wallet; the rehearsal covered a plain account (EOA) only");
+    const bal = BigInt(await provider.request({ method: "eth_getBalance", params: [account, "latest"] }));
+    const enough = bal >= CEILING_WEI;
+    $("acct").innerHTML = `Account <span class="mono">${account}</span> on X Layer mainnet. Balance ${okb(bal)} OKB — ` +
+      (enough ? `<span class="ok">enough for the ceiling</span>` : `<span class="bad">below the 0.004647 OKB ceiling; add OKB first</span>`) +
+      `<br><span class="warn">Send this address to Claude before signing, so the read-only pre-sign check can run against it.</span>`;
+    render(enough);
+  } catch (e) { $("acct").innerHTML = `<span class="bad">${e.message || e}</span>`; }
+}
+
+function hashes() { return PINNED.map((p) => store.get("d8b:" + p.env)).map((h, i) => h ? `${PINNED[i].env}=${h}` : null).filter(Boolean).join("\n"); }
+
+function render(funded = false) {
+  $("hashes").value = hashes();
+  $("calls").innerHTML = "";
+  PINNED.forEach((p, i) => {
+    const done = store.get("d8b:" + p.env);
+    const prevDone = i === 0 || store.get("d8b:" + PINNED[i - 1].env);
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `<b>Call ${i + 1} of 4: ${p.label}</b><p>${p.what}</p>
+      <dl><dt>To</dt><dd class="mono">${p.to}</dd><dt>Amount</dt><dd>${p.okb} OKB</dd><dt>Gas limit</dt><dd>${BigInt(p.gas)}</dd>
+      <dt>Fees</dt><dd>max 0.05 gwei per gas, tip 1 wei</dd><dt>Data</dt><dd>${p.bytes} bytes, starts <span class="mono">${envelopes ? envelopes[i].data.slice(0, 10) : ""}</span></dd></dl>
+      <div id="st${i}">${done ? `<span class="ok">Sent and succeeded:</span> <a class="mono" href="${EXPLORER}${done}" target="_blank" rel="noopener">${done}</a>` : ""}</div>`;
+    if (!done) {
+      const b = document.createElement("button");
+      b.textContent = `Send call ${i + 1}`;
+      b.disabled = !(envelopes && account && funded && prevDone);
+      b.onclick = () => send(i, b);
+      div.appendChild(b);
+    }
+    $("calls").appendChild(div);
+  });
+}
+
+async function send(i, button) {
+  button.disabled = true;
+  const x = envelopes[i], st = $("st" + i);
+  try {
+    const chain = await provider.request({ method: "eth_chainId" });
+    if (chain !== "0xc4") throw Error("wallet left X Layer mainnet; reconnect");
+    st.innerHTML = "Waiting for your confirmation in OKX Wallet…";
+    const hash = await provider.request({ method: "eth_sendTransaction", params: [{ from: account, to: x.to, value: x.value, data: x.data, gas: x.gas, maxFeePerGas: x.maxFeePerGas, maxPriorityFeePerGas: x.maxPriorityFeePerGas, type: "0x2" }] });
+    st.innerHTML = `Sent <a class="mono" href="${EXPLORER}${hash}" target="_blank" rel="noopener">${hash}</a>. Waiting for the receipt…`;
+    let r = null;
+    for (let t = 0; t < 120 && !r; t++) { await sleep(2000); r = await provider.request({ method: "eth_getTransactionReceipt", params: [hash] }); }
+    if (!r) throw Error(`no receipt yet for ${hash}; do not resend; tell Claude`);
+    if (r.status !== "0x1") throw Error(`call ${i + 1} FAILED (${hash}). Stop here and tell Claude`);
+    if (r.from.toLowerCase() !== account.toLowerCase()) throw Error("receipt sender differs from the connected account; stop and tell Claude");
+    store.set("d8b:" + PINNED[i].env, hash);
+    render(true);
+  } catch (e) {
+    st.innerHTML = `<span class="bad">${e.message || e}</span>`;
+    button.disabled = false;
+  }
+}
+
+$("connect").onclick = connect;
+loadAndCheck();
+</script>
+</body>
+</html>
